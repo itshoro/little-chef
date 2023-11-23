@@ -7,4 +7,19 @@ const AddRecipeValidator = z.object({
   steps: z.array(z.string().max(255)),
 });
 
-export { AddRecipeValidator };
+type UnsavedRecipe = z.infer<typeof AddRecipeValidator>;
+
+const UpdateRecipeValidator = AddRecipeValidator.merge(
+  z.object({
+    id: z.string(),
+  })
+);
+
+type Recipe = z.infer<typeof UpdateRecipeValidator>;
+
+export {
+  AddRecipeValidator,
+  type UnsavedRecipe,
+  UpdateRecipeValidator,
+  type Recipe,
+};
