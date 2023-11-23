@@ -1,5 +1,7 @@
+"use server";
+
 import { getConnection } from "@/lib/db";
-import { AddRecipeValidator } from "../validators";
+import { AddRecipeValidator, UpdateRecipeValidator } from "../validators";
 
 async function add(formData: FormData) {
   const dto = {
@@ -14,13 +16,13 @@ async function add(formData: FormData) {
     const connection = getConnection();
 
     await connection.transaction(async (transaction) => {
-      const { insertId } = await connection.execute(
+      const { insertId } = await transaction.execute(
         "INSERT INTO recipes (`name`, `servings`) VALUES (:name, :servings)",
-        { name: recipe.name, servings: recipe.servings }
+        recipe
       );
       await Promise.allSettled(
         recipe.steps.map((step, i) =>
-          connection.execute(
+          transaction.execute(
             "INSERT INTO recipe_steps (`parent_id`, `description`, `order`) VALUES (:parentId, :description, :order)",
             { parentId: insertId, description: step, order: i }
           )
@@ -34,4 +36,44 @@ async function add(formData: FormData) {
   }
 }
 
-export { add };
+async function update(formData: FormData) {
+  const dto = {
+    id: formData.get("id"),
+    name: formData.get("name"),
+    servings: formData.get("servings"),
+    totalDuration: formData.get("totalDuration"),
+    steps: formData.getAll("step"),
+  };
+
+  try {
+    const recipe = UpdateRecipeValidator.parse(dto);
+    const connection = getConnection();
+
+    await connection.transaction(async (transaction) => {
+      await transaction.execute(
+        "UPDATE recipes SET `name` = :name, `servings` = :servings WHERE id = :id",
+        recipe
+      );
+      // todo: transmit step id as a key so we can update steps instead of deleting and inserting them again.
+      await transaction.execute(
+        "DELETE FROM recipe_steps WHERE parent_id = :id",
+        recipe
+      );
+
+      await Promise.allSettled(
+        recipe.steps.map((step, i) =>
+          transaction.execute(
+            "INSERT INTO recipe_steps (`parent_id`, `description`, `order`) VALUES (:parentId, :description, :order)",
+            { parentId: recipe.id, description: step, order: i }
+          )
+        )
+      );
+    });
+
+    return { success: true };
+  } catch (e) {
+    return { success: false };
+  }
+}
+
+export { add, update };
