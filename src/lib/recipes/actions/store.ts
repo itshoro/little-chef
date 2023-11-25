@@ -51,9 +51,10 @@ async function update(formData: FormData) {
 
     await connection.transaction(async (transaction) => {
       await transaction.execute(
-        "UPDATE recipes SET `name` = :name, `servings` = :servings WHERE id = :id",
+        "UPDATE recipes SET name=:name, servings=:servings, totalDuration=:totalDuration WHERE id=:id",
         recipe
       );
+
       // todo: transmit step id as a key so we can update steps instead of deleting and inserting them again.
       await transaction.execute(
         "DELETE FROM recipe_steps WHERE parent_id = :id",
@@ -63,8 +64,8 @@ async function update(formData: FormData) {
       await Promise.allSettled(
         recipe.steps.map((step, i) =>
           transaction.execute(
-            "INSERT INTO recipe_steps (`parent_id`, `description`, `order`) VALUES (:parentId, :description, :order)",
-            { parentId: recipe.id, description: step, order: i }
+            "INSERT INTO recipe_steps (`parent_id`, `description`) VALUES (:parentId, :description)",
+            { parentId: recipe.id, description: step }
           )
         )
       );

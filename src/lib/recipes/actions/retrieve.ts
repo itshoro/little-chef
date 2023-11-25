@@ -18,7 +18,7 @@ function toRecipe<Row = ExecutedQuery["rows"][number]>(
     id: recipeRow["id"],
     name: recipeRow["name"],
     servings: recipeRow["servings"],
-    totalDuration: "",
+    totalDuration: recipeRow["totalDuration"],
     steps: stepRows.map((row) => row["description"]),
   } satisfies Recipe;
 }
@@ -34,16 +34,13 @@ async function get(id: string) {
   const connection = getConnection();
 
   const [recipeResult, stepResults] = await Promise.all([
-    connection.execute(
-      "SELECT `id`, `name`, `servings` FROM recipes WHERE id = :id",
-      { id }
-    ),
+    connection.execute("SELECT * FROM recipes WHERE id = :id", { id }),
     connection.execute("SELECT * FROM recipe_steps WHERE parent_id = :id", {
       id,
     }),
   ]);
 
-  if (recipeResult.size === 0 || stepResults.size === 0) {
+  if (recipeResult.size === 0) {
     throw new Error("Recipe not found.");
   }
 
