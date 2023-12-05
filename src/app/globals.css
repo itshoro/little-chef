@@ -11,3 +11,19 @@ button {
 button {
   @apply p-2;
 }
+
+.magic-grid {
+  display: grid;
+  grid-template-rows:
+    [header-start] min-content
+    [header-end content-start] auto [content-end action-start]
+    min-content
+    [action-end];
+
+  grid-auto-flow: dense;
+}
+
+.magic-grid > * {
+  grid-area: content;
+  grid-column: 1;
+}
