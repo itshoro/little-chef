@@ -3,6 +3,7 @@
 import { getConnection } from "@/lib/db";
 import { ExecutedQuery } from "@planetscale/database";
 import { Recipe } from "../validators";
+import { cache } from "react";
 
 type RecipeOverview = { name: string; id: string };
 
@@ -13,7 +14,7 @@ function toRecipeOverview<Row = ExecutedQuery["rows"][number]>(row: Row) {
 function toRecipe<Row = ExecutedQuery["rows"][number]>(
   recipeRow: Row,
   stepRows: Row[]
-) {
+): Recipe {
   return {
     id: recipeRow["id"],
     name: recipeRow["name"],
@@ -47,4 +48,6 @@ async function get(id: string) {
   return toRecipe(recipeResult.rows[0], stepResults.rows);
 }
 
-export { get, getOverview };
+const cachedGet = cache(get);
+
+export { cachedGet as get, getOverview };
