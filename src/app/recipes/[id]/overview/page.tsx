@@ -1,5 +1,5 @@
+import { CTALink } from "@/app/components/CallToAction/Link";
 import { get } from "@/lib/recipes/actions/retrieve";
-import Link from "next/link";
 
 type ShowRecipePageProps = {
   params: { id: string };
@@ -51,11 +51,8 @@ const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
         style={{ gridArea: "action", gridColumn: 1 }}
       >
         <div className="ml-auto">
-          <Link
-            href={`/recipes/${recipe.id}/overview/wizard`}
-            className="rounded-full font-medium inline-flex items-center py-2 px-3 bg-stone-50 text-stone-800 border aria-disabled:text-gray-400 aria-disabled:pointer-events-none hover:shadow-inner transition ease-out select-none"
-          >
-            <div className="inline-flex items-center gap-6">
+          <CTALink href={`/recipes/${recipe.id}/overview/wizard`}>
+            <div className="flex items-center gap-6">
               Start
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +67,7 @@ const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
                 />
               </svg>
             </div>
-          </Link>
+          </CTALink>
         </div>
       </footer>
     </>
