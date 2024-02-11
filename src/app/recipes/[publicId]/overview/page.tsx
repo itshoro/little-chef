@@ -1,12 +1,12 @@
 import { CTALink } from "@/app/components/CallToAction/Link";
-import { get } from "@/lib/recipes/actions/retrieve";
+import { getRecipe } from "@/lib/recipes/actions";
 
 type ShowRecipePageProps = {
-  params: { id: string };
+  params: { publicId: string };
 };
 
 const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
-  const recipe = await get(params.id);
+  const recipe = await getRecipe(params.publicId);
 
   return (
     <>
@@ -24,23 +24,13 @@ const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
               <InfoCard.Label>Time needed</InfoCard.Label>
             </InfoCard>
             <InfoCard>
-              <InfoCard.Value>{recipe.steps.length}</InfoCard.Value>
-              <InfoCard.Label>Steps</InfoCard.Label>
-            </InfoCard>
-            <InfoCard>
               <InfoCard.Value>{recipe.servings}</InfoCard.Value>
               <InfoCard.Label>Servings</InfoCard.Label>
             </InfoCard>
           </div>
         </section>
         <section className="px-4 py-2">
-          <h2 className="text-sm uppercase font-medium">Ingredients</h2>
-          <ul>
-            <li></li>
-          </ul>
-        </section>
-        <section className="px-4 py-2">
-          <h2 className="text-sm uppercase font-medium">Steps</h2>
+          <h2 className="text-sm font-medium">Ingredients</h2>
           <ul>
             <li></li>
           </ul>
@@ -51,7 +41,7 @@ const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
         style={{ gridArea: "action", gridColumn: 1 }}
       >
         <div className="ml-auto">
-          <CTALink href={`/recipes/${recipe.id}/overview/wizard`}>
+          <CTALink href={`/recipes/${recipe.publicId}/overview/wizard`}>
             <div className="flex items-center gap-6">
               Start
               <svg

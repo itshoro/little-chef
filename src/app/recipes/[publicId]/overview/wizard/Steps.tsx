@@ -1,10 +1,11 @@
 "use client";
 
-import { Recipe } from "@/lib/recipes/validators";
+// import { Recipe } from "@/lib/recipes/validators";
 import { useSearchParams } from "next/navigation";
 import { toNumber } from "./lib";
+import type { Recipe } from "@/lib/recipes/actions/read";
 
-const WizardSteps = ({ steps }: { steps: Recipe["steps"] }) => {
+const WizardSteps = ({ steps }: { steps: Recipe["RecipeStep"] }) => {
   const params = useSearchParams();
 
   const stepNumber = toNumber(params.get("step"));
@@ -13,7 +14,11 @@ const WizardSteps = ({ steps }: { steps: Recipe["steps"] }) => {
   return (
     <ul className="p-4 space-y-2 mt-auto">
       {relevantSteps.map((step, i) => (
-        <WizardStep current={i === stepNumber} key={i} step={step} />
+        <WizardStep
+          current={i === stepNumber}
+          key={i}
+          step={step.Step.description}
+        />
       ))}
     </ul>
   );

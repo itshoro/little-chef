@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParamState } from "@/hooks/useSearchParamState";
-import { Recipe } from "@/lib/recipes/validators";
 import { toNumber } from "./lib";
 import { useRouter } from "next/navigation";
+import type { Recipe } from "@/lib/recipes/actions/read";
 
 const Actions = ({ recipe }: { recipe: Recipe }) => {
   const router = useRouter();
@@ -12,14 +12,13 @@ const Actions = ({ recipe }: { recipe: Recipe }) => {
   function next() {
     setStep((step) => {
       const _step = toNumber(step);
-      return String(_step < recipe.steps.length ? _step + 1 : _step);
+      return String(_step < recipe.RecipeStep.length ? _step + 1 : _step);
     });
   }
 
   function previous() {
-    debugger;
     if (step === null || step === "0") {
-      router.push(`/recipes/${recipe.id}/overview`);
+      router.push(`/recipes/${recipe.publicId}/overview`);
       return;
     }
 
@@ -30,7 +29,7 @@ const Actions = ({ recipe }: { recipe: Recipe }) => {
   }
 
   const _step = toNumber(step);
-  if (_step > recipe.steps.length || _step < 0) {
+  if (_step > recipe.RecipeStep.length || _step < 0) {
     setStep("0");
   }
 
@@ -56,7 +55,7 @@ const Actions = ({ recipe }: { recipe: Recipe }) => {
 
       <button
         className="rounded-full font-medium inline-flex items-center py-2 px-3 bg-stone-50 text-stone-800 border disabled:text-gray-400 disabled:pointer-events-none hover:shadow-inner transition ease-out select-none"
-        disabled={_step + 1 >= recipe.steps.length}
+        disabled={_step + 1 >= recipe.RecipeStep.length}
         onClick={next}
       >
         <div className="inline-flex items-center gap-6">
