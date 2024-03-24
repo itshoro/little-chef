@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext } from "react";
 
 type GeneratorContextProps = {
@@ -13,7 +15,7 @@ function useGeneratorContext(componentName: string) {
   const context = useContext(GeneratorContext);
   if (context === null)
     throw new Error(
-      `${componentName} must have a GeneratorContext.Provider parent.`
+      `${componentName} must have a GeneratorContext.Provider parent.`,
     );
 
   return context;

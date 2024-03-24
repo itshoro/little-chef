@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-input,
-textarea,
-button {
-  @apply border rounded-md;
-}
-
-button {
-  @apply p-2;
-}
-
 .magic-grid {
   display: grid;
   grid-template-rows:
@@ -26,4 +16,23 @@ button {
 .magic-grid > * {
   grid-area: content;
   grid-column: 1;
+}
+
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+dialog[open] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+dialog {
+  opacity: 0;
+  transform: scale(0.8);
+  transform-origin: center bottom;
+  transition: all 0.2s allow-discrete;
 }

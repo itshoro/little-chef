@@ -1,8 +1,9 @@
-import { getRecipe, updateRecipe } from "@/lib/recipes/actions";
-import * as RecipeForm from "../../components/RecipeForm";
+import { updateRecipe } from "@/lib/recipes/actions";
+import { getRecipeEntity } from "@/lib/recipes/actions/read";
+import * as RecipeForm from "../../components/RecipeForm/Form";
 import { Prisma } from "@prisma/client";
 import { notFound } from "next/navigation";
-import type { Recipe } from "@/lib/recipes/actions/read";
+import RecipeLayout from "../layout";
 
 type EditRecipePageProps = {
   params: {
@@ -12,38 +13,26 @@ type EditRecipePageProps = {
 
 const EditRecipePage = async ({ params }: EditRecipePageProps) => {
   try {
-    const recipe = await getRecipe(params.publicId);
+    const recipe = await getRecipeEntity(params.publicId);
 
     return (
-      <>
-        <form action={updateRecipe}>
-          <div className="p-4">
-            <RecipeForm.Inputs preFill={recipe} />
-          </div>
-          <div>
-            <div className="flex justify-end px-4">
-              <RecipeForm.Submit>Update Recipe</RecipeForm.Submit>
+      <div className="flex flex-col">
+        <div className="flex-1">
+          <form action={updateRecipe}>
+            <div className="p-4">
+              <RecipeForm.Inputs defaultValue={recipe} />
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
         <footer
-          className="isolate sticky bottom-0 z-10"
+          className="border-t w-full flex p-4"
           style={{ gridArea: "action", gridColumn: 1 }}
         >
-          <div>
-            <div className="flex justify-end px-4"></div>
-          </div>
-          <div className="bg-emerald-700 text-white px-4 py-2 text-sm font-medium mt-2 rounded-t-xl">
-            <div className="flex gap-2">
-              <div>Edit</div>
-              <span className="select-none text-emerald-500">/</span>
-              <div className="text-emerald-200">{recipe?.name}</div>
-              <span className="select-none text-emerald-500">/</span>
-              <div className="text-emerald-200">Recipes</div>
-            </div>
+          <div className="ml-auto">
+            <RecipeForm.Submit>Update Recipe</RecipeForm.Submit>
           </div>
         </footer>
-      </>
+      </div>
     );
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

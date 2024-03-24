@@ -1,3 +1,5 @@
+"use client";
+
 import { Generator } from "./Generator";
 import { Items } from "./Items";
 import { Add } from "./Add";

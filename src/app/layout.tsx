@@ -15,10 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="min-h-screen">
-      <body className={`${inter.className} min-h-screen magic-grid`}>
-        {children}
-      </body>
+    <html lang="en" className="min-h-[100dvh] bg-stone-100">
+      <body className={`${inter.className} min-h-[100dvh]`}>{children}</body>
     </html>
   );
 }

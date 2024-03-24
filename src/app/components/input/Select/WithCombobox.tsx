@@ -8,7 +8,7 @@ type SelectProps<TOption> = {
   options: {
     items: TOption[];
     filter: (item: TOption, searchValue: string) => boolean;
-    toRenderable: (option: TOption) => Renderable;
+    renderOption: (option: TOption) => Renderable;
   };
 };
 
@@ -21,7 +21,7 @@ const Select = <T,>({ options }: SelectProps<T>) => {
   const matches = options.items.filter((option) =>
     options.filter(option, searchValue ?? "")
   );
-  const renderableMatches = matches.map((match) => options.toRenderable(match));
+  const renderableMatches = matches.map((match) => options.renderOption(match));
 
   const [selectedItem, setSelectedItem] = useState<Renderable>(
     renderableMatches?.[0]
@@ -40,6 +40,7 @@ const Select = <T,>({ options }: SelectProps<T>) => {
         <Ariakit.Select
           type="button"
           name={name}
+          id={name}
           className="flex justify-between items-center w-full border p-2 rounded-lg"
         >
           <span>{selectedItem?.label}</span>
@@ -56,12 +57,12 @@ const Select = <T,>({ options }: SelectProps<T>) => {
           <div className="bg-white border-b sticky top-0">
             <Ariakit.Combobox
               placeholder="Search..."
-              className="rounded-t-xl px-3 py-2 max-w-full"
+              className="rounded-t-xl px-3 py-2 max-w-full w-full"
             />
           </div>
           <Ariakit.ComboboxList className="p-2 flex flex-col gap-1">
             {matches.map((match) => {
-              const { label, value } = options.toRenderable(match);
+              const { label, value } = options.renderOption(match);
               return (
                 <Ariakit.SelectItem
                   key={value}

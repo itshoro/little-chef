@@ -1,26 +1,19 @@
-"use client";
-
-// import { Recipe } from "@/lib/recipes/validators";
-import { useSearchParams } from "next/navigation";
-import { toNumber } from "./lib";
 import type { Recipe } from "@/lib/recipes/actions/read";
 
-const WizardSteps = ({ steps }: { steps: Recipe["RecipeStep"] }) => {
-  const params = useSearchParams();
-
-  const stepNumber = toNumber(params.get("step"));
-  const relevantSteps = steps.slice(0, stepNumber + 1);
-
+const WizardSteps = ({ step }: { step: Recipe["RecipeStep"][number] }) => {
   return (
-    <ul className="p-4 space-y-2 mt-auto">
-      {relevantSteps.map((step, i) => (
-        <WizardStep
-          current={i === stepNumber}
-          key={i}
-          step={step.Step.description}
-        />
-      ))}
-    </ul>
+    <div className="my-auto p-4">
+      <div className="text-xl w-full">
+        <ul className="space-y-2 w-full">
+          <WizardStep
+            current={true}
+            // current={i === 0}
+            // key={i}
+            step={step.Step.description}
+          />
+        </ul>
+      </div>
+    </div>
   );
 };
 
@@ -28,7 +21,7 @@ const WizardStep = ({ step, current }: { step: string; current: boolean }) => {
   return (
     <li>
       <div
-        className="aria-[current=false]:opacity-60 aria-[current=false]:scale-90 bg-stone-200 px-3 py-2 rounded-2xl transition ease-out origin-left"
+        className="text-center text-balance mx-auto aria-[current=false]:opacity-60 aria-[current=false]:scale-90 bg-white shadow-sm px-3 py-2 rounded-2xl"
         aria-current={current}
       >
         {step}

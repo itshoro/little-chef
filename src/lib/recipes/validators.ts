@@ -4,22 +4,29 @@ const AddRecipeValidator = z.object({
   name: z.string().trim().min(2),
   totalDuration: z.string().regex(/\d{2}:\d{2}/),
   servings: z.coerce.number().min(0),
-  steps: z.array(z.string().max(255)),
+  ingredients: z.array(
+    z.object({
+      publicId: z.string(),
+      measurement: z.object({
+        amount: z.string(),
+        unit: z.string(),
+      }),
+    }),
+  ),
+  steps: z.array(
+    z.object({
+      uuid: z.string(),
+      description: z.string().max(255),
+    }),
+  ),
 });
-
-type UnsavedRecipe = z.infer<typeof AddRecipeValidator>;
 
 const UpdateRecipeValidator = AddRecipeValidator.merge(
   z.object({
-    id: z.string(),
-  })
+    publicId: z.string(),
+  }),
 );
 
 type Recipe = z.infer<typeof UpdateRecipeValidator>;
 
-export {
-  AddRecipeValidator,
-  type UnsavedRecipe,
-  UpdateRecipeValidator,
-  type Recipe,
-};
+export { AddRecipeValidator, UpdateRecipeValidator, type Recipe };

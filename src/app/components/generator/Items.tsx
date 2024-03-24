@@ -6,7 +6,7 @@ type ItemsProps = {
   children: (
     value: string,
     index: number,
-    array: readonly string[]
+    array: readonly string[],
   ) => React.ReactNode;
 };
 

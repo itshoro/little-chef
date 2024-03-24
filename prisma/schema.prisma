@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Step {
+  id          Int          @id @default(autoincrement())
+  publicId    String       @unique // @db.VarChar(21)
+  description String // @db.VarChar(255)
+  RecipeStep  RecipeStep[]
+}
+
+model Ingredient {
+  id               Int                @id @default(autoincrement())
+  publicId         String             @unique // @db.VarChar(21)
+  RecipeIngredient RecipeIngredient[]
+  name             IngredientName[]
+}
+
+model IngredientName {
+  ingredientId Int
+  languageCode String
+  name         String
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+  language   Language   @relation(fields: [languageCode], references: [code])
+
+  @@id([ingredientId, languageCode])
+  @@index([ingredientId])
+  @@index([languageCode])
+}
+
+model Language {
+  code           String           @unique
+  name           String
+  IngredientName IngredientName[]
+}
+
+model Recipe {
+  id               Int                @id @default(autoincrement())
+  publicId         String             @unique // @db.VarChar(21)
+  servings         Int // @db.UnsignedTinyInt
+  name             String
+  totalDuration    String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  RecipeStep       RecipeStep[]
+  RecipeIngredient RecipeIngredient[]
+}
+
+model RecipeStep {
+  recipeId Int
+  stepId   Int
+  order    Int // @db.TinyInt
+
+  Step   Step   @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  Recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, stepId])
+  @@index([recipeId])
+  @@index([stepId])
+}
+
+model RecipeIngredient {
+  recipeId          Int
+  ingredientId      Int
+  measurementAmount String
+  measurementUnit   String
+  Recipe            Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  Ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, ingredientId])
+  @@index([recipeId])
+  @@index([ingredientId])
+}
+
+model User {
+  id             String    @id
+  username       String
+  hashedPassword String
+  sessions       Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}

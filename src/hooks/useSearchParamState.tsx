@@ -33,7 +33,7 @@ function useSearchParamState(param: string) {
 
 function createUrl(
   pathname: string,
-  params: URLSearchParams | ReadonlyURLSearchParams
+  params: URLSearchParams | ReadonlyURLSearchParams,
 ) {
   const queryString = params.size > 0 ? `?${params.toString()}` : "";
   return `${pathname}${queryString}`;

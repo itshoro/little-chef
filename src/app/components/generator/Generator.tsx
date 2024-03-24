@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { GeneratorContext } from "./Context";
 
 type GeneratorOptions<TKey extends string | number = string> = {
@@ -15,7 +15,7 @@ type GeneratorProps = {
 };
 
 const Generator = ({ children, options }: GeneratorProps) => {
-  const [uids, setUids] = useState(determineInitialKeys(options));
+  const [uids, setUids] = useInitialKeys(options);
 
   const removeDisabled =
     (options.openFirstWhenEmpty ?? false) && uids.length === 1;
@@ -40,11 +40,18 @@ const Generator = ({ children, options }: GeneratorProps) => {
   );
 };
 
-function determineInitialKeys(options: GeneratorOptions) {
+function useInitialKeys(options: GeneratorOptions) {
+  const initialKey = useId();
+  const [ids, setIds] = useState(determineInitialKeys(options, initialKey));
+
+  return [ids, setIds] as const;
+}
+
+function determineInitialKeys(options: GeneratorOptions, initialKey: string) {
   if (Array.isArray(options.initialKeys) && options.initialKeys.length > 0) {
     return options.initialKeys;
   } else if (options.openFirstWhenEmpty) {
-    return [options.generator()];
+    return [initialKey];
   }
   return [];
 }

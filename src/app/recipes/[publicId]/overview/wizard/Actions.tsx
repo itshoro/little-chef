@@ -5,32 +5,23 @@ import { toNumber } from "./lib";
 import { useRouter } from "next/navigation";
 import type { Recipe } from "@/lib/recipes/actions/read";
 
-const Actions = ({ recipe }: { recipe: Recipe }) => {
+const Actions = ({ step, recipe }: { step: number; recipe: Recipe }) => {
   const router = useRouter();
-  const [step, setStep] = useSearchParamState("step");
 
   function next() {
-    setStep((step) => {
-      const _step = toNumber(step);
-      return String(_step < recipe.RecipeStep.length ? _step + 1 : _step);
-    });
+    debugger;
+    if (step < recipe.RecipeStep.length) {
+      router.replace(`/recipes/${recipe.publicId}/overview/wizard/${step + 1}`);
+    }
   }
 
   function previous() {
-    if (step === null || step === "0") {
-      router.push(`/recipes/${recipe.publicId}/overview`);
+    if (step === 0) {
+      router.replace(`/recipes/${recipe.publicId}/overview`);
       return;
+    } else if (step > 0) {
+      router.replace(`/recipes/${recipe.publicId}/overview/wizard/${step - 1}`);
     }
-
-    setStep((step) => {
-      const _step = toNumber(step);
-      return String(_step > 0 ? _step - 1 : _step);
-    });
-  }
-
-  const _step = toNumber(step);
-  if (_step > recipe.RecipeStep.length || _step < 0) {
-    setStep("0");
   }
 
   return (
@@ -55,7 +46,7 @@ const Actions = ({ recipe }: { recipe: Recipe }) => {
 
       <button
         className="rounded-full font-medium inline-flex items-center py-2 px-3 bg-stone-50 text-stone-800 border disabled:text-gray-400 disabled:pointer-events-none hover:shadow-inner transition ease-out select-none"
-        disabled={_step + 1 >= recipe.RecipeStep.length}
+        disabled={step + 1 >= recipe.RecipeStep.length}
         onClick={next}
       >
         <div className="inline-flex items-center gap-6">
