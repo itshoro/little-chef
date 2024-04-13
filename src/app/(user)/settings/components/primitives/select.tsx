@@ -5,7 +5,9 @@ const Select = (props: React.ComponentPropsWithoutRef<"select">) => {
     (e.target as HTMLSelectElement).form?.requestSubmit();
   }
 
-  return <select {...props} onChange={triggerSubmit} />;
+  return (
+    <select {...props} className="w-full rounded-lg" onChange={triggerSubmit} />
+  );
 };
 
 export { Select };
