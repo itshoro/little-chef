@@ -7,7 +7,7 @@ function calculateStyle(
   listRef: React.RefObject<HTMLElement>,
 ) {
   const activeTab = listRef.current?.querySelector<React.ElementRef<"a">>(
-    `a[href='${activePathname}']`,
+    `a[href^='${activePathname}']`,
   );
 
   return {
