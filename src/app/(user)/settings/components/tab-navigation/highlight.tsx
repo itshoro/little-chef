@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
+
+const breakpoints = {
+  sm: "640",
+  md: "768",
+  lg: "1024",
+  xl: "1280",
+  "2xl": "1536",
+} as const;
 
 function calculateStyle(
   activePathname: string,
@@ -10,10 +18,12 @@ function calculateStyle(
     `a[href^='${activePathname}']`,
   );
 
+  if (!activeTab) return undefined;
+
   return {
-    width: `${activeTab?.clientWidth ?? 0}px`,
-    height: `${activeTab?.clientHeight ?? 0}px`,
-    transform: `translateX(${activeTab?.offsetLeft ?? 0}px) translateY(${activeTab?.offsetTop ?? 0}px)`,
+    width: `${activeTab.clientWidth}px`,
+    height: `${activeTab.clientHeight}px`,
+    transform: `translateX(${activeTab.offsetLeft}px) translateY(${activeTab.offsetTop}px)`,
   };
 }
 
@@ -30,6 +40,8 @@ const Highlight = ({
     if (!ref.current) return;
 
     const style = calculateStyle(activePathname, listRef);
+    if (!style) return;
+
     ref.current.style.width = style.width;
     ref.current.style.height = style.height;
     ref.current.style.transform = style.transform;
@@ -38,28 +50,40 @@ const Highlight = ({
   function reevaluateStyle() {
     ref.current?.classList.remove("transition-all");
     highlightActiveTab();
-
-    queueMicrotask(() => {
-      ref.current?.classList.add("transition-all");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ref.current?.classList.add("transition-all");
+      });
     });
   }
 
-  useEffect(() => {
-    if (!ref.current) return;
-
+  useLayoutEffect(() => {
     highlightActiveTab();
-    queueMicrotask(() => {
-      ref.current?.classList.add("transition-all");
+  }, []);
+
+  useEffect(() => {
+    highlightActiveTab();
+  }, [activePathname]);
+
+  useEffect(() => {
+    ref.current?.classList.add("transition-all");
+    return () => ref.current?.classList.remove("transition-all");
+  }, []);
+
+  useEffect(() => {
+    // match any default tailwind breakpoint
+    const screenMediaQueries = Object.values(breakpoints).map((breakpoint) => {
+      const mediaQuery = window.matchMedia(`(min-width: ${breakpoint}px)`);
+      mediaQuery.addEventListener("change", reevaluateStyle);
+      return mediaQuery;
     });
 
-    // match any default tailwind breakpoint
-    const mediaQuery = window.matchMedia(
-      "(min-width: 640px), (min-width: 768px), (min-width: 1024px), (min-width: 1280px), (min-width: 1536px)",
-    );
-    mediaQuery.addEventListener("change", reevaluateStyle);
-
-    return () => mediaQuery.removeEventListener("change", reevaluateStyle);
-  }, [activePathname, ref.current]);
+    return () => {
+      screenMediaQueries.forEach((mediaQuery) =>
+        mediaQuery.removeEventListener("change", reevaluateStyle),
+      );
+    };
+  }, []);
 
   return (
     <span ref={ref} className="absolute top-0 -z-10 rounded-full bg-lime-300" />
