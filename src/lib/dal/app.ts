@@ -1,19 +1,24 @@
+import { User } from "@prisma/client";
 import { getPrisma } from "../prisma";
 
-// MARK: Language
-export async function changeLanguage(sessionId: string, languageCode: string) {
+export async function getAppPreferences(userId?: User["id"]) {
+  if (userId === undefined) return undefined;
+
   await using connection = getPrisma();
   const prisma = connection.prisma;
 
-  const session = await prisma.session.findFirst({
-    where: { id: sessionId },
-    include: { user: true },
+  return await prisma.appPreferences.findFirst({
+    where: { userId },
   });
+}
 
-  if (!session) return;
+// MARK: Language
+export async function changeLanguage(userId: User["id"], languageCode: string) {
+  await using connection = getPrisma();
+  const prisma = connection.prisma;
 
   await prisma.appPreferences.update({
-    where: { userId: session.user.id },
+    where: { userId },
     data: { language: { connect: { code: languageCode } } },
   });
 }
@@ -29,21 +34,14 @@ export function isSupportedTheme(
 }
 
 export async function changeTheme(
-  sessionId: string,
+  userId: User["id"],
   theme: (typeof supportedThemes)[number],
 ) {
   await using connection = getPrisma();
   const prisma = connection.prisma;
 
-  const session = await prisma.session.findFirst({
-    where: { id: sessionId },
-    include: { user: true },
-  });
-
-  if (!session) return;
-
   await prisma.appPreferences.update({
-    where: { userId: session.user.id },
+    where: { userId: userId },
     data: { theme },
   });
 }
