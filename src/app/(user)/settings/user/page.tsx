@@ -7,10 +7,18 @@ import {
   changePassword,
   changeAvatar,
   changeUsername,
-} from "@/lib/dal/settings/user";
+  validateUsername,
+} from "@/lib/dal/user";
 
 const UserPage = async () => {
   const { user, session } = await validateRequest();
+
+  const setProfileImageWithSession = setProfileImage.bind(null, session?.id);
+  const updatePasswordWithSession = updatePassword.bind(null, session?.id);
+  const updateUsernameActionWithSession = updateUsernameAction.bind(
+    null,
+    session?.id,
+  );
 
   return (
     <>
@@ -18,10 +26,9 @@ const UserPage = async () => {
         <SettingsSection.Label>User Preferences</SettingsSection.Label>
 
         <SettingsSection.Grid>
-          <form action={setProfileImage}>
+          <form action={setProfileImageWithSession}>
             <Fieldset label="Avatar">
               <UpdateAvatar defaultValue={user?.imgSrc ?? ""} />
-              <input type="hidden" name="sessionId" value={session?.id} />
               <button
                 className="rounded-full bg-lime-300 px-5 py-3 font-medium"
                 type="submit"
@@ -31,10 +38,8 @@ const UserPage = async () => {
             </Fieldset>
           </form>
 
-          <form action={updatePassword}>
+          <form action={updatePasswordWithSession}>
             <Fieldset label="Password">
-              <input type="hidden" name="sessionId" value={session?.id} />
-
               <div className="mb-4 flex flex-col gap-4">
                 <div>
                   <label htmlFor="currentPassword">Current Password</label>
@@ -64,10 +69,9 @@ const UserPage = async () => {
             </Fieldset>
           </form>
 
-          <form action={updateUsernameAction}>
+          <form action={updateUsernameActionWithSession}>
             <Fieldset label="Username">
               <div>
-                <input type="hidden" name="sessionId" value={session?.id} />
                 <label className="sr-only" htmlFor="username">
                   Username
                 </label>
@@ -93,10 +97,11 @@ const UserPage = async () => {
   );
 };
 
-async function updatePassword(formData: FormData) {
+async function updatePassword(
+  sessionId: string | undefined,
+  formData: FormData,
+) {
   "use server";
-
-  const sessionId = formData.get("sessionId");
   if (typeof sessionId !== "string") return;
 
   const currentPassword = formData.get("currentPassword");
@@ -107,25 +112,33 @@ async function updatePassword(formData: FormData) {
   await changePassword(sessionId, currentPassword, newPassword);
 }
 
-const setProfileImage = async (formData: FormData) => {
+const setProfileImage = async (
+  sessionId: string | undefined,
+  formData: FormData,
+) => {
   "use server";
-  const image = formData.get("image");
-  const sessionId = formData.get("sessionId");
-
   if (typeof sessionId !== "string") return;
-  if (!(image instanceof File)) return;
 
+  const image = formData.get("image");
+  if (!(image instanceof File)) return;
   await changeAvatar(sessionId, image);
 
   revalidatePath("/settings/user", "page");
 };
 
-const updateUsernameAction = async (formData: FormData) => {
+const updateUsernameAction = async (
+  sessionId: string | undefined,
+  formData: FormData,
+) => {
   "use server";
+  if (typeof sessionId !== "string") return;
 
-  const sessionId = formData.get("sessionId");
   const username = formData.get("username");
-  if (typeof sessionId !== "string" || typeof username !== "string") return;
+  try {
+    if (!validateUsername(username)) return;
+  } catch {
+    return;
+  }
 
   await changeUsername(sessionId, username);
 

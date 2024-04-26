@@ -17,12 +17,9 @@ const UpdateAvatar = ({ defaultValue }: { defaultValue: string }) => {
       <Avatar src={avatarSrc} alt="Uploaded image" size="size-24" />
       <div className="flex flex-wrap items-center gap-2">
         <label htmlFor="file" className="flex-1 cursor-pointer">
-          <button
-            type="button"
-            className="w-full whitespace-nowrap rounded-full bg-lime-300 px-5 py-3 text-center font-medium"
-          >
+          <div className="w-full whitespace-nowrap rounded-full bg-lime-300 px-5 py-3 text-center font-medium">
             Choose Image
-          </button>
+          </div>
         </label>
         <input
           onChange={(e) => {
