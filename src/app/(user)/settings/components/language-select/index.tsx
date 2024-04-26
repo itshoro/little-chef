@@ -2,25 +2,22 @@ import { getPrismaClient } from "@/lib/prisma";
 import { Select } from "../primitives/select";
 
 type LanguageSwitcherProps = {
-  action: (formData: FormData) => void;
   defaultValue?: string;
+  name: string
 };
 
-const LanguageSelect = async ({
-  action,
-  defaultValue,
-}: LanguageSwitcherProps) => {
+const LanguageSelect = async ({ defaultValue, name }: LanguageSwitcherProps) => {
   const client = getPrismaClient();
   const languages = await client.language.findMany();
 
   return (
-    <form action={action}>
-      <Select defaultValue={defaultValue}>
-        {languages.map((language) => (
-          <option value={language.code}>{language.name}</option>
-        ))}
-      </Select>
-    </form>
+    <Select name={name} defaultValue={defaultValue}>
+      {languages.map((language) => (
+        <option key={language.code} value={language.code}>
+          {language.name}
+        </option>
+      ))}
+    </Select>
   );
 };
 

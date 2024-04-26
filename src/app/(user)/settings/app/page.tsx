@@ -4,11 +4,7 @@ import { ThemeSwitcher } from "../components/theme-switcher";
 import * as SettingsSection from "../components/settings-section";
 import { validateRequest } from "@/lib/auth/lucia";
 import { getPrismaClient } from "@/lib/prisma";
-import {
-  changeLanguage,
-  changeTheme,
-  isSupportedTheme,
-} from "@/lib/dal/settings/app";
+import { changeLanguage, changeTheme, isSupportedTheme } from "@/lib/dal/app";
 
 const AppSettingsPage = async () => {
   const { user, session } = await validateRequest();
