@@ -3,7 +3,6 @@ import { Fieldset } from "../components/primitives/fieldset";
 import { ThemeSwitcher } from "../components/theme-switcher";
 import * as SettingsSection from "../components/settings-section";
 import { validateRequest } from "@/lib/auth/lucia";
-import { getPrismaClient } from "@/lib/prisma";
 import {
   changeLanguage,
   changeTheme,
@@ -12,7 +11,7 @@ import {
 } from "@/lib/dal/app";
 
 const AppSettingsPage = async () => {
-  const { user, session } = await validateRequest();
+  const { user } = await validateRequest();
 
   const preferences = await getAppPreferences(user?.id);
   const changeAppLanguageWithUserId = changeAppLanguage.bind(null, user?.id);
