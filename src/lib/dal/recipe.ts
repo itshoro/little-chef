@@ -6,12 +6,15 @@ import { nanoid } from "../nanoid";
 // MARK: Preferences
 
 export async function getRecipePreferences(userId?: User["id"]) {
-  if (typeof userId !== "string") return undefined;
+  if (userId === undefined) return undefined;
 
   await using connection = getPrisma();
   const prisma = connection.prisma;
 
-  return await prisma.recipePreferences.findFirst({ where: { userId } });
+  return (
+    (await prisma.recipePreferences.findFirst({ where: { userId } })) ??
+    undefined
+  );
 }
 
 export async function updateDefaultServingSize(
