@@ -38,21 +38,40 @@ model IngredientName {
 }
 
 model Language {
-  code           String           @unique
-  name           String
-  IngredientName IngredientName[]
+  code                  String                  @unique
+  name                  String
+  IngredientName        IngredientName[]
+  RecipePreferences     RecipePreferences[]
+  CollectionPreferences CollectionPreferences[]
+  AppPreferences        AppPreferences[]
 }
 
 model Recipe {
   id               Int                @id @default(autoincrement())
   publicId         String             @unique // @db.VarChar(21)
   servings         Int // @db.UnsignedTinyInt
+  visibility       String             @default("public")
   name             String
   totalDuration    String?
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   RecipeStep       RecipeStep[]
   RecipeIngredient RecipeIngredient[]
+  CollectionRecipe CollectionRecipe[]
+  RecipeSubscriber RecipeSubscriber[]
+}
+
+model RecipeSubscriber {
+  recipeId Int
+  userId   String
+  scope    String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, userId])
+  @@index([recipeId])
+  @@index([userId])
 }
 
 model RecipeStep {
@@ -81,11 +100,50 @@ model RecipeIngredient {
   @@index([ingredientId])
 }
 
+model CollectionRecipe {
+  collectionId Int
+  recipeId     Int
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, collectionId])
+  @@index([collectionId])
+  @@index([recipeId])
+}
+
+model Collection {
+  id               Int                @id @default(autoincrement())
+  publicId         String             @unique
+  name             String
+  isCustom         Boolean            @default(true)
+  visibility       String             @default("public")
+  CollectionRecipe CollectionRecipe[]
+  UserCollections  UserCollections[]
+}
+
 model User {
-  id             String    @id
+  id             String  @id
   username       String
+  imgSrc         String?
   hashedPassword String
-  sessions       Session[]
+
+  sessions              Session[]
+  userCollections       UserCollections[]
+  RecipeSubscriber      RecipeSubscriber[]
+  RecipePreferences     RecipePreferences?
+  CollectionPreferences CollectionPreferences?
+  AppPreferences        AppPreferences?
+}
+
+model UserCollections {
+  collectionId Int
+  userId       String
+  user         User       @relation(references: [id], fields: [userId], onDelete: Cascade)
+  collection   Collection @relation(references: [id], fields: [collectionId], onDelete: Cascade)
+
+  @@id([collectionId, userId])
+  @@index([collectionId])
+  @@index([userId])
 }
 
 model Session {
@@ -93,4 +151,39 @@ model Session {
   userId    String
   expiresAt DateTime
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model RecipePreferences {
+  userId String @id @unique
+  user   User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  defaultLanguageCode String   @default("en")
+  defaultLanguage     Language @relation(references: [code], fields: [defaultLanguageCode], onDelete: Cascade)
+
+  defaultServingSize Int @default(0)
+
+  // public, unlisted, private
+  defaultVisibility String @default("public")
+}
+
+model CollectionPreferences {
+  userId String @id @unique
+  user   User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  defaultLanguageCode String   @default("en")
+  defaultLanguage     Language @relation(references: [code], fields: [defaultLanguageCode], onDelete: Cascade)
+
+  // public, unlisted, private
+  defaultVisibility String @default("public")
+}
+
+model AppPreferences {
+  userId String @id @unique
+  user   User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  languageCode String   @default("en")
+  language     Language @relation(references: [code], fields: [languageCode], onDelete: Cascade)
+
+  // light, dark, system
+  theme String @default("system")
 }
