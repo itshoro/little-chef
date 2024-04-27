@@ -1,16 +1,16 @@
 "use client";
 
-import NextLink from "next/link";
+import NextLink, { LinkProps } from "next/link";
 import { useTabNavigationContext } from "./root";
 import { useSearchParams } from "next/navigation";
 
-type LinkProps = {
-  href: string;
+type Props = {
+  href: LinkProps<unknown>["href"];
   active?: boolean;
   children: React.ReactNode;
 };
 
-const Link = ({ href, children }: LinkProps) => {
+const Link = ({ href, children }: Props) => {
   const searchParams = useSearchParams();
   const { keepSearchParams } = useTabNavigationContext(Link.name);
 
