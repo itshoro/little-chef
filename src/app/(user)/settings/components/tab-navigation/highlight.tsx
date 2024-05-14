@@ -83,7 +83,7 @@ const Highlight = ({
         mediaQuery.removeEventListener("change", reevaluateStyle),
       );
     };
-  }, []);
+  }, [activePathname]);
 
   return (
     <span ref={ref} className="absolute top-0 -z-10 rounded-full bg-lime-300" />
