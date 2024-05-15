@@ -12,7 +12,7 @@ type Props = {
 
 const Link = ({ href, children }: Props) => {
   const searchParams = useSearchParams();
-  const { keepSearchParams } = useTabNavigationContext(Link.name);
+  const { keepSearchParams, replace } = useTabNavigationContext(Link.name);
 
   if (keepSearchParams) {
     href += `?${searchParams}`;
@@ -23,6 +23,7 @@ const Link = ({ href, children }: Props) => {
       <NextLink
         className="block w-full rounded-full px-5 py-3 font-medium text-black"
         href={href}
+        replace={replace}
       >
         {children}
       </NextLink>

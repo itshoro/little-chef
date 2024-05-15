@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef } from "react";
 
 const breakpoints = {
@@ -27,14 +28,9 @@ function calculateStyle(
   };
 }
 
-const Highlight = ({
-  activePathname,
-  listRef,
-}: {
-  activePathname: string;
-  listRef: React.RefObject<HTMLElement>;
-}) => {
+const Highlight = ({ listRef }: { listRef: React.RefObject<HTMLElement> }) => {
   const ref = useRef<React.ElementRef<"span">>(null);
+  const activePathname = usePathname();
 
   function highlightActiveTab() {
     if (!ref.current) return;
@@ -57,6 +53,7 @@ const Highlight = ({
     });
   }
 
+  // Highlight tab before initial render to suppress FOUC
   useLayoutEffect(() => {
     highlightActiveTab();
   }, []);
@@ -65,6 +62,7 @@ const Highlight = ({
     highlightActiveTab();
   }, [activePathname]);
 
+  // Add transition property after initial render.
   useEffect(() => {
     ref.current?.classList.add("transition-all");
     return () => ref.current?.classList.remove("transition-all");

@@ -8,20 +8,20 @@ import { useContext } from "@/hooks/useContext";
 type RootProps = {
   children: React.ReactNode;
   keepSearchParams?: boolean;
+  replace?: boolean;
 };
 
-const Root = ({ children, keepSearchParams }: RootProps) => {
+const Root = ({ children, keepSearchParams, replace }: RootProps) => {
   const listRef = useRef<React.ElementRef<"ul">>(null);
-  const pathname = usePathname();
 
   return (
     <nav className="relative @container">
-      <TabNavigationContext.Provider value={{ keepSearchParams }}>
+      <TabNavigationContext.Provider value={{ keepSearchParams, replace }}>
         <ul ref={listRef} className="flex flex-col items-start @sm:flex-row">
           {children}
         </ul>
       </TabNavigationContext.Provider>
-      <Highlight activePathname={pathname} listRef={listRef} />
+      <Highlight listRef={listRef} />
     </nav>
   );
 };
