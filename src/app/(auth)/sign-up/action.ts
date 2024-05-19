@@ -1,54 +1,30 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { lucia } from "@/lib/auth";
-import { getPrismaClient } from "@/lib/prisma";
+import { lucia } from "@/lib/auth/lucia";
 import { Argon2id } from "oslo/password";
 import { redirect } from "next/navigation";
-import { nanoid } from "@/lib/nanoid";
+import { createUser, validatePassword, validateUsername } from "@/lib/dal/user";
 
 async function signup(formData: FormData) {
   "use server";
   const username = formData.get("username");
-
-  if (
-    typeof username !== "string" ||
-    username.length < 3 ||
-    username.length > 31 ||
-    !/^[a-z0-9_-]+$/.test(username)
-  ) {
-    return {
-      error: "Invalid username",
-    };
-  }
   const password = formData.get("password");
-  if (
-    typeof password !== "string" ||
-    password.length < 6 ||
-    password.length > 255
-  ) {
-    return {
-      error: "Invalid password",
-    };
-  }
+
+  if (!validateUsername(username)) return;
+  if (!validatePassword(password)) return;
 
   const hashedPassword = await new Argon2id().hash(password);
-
-  const client = getPrismaClient();
-  const user = await client.user.create({
-    data: {
-      id: nanoid(),
-      username,
-      hashedPassword,
-    },
-  });
+  console.log(hashedPassword);
+  const user = await createUser(username, hashedPassword);
+  console.log(user);
 
   const session = await lucia.createSession(user.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
   cookies().set(
     sessionCookie.name,
     sessionCookie.value,
-    sessionCookie.attributes
+    sessionCookie.attributes,
   );
   return redirect("/");
 }

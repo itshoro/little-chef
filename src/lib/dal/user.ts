@@ -167,8 +167,8 @@ export function validateUsername(username: any): username is Username | never {
   }
 
   if (
-    username.length < passwordRange.min ||
-    username.length > passwordRange.max
+    username.length < usernameRanges.min ||
+    username.length > usernameRanges.max
   ) {
     throw new RangeError(
       `Username needs to be between ${usernameRanges.min} and ${usernameRanges.max} characters long. Received ${username.length} characters`,
@@ -185,4 +185,78 @@ export function validateUsername(username: any): username is Username | never {
     throw new TypeError("Username doesn't match required pattern.");
 
   return true;
+}
+
+// MARK: CRUD
+
+export async function createUser(username: string, hashedPassword: string) {
+  return await db.transaction(async (tx) => {
+    const [appPreferencesEntry] = await tx
+      .insert(schema.appPreferences)
+      .values({
+        displayLanguageCode: "en",
+      })
+      .returning({ id: schema.appPreferences.id });
+    const [collectionPreferencesEntry] = await tx
+      .insert(schema.collectionPreferences)
+      .values({
+        defaultLanguageCode: "en",
+      })
+      .returning({ id: schema.collectionPreferences.id });
+    const [recipePreferencesEntry] = await tx
+      .insert(schema.recipePreferences)
+      .values({
+        defaultLanguageCode: "en",
+      })
+      .returning({ id: schema.recipePreferences.id });
+
+    const defaultCollections = await tx
+      .insert(schema.collections)
+      .values([
+        {
+          publicId: nanoid(),
+          isCustom: false,
+          nameTranslatableId: 0,
+          slugTranslatableId: 1,
+        },
+        {
+          publicId: nanoid(),
+          isCustom: false,
+          nameTranslatableId: 2,
+          slugTranslatableId: 3,
+        },
+      ])
+      .returning({ id: schema.collections.id });
+
+    const [user] = await tx
+      .insert(schema.users)
+      .values({
+        publicId: nanoid(),
+        username: username,
+        hashedPassword: hashedPassword,
+        appPreferencesId: appPreferencesEntry.id,
+        collectionPreferencesId: collectionPreferencesEntry.id,
+        recipePreferencesId: recipePreferencesEntry.id,
+      })
+      .returning();
+
+    await tx.insert(schema.collectionSubscribers).values(
+      defaultCollections.map((collection) => ({
+        collectionId: collection.id,
+        userId: user.id,
+      })),
+    );
+
+    return user;
+  });
+}
+
+export async function findUserByQuery(query: string, take: number = 5) {
+  await using connection = getPrisma();
+  const client = connection.prisma;
+
+  return await client.user.findMany({
+    where: { OR: [{ username: query }] },
+    take,
+  });
 }
