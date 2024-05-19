@@ -1,26 +1,31 @@
-import { User } from "@prisma/client";
-import { getPrisma } from "../prisma";
+import * as schema from "@/drizzle/schema";
+import { db } from "@/drizzle/db";
+import { eq } from "drizzle-orm";
 
-export async function getAppPreferences(userId?: User["id"]) {
-  if (userId === undefined) return undefined;
+async function getPreferencesId(userId: number) {
+  const result = await db
+    .select({ appPreferencesId: schema.users.appPreferencesId })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1);
 
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  if (result.length === 0) throw new Error("Couldn't find user");
+  const [user] = result;
 
-  return await prisma.appPreferences.findFirst({
-    where: { userId },
-  });
+  return user.appPreferencesId;
 }
 
 // MARK: Language
-export async function changeLanguage(userId: User["id"], languageCode: string) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+export async function changeLanguage(
+  userId: number,
+  displayLanguageCode: string,
+) {
+  const id = await getPreferencesId(userId);
 
-  await prisma.appPreferences.update({
-    where: { userId },
-    data: { language: { connect: { code: languageCode } } },
-  });
+  await db
+    .update(schema.appPreferences)
+    .set({ displayLanguageCode })
+    .where(eq(schema.appPreferences.id, id));
 }
 
 // MARK: Theme
@@ -34,14 +39,13 @@ export function isSupportedTheme(
 }
 
 export async function changeTheme(
-  userId: User["id"],
+  userId: number,
   theme: (typeof supportedThemes)[number],
 ) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  const id = await getPreferencesId(userId);
 
-  await prisma.appPreferences.update({
-    where: { userId: userId },
-    data: { theme },
-  });
+  await db
+    .update(schema.appPreferences)
+    .set({ theme })
+    .where(eq(schema.appPreferences.id, id));
 }

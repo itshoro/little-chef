@@ -1,73 +1,53 @@
-import type { Prisma, User } from "@prisma/client";
-import { getPrisma } from "../prisma";
-import type { Visibility } from "./recipe";
+import * as schema from "@/drizzle/schema";
+import { db } from "@/drizzle/db";
+import { eq } from "drizzle-orm";
+import type { Visibility } from "./visibility";
 
-export async function getCollectionPreferences(userId?: User["id"]) {
-  if (userId === undefined) return undefined;
+export async function getPreferencesId(userId: number) {
+  const result = await db
+    .select({ collectionPreferencesId: schema.users.collectionPreferencesId })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1);
 
-  await using connection = getPrisma();
-  const client = connection.prisma;
+  if (result.length === 0) throw new Error("Couldn't find user");
+  const [user] = result;
 
-  return (
-    (await client.collectionPreferences.findFirst({ where: { userId } })) ??
-    undefined
-  );
+  return user.collectionPreferencesId;
 }
 
 export async function createCollections(
-  user: User,
-  ...collections: Prisma.CollectionCreateInput[]
+  ...collections: (typeof schema.collections.$inferSelect)[]
 ) {
-  await using connection = getPrisma();
-  const client = connection.prisma;
-
-  await client.$transaction(async (tx) => {
-    const createdCollections = await Promise.all(
+  return await db.transaction(async (tx) => {
+    return await Promise.all(
       collections.map((collection) =>
-        tx.collection.create({ data: collection }),
+        tx.insert(schema.collections).values(collection),
       ),
     );
-
-    await tx.userCollections.createMany({
-      data: createdCollections.map(
-        (collection) =>
-          ({
-            collectionId: collection.id,
-            userId: user.id,
-          }) satisfies Parameters<
-            typeof tx.userCollections.create
-          >["0"]["data"],
-      ),
-    });
   });
 }
 
 export async function updateDefaultVisibility(
-  userId: User["id"],
-  visibility: Visibility,
+  userId: number,
+  defaultVisibility: Visibility,
 ) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  const id = await getPreferencesId(userId);
 
-  await prisma.collectionPreferences.update({
-    data: {
-      defaultVisibility: visibility,
-    },
-    where: { userId },
-  });
+  await db
+    .update(schema.collectionPreferences)
+    .set({ defaultVisibility })
+    .where(eq(schema.collectionPreferences.id, id));
 }
 
 export async function updateDefaultLanguage(
-  userId: User["id"],
-  languageCode: string,
+  userId: number,
+  defaultLanguageCode: string,
 ) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  const id = await getPreferencesId(userId);
 
-  await prisma.collectionPreferences.update({
-    data: {
-      defaultLanguageCode: languageCode,
-    },
-    where: { userId },
-  });
+  await db
+    .update(schema.collectionPreferences)
+    .set({ defaultLanguageCode })
+    .where(eq(schema.collectionPreferences.id, id));
 }

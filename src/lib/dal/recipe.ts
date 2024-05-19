@@ -1,181 +1,61 @@
-import type { Prisma, User } from "@prisma/client";
-import { getPrisma } from "../prisma";
+import * as schema from "@/drizzle/schema";
+import { db } from "@/drizzle/db";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { nanoid } from "../nanoid";
+import type { Visibility } from "./visibility";
 
 // MARK: Preferences
 
-export async function getRecipePreferences(userId?: User["id"]) {
-  if (userId === undefined) return undefined;
+async function getPreferencesId(userId: number) {
+  const result = await db
+    .select({ recipePreferencesId: schema.users.recipePreferencesId })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1);
 
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  if (result.length === 0) throw new Error("Couldn't find user");
+  const [user] = result;
 
-  return (
-    (await prisma.recipePreferences.findFirst({ where: { userId } })) ??
-    undefined
-  );
+  return user.recipePreferencesId;
 }
 
 export async function updateDefaultServingSize(
-  userId: User["id"],
-  servingSize: number,
+  userId: number,
+  defaultServingSize: number,
 ) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  const id = await getPreferencesId(userId);
 
-  await prisma.recipePreferences.update({
-    data: {
-      defaultServingSize: servingSize,
-    },
-    where: { userId },
-  });
+  await db
+    .update(schema.recipePreferences)
+    .set({ defaultServingSize })
+    .where(eq(schema.recipePreferences.id, id));
 }
 
 export async function updateDefaultLanguage(
-  userId: User["id"],
-  languageCode: string,
+  userId: number,
+  defaultLanguageCode: string,
 ) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  const id = await getPreferencesId(userId);
 
-  await prisma.recipePreferences.update({
-    data: {
-      defaultLanguageCode: languageCode,
-    },
-    where: { userId },
-  });
+  await db
+    .update(schema.recipePreferences)
+    .set({ defaultLanguageCode })
+    .where(eq(schema.recipePreferences.id, id));
 }
 
-const supportedVisibilites = ["public", "unlisted", "private"] as const;
-export type Visibility = (typeof supportedVisibilites)[number];
-
-export const validateVisibility = (
-  visibility: any,
-): visibility is Visibility => {
-  return supportedVisibilites.includes(visibility);
-};
-
 export async function updateDefaultVisibility(
-  userId: User["id"],
-  visibility: Visibility,
+  userId: number,
+  defaultVisibility: Visibility,
 ) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
+  const id = await getPreferencesId(userId);
 
-  await prisma.recipePreferences.update({
-    data: {
-      defaultVisibility: visibility,
-    },
-    where: { userId },
-  });
+  await db
+    .update(schema.recipePreferences)
+    .set({ defaultVisibility })
+    .where(eq(schema.recipePreferences.id, id));
 }
 
 // MARK: Actions
-
-export async function createRecipe(
-  recipeDto: z.infer<typeof AddRecipeValidator>,
-) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
-
-  await prisma.recipe.create({
-    data: {
-      name: recipeDto.name,
-      servings: recipeDto.servings,
-      publicId: nanoid(),
-      totalDuration: recipeDto.totalDuration,
-      RecipeStep: {
-        create: recipeDto.steps.map((step, i) => ({
-          Step: {
-            create: {
-              description: step.description,
-              publicId: step.uuid,
-            },
-          },
-          order: i,
-        })),
-      },
-      RecipeIngredient: {
-        create: recipeDto.ingredients.map((ingredient) => ({
-          Ingredient: {
-            connect: {
-              publicId: ingredient.publicId,
-            },
-          },
-          measurementAmount: ingredient.measurement.amount,
-          measurementUnit: ingredient.measurement.unit,
-        })),
-      },
-    },
-  });
-}
-
-export async function updateRecipe(
-  recipeDto: z.infer<typeof UpdateRecipeValidator>,
-) {
-  await using connection = getPrisma();
-  const prisma = connection.prisma;
-
-  const recipeId = (
-    await prisma.recipe.findFirstOrThrow({
-      where: { publicId: recipeDto.publicId },
-      select: { id: true },
-    })
-  ).id;
-
-  /**
-   * Upsert is not supported for sqlite, so we need to manually delete all relevant entries
-   * within RecipeSteps, Steps, RecipeIngredients and Ingredients and then recreating them.
-   **/
-
-  // Upsert (Recipe)Steps
-  await prisma.$transaction(async (tx) => {
-    await tx.step.deleteMany({
-      where: { publicId: { in: recipeDto.steps.map((step) => step.uuid) } },
-    });
-
-    const steps = await Promise.all(
-      recipeDto.steps.map((step) =>
-        tx.step.create({
-          data: {
-            description: step.description,
-            publicId: step.uuid,
-          },
-        }),
-      ),
-    );
-
-    await Promise.all(
-      steps.map((step, i) =>
-        tx.recipeStep.create({
-          data: {
-            recipeId: recipeId,
-            stepId: step.id,
-            order: i,
-          },
-          include: {
-            Step: true,
-          },
-        }),
-      ),
-    );
-  });
-
-  // TODO: Upsert (Recipe)Ingredients
-  await prisma.$transaction(async (tx) => {});
-
-  await prisma.recipe.update({
-    where: {
-      id: recipeId,
-    },
-    data: {
-      name: recipeDto.name,
-      totalDuration: recipeDto.totalDuration,
-      servings: recipeDto.servings,
-    },
-  });
-}
 
 export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
   formData: FormData,

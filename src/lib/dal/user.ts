@@ -1,20 +1,28 @@
-import type { User } from "@prisma/client";
-import { getPrisma } from "../prisma";
 import { Argon2id } from "oslo/password";
 import sharp from "sharp";
-import { createCollections } from "./collections";
 import { nanoid } from "../nanoid";
+import { lucia } from "../auth/lucia";
+import { Session } from "lucia";
+import path from "path";
+
+import { db } from "@/drizzle/db";
+import { eq, or } from "drizzle-orm";
+import * as schema from "@/drizzle/schema";
 
 // MARK: Auth
 /** Use @see{validateUsername} and @see{validatePassword} to validate your parameters. */
 export async function validateUser(username: Username, password: Password) {
-  await using connection = getPrisma();
-  const client = connection.prisma;
+  const result = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.username, username))
+    .limit(1);
 
-  const existingUser = await client.user.findFirst({ where: { username } });
-  if (!existingUser) {
+  if (result.length === 0) {
     throw new Error("Username or password incorrect.");
   }
+
+  const [existingUser] = result;
 
   const validPassword = await new Argon2id().verify(
     existingUser.hashedPassword,
@@ -28,63 +36,29 @@ export async function validateUser(username: Username, password: Password) {
   return existingUser;
 }
 
-// MARK: Collections
-export async function createDefaultCollections(user: User) {
-  await createCollections(
-    user,
-    {
-      publicId: nanoid(),
-      name: "General",
-      visibility: "public",
-      isCustom: false,
-    },
-    {
-      publicId: nanoid(),
-      name: "Liked",
-      visibility: "public",
-      isCustom: false,
-    },
-  );
-}
-
-// MARK: Preferences
-export async function createDefaultPreferences(userId: User["id"]) {
-  await using connection = getPrisma();
-  const client = connection.prisma;
-
-  await client.appPreferences.create({ data: { userId } });
-  await client.collectionPreferences.create({ data: { userId } });
-  await client.recipePreferences.create({ data: { userId } });
+export async function invalidateSession(sessionId: Session["id"]) {
+  await lucia.invalidateSession(sessionId);
 }
 
 // MARK: Password
 export async function changePassword(
   sessionId: string,
   currentPassword: string,
-  newPassword: string,
+  newPassword: Password,
 ) {
-  await using connection = getPrisma();
-  const client = connection.prisma;
+  const session = await findSessionUser(sessionId);
 
-  const session = await client.session.findFirst({
-    where: { id: sessionId },
-    include: { user: true },
-  });
-
-  if (!session || !(await equalsPassword(session.user, currentPassword)))
+  if (!(await equalsPassword(session.users.hashedPassword, currentPassword)))
     return;
 
-  await client.user.update({
-    where: { id: sessionId },
-    data: { hashedPassword: await new Argon2id().hash(newPassword) },
-  });
+  await db
+    .update(schema.users)
+    .set({ hashedPassword: await new Argon2id().hash(newPassword) })
+    .where(eq(schema.users.id, session.users.id));
 }
 
-async function equalsPassword(user: User, currentPassword: string) {
-  return await new Argon2id().verify(
-    user?.hashedPassword ?? "",
-    currentPassword,
-  );
+async function equalsPassword(hash: string, password: string) {
+  return await new Argon2id().verify(hash, password);
 }
 
 export type Password = string & { __brand: "ValidPassword" };
@@ -115,47 +89,24 @@ export function validatePassword(password: any): password is Password {
 
 // MARK: Avatar
 export async function changeAvatar(sessionId: string, image: File) {
-  await using connection = getPrisma();
-  const client = connection.prisma;
+  const session = await findSessionUser(sessionId);
 
-  const session = await client.session.findFirst({
-    where: { id: sessionId },
-    include: { user: true },
-  });
-
-  if (!session) return;
-
-  const buffer = await sharp(await image.arrayBuffer())
+  await sharp(await image.arrayBuffer())
     .resize(200, 200)
-    .toBuffer();
-
-  await client.user.update({
-    where: { id: session?.user.id },
-    data: {
-      imgSrc: `data:${image.type};base64,${buffer.toString("base64")}`,
-    },
-  });
+    .toFile(
+      path.join(process.cwd(), "public", session.users.publicId, "avatar.webp"),
+    );
 }
 
 // MARK: Username
 export async function changeUsername(sessionId: string, newUsername: Username) {
-  await using connection = getPrisma();
-  const client = connection.prisma;
-
-  const session = await client.session.findFirst({
-    where: { id: sessionId },
-    include: { user: true },
-  });
-
   // TODO: consider whether username should be unique, or some sort of discriminator system should be present.
-  if (!session) return;
+  const session = await findSessionUser(sessionId);
 
-  await client.user.update({
-    where: { id: session?.user.id },
-    data: {
-      username: newUsername,
-    },
-  });
+  await db
+    .update(schema.users)
+    .set({ username: newUsername })
+    .where(eq(schema.users.id, session.sessions.userId));
 }
 
 export type Username = string & { brand: "ValidUsername" };
@@ -187,6 +138,31 @@ export function validateUsername(username: any): username is Username | never {
   return true;
 }
 
+// MARK: utils
+async function findSessionUser(sessionId: string) {
+  const sessions = await db
+    .select()
+    .from(schema.sessions)
+    .where(eq(schema.sessions.id, sessionId)) // TODO: check expiresAt
+    .leftJoin(schema.users, eq(schema.users.id, schema.sessions.userId))
+    .limit(1);
+
+  if (sessions.length === 0)
+    throw new Error("No matching session found for " + sessionId);
+
+  const [session] = sessions;
+  if (session.users === null) {
+    throw new Error(
+      "Couldn't find user associated with the session " + sessionId,
+    );
+  }
+
+  // TODO look for less "hacky" solution
+  return session as typeof session & {
+    users: NonNullable<(typeof session)["users"]>;
+  };
+}
+
 // MARK: CRUD
 
 export async function createUser(username: string, hashedPassword: string) {
@@ -216,14 +192,14 @@ export async function createUser(username: string, hashedPassword: string) {
         {
           publicId: nanoid(),
           isCustom: false,
-          nameTranslatableId: 0,
-          slugTranslatableId: 1,
+          nameKey: "collection_name_general",
+          slugKey: "collection_slug_general",
         },
         {
           publicId: nanoid(),
           isCustom: false,
-          nameTranslatableId: 2,
-          slugTranslatableId: 3,
+          nameKey: "collection_name_liked",
+          slugKey: "collection_slug_liked",
         },
       ])
       .returning({ id: schema.collections.id });
@@ -252,11 +228,9 @@ export async function createUser(username: string, hashedPassword: string) {
 }
 
 export async function findUserByQuery(query: string, take: number = 5) {
-  await using connection = getPrisma();
-  const client = connection.prisma;
-
-  return await client.user.findMany({
-    where: { OR: [{ username: query }] },
-    take,
-  });
+  return await db
+    .selectDistinct()
+    .from(schema.users)
+    .where(or(eq(schema.users.username, query)))
+    .limit(take);
 }
