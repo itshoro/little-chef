@@ -46,7 +46,9 @@ export const recipeSubscriptions = sqliteTable(
     userId: integer("userId")
       .notNull()
       .references(() => users.id),
-    role: text("role", { enum: ["creator", "maintainer", "subscriber"] }),
+    role: text("role", {
+      enum: ["creator", "maintainer", "subscriber"],
+    }).notNull(),
   },
   (table) => {
     return {
@@ -117,7 +119,9 @@ export const collectionSubscriptions = sqliteTable(
     userId: integer("userId")
       .notNull()
       .references(() => users.id),
-    role: text("role", { enum: ["creator", "maintainer", "subscriber"] }),
+    role: text("role", {
+      enum: ["creator", "maintainer", "subscriber"],
+    }).notNull(),
   },
   (table) => {
     return {

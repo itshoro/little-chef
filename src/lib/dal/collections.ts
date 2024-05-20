@@ -1,6 +1,6 @@
 import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-import { eq, or, and } from "drizzle-orm";
+import { eq, or, and, like } from "drizzle-orm";
 import type { Visibility } from "./visibility";
 import { findSessionUser } from "./user";
 
@@ -94,7 +94,7 @@ export async function getCreatorsAndMaintainers(collectionId: number) {
 export async function getSubscriptions(userId: number) {
   return await db
     .select({
-      id: schema.collectionSubscriptions.collectionId,
+      id: schema.collections.id,
       publicId: schema.collections.publicId,
       role: schema.collectionSubscriptions.role,
     })
@@ -104,6 +104,27 @@ export async function getSubscriptions(userId: number) {
       schema.collections,
       eq(schema.collections.id, schema.collectionSubscriptions.collectionId),
     );
+}
+
+export async function findPublicCollectionIds(
+  query: string,
+  displayLanguageCode: string,
+) {
+  return await db
+    .select({
+      id: schema.collections.id,
+      publicId: schema.collections.publicId,
+      value: schema.translatables.value,
+    })
+    .from(schema.collections)
+    .innerJoin(
+      schema.translatables,
+      and(
+        eq(schema.translatables.key, schema.collections.nameKey),
+        eq(schema.translatables.languageCode, displayLanguageCode),
+      ),
+    )
+    .where(like(schema.translatables.value, `%${query}%`));
 }
 
 export async function getCollection(id: number, displayLanguageCode: string) {

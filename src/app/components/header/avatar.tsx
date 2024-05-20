@@ -9,7 +9,7 @@ const Avatar = ({ src, alt, size = "size-10" }: AvatarProps) => {
     <img
       src={src}
       alt={alt}
-      className={`aspect-square rounded-full ${size} border-2 border-stone-200`}
+      className={`inline-block aspect-square rounded-full ${size} border-2 border-stone-200`}
     />
   );
 };
