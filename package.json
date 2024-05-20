@@ -15,6 +15,7 @@
     "@ariakit/react": "^0.4.6",
     "@cooklang/cooklang-ts": "^1.2.6",
     "@lucia-auth/adapter-drizzle": "^1.0.7",
+    "@next/env": "^14.2.3",
     "@oddbird/popover-polyfill": "^0.4.3",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-popover": "^1.0.7",
