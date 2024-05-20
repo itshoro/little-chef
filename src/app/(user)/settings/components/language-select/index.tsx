@@ -1,14 +1,16 @@
-import { getPrismaClient } from "@/lib/prisma";
+import { getLanguages } from "@/lib/dal/app";
 import { Select } from "../primitives/select";
 
 type LanguageSwitcherProps = {
   defaultValue?: string;
-  name: string
+  name: string;
 };
 
-const LanguageSelect = async ({ defaultValue, name }: LanguageSwitcherProps) => {
-  const client = getPrismaClient();
-  const languages = await client.language.findMany();
+const LanguageSelect = async ({
+  defaultValue,
+  name,
+}: LanguageSwitcherProps) => {
+  const languages = await getLanguages();
 
   return (
     <Select name={name} defaultValue={defaultValue}>

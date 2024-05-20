@@ -4,6 +4,7 @@ import { nanoid } from "../nanoid";
 import { lucia } from "../auth/lucia";
 import { Session } from "lucia";
 import path from "path";
+import * as fs from "fs/promises";
 
 import { db } from "@/drizzle/db";
 import { eq, or } from "drizzle-orm";
@@ -91,11 +92,18 @@ export function validatePassword(password: any): password is Password {
 export async function changeAvatar(sessionId: string, image: File) {
   const session = await findSessionUser(sessionId);
 
+  const storageDirectoryPath = path.join(
+    process.cwd(),
+    "public",
+    session.users.publicId,
+  );
+
+  await fs.mkdir(storageDirectoryPath, { recursive: true });
+
+  const storagePath = path.join(storageDirectoryPath, "avatar.webp");
   await sharp(await image.arrayBuffer())
     .resize(200, 200)
-    .toFile(
-      path.join(process.cwd(), "public", session.users.publicId, "avatar.webp"),
-    );
+    .toFile(storagePath);
 }
 
 // MARK: Username
@@ -139,28 +147,21 @@ export function validateUsername(username: any): username is Username | never {
 }
 
 // MARK: utils
-async function findSessionUser(sessionId: string) {
+export async function findSessionUser(sessionId: string) {
   const sessions = await db
     .select()
     .from(schema.sessions)
     .where(eq(schema.sessions.id, sessionId)) // TODO: check expiresAt
-    .leftJoin(schema.users, eq(schema.users.id, schema.sessions.userId))
+    .innerJoin(schema.users, eq(schema.users.id, schema.sessions.userId))
     .limit(1);
 
   if (sessions.length === 0)
     throw new Error("No matching session found for " + sessionId);
 
   const [session] = sessions;
-  if (session.users === null) {
-    throw new Error(
-      "Couldn't find user associated with the session " + sessionId,
-    );
-  }
 
   // TODO look for less "hacky" solution
-  return session as typeof session & {
-    users: NonNullable<(typeof session)["users"]>;
-  };
+  return session;
 }
 
 // MARK: CRUD
@@ -216,11 +217,15 @@ export async function createUser(username: string, hashedPassword: string) {
       })
       .returning();
 
-    await tx.insert(schema.collectionSubscribers).values(
-      defaultCollections.map((collection) => ({
-        collectionId: collection.id,
-        userId: user.id,
-      })),
+    await tx.insert(schema.collectionSubscriptions).values(
+      defaultCollections.map(
+        (collection) =>
+          ({
+            collectionId: collection.id,
+            userId: user.id,
+            role: "maintainer",
+          }) as const,
+      ),
     );
 
     return user;

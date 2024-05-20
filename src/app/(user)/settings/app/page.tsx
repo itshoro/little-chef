@@ -13,7 +13,7 @@ import {
 const AppSettingsPage = async () => {
   const { user } = await validateRequest();
 
-  const preferences = await getAppPreferences(user?.id);
+  const preferences = user ? await getAppPreferences(user.id) : undefined;
   const changeAppLanguageWithUserId = changeAppLanguage.bind(null, user?.id);
   const changeAppThemeWithUserId = changeAppTheme.bind(null, user?.id);
 
@@ -26,7 +26,7 @@ const AppSettingsPage = async () => {
             <Fieldset label="Language">
               <LanguageSelect
                 name="language"
-                defaultValue={preferences?.languageCode}
+                defaultValue={preferences?.displayLanguageCode}
               />
             </Fieldset>
           </form>
@@ -42,7 +42,7 @@ const AppSettingsPage = async () => {
 };
 
 async function changeAppLanguage(
-  userId: string | undefined,
+  userId: number | undefined,
   formData: FormData,
 ) {
   "use server";
@@ -54,7 +54,7 @@ async function changeAppLanguage(
   await changeLanguage(userId, language);
 }
 
-async function changeAppTheme(userId: string | undefined, formData: FormData) {
+async function changeAppTheme(userId: number | undefined, formData: FormData) {
   "use server";
   if (userId === undefined) return;
 

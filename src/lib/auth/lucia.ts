@@ -19,6 +19,7 @@ const adapter = new DrizzleSQLiteAdapter(db, sessions, users);
 const lucia = new Lucia(adapter, {
   getUserAttributes: (attributes) => {
     return {
+      publicId: attributes.publicId,
       username: attributes.username,
     };
   },

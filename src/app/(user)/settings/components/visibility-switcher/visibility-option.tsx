@@ -14,12 +14,14 @@ type ThemeOptionProps = {
   name: string;
   visibility: Visibility;
   defaultValue?: Visibility;
+  triggerSubmitOnChange?: boolean;
 };
 
 const VisibilityOption = ({
   name,
   visibility,
   defaultValue,
+  triggerSubmitOnChange,
 }: ThemeOptionProps) => {
   const { label, icon } = visibilityMap[visibility];
 
@@ -28,6 +30,7 @@ const VisibilityOption = ({
       name={name}
       value={visibility}
       defaultChecked={defaultValue === visibility}
+      triggerSubmitOnChange={triggerSubmitOnChange}
     >
       {icon}
       {label}

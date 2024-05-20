@@ -8,6 +8,7 @@ import {
   changeAvatar,
   changeUsername,
   validateUsername,
+  validatePassword,
 } from "@/lib/dal/user";
 
 const UserPage = async () => {
@@ -28,7 +29,9 @@ const UserPage = async () => {
         <SettingsSection.Grid>
           <form action={setProfileImageWithSession}>
             <Fieldset label="Avatar">
-              <UpdateAvatar defaultValue={user?.imgSrc ?? ""} />
+              <UpdateAvatar
+                defaultValue={user ? `/${user.publicId}/avatar.webp` : ""}
+              />
               <button
                 className="rounded-full bg-lime-300 px-5 py-3 font-medium"
                 type="submit"
@@ -106,7 +109,7 @@ async function updatePassword(
 
   const currentPassword = formData.get("currentPassword");
   const newPassword = formData.get("newPassword");
-  if (typeof currentPassword !== "string" || typeof newPassword !== "string")
+  if (typeof currentPassword !== "string" || !validatePassword(newPassword))
     return;
 
   await changePassword(sessionId, currentPassword, newPassword);

@@ -5,7 +5,7 @@ import {
   text,
   primaryKey,
 } from "drizzle-orm/sqlite-core";
-// import { sql, relations } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 
 export const language = sqliteTable("language", {
   code: text("code", { length: 2 }).primaryKey(),
@@ -13,9 +13,9 @@ export const language = sqliteTable("language", {
 });
 
 export const translatables = sqliteTable("translatables", {
-  id: integer("id").primaryKey(),
-  key: text("key").notNull().unique(),
-  value: text("value"),
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  isSource: integer("isSource", { mode: "boolean" }).notNull(),
   languageCode: text("languageCode", { length: 2 })
     .notNull()
     .references(() => language.code),
@@ -25,23 +25,20 @@ export const translatables = sqliteTable("translatables", {
 export const recipes = sqliteTable("recipes", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  nameTranslatableId: integer("nameTranslatableId")
+  nameKey: text("nameKey")
     .notNull()
-    .references(() => translatables.id),
-  slugTranslatableId: integer("slugTranslatableId")
+    .references(() => translatables.key),
+  slugKey: text("slugKey")
     .notNull()
-    .references(() => translatables.id),
+    .references(() => translatables.key),
   recommendedServingSize: integer("recommendedServingSize").notNull(),
   visibility: text("visibility", {
     enum: ["public", "unlisted", "private"],
   }).notNull(),
-  translateableId: integer("translatableId")
-    .notNull()
-    .references(() => translatables.id),
 });
 
-export const recipeSubscribers = sqliteTable(
-  "recipeSubscribers",
+export const recipeSubscriptions = sqliteTable(
+  "recipeSubscriptions",
   {
     recipeId: integer("recipeId")
       .notNull()
@@ -49,12 +46,13 @@ export const recipeSubscribers = sqliteTable(
     userId: integer("userId")
       .notNull()
       .references(() => users.id),
+    role: text("role", { enum: ["creator", "maintainer", "subscriber"] }),
   },
   (table) => {
     return {
-      recipeSubscribersPkey: primaryKey({
+      recipeSubscriptionsPkey: primaryKey({
         columns: [table.recipeId, table.userId],
-        name: "recipeSubscribersPkey",
+        name: "recipeSubscriptionsPkey",
       }),
     };
   },
@@ -67,18 +65,18 @@ export const steps = sqliteTable("steps", {
     .notNull()
     .references(() => recipes.id),
   order: integer("order").notNull(),
-  translateableId: integer("translatableId")
+  descriptionKey: text("descriptionKey")
     .notNull()
-    .references(() => translatables.id),
+    .references(() => translatables.key),
 });
 
 // MARK: ingredients
 export const ingredients = sqliteTable("ingredients", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  translateableId: integer("translatableId")
+  nameKey: text("nameKey")
     .notNull()
-    .references(() => translatables.id),
+    .references(() => translatables.key),
 });
 
 export const ingredientDetails = sqliteTable("ingredientDetails", {
@@ -97,12 +95,12 @@ export const ingredientDetails = sqliteTable("ingredientDetails", {
 export const collections = sqliteTable("collections", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  nameTranslatableId: integer("nameTranslatableId")
+  nameKey: text("nameKey")
     .notNull()
-    .references(() => translatables.id),
-  slugTranslatableId: integer("slugTranslatableId")
+    .references(() => translatables.key),
+  slugKey: text("slugKey")
     .notNull()
-    .references(() => translatables.id),
+    .references(() => translatables.key),
   isCustom: integer("isCustom", { mode: "boolean" }),
   visibility: text("visibility", {
     enum: ["public", "unlisted", "private"],
@@ -110,8 +108,8 @@ export const collections = sqliteTable("collections", {
   itemCount: integer("itemCount").notNull().default(0),
 });
 
-export const collectionSubscribers = sqliteTable(
-  "collectionSubscribers",
+export const collectionSubscriptions = sqliteTable(
+  "collectionSubscriptions",
   {
     collectionId: integer("collectionId")
       .notNull()
@@ -119,12 +117,13 @@ export const collectionSubscribers = sqliteTable(
     userId: integer("userId")
       .notNull()
       .references(() => users.id),
+    role: text("role", { enum: ["creator", "maintainer", "subscriber"] }),
   },
   (table) => {
     return {
-      recipeSubscribersPkey: primaryKey({
+      collectionSubscriptionsPkey: primaryKey({
         columns: [table.collectionId, table.userId],
-        name: "recipeSubscribersPkey",
+        name: "collectionSubscriptionsPkey",
       }),
     };
   },
@@ -196,9 +195,22 @@ export const sessions = sqliteTable("sessions", {
 
 // // MARK: relations
 
-// export const userRelations = relations(users, ({ one }) => ({
-//   appPreferences: one(appPreferences),
-// }));
+export const userRelations = relations(users, ({ one }) => ({
+  appPreferences: one(appPreferences),
+}));
+
+export const collectionsRelations = relations(collections, ({ one }) => ({
+  name: one(translatables, {
+    fields: [collections.nameKey],
+    references: [translatables.key],
+    relationName: "name",
+  }),
+  slug: one(translatables, {
+    fields: [collections.slugKey],
+    references: [translatables.key],
+    relationName: "slug",
+  }),
+}));
 
 // export const recipeRelations = relations(recipes, ({ many }) => ({
 //   collections: many(collections),
