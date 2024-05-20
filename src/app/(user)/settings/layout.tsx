@@ -1,15 +1,9 @@
 import { Header } from "@/app/components/header/header";
-import { lucia, validateRequest } from "@/lib/auth/lucia";
-import { getPrismaClient } from "@/lib/prisma";
-import { writeFile } from "fs/promises";
-import { cookies } from "next/headers";
+import { validateRequest } from "@/lib/auth/lucia";
 import { redirect } from "next/navigation";
-import { ThemeSwitcher } from "./components/theme-switcher";
-import { LanguageSelect } from "./components/language-select";
-import { Fieldset } from "./components/primitives/fieldset";
-import { VisibilitySwitcher } from "./components/visibility-switcher";
-import * as SettingsSection from "./components/settings-section";
 import * as TabNavigation from "./components/tab-navigation";
+import { invalidateSession } from "@/lib/dal/user";
+import { Avatar } from "@/app/components/header/avatar";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
@@ -43,21 +37,18 @@ const UserCard = async () => {
   const { user, session } = await validateRequest();
 
   if (!user) return null;
+  const signoutWithSessionId = signout.bind(null, session.id);
 
   return (
     <div className="rounded-2xl bg-stone-100 p-4">
       <div className="flex items-center gap-4">
-        <img
-          className="size-16 rounded-full border-2 border-white"
-          src={user?.imgSrc ?? ""}
-        />
+        <Avatar src={`/${user.publicId}/avatar.webp`} alt="" size="size-16" />
         <div className="flex-1">
           <div className="text-xs">Current User</div>
-          <div className="font-medium">{user?.username}</div>
+          <div className="font-medium">{user.username}</div>
         </div>
 
-        <form action={signout}>
-          <input type="hidden" name="sessionId" value={session?.id} />
+        <form action={signoutWithSessionId}>
           <button
             className="rounded-full border bg-black px-5 py-2 font-medium text-white"
             type="submit"
@@ -70,26 +61,10 @@ const UserCard = async () => {
   );
 };
 
-const MenuItem = ({ children }: { children: React.ReactNode }) => {
-  return <li className="border-b p-3">{children}</li>;
-};
-
-// function blobToBase64(blob: Blob): Promise<string> {
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.onloadend = () => resolve(reader.result as string);
-//     reader.onerror = () => reject();
-
-//     reader.readAsDataURL(blob);
-//   });
-// }
-
-async function signout(formData: FormData) {
+async function signout(sessionId: string, _: FormData) {
   "use server";
-  const sessionId = formData.get("sessionId");
 
-  if (typeof sessionId !== "string") return;
-  await lucia.invalidateSession(sessionId);
+  await invalidateSession(sessionId);
   redirect("/");
 }
 

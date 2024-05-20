@@ -3,14 +3,17 @@ import { db } from "@/drizzle/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { Visibility } from "./visibility";
+import { findSessionUser } from "./user";
 
 // MARK: Preferences
 
-async function getPreferencesId(userId: number) {
+async function getPreferencesId(sessionId: string) {
+  const sessionResult = await findSessionUser(sessionId);
+
   const result = await db
     .select({ recipePreferencesId: schema.users.recipePreferencesId })
     .from(schema.users)
-    .where(eq(schema.users.id, userId))
+    .where(eq(schema.users.id, sessionResult.users.id))
     .limit(1);
 
   if (result.length === 0) throw new Error("Couldn't find user");
@@ -19,11 +22,25 @@ async function getPreferencesId(userId: number) {
   return user.recipePreferencesId;
 }
 
+export async function getRecipePreferences(sessionId: string) {
+  const id = await getPreferencesId(sessionId);
+
+  const result = await db
+    .select()
+    .from(schema.recipePreferences)
+    .where(eq(schema.recipePreferences.id, id))
+    .limit(1);
+
+  if (result.length === 0) throw new Error("Couldn't find recipe preferences");
+  const [preferences] = result;
+  return preferences;
+}
+
 export async function updateDefaultServingSize(
-  userId: number,
+  sessionId: string,
   defaultServingSize: number,
 ) {
-  const id = await getPreferencesId(userId);
+  const id = await getPreferencesId(sessionId);
 
   await db
     .update(schema.recipePreferences)
@@ -32,10 +49,10 @@ export async function updateDefaultServingSize(
 }
 
 export async function updateDefaultLanguage(
-  userId: number,
+  sessionId: string,
   defaultLanguageCode: string,
 ) {
-  const id = await getPreferencesId(userId);
+  const id = await getPreferencesId(sessionId);
 
   await db
     .update(schema.recipePreferences)
@@ -44,10 +61,10 @@ export async function updateDefaultLanguage(
 }
 
 export async function updateDefaultVisibility(
-  userId: number,
+  sessionId: string,
   defaultVisibility: Visibility,
 ) {
-  const id = await getPreferencesId(userId);
+  const id = await getPreferencesId(sessionId);
 
   await db
     .update(schema.recipePreferences)

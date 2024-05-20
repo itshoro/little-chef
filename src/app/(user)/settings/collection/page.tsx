@@ -3,31 +3,31 @@ import { LanguageSelect } from "../components/language-select";
 import { VisibilitySwitcher } from "../components/visibility-switcher";
 import * as SettingsSection from "../components/settings-section";
 import { validateRequest } from "@/lib/auth/lucia";
-import { updateDefaultVisibility, validateVisibility } from "@/lib/dal/recipe";
 import {
   getCollectionPreferences,
   updateDefaultLanguage,
+  updateDefaultVisibility,
 } from "@/lib/dal/collections";
+import { validateVisibility } from "@/lib/dal/visibility";
 
 const CollectionSettingsPage = async () => {
-  const { user } = await validateRequest();
+  const { session } = await validateRequest();
 
-  const preferences = await getCollectionPreferences(user?.id);
-  const defaultVisibility = validateVisibility(preferences?.defaultVisibility)
-    ? preferences.defaultVisibility
+  const preferences = session
+    ? await getCollectionPreferences(session.id)
     : undefined;
 
-  const changeCollectionLanguageWithUserId =
-    changeDefaultCollectionLanguage.bind(null, user?.id);
-  const changeCollectionVisibilityWithUserId =
-    changeDefaultCollectionVisibility.bind(null, user?.id);
+  const changeCollectionLanguageWithSessionId =
+    changeDefaultCollectionLanguage.bind(null, session?.id);
+  const changeCollectionVisibilityWithSessionId =
+    changeDefaultCollectionVisibility.bind(null, session?.id);
 
   return (
     <>
       <SettingsSection.Root>
         <SettingsSection.Label>Collection Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
-          <form action={changeCollectionLanguageWithUserId}>
+          <form action={changeCollectionLanguageWithSessionId}>
             <Fieldset label="Default Language">
               <LanguageSelect
                 name="language"
@@ -36,11 +36,12 @@ const CollectionSettingsPage = async () => {
             </Fieldset>
           </form>
 
-          <form action={changeCollectionVisibilityWithUserId}>
+          <form action={changeCollectionVisibilityWithSessionId}>
             <Fieldset label="Default Visibility">
               <VisibilitySwitcher
                 name="visibility"
-                defaultValue={defaultVisibility}
+                defaultValue={preferences?.defaultVisibility}
+                triggerSubmitOnChange
               />
             </Fieldset>
           </form>
@@ -51,31 +52,31 @@ const CollectionSettingsPage = async () => {
 };
 
 async function changeDefaultCollectionVisibility(
-  userId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) {
   "use server";
 
-  if (typeof userId !== "string") return;
+  if (typeof sessionId !== "string") return;
 
   const visibility = formData.get("visibility");
   if (!validateVisibility(visibility)) return;
 
-  await updateDefaultVisibility(userId, visibility);
+  await updateDefaultVisibility(sessionId, visibility);
 }
 
 async function changeDefaultCollectionLanguage(
-  userId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) {
   "use server";
 
-  if (typeof userId !== "string") return;
+  if (typeof sessionId !== "string") return;
 
   const languageCode = formData.get("language");
   if (typeof languageCode !== "string") return;
 
-  await updateDefaultLanguage(userId, languageCode);
+  await updateDefaultLanguage(sessionId, languageCode);
 }
 
 export default CollectionSettingsPage;

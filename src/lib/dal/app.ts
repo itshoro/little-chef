@@ -15,6 +15,20 @@ async function getPreferencesId(userId: number) {
   return user.appPreferencesId;
 }
 
+export async function getAppPreferences(userId: number) {
+  const id = await getPreferencesId(userId);
+
+  const result = await db
+    .select()
+    .from(schema.appPreferences)
+    .where(eq(schema.appPreferences.id, id))
+    .limit(1);
+
+  if (result.length === 0) throw new Error("Couldn't find app preferences");
+  const [preferences] = result;
+  return preferences;
+}
+
 // MARK: Language
 export async function changeLanguage(
   userId: number,
@@ -26,6 +40,10 @@ export async function changeLanguage(
     .update(schema.appPreferences)
     .set({ displayLanguageCode })
     .where(eq(schema.appPreferences.id, id));
+}
+
+export async function getLanguages() {
+  return await db.query.language.findMany();
 }
 
 // MARK: Theme

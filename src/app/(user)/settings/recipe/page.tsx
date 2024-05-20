@@ -6,30 +6,33 @@ import { validateRequest } from "@/lib/auth/lucia";
 import {
   getRecipePreferences,
   updateDefaultLanguage,
+  updateDefaultServingSize,
   updateDefaultVisibility,
-  validateVisibility,
 } from "@/lib/dal/recipe";
 import { revalidatePath } from "next/cache";
+import { validateVisibility } from "@/lib/dal/visibility";
 
 const RecipeSettingsPage = async () => {
-  const { user } = await validateRequest();
+  const { session } = await validateRequest();
 
-  const preferences = await getRecipePreferences(user?.id);
+  const preferences = session
+    ? await getRecipePreferences(session.id)
+    : undefined;
   const defaultVisibility = validateVisibility(preferences?.defaultVisibility)
     ? preferences.defaultVisibility
     : undefined;
 
   const changeLanguageWithUserId = changeDefaultRecipeLanguage.bind(
     null,
-    user?.id,
+    session?.id,
   );
   const changeServingSizeWithUserId = changeDefaultRecipeServingSize.bind(
     null,
-    user?.id,
+    session?.id,
   );
   const changeVisibilityWithUserId = changeDefaultRecipeVisibility.bind(
     null,
-    user?.id,
+    session?.id,
   );
 
   return (
@@ -51,6 +54,7 @@ const RecipeSettingsPage = async () => {
                 type="number"
                 className="w-full rounded-lg"
                 defaultValue={preferences?.defaultServingSize}
+                name="defaultServingSize"
               />
             </Fieldset>
           </form>
@@ -59,6 +63,7 @@ const RecipeSettingsPage = async () => {
               <VisibilitySwitcher
                 name="visibility"
                 defaultValue={defaultVisibility}
+                triggerSubmitOnChange
               />
             </Fieldset>
           </form>
@@ -69,43 +74,43 @@ const RecipeSettingsPage = async () => {
 };
 
 async function changeDefaultRecipeLanguage(
-  userId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) {
   "use server";
-  if (typeof userId !== "string") return;
+  if (typeof sessionId !== "string") return;
 
   const languageCode = formData.get("language");
   if (typeof languageCode !== "string") return;
-
-  await updateDefaultLanguage(userId, languageCode);
+  await updateDefaultLanguage(sessionId, languageCode);
 
   revalidatePath("/settings/recipe");
 }
 
 async function changeDefaultRecipeVisibility(
-  userId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) {
   "use server";
-  if (typeof userId !== "string") return;
+  if (typeof sessionId !== "string") return;
   const visibility = formData.get("visibility");
 
   if (!validateVisibility(visibility)) return;
-  await updateDefaultVisibility(userId, visibility);
+  await updateDefaultVisibility(sessionId, visibility);
 
   revalidatePath("/settings/recipe");
 }
 
 async function changeDefaultRecipeServingSize(
-  userId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) {
   "use server";
-  if (typeof userId !== "string") return;
-  const visibility = formData.get("visibility");
+  if (typeof sessionId !== "string") return;
+  const defaultServingSize = Number(formData.get("defaultServingSize"));
 
-  if (!validateVisibility(visibility)) return;
+  if (isNaN(defaultServingSize)) return;
+  await updateDefaultServingSize(sessionId, defaultServingSize);
 
   revalidatePath("/settings/recipe");
 }

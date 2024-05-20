@@ -5,9 +5,14 @@ const Radio = ({
   children,
   value,
   defaultChecked,
-}: React.ComponentPropsWithoutRef<"input">) => {
+  triggerSubmitOnChange,
+}: React.ComponentPropsWithoutRef<"input"> & {
+  triggerSubmitOnChange?: boolean;
+}) => {
   function triggerSubmit(e: React.ChangeEvent) {
-    (e.target as HTMLInputElement).form?.requestSubmit();
+    if (triggerSubmitOnChange) {
+      (e.target as HTMLInputElement).form?.requestSubmit();
+    }
   }
 
   return (
