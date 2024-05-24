@@ -110,6 +110,15 @@ export const collections = sqliteTable("collections", {
   itemCount: integer("itemCount").notNull().default(0),
 });
 
+export const collectionRecipes = sqliteTable("collectionRecipes", {
+  collectionId: integer("collectionId")
+    .notNull()
+    .references(() => collections.id),
+  recipeId: integer("recipeId")
+    .notNull()
+    .references(() => recipes.id),
+});
+
 export const collectionSubscriptions = sqliteTable(
   "collectionSubscriptions",
   {

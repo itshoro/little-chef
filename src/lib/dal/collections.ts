@@ -128,14 +128,21 @@ export async function findPublicIds(
     .where(like(schema.translatables.value, `%${query}%`));
 }
 
-export async function getCollection(id: number, displayLanguageCode: string) {
+export async function getCollection(
+  identifier: { id: number } | { publicId: string },
+  displayLanguageCode: string,
+) {
   const nameTranslation = alias(schema.translatables, "name");
   const slugTranslation = alias(schema.translatables, "slug");
 
   const collection = await db
     .select()
     .from(schema.collections)
-    .where(eq(schema.collections.id, id))
+    .where(
+      "id" in identifier
+        ? eq(schema.collections.id, identifier.id)
+        : eq(schema.collections.publicId, identifier.publicId),
+    )
     .innerJoin(
       slugTranslation,
       and(
@@ -153,8 +160,20 @@ export async function getCollection(id: number, displayLanguageCode: string) {
 
   if (collection.length === 0) {
     throw new Error(
-      `Couldn't find a collection with id ${id} and a display language of ${displayLanguageCode}`,
+      `Couldn't find a collection with ${JSON.stringify(identifier)} and a display language of ${displayLanguageCode}`,
     );
   }
   return collection[0];
+}
+
+export async function getRecipeIds(collectionId: number) {
+  // TODO: consider recipe visibility
+  return await db
+    .select({ id: schema.recipes.id, publicId: schema.recipes.publicId })
+    .from(schema.collectionRecipes)
+    .where(eq(schema.collectionRecipes.collectionId, collectionId))
+    .innerJoin(
+      schema.recipes,
+      eq(schema.recipes.id, schema.collectionRecipes.recipeId),
+    );
 }
