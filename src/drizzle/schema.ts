@@ -196,30 +196,3 @@ export const sessions = sqliteTable("sessions", {
     .references(() => users.id),
   expiresAt: integer("expiresAt").notNull(),
 });
-
-// // MARK: relations
-
-export const userRelations = relations(users, ({ one }) => ({
-  appPreferences: one(appPreferences),
-}));
-
-export const collectionsRelations = relations(collections, ({ one }) => ({
-  name: one(translatables, {
-    fields: [collections.nameKey],
-    references: [translatables.key],
-    relationName: "name",
-  }),
-  slug: one(translatables, {
-    fields: [collections.slugKey],
-    references: [translatables.key],
-    relationName: "slug",
-  }),
-}));
-
-// export const recipeRelations = relations(recipes, ({ many }) => ({
-//   collections: many(collections),
-//   recipeSubscribers: many(recipeSubscribers),
-//   steps: many(steps),
-// }));
-
-// export const stepRelations = relations(steps, ({ one }) => ({}));
