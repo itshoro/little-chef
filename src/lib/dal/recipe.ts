@@ -1,9 +1,10 @@
 import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-import { eq } from "drizzle-orm";
+import { eq, and, like, or } from "drizzle-orm";
 import { z } from "zod";
 import type { Visibility } from "./visibility";
 import { findSessionUser } from "./user";
+import { alias } from "drizzle-orm/sqlite-core";
 
 // MARK: Preferences
 
@@ -70,6 +71,96 @@ export async function updateDefaultVisibility(
     .update(schema.recipePreferences)
     .set({ defaultVisibility })
     .where(eq(schema.recipePreferences.id, id));
+}
+
+// MARK: App
+export async function getSubscriptions(userId: number) {
+  return await db
+    .select({
+      id: schema.recipes.id,
+      publicId: schema.recipes.publicId,
+      role: schema.recipeSubscriptions.role,
+    })
+    .from(schema.recipeSubscriptions)
+    .where(eq(schema.recipeSubscriptions.userId, userId))
+    .innerJoin(
+      schema.recipes,
+      eq(schema.recipes.id, schema.recipeSubscriptions.recipeId),
+    );
+}
+
+export async function getCreatorsAndMaintainers(recipeId: number) {
+  return await db
+    .select({
+      username: schema.users.username,
+      publicId: schema.users.publicId,
+    })
+    .from(schema.recipeSubscriptions)
+    .where(
+      and(
+        eq(schema.recipeSubscriptions.recipeId, recipeId),
+        or(
+          eq(schema.recipeSubscriptions.role, "creator"),
+          eq(schema.recipeSubscriptions.role, "maintainer"),
+        ),
+      ),
+    )
+    .innerJoin(
+      schema.users,
+      eq(schema.users.id, schema.recipeSubscriptions.userId),
+    );
+}
+
+export async function findPublicIds(
+  query: string,
+  displayLanguageCode: string,
+) {
+  return await db
+    .select({
+      id: schema.recipes.id,
+      publicId: schema.recipes.publicId,
+      value: schema.translatables.value,
+    })
+    .from(schema.recipes)
+    .innerJoin(
+      schema.translatables,
+      and(
+        eq(schema.translatables.key, schema.recipes.nameKey),
+        eq(schema.translatables.languageCode, displayLanguageCode),
+      ),
+    )
+    .where(like(schema.translatables.value, `%${query}%`));
+}
+
+export async function getRecipe(id: number, displayLanguageCode: string) {
+  const nameTranslation = alias(schema.translatables, "name");
+  const slugTranslation = alias(schema.translatables, "slug");
+
+  const recipe = await db
+    .select()
+    .from(schema.recipes)
+    .where(eq(schema.recipes.id, id))
+    .innerJoin(
+      slugTranslation,
+      and(
+        eq(slugTranslation.key, schema.recipes.slugKey),
+        eq(slugTranslation.languageCode, displayLanguageCode),
+      ),
+    )
+    .innerJoin(
+      nameTranslation,
+      and(
+        eq(nameTranslation.key, schema.recipes.nameKey),
+        eq(nameTranslation.languageCode, displayLanguageCode),
+      ),
+    );
+
+  if (recipe.length === 0) {
+    throw new Error(
+      `Couldn't find a recipe with id ${id} and a display language of ${displayLanguageCode}`,
+    );
+  }
+  return recipe[0];
 }
 
 // MARK: Actions
