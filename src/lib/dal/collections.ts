@@ -3,6 +3,7 @@ import { db } from "@/drizzle/db";
 import { eq, or, and, like } from "drizzle-orm";
 import type { Visibility } from "./visibility";
 import { findSessionUser } from "./user";
+import { alias } from "drizzle-orm/sqlite-core";
 
 export async function getCollectionPreferences(sessionId: string) {
   const id = await getPreferencesId(sessionId);
@@ -106,7 +107,7 @@ export async function getSubscriptions(userId: number) {
     );
 }
 
-export async function findPublicCollectionIds(
+export async function findPublicIds(
   query: string,
   displayLanguageCode: string,
 ) {
@@ -128,35 +129,32 @@ export async function findPublicCollectionIds(
 }
 
 export async function getCollection(id: number, displayLanguageCode: string) {
-  let collection = await db.query.collections.findFirst({
-    with: {
-      name: true,
-      slug: true,
-    },
-    where: and(eq(schema.collections.id, id)),
-  });
+  const nameTranslation = alias(schema.translatables, "name");
+  const slugTranslation = alias(schema.translatables, "slug");
 
-  if (collection === undefined) return undefined;
+  const collection = await db
+    .select()
+    .from(schema.collections)
+    .where(eq(schema.collections.id, id))
+    .innerJoin(
+      slugTranslation,
+      and(
+        eq(slugTranslation.key, schema.collections.slugKey),
+        eq(slugTranslation.languageCode, displayLanguageCode),
+      ),
+    )
+    .innerJoin(
+      nameTranslation,
+      and(
+        eq(nameTranslation.key, schema.collections.nameKey),
+        eq(nameTranslation.languageCode, displayLanguageCode),
+      ),
+    );
 
-  const nameValue = await db.query.translatables.findFirst({
-    where: and(
-      eq(schema.translatables.key, collection.nameKey),
-      eq(schema.translatables.languageCode, displayLanguageCode),
-    ),
-  });
-
-  const slugValue = await db.query.translatables.findFirst({
-    where: and(
-      eq(schema.translatables.key, collection.slugKey),
-      eq(schema.translatables.languageCode, displayLanguageCode),
-    ),
-  });
-
-  type CollectionWithTranslation = Optional<typeof collection, "name" | "slug">;
-  (collection as CollectionWithTranslation).name = nameValue;
-  (collection as CollectionWithTranslation).slug = slugValue;
-
-  return collection as CollectionWithTranslation;
+  if (collection.length === 0) {
+    throw new Error(
+      `Couldn't find a collection with id ${id} and a display language of ${displayLanguageCode}`,
+    );
+  }
+  return collection[0];
 }
-
-type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;

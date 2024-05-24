@@ -8,30 +8,29 @@ import {
 type CollectionSubscriptionCardProps = {
   id: number;
   publicId: string;
-  role?: string;
   displayLanguage: string;
+  role?: string;
 };
 
 const CollectionSubscriptionCard = async ({
   id,
   displayLanguage,
 }: CollectionSubscriptionCardProps) => {
-  const [collection, collaborators] = await Promise.all([
+  const [collectionResult, collaboratorsResult] = await Promise.allSettled([
     getCollection(id, displayLanguage),
     getCreatorsAndMaintainers(id),
   ]);
 
-  if (
-    collection === undefined ||
-    collection.slug === undefined ||
-    collection.name === undefined
-  )
-    return null;
+  if (collectionResult.status === "rejected") return null;
+
+  const collection = collectionResult.value;
+  const collaborators =
+    collaboratorsResult.status === "fulfilled" ? collaboratorsResult.value : [];
 
   return (
     <Card.Root>
       <Card.Link
-        href={`/collections/${collection.slug.value}-${collection.publicId}`}
+        href={`/collections/${collection.slug.value}-${collection.collections.publicId}`}
       >
         Overview of {collection.name.value}
       </Card.Link>
@@ -42,7 +41,7 @@ const CollectionSubscriptionCard = async ({
             <span className="text-sm font-normal">
               <span className="text-stone-400">&middot;</span>{" "}
               <span className="text-lime-500">
-                {collection.itemCount} recipes
+                {collection.collections.itemCount} recipes
               </span>
             </span>
           </div>

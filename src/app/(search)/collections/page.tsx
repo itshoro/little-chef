@@ -2,10 +2,7 @@ import { validateRequest } from "@/lib/auth/lucia";
 import type { User as LuciaUser } from "lucia";
 import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
-import {
-  findPublicCollectionIds,
-  getSubscriptions,
-} from "@/lib/dal/collections";
+import { findPublicIds, getSubscriptions } from "@/lib/dal/collections";
 import { getAppPreferences } from "@/lib/dal/app";
 
 const Page = async (props: { searchParams: { q: string } }) => {
@@ -60,7 +57,7 @@ const CollectionSearchResults = async ({
   if (!user) return null;
 
   const appPreferences = await getAppPreferences(user.id);
-  const collections = await findPublicCollectionIds(
+  const collections = await findPublicIds(
     query ?? "",
     appPreferences.displayLanguageCode,
   );
