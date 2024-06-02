@@ -106,14 +106,22 @@ export async function findPublicCollections(query: string) {
     .where(like(schema.collections.name, `%${query}%`));
 }
 
-export async function getCollection(id: number) {
+export async function getCollection(
+  query: { id: number } | { publicId: string },
+) {
   const collections = await db
     .select()
     .from(schema.collections)
-    .where(eq(schema.collections.id, id));
+    .where(
+      "id" in query
+        ? eq(schema.collections.id, query.id)
+        : eq(schema.collections.publicId, query.publicId),
+    );
 
   if (collections.length === 0) {
-    throw new Error(`Couldn't find a collection with id ${id}.`);
+    throw new Error(
+      `Couldn't find a collection with query ${JSON.stringify(query)}.`,
+    );
   }
   return collections[0];
 }

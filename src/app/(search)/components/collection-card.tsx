@@ -15,7 +15,7 @@ const CollectionSubscriptionCard = async ({
   id,
 }: CollectionSubscriptionCardProps) => {
   const [collectionResult, collaboratorsResult] = await Promise.allSettled([
-    getCollection(id),
+    getCollection({ id }),
     getCreatorsAndMaintainers(id),
   ]);
 
