@@ -29,23 +29,6 @@ export async function getAppPreferences(userId: number) {
   return preferences;
 }
 
-// MARK: Language
-export async function changeLanguage(
-  userId: number,
-  displayLanguageCode: string,
-) {
-  const id = await getPreferencesId(userId);
-
-  await db
-    .update(schema.appPreferences)
-    .set({ displayLanguageCode })
-    .where(eq(schema.appPreferences.id, id));
-}
-
-export async function getLanguages() {
-  return await db.query.language.findMany();
-}
-
 // MARK: Theme
 export const supportedThemes = ["dark", "light", "system"] as const;
 

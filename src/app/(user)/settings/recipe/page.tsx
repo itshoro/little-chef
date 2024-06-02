@@ -1,11 +1,9 @@
 import { Fieldset } from "../components/primitives/fieldset";
-import { LanguageSelect } from "../components/language-select";
 import { VisibilitySwitcher } from "../components/visibility-switcher";
 import * as SettingsSection from "../components/settings-section";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   getRecipePreferences,
-  updateDefaultLanguage,
   updateDefaultServingSize,
   updateDefaultVisibility,
 } from "@/lib/dal/recipe";
@@ -22,10 +20,6 @@ const RecipeSettingsPage = async () => {
     ? preferences.defaultVisibility
     : undefined;
 
-  const changeLanguageWithUserId = changeDefaultRecipeLanguage.bind(
-    null,
-    session?.id,
-  );
   const changeServingSizeWithUserId = changeDefaultRecipeServingSize.bind(
     null,
     session?.id,
@@ -40,14 +34,6 @@ const RecipeSettingsPage = async () => {
       <SettingsSection.Root>
         <SettingsSection.Label>Recipe Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
-          <form action={changeLanguageWithUserId}>
-            <Fieldset label="Default Language">
-              <LanguageSelect
-                name="language"
-                defaultValue={preferences?.defaultLanguageCode}
-              />
-            </Fieldset>
-          </form>
           <form action={changeServingSizeWithUserId}>
             <Fieldset label="Default Serving Size">
               <input
@@ -72,20 +58,6 @@ const RecipeSettingsPage = async () => {
     </>
   );
 };
-
-async function changeDefaultRecipeLanguage(
-  sessionId: string | undefined,
-  formData: FormData,
-) {
-  "use server";
-  if (typeof sessionId !== "string") return;
-
-  const languageCode = formData.get("language");
-  if (typeof languageCode !== "string") return;
-  await updateDefaultLanguage(sessionId, languageCode);
-
-  revalidatePath("/settings/recipe");
-}
 
 async function changeDefaultRecipeVisibility(
   sessionId: string | undefined,
