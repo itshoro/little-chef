@@ -168,67 +168,71 @@ export async function findSessionUser(sessionId: string) {
 
 export async function createUser(username: string, hashedPassword: string) {
   return await db.transaction(async (tx) => {
-    const [appPreferencesEntry] = await tx
-      .insert(schema.appPreferences)
-      .values({
-        displayLanguageCode: "en",
-      })
-      .returning({ id: schema.appPreferences.id });
-    const [collectionPreferencesEntry] = await tx
-      .insert(schema.collectionPreferences)
-      .values({
-        defaultLanguageCode: "en",
-      })
-      .returning({ id: schema.collectionPreferences.id });
-    const [recipePreferencesEntry] = await tx
-      .insert(schema.recipePreferences)
-      .values({
-        defaultLanguageCode: "en",
-      })
-      .returning({ id: schema.recipePreferences.id });
+    try {
+      const [appPreferences] = await tx
+        .insert(schema.appPreferences)
+        .values({})
+        .returning();
+      const [collectionPreferences] = await tx
+        .insert(schema.collectionPreferences)
+        .values({})
+        .returning();
+      const [recipePreferences] = await tx
+        .insert(schema.recipePreferences)
+        .values({})
+        .returning();
 
-    const defaultCollections = await tx
-      .insert(schema.collections)
-      .values([
-        {
+      const defaultCollections = await tx
+        .insert(schema.collections)
+        .values([
+          {
+            name: "Liked",
+            slug: "liked",
+            publicId: nanoid(),
+            isCustom: false,
+          },
+          {
+            name: "General",
+            slug: "general",
+            publicId: nanoid(),
+            isCustom: false,
+          },
+        ])
+        .returning({ id: schema.collections.id });
+
+      const [user] = await tx
+        .insert(schema.users)
+        .values({
           publicId: nanoid(),
-          isCustom: false,
-          nameKey: "collection_name_general",
-          slugKey: "collection_slug_general",
-        },
-        {
-          publicId: nanoid(),
-          isCustom: false,
-          nameKey: "collection_name_liked",
-          slugKey: "collection_slug_liked",
-        },
-      ])
-      .returning({ id: schema.collections.id });
+          username: username,
+          hashedPassword: hashedPassword,
+          appPreferencesId: appPreferences.id,
+          collectionPreferencesId: collectionPreferences.id,
+          recipePreferencesId: recipePreferences.id,
+        })
+        .returning();
 
-    const [user] = await tx
-      .insert(schema.users)
-      .values({
-        publicId: nanoid(),
-        username: username,
-        hashedPassword: hashedPassword,
-        appPreferencesId: appPreferencesEntry.id,
-        collectionPreferencesId: collectionPreferencesEntry.id,
-        recipePreferencesId: recipePreferencesEntry.id,
-      })
-      .returning();
+      await tx.insert(schema.collectionSubscriptions).values(
+        defaultCollections.map(
+          (collection) =>
+            ({
+              collectionId: collection.id,
+              userId: user.id,
+              role: "maintainer",
+            }) as const,
+        ),
+      );
 
-    await tx.insert(schema.collectionSubscriptions).values(
-      defaultCollections.map(
-        (collection) =>
-          ({
-            collectionId: collection.id,
-            userId: user.id,
-            role: "maintainer",
-          }) as const,
-      ),
-    );
+      return user;
+    } catch (e) {
+      if (e instanceof Error) {
+        console.error(e);
+      } else {
+        console.error("Unknown error occured during user cration.");
+      }
 
-    return user;
+      return tx.rollback();
+    }
   });
 }
 

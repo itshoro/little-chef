@@ -3,7 +3,6 @@ import { db } from "@/drizzle/db";
 import { eq, or, and, like } from "drizzle-orm";
 import type { Visibility } from "./visibility";
 import { findSessionUser } from "./user";
-import { alias } from "drizzle-orm/sqlite-core";
 
 export async function getCollectionPreferences(sessionId: string) {
   const id = await getPreferencesId(sessionId);
@@ -58,18 +57,6 @@ export async function updateDefaultVisibility(
     .where(eq(schema.collectionPreferences.id, id));
 }
 
-export async function updateDefaultLanguage(
-  sessionId: string,
-  defaultLanguageCode: string,
-) {
-  const id = await getPreferencesId(sessionId);
-
-  await db
-    .update(schema.collectionPreferences)
-    .set({ defaultLanguageCode })
-    .where(eq(schema.collectionPreferences.id, id));
-}
-
 export async function getCreatorsAndMaintainers(collectionId: number) {
   return await db
     .select({
@@ -107,63 +94,28 @@ export async function getSubscriptions(userId: number) {
     );
 }
 
-export async function findPublicIds(
-  query: string,
-  displayLanguageCode: string,
-) {
+export async function findPublicCollections(query: string) {
   return await db
     .select({
       id: schema.collections.id,
       publicId: schema.collections.publicId,
-      value: schema.translatables.value,
+      value: schema.collections.name,
+      slug: schema.collections.slug,
     })
     .from(schema.collections)
-    .innerJoin(
-      schema.translatables,
-      and(
-        eq(schema.translatables.key, schema.collections.nameKey),
-        eq(schema.translatables.languageCode, displayLanguageCode),
-      ),
-    )
-    .where(like(schema.translatables.value, `%${query}%`));
+    .where(like(schema.collections.name, `%${query}%`));
 }
 
-export async function getCollection(
-  identifier: { id: number } | { publicId: string },
-  displayLanguageCode: string,
-) {
-  const nameTranslation = alias(schema.translatables, "name");
-  const slugTranslation = alias(schema.translatables, "slug");
-
-  const collection = await db
+export async function getCollection(id: number) {
+  const collections = await db
     .select()
     .from(schema.collections)
-    .where(
-      "id" in identifier
-        ? eq(schema.collections.id, identifier.id)
-        : eq(schema.collections.publicId, identifier.publicId),
-    )
-    .innerJoin(
-      slugTranslation,
-      and(
-        eq(slugTranslation.key, schema.collections.slugKey),
-        eq(slugTranslation.languageCode, displayLanguageCode),
-      ),
-    )
-    .innerJoin(
-      nameTranslation,
-      and(
-        eq(nameTranslation.key, schema.collections.nameKey),
-        eq(nameTranslation.languageCode, displayLanguageCode),
-      ),
-    );
+    .where(eq(schema.collections.id, id));
 
-  if (collection.length === 0) {
-    throw new Error(
-      `Couldn't find a collection with ${JSON.stringify(identifier)} and a display language of ${displayLanguageCode}`,
-    );
+  if (collections.length === 0) {
+    throw new Error(`Couldn't find a collection with id ${id}.`);
   }
-  return collection[0];
+  return collections[0];
 }
 
 export async function getRecipeIds(collectionId: number) {

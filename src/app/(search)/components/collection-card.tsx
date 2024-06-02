@@ -8,16 +8,14 @@ import {
 type CollectionSubscriptionCardProps = {
   id: number;
   publicId: string;
-  displayLanguage: string;
   role?: string;
 };
 
 const CollectionSubscriptionCard = async ({
   id,
-  displayLanguage,
 }: CollectionSubscriptionCardProps) => {
   const [collectionResult, collaboratorsResult] = await Promise.allSettled([
-    getCollection({ id }, displayLanguage),
+    getCollection(id),
     getCreatorsAndMaintainers(id),
   ]);
 
@@ -30,18 +28,18 @@ const CollectionSubscriptionCard = async ({
   return (
     <Card.Root>
       <Card.Link
-        href={`/collections/${collection.slug.value}-${collection.collections.publicId}`}
+        href={`/collections/${collection.slug}-${collection.publicId}`}
       >
-        Overview of {collection.name.value}
+        Overview of {collection.name}
       </Card.Link>
       <div className="px-4 py-5">
         <div className="flex items-center justify-between">
           <div className="font-medium">
-            <span>{collection.name.value} </span>
+            <span>{collection.name} </span>
             <span className="text-sm font-normal">
               <span className="text-stone-400">&middot;</span>{" "}
               <span className="text-lime-500">
-                {collection.collections.itemCount} recipes
+                {collection.itemCount} recipes
               </span>
             </span>
           </div>

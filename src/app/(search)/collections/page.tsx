@@ -2,8 +2,7 @@ import { validateRequest } from "@/lib/auth/lucia";
 import type { User as LuciaUser } from "lucia";
 import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
-import { findPublicIds, getSubscriptions } from "@/lib/dal/collections";
-import { getAppPreferences } from "@/lib/dal/app";
+import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
 
 const Page = async (props: { searchParams: { q: string } }) => {
   const { user } = await validateRequest();
@@ -20,7 +19,6 @@ const Page = async (props: { searchParams: { q: string } }) => {
 const CollectionList = async ({ user }: { user: LuciaUser | null }) => {
   if (!user) return null;
 
-  const appPreferences = await getAppPreferences(user.id);
   const subscriptions = await getSubscriptions(user.id);
 
   return (
@@ -35,10 +33,7 @@ const CollectionList = async ({ user }: { user: LuciaUser | null }) => {
         {subscriptions.map((subscription) => {
           return (
             <li key={subscription.id} className="">
-              <CollectionSubscriptionCard
-                {...subscription}
-                displayLanguage={appPreferences.displayLanguageCode}
-              />
+              <CollectionSubscriptionCard {...subscription} />
             </li>
           );
         })}
@@ -56,11 +51,7 @@ const CollectionSearchResults = async ({
 }) => {
   if (!user) return null;
 
-  const appPreferences = await getAppPreferences(user.id);
-  const collections = await findPublicIds(
-    query ?? "",
-    appPreferences.displayLanguageCode,
-  );
+  const collections = await findPublicCollections(query ?? "");
 
   return (
     <section>
@@ -74,10 +65,7 @@ const CollectionSearchResults = async ({
         {collections.map((collection) => {
           return (
             <li key={collection.id}>
-              <CollectionSubscriptionCard
-                {...collection}
-                displayLanguage={appPreferences.displayLanguageCode}
-              />
+              <CollectionSubscriptionCard {...collection} />
             </li>
           );
         })}

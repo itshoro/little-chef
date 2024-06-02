@@ -3,7 +3,6 @@ import { User } from "lucia";
 import { AddButton } from "../components/AddButton";
 import { RecipeCard } from "../components/recipe-card";
 import { findPublicIds, getSubscriptions } from "@/lib/dal/recipe";
-import { getAppPreferences } from "@/lib/dal/app";
 
 const Page = async (props: { searchParams: { q: string } }) => {
   const { user } = await validateRequest();
@@ -22,7 +21,6 @@ const Page = async (props: { searchParams: { q: string } }) => {
 const SubscribedList = async ({ user }: { user: User | null }) => {
   if (!user) return null;
 
-  const appPreferences = await getAppPreferences(user.id);
   const subscriptions = await getSubscriptions(user.id);
 
   return (
@@ -36,10 +34,7 @@ const SubscribedList = async ({ user }: { user: User | null }) => {
       <ul className="px-4">
         {subscriptions.map((subcription) => (
           <li key={subcription.id}>
-            <RecipeCard
-              {...subcription}
-              displayLanguage={appPreferences.displayLanguageCode}
-            />
+            <RecipeCard {...subcription} />
           </li>
         ))}
       </ul>
@@ -56,11 +51,7 @@ const SearchResults = async ({
 }) => {
   if (user === null) return null;
 
-  const appPreferences = await getAppPreferences(user.id);
-  const recipes = await findPublicIds(
-    query ?? "",
-    appPreferences.displayLanguageCode,
-  );
+  const recipes = await findPublicIds(query ?? "");
 
   return (
     <>
@@ -75,10 +66,7 @@ const SearchResults = async ({
           {recipes.map((recipe) => {
             return (
               <li key={recipe.id} className="">
-                <RecipeCard
-                  {...recipe}
-                  displayLanguage={appPreferences.displayLanguageCode}
-                />
+                <RecipeCard {...recipe} />
               </li>
             );
           })}

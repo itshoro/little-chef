@@ -1,40 +1,20 @@
 import {
   sqliteTable,
-  // AnySQLiteColumn,
   integer,
   text,
   primaryKey,
 } from "drizzle-orm/sqlite-core";
-import { relations } from "drizzle-orm";
-
-export const language = sqliteTable("language", {
-  code: text("code", { length: 2 }).primaryKey(),
-  name: text("name"),
-});
-
-export const translatables = sqliteTable("translatables", {
-  key: text("key").primaryKey(),
-  value: text("value").notNull(),
-  isSource: integer("isSource", { mode: "boolean" }).notNull(),
-  languageCode: text("languageCode", { length: 2 })
-    .notNull()
-    .references(() => language.code),
-});
 
 // MARK: recipes
 export const recipes = sqliteTable("recipes", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  nameKey: text("nameKey")
-    .notNull()
-    .references(() => translatables.key),
-  slugKey: text("slugKey")
-    .notNull()
-    .references(() => translatables.key),
   recommendedServingSize: integer("recommendedServingSize").notNull(),
   visibility: text("visibility", {
     enum: ["public", "unlisted", "private"],
   }).notNull(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
 });
 
 export const recipeSubscriptions = sqliteTable(
@@ -67,18 +47,14 @@ export const steps = sqliteTable("steps", {
     .notNull()
     .references(() => recipes.id),
   order: integer("order").notNull(),
-  descriptionKey: text("descriptionKey")
-    .notNull()
-    .references(() => translatables.key),
+  description: text("description").notNull(),
 });
 
 // MARK: ingredients
 export const ingredients = sqliteTable("ingredients", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  nameKey: text("nameKey")
-    .notNull()
-    .references(() => translatables.key),
+  name: text("name").notNull(),
 });
 
 export const ingredientDetails = sqliteTable("ingredientDetails", {
@@ -97,17 +73,13 @@ export const ingredientDetails = sqliteTable("ingredientDetails", {
 export const collections = sqliteTable("collections", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  nameKey: text("nameKey")
-    .notNull()
-    .references(() => translatables.key),
-  slugKey: text("slugKey")
-    .notNull()
-    .references(() => translatables.key),
   isCustom: integer("isCustom", { mode: "boolean" }),
   visibility: text("visibility", {
     enum: ["public", "unlisted", "private"],
   }),
   itemCount: integer("itemCount").notNull().default(0),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
 });
 
 export const collectionRecipes = sqliteTable("collectionRecipes", {
@@ -162,9 +134,6 @@ export const users = sqliteTable("users", {
 
 export const appPreferences = sqliteTable("appPreferences", {
   id: integer("id").primaryKey(),
-  displayLanguageCode: text("displayLanguageCode")
-    .notNull()
-    .references(() => language.code),
   theme: text("theme", {
     enum: ["light", "dark", "system"],
   })
@@ -174,9 +143,6 @@ export const appPreferences = sqliteTable("appPreferences", {
 
 export const collectionPreferences = sqliteTable("collectionPreferences", {
   id: integer("id").primaryKey(),
-  defaultLanguageCode: text("defaultLanguageCode")
-    .notNull()
-    .references(() => language.code),
   defaultVisibility: text("defaultVisibility", {
     enum: ["public", "unlisted", "private"],
   })
@@ -186,9 +152,6 @@ export const collectionPreferences = sqliteTable("collectionPreferences", {
 
 export const recipePreferences = sqliteTable("recipePreferences", {
   id: integer("id").primaryKey(),
-  defaultLanguageCode: text("defaultLanguageCode")
-    .notNull()
-    .references(() => language.code),
   defaultVisibility: text("defaultVisibility", {
     enum: ["public", "unlisted", "private"],
   })

@@ -49,18 +49,6 @@ export async function updateDefaultServingSize(
     .where(eq(schema.recipePreferences.id, id));
 }
 
-export async function updateDefaultLanguage(
-  sessionId: string,
-  defaultLanguageCode: string,
-) {
-  const id = await getPreferencesId(sessionId);
-
-  await db
-    .update(schema.recipePreferences)
-    .set({ defaultLanguageCode })
-    .where(eq(schema.recipePreferences.id, id));
-}
-
 export async function updateDefaultVisibility(
   sessionId: string,
   defaultVisibility: Visibility,
@@ -111,54 +99,24 @@ export async function getCreatorsAndMaintainers(recipeId: number) {
     );
 }
 
-export async function findPublicIds(
-  query: string,
-  displayLanguageCode: string,
-) {
+export async function findPublicIds(query: string) {
   return await db
     .select({
       id: schema.recipes.id,
       publicId: schema.recipes.publicId,
-      value: schema.translatables.value,
     })
     .from(schema.recipes)
-    .innerJoin(
-      schema.translatables,
-      and(
-        eq(schema.translatables.key, schema.recipes.nameKey),
-        eq(schema.translatables.languageCode, displayLanguageCode),
-      ),
-    )
-    .where(like(schema.translatables.value, `%${query}%`));
+    .where(like(schema.recipes.name, `%${query}%`));
 }
 
-export async function getRecipe(id: number, displayLanguageCode: string) {
-  const nameTranslation = alias(schema.translatables, "name");
-  const slugTranslation = alias(schema.translatables, "slug");
-
+export async function getRecipe(id: number) {
   const recipe = await db
     .select()
     .from(schema.recipes)
-    .where(eq(schema.recipes.id, id))
-    .innerJoin(
-      slugTranslation,
-      and(
-        eq(slugTranslation.key, schema.recipes.slugKey),
-        eq(slugTranslation.languageCode, displayLanguageCode),
-      ),
-    )
-    .innerJoin(
-      nameTranslation,
-      and(
-        eq(nameTranslation.key, schema.recipes.nameKey),
-        eq(nameTranslation.languageCode, displayLanguageCode),
-      ),
-    );
+    .where(eq(schema.recipes.id, id));
 
   if (recipe.length === 0) {
-    throw new Error(
-      `Couldn't find a recipe with id ${id} and a display language of ${displayLanguageCode}`,
-    );
+    throw new Error(`Couldn't find a recipe with id ${id}`);
   }
   return recipe[0];
 }
