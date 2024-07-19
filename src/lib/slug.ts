@@ -10,9 +10,10 @@ export function extractParts(slugWithPublicId: string) {
 export function generateSlug(name: string) {
   return name
     .toLowerCase()
-    .replace(/[^A-Za-z0-9\ ]/g, "")
-    .split(" ")
-    .join("-");
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 50);
 }
 
 export function generateSlugPathSegment(slug: string, publicId: string) {
