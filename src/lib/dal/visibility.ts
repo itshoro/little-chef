@@ -1,4 +1,4 @@
-const supportedVisibilites = ["public", "unlisted", "private"] as const;
+export const supportedVisibilites = ["public", "unlisted", "private"] as const;
 export type Visibility = (typeof supportedVisibilites)[number];
 
 export const validateVisibility = (

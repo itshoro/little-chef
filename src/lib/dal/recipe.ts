@@ -2,9 +2,11 @@ import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
 import { eq, and, like, or } from "drizzle-orm";
 import { z } from "zod";
-import type { Visibility } from "./visibility";
+import { type Visibility } from "./visibility";
 import { findSessionUser } from "./user";
-import { alias } from "drizzle-orm/sqlite-core";
+import { generateSlug } from "../slug";
+import { AddRecipeValidator } from "./validators";
+import { nanoid } from "../nanoid";
 
 // MARK: Preferences
 
@@ -62,6 +64,36 @@ export async function updateDefaultVisibility(
 }
 
 // MARK: App
+export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
+  return await db.transaction(async (tx) => {
+    const recipe = await tx
+      .insert(schema.recipes)
+      .values({
+        name: dto.name,
+        publicId: nanoid(),
+        recommendedServingSize: dto.servings,
+        slug: generateSlug(dto.name),
+        visibility: dto.visibility,
+      })
+      .returning();
+
+    if (recipe.length === 0) throw new Error("Recipe couldn't be created.");
+
+    // await tx.insert(schema.ingredientDetails).values(
+    //   await Promise.all(
+    //     dto.ingredients.map(async (ingredient) => ({
+    //       ingredientId: (await byPublicId(ingredient.publicId)).id,
+    //       recipeId: recipe[0].id,
+    //       measurementAmount: ingredient.measurement.amount,
+    //       measurementUnit: ingredient.measurement.unit,
+    //     })),
+    //   ),
+    // );
+
+    return recipe[0];
+  });
+}
+
 export async function getSubscriptions(userId: number) {
   return await db
     .select({
@@ -109,14 +141,47 @@ export async function findPublicIds(query: string) {
     .where(like(schema.recipes.name, `%${query}%`));
 }
 
-export async function getRecipe(id: number) {
+export async function getRecipe(
+  query: { id: number } | { publicId: string },
+  session?: string,
+) {
+  const sessionResult = session ? await findSessionUser(session) : undefined;
+
   const recipe = await db
-    .select()
+    .select({
+      id: schema.recipes.id,
+      publicId: schema.recipes.publicId,
+      name: schema.recipes.name,
+      recommendedServingSize: schema.recipes.recommendedServingSize,
+      slug: schema.recipes.slug,
+    })
     .from(schema.recipes)
-    .where(eq(schema.recipes.id, id));
+    .leftJoin(
+      schema.recipeSubscriptions,
+      eq(schema.recipeSubscriptions.recipeId, schema.recipes.id),
+    )
+    .where(
+      and(
+        "id" in query
+          ? eq(schema.recipes.id, query.id)
+          : eq(schema.recipes.publicId, query.publicId),
+        or(
+          eq(schema.recipes.visibility, "public"),
+          sessionResult
+            ? and(
+                eq(schema.recipeSubscriptions.userId, sessionResult.users.id),
+                or(
+                  eq(schema.recipeSubscriptions.role, "creator"),
+                  eq(schema.recipeSubscriptions.role, "maintainer"),
+                ),
+              )
+            : undefined,
+        ),
+      ),
+    );
 
   if (recipe.length === 0) {
-    throw new Error(`Couldn't find a recipe with id ${id}`);
+    throw new Error("Couldn't find the recipe", { cause: query });
   }
   return recipe[0];
 }
@@ -127,58 +192,31 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
   formData: FormData,
   validator: TValidator,
 ) {
-  const ingredientClientIds = formData.getAll("ingredient.uuid");
-  const ingredients = ingredientClientIds.map((id) => ({
-    publicId: formData.get(`ingredient.${id}.publicId`),
-    measurement: {
-      amount: formData.get(`ingredient.${id}.measurement.amount`),
-      unit: formData.get(`ingredient.${id}.measurement.unit`),
-    },
-  }));
-
   const stepUuids = formData.getAll("step.uuid");
   const steps = stepUuids.map((uuid) => ({
     uuid,
-    description: formData.get(`step.${uuid}`),
+    description: formData.get(`step.${uuid}`) as string,
   }));
+
+  // const ingredientClientIds = formData.getAll("ingredient.uuid");
+  // const ingredients = ingredientClientIds.map((id) => ({
+  //   publicId: formData.get(`ingredient.${id}.publicId`),
+  //   measurement: {
+  //     amount: formData.get(`ingredient.${id}.measurement.amount`),
+  //     unit: formData.get(`ingredient.${id}.measurement.unit`),
+  //   },
+  // }));
 
   const dto = {
     publicId: formData.get("publicId") ?? undefined,
     name: formData.get("name"),
     servings: formData.get("servings"),
-    totalDuration: formData.get("totalDuration"),
-    ingredients,
+    preparationTime: formData.get("preparationTime"),
+    cookingTime: formData.get("cookingTime"),
+    visibility: formData.get("visibility"),
+    // ingredients,
     steps,
   };
 
   return validator.safeParse(dto) as ReturnType<TValidator["safeParse"]>;
 }
-
-const AddRecipeValidator = z.object({
-  name: z.string().trim().min(2),
-  totalDuration: z.string().regex(/\d{2}:\d{2}/),
-  servings: z.coerce.number().min(0),
-  ingredients: z.array(
-    z.object({
-      publicId: z.string(),
-      measurement: z.object({
-        amount: z.string(),
-        unit: z.string(),
-      }),
-    }),
-  ),
-  steps: z.array(
-    z.object({
-      uuid: z.string(),
-      description: z.string().max(255),
-    }),
-  ),
-});
-
-const UpdateRecipeValidator = AddRecipeValidator.merge(
-  z.object({
-    publicId: z.string(),
-  }),
-);
-
-type Recipe = z.infer<typeof UpdateRecipeValidator>;

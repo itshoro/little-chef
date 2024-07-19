@@ -3,9 +3,15 @@
 import { useSearchParamState } from "@/hooks/useSearchParamState";
 import { toNumber } from "./lib";
 import { useRouter } from "next/navigation";
-import type { Recipe } from "@/lib/recipes/actions/read";
+import { Prisma } from "@prisma/client";
 
-const Actions = ({ step, recipe }: { step: number; recipe: Recipe }) => {
+const Actions = ({
+  step,
+  recipe,
+}: {
+  step: number;
+  recipe: Prisma.RecipeGetPayload<{ include: { RecipeStep: true } }>;
+}) => {
   const router = useRouter();
 
   function next() {
@@ -27,14 +33,14 @@ const Actions = ({ step, recipe }: { step: number; recipe: Recipe }) => {
   return (
     <>
       <button
-        className="rounded-full font-medium inline-flex items-center py-2 px-3 bg-stone-50 text-stone-800 border disabled:text-gray-400 disabled:pointer-events-none hover:shadow-inner transition ease-out select-none"
+        className="inline-flex select-none items-center rounded-full border bg-stone-50 px-3 py-2 font-medium text-stone-800 transition ease-out hover:shadow-inner disabled:pointer-events-none disabled:text-gray-400"
         onClick={previous}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
-          className="w-5 h-5"
+          className="h-5 w-5"
         >
           <path
             fillRule="evenodd"
@@ -45,7 +51,7 @@ const Actions = ({ step, recipe }: { step: number; recipe: Recipe }) => {
       </button>
 
       <button
-        className="rounded-full font-medium inline-flex items-center py-2 px-3 bg-stone-50 text-stone-800 border disabled:text-gray-400 disabled:pointer-events-none hover:shadow-inner transition ease-out select-none"
+        className="inline-flex select-none items-center rounded-full border bg-stone-50 px-3 py-2 font-medium text-stone-800 transition ease-out hover:shadow-inner disabled:pointer-events-none disabled:text-gray-400"
         disabled={step + 1 >= recipe.RecipeStep.length}
         onClick={next}
       >
@@ -55,7 +61,7 @@ const Actions = ({ step, recipe }: { step: number; recipe: Recipe }) => {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="w-5 h-5"
+            className="h-5 w-5"
           >
             <path
               fillRule="evenodd"

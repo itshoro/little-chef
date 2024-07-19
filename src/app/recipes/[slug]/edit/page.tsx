@@ -1,6 +1,6 @@
 import { updateRecipe } from "@/lib/recipes/actions";
 import { getRecipeEntity } from "@/lib/recipes/actions/read";
-import * as RecipeForm from "../../components/RecipeForm/Form";
+import * as RecipeForm from "../../../../(search)/recipes/components/RecipeForm/Form";
 import { Prisma } from "@prisma/client";
 import { notFound } from "next/navigation";
 import RecipeLayout from "../layout";
@@ -25,7 +25,7 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
           </form>
         </div>
         <footer
-          className="border-t w-full flex p-4"
+          className="flex w-full border-t p-4"
           style={{ gridArea: "action", gridColumn: 1 }}
         >
           <div className="ml-auto">

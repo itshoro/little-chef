@@ -1,16 +1,17 @@
-"use client";
-
 import * as Input from "@/app/components/input";
 import * as Generator from "@/app/components/generator";
-import { IngredientSelect } from "./Select";
+import { IngredientSelect } from "./select";
 import { Trash } from "@/app/components/icon/trash";
-import type { Recipe } from "@/lib/recipes/actions/read";
-import type { Ingredient } from "@/lib/ingredients/actions/read";
+import type { Prisma } from "@prisma/client";
 
 type IngredientInputProps = {
   uuid: string;
-  availableIngredients: Ingredient[];
-  defaultValue?: Recipe["RecipeIngredient"][number];
+  availableIngredients: Prisma.IngredientGetPayload<{
+    include: { name: true };
+  }>[];
+  defaultValue?: Prisma.RecipeGetPayload<{
+    include: { RecipeIngredient: true };
+  }>["RecipeIngredient"][number];
 };
 
 const IngredientGeneratorItem = ({
@@ -25,7 +26,7 @@ const IngredientGeneratorItem = ({
       </Input.Root>
 
       <Input.Root name={uuid} key={uuid}>
-        <div className="flex gap-4 mb-2">
+        <div className="mb-2 flex gap-4">
           <div className="flex-[3]">
             <Input.Root name="publicId">
               <Input.Label>Type</Input.Label>
@@ -49,7 +50,7 @@ const IngredientGeneratorItem = ({
                     Measurement
                   </Input.Label>
                 </div>
-                <div className="p-1 h-full">
+                <div className="h-full p-1">
                   <Input.Select
                     name="unit"
                     defaultValue={defaultValue?.measurementUnit}
@@ -67,7 +68,7 @@ const IngredientGeneratorItem = ({
           </div>
 
           <Generator.Remove
-            className="grid place-items-center disabled:bg-stone-200 hover:bg-stone-100 text-stone-500 p-2.5 mt-[1.5rem] rounded transition-colors"
+            className="mt-[1.5rem] grid place-items-center rounded p-2.5 text-stone-500 transition-colors hover:bg-stone-100 disabled:bg-stone-200"
             uid={uuid}
           >
             <div title="Remove">
