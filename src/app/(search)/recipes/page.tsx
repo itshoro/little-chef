@@ -31,7 +31,7 @@ const SubscribedList = async ({ user }: { user: User | null }) => {
           <span className="text-sm font-medium">Your Saved Recipes</span>
         </h1>
       </header>
-      <ul className="px-4">
+      <ul className="grid gap-3 px-4">
         {subscriptions.map((subcription) => (
           <li key={subcription.id}>
             <RecipeCard {...subcription} />
@@ -54,25 +54,23 @@ const SearchResults = async ({
   const recipes = await findPublicIds(query ?? "");
 
   return (
-    <>
-      <section>
-        <header className="px-4 py-5">
-          <h1 className="flex items-center">
-            <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
-            <span className="text-sm font-medium">Public Recipes</span>
-          </h1>
-        </header>
-        <ul className="grid gap-3 px-4">
-          {recipes.map((recipe) => {
-            return (
-              <li key={recipe.id} className="">
-                <RecipeCard {...recipe} />
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    </>
+    <section className="pb-20">
+      <header className="px-4 py-5">
+        <h1 className="flex items-center">
+          <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
+          <span className="text-sm font-medium">Public Recipes</span>
+        </h1>
+      </header>
+      <ul className="grid gap-3 px-4">
+        {recipes.map((recipe) => {
+          return (
+            <li key={recipe.id} className="">
+              <RecipeCard {...recipe} />
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 };
 

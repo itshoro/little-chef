@@ -54,7 +54,7 @@ const CollectionSearchResults = async ({
   const collections = await findPublicCollections(query ?? "");
 
   return (
-    <section>
+    <section className="pb-20">
       <header className="px-4 py-5">
         <h1 className="flex items-center">
           <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
