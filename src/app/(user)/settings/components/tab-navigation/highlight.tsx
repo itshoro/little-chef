@@ -15,17 +15,27 @@ function calculateStyle(
   activePathname: string,
   listRef: React.RefObject<HTMLElement>,
 ) {
-  const activeTab = listRef.current?.querySelector<React.ElementRef<"a">>(
+  if (!listRef.current) return undefined;
+
+  const activeTab = listRef.current.querySelector<React.ElementRef<"a">>(
     `a[href^='${activePathname}']`,
   );
 
   if (!activeTab) return undefined;
 
+  const { offsetLeft, offsetWidth, offsetTop, offsetHeight } = activeTab;
+  const offsetBottom =
+    listRef.current.offsetHeight - (offsetTop + offsetHeight);
+  const offsetRight = listRef.current.offsetWidth - (offsetLeft + offsetWidth);
+
+  const percentageTop = (offsetTop / listRef.current.offsetHeight) * 100;
+  const percentageRight = (offsetRight / listRef.current.offsetWidth) * 100;
+  const percentageBottom = (offsetBottom / listRef.current.offsetHeight) * 100;
+  const percentageLeft = (offsetLeft / listRef.current.offsetWidth) * 100;
+
   return {
-    width: `${activeTab.clientWidth}px`,
-    height: `${activeTab.clientHeight}px`,
-    transform: `translateX(${activeTab.offsetLeft}px) translateY(${activeTab.offsetTop}px)`,
-  };
+    clipPath: `inset(${percentageTop.toFixed()}% ${percentageRight.toFixed()}% ${percentageBottom.toFixed()}% ${percentageLeft.toFixed()}% round 9999px)`,
+  } satisfies React.CSSProperties;
 }
 
 const Highlight = ({ listRef }: { listRef: React.RefObject<HTMLElement> }) => {
@@ -38,9 +48,7 @@ const Highlight = ({ listRef }: { listRef: React.RefObject<HTMLElement> }) => {
     const style = calculateStyle(activePathname, listRef);
     if (!style) return;
 
-    ref.current.style.width = style.width;
-    ref.current.style.height = style.height;
-    ref.current.style.transform = style.transform;
+    ref.current.style.clipPath = style.clipPath;
   }
 
   function reevaluateStyle() {
@@ -84,7 +92,10 @@ const Highlight = ({ listRef }: { listRef: React.RefObject<HTMLElement> }) => {
   }, [activePathname]);
 
   return (
-    <span ref={ref} className="absolute top-0 -z-10 rounded-full bg-lime-300" />
+    <span
+      ref={ref}
+      className="absolute top-0 -z-10 h-full w-full bg-lime-300"
+    />
   );
 };
 
