@@ -57,7 +57,7 @@ const CollectionSearchResults = async ({
     <section>
       <header className="px-4 py-5">
         <h1 className="flex items-center">
-          <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
+          <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />
           <span className="text-sm font-medium">Public Collections</span>
         </h1>
       </header>
