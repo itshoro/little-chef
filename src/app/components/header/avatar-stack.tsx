@@ -19,7 +19,7 @@ const AvatarStack = ({
         >
           <img
             className="inline-block size-10 rounded-full border-2 border-white"
-            src={`${user.publicId}/avatar.webp`}
+            src={`/${user.publicId}/avatar.webp`}
             alt={`${user.username}`}
           />
         </Link>

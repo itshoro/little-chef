@@ -1,15 +1,20 @@
 import NextLink from "next/link";
+import type { Route } from "next";
 
-type LinkProps = Omit<React.ComponentPropsWithoutRef<"a">, "className"> & {
-  href: string | URL;
+type LinkProps<T extends string> = Omit<
+  React.ComponentPropsWithoutRef<"a">,
+  "className"
+> & {
+  href: Route<T> | URL;
 };
 
-const Link = ({ children, ...props }: LinkProps) => (
+const Link = <T extends string>({ children, href, ...props }: LinkProps<T>) => (
   <NextLink
     {...props}
-    className="inline-block group bg-gradient-to-t to-white from-stone-100 border font-medium rounded-2xl active:shadow-inner shadow shadow-emerald-950/10 active:shadow-emerald-950/30 text-stone-700 transition-all"
+    href={href as Route}
+    className="group inline-block rounded-2xl border bg-gradient-to-t from-stone-100 to-white font-medium text-stone-700 shadow shadow-emerald-950/10 transition-all active:shadow-inner active:shadow-emerald-950/30"
   >
-    <div className="group-active:translate-y-px transition inline-flex items-center p-2 pr-4">
+    <div className="inline-flex items-center p-2 pr-4 transition group-active:translate-y-px">
       {children}
     </div>
   </NextLink>
