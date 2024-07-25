@@ -10,6 +10,8 @@ export const recipes = sqliteTable("recipes", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
   recommendedServingSize: integer("recommendedServingSize").notNull(),
+  cookingTime: integer("cookingTime").notNull().default(0),
+  preparationTime: integer("preparationTime").notNull().default(0),
   visibility: text("visibility", {
     enum: ["public", "unlisted", "private"],
   }).notNull(),
@@ -22,7 +24,7 @@ export const recipeSubscriptions = sqliteTable(
   {
     recipeId: integer("recipeId")
       .notNull()
-      .references(() => recipes.id),
+      .references(() => recipes.id, { onDelete: "cascade" }),
     userId: integer("userId")
       .notNull()
       .references(() => users.id),
@@ -43,9 +45,9 @@ export const recipeSubscriptions = sqliteTable(
 export const steps = sqliteTable("steps", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  recipeId: integer("id")
+  recipeId: integer("recipeId")
     .notNull()
-    .references(() => recipes.id),
+    .references(() => recipes.id, { onDelete: "cascade" }),
   order: integer("order").notNull(),
   description: text("description").notNull(),
 });
@@ -88,7 +90,7 @@ export const collectionRecipes = sqliteTable("collectionRecipes", {
     .references(() => collections.id),
   recipeId: integer("recipeId")
     .notNull()
-    .references(() => recipes.id),
+    .references(() => recipes.id, { onDelete: "cascade" }),
 });
 
 export const collectionSubscriptions = sqliteTable(

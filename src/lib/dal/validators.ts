@@ -4,8 +4,8 @@ import { supportedVisibilites } from "./visibility";
 const AddRecipeValidator = z.object({
   name: z.string().trim().min(2),
   servings: z.coerce.number().min(0),
-  preparationTime: z.string().regex(/\d{2}:\d{2}/),
-  cookingTime: z.string().regex(/\d{2}:\d{2}/),
+  preparationTime: z.coerce.number().min(0),
+  cookingTime: z.coerce.number().min(0),
   visibility: z.enum(supportedVisibilites),
   // ingredients: z.array(
   //   z.object({

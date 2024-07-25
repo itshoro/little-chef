@@ -74,6 +74,8 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
         recommendedServingSize: dto.servings,
         slug: generateSlug(dto.name),
         visibility: dto.visibility,
+        cookingTime: dto.cookingTime,
+        preparationTime: dto.preparationTime,
       })
       .returning();
 
@@ -154,6 +156,8 @@ export async function getRecipe(
       name: schema.recipes.name,
       recommendedServingSize: schema.recipes.recommendedServingSize,
       slug: schema.recipes.slug,
+      preparationTime: schema.recipes.preparationTime,
+      cookingTime: schema.recipes.cookingTime,
     })
     .from(schema.recipes)
     .leftJoin(
@@ -185,6 +189,11 @@ export async function getRecipe(
   }
   return recipe[0];
 }
+
+export async function deleteRecipe(recipeId: number) {
+  await db.delete(schema.recipes).where(eq(schema.recipes.id, recipeId));
+}
+
 
 // MARK: Actions
 
