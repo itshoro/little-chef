@@ -66,7 +66,7 @@ export async function updateDefaultVisibility(
 // MARK: App
 export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
   return await db.transaction(async (tx) => {
-    const recipe = await tx
+    const recipeQuery = await tx
       .insert(schema.recipes)
       .values({
         name: dto.name,
@@ -79,7 +79,20 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
       })
       .returning();
 
-    if (recipe.length === 0) throw new Error("Recipe couldn't be created.");
+    if (recipeQuery.length !== 1)
+      throw new Error("Recipe couldn't be created.");
+    const recipe = recipeQuery.pop() as (typeof recipeQuery)[number];
+
+    await tx.insert(schema.steps).values(
+      dto.steps.map((step, i) => {
+        return {
+          description: step.description,
+          order: i,
+          publicId: step.uuid,
+          recipeId: recipe.id,
+        };
+      }),
+    );
 
     // await tx.insert(schema.ingredientDetails).values(
     //   await Promise.all(
@@ -92,7 +105,7 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
     //   ),
     // );
 
-    return recipe[0];
+    return recipe;
   });
 }
 
@@ -194,6 +207,13 @@ export async function deleteRecipe(recipeId: number) {
   await db.delete(schema.recipes).where(eq(schema.recipes.id, recipeId));
 }
 
+export async function getRecipeSteps(recipeId: number) {
+  return await db
+    .select()
+    .from(schema.steps)
+    .where(eq(schema.steps.recipeId, recipeId))
+    .orderBy(schema.steps.order);
+}
 
 // MARK: Actions
 
