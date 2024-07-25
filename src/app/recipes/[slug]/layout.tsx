@@ -10,11 +10,6 @@ const RecipeLayout = async ({
   children: React.ReactNode;
   params: { slug: string };
 }) => {
-  const { session } = await validateRequest();
-
-  const { publicId } = extractParts(params.slug);
-  const recipe = await getRecipe({ publicId }, session?.id);
-
   return (
     <>
       <header
@@ -40,7 +35,6 @@ const RecipeLayout = async ({
               </svg>
             </div>
           </NextLink>
-          <h1 className="font-medium">{recipe.name}</h1>
         </div>
       </header>
       {children}
