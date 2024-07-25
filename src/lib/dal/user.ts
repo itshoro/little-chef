@@ -243,3 +243,17 @@ export async function findUserByQuery(query: string, take: number = 5) {
     .where(or(eq(schema.users.username, query)))
     .limit(take);
 }
+
+export async function subscribeToRecipe(
+  sessionId: string,
+  recipe: typeof schema.recipes.$inferSelect,
+  role: typeof schema.recipeSubscriptions.$inferInsert.role,
+) {
+  const sessionResult = await findSessionUser(sessionId);
+
+  await db.insert(schema.recipeSubscriptions).values({
+    recipeId: recipe.id,
+    userId: sessionResult.users.id,
+    role,
+  });
+}
