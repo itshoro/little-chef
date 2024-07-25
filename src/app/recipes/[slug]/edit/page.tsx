@@ -1,26 +1,29 @@
-import { updateRecipe } from "@/lib/recipes/actions";
-import { getRecipeEntity } from "@/lib/recipes/actions/read";
-import * as RecipeForm from "../../../../(search)/recipes/components/RecipeForm/Form";
-import { Prisma } from "@prisma/client";
+import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
+import * as RecipeForm from "@/app/recipes/components/recipe-form";
 import { notFound } from "next/navigation";
-import RecipeLayout from "../layout";
+import { extractParts } from "@/lib/slug";
+import { validateRequest } from "@/lib/auth/lucia";
 
 type EditRecipePageProps = {
   params: {
-    publicId: string;
+    slug: string;
   };
 };
 
 const EditRecipePage = async ({ params }: EditRecipePageProps) => {
+  const { publicId } = extractParts(params.slug);
+  const { session } = await validateRequest();
+
   try {
-    const recipe = await getRecipeEntity(params.publicId);
+    const recipe = await getRecipe({ publicId }, session?.id);
+    const steps = await getRecipeSteps(recipe.id);
 
     return (
       <div className="flex flex-col">
         <div className="flex-1">
-          <form action={updateRecipe}>
+          <form>
             <div className="p-4">
-              <RecipeForm.Inputs defaultValue={recipe} />
+              <RecipeForm.Inputs defaultValue={{ recipe, steps }} />
             </div>
           </form>
         </div>
@@ -35,10 +38,8 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
       </div>
     );
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      if (e.code === "P2025") {
-        notFound();
-      }
+    if (e instanceof Error) {
+      notFound();
     }
   }
 };

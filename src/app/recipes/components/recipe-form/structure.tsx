@@ -8,12 +8,18 @@ import type { Visibility } from "@/lib/dal/visibility";
 
 type InputsProps = {
   defaultValue?: {
-    name?: string;
-    servings?: number;
-    preparationTime?: string;
-    cookingTime?: string;
-    visibility?: Visibility;
-    languageCode?: string;
+    recipe?: {
+      name?: string;
+      recommendedServingSize?: number;
+      preparationTime?: number;
+      cookingTime?: number;
+      visibility?: Visibility;
+    };
+    steps?: {
+      publicId: string;
+      description: string;
+      order: number;
+    }[];
   };
 };
 
@@ -27,7 +33,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
             <Input.Element
               autoFocus
               type="text"
-              defaultValue={defaultValue?.name}
+              defaultValue={defaultValue?.recipe?.name}
               required
             />
           </Input.Group>
@@ -39,7 +45,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <div className="rounded-xl border border-neutral-200">
             <VisibilitySwitcher
               name={"visibility"}
-              defaultValue={defaultValue?.visibility}
+              defaultValue={defaultValue?.recipe?.visibility}
             />
           </div>
         </Input.Root>
@@ -53,7 +59,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
               <Input.Group>
                 <Input.Element
                   type="text"
-                  defaultValue={defaultValue?.preparationTime}
+                  defaultValue={defaultValue?.recipe?.preparationTime}
                   pattern="\d+"
                   required
                 />
@@ -66,7 +72,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
               <Input.Group>
                 <Input.Element
                   type="text"
-                  defaultValue={defaultValue?.cookingTime}
+                  defaultValue={defaultValue?.recipe?.cookingTime}
                   pattern="\d+"
                   required
                 />
@@ -83,17 +89,14 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <div className="mb-3 ml-auto flex items-center gap-4">
             <span className="text-sm font-medium text-stone-600">Servings</span>
             <ServingsInput
-              defaultValue={defaultValue?.servings}
+              defaultValue={defaultValue?.recipe?.recommendedServingSize}
               name="servings"
             />
           </div>
         </div>
       </Fieldset.Root>
-      {/* <IngredientSelect action={findIngredientsAction} /> */}
 
-      {/* <IngredientsFieldset /> */}
-
-      <StepsGenerator />
+      <StepsGenerator defaultValue={defaultValue?.steps} />
     </>
   );
 };
@@ -131,7 +134,7 @@ const IngredientsFieldset = () => {
   //             <Input.Element
   //               type="text"
   //               name="amount"
-  //               defaultValue={defaultValue?.measurementAmount}
+  //               defaultValue={defaultValue?.recipe?.measurementAmount}
   //               required
   //             />
 
@@ -143,7 +146,7 @@ const IngredientsFieldset = () => {
   //             <div className="h-full p-1">
   //               <Input.Select
   //                 name="unit"
-  //                 defaultValue={defaultValue?.measurementUnit}
+  //                 defaultValue={defaultValue?.recipe?.measurementUnit}
   //                 required
   //               >
   //                 <option>pcs</option>

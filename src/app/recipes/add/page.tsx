@@ -24,24 +24,24 @@ const AddRecipePage = async () => {
     : undefined;
 
   return (
-    <>
-      <Form.Root action={create}>
-        <div className="p-4">
-          <input type="hidden" name="sessionId" value={session?.id} />
-          <Form.Inputs
-            defaultValue={{
-              servings: preferences?.defaultServingSize,
+    <Form.Root action={create}>
+      <div className="p-4">
+        <input type="hidden" name="sessionId" value={session?.id} />
+        <Form.Inputs
+          defaultValue={{
+            recipe: {
+              recommendedServingSize: preferences?.defaultServingSize,
               visibility: preferences?.defaultVisibility,
-            }}
-          />
+            },
+          }}
+        />
+      </div>
+      <div>
+        <div className="flex justify-end px-4">
+          <Form.Submit>Add Recipe</Form.Submit>
         </div>
-        <div>
-          <div className="flex justify-end px-4">
-            <Form.Submit>Add Recipe</Form.Submit>
-          </div>
-        </div>
-      </Form.Root>
-    </>
+      </div>
+    </Form.Root>
   );
 };
 
