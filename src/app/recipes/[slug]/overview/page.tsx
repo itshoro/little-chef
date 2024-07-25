@@ -1,76 +1,113 @@
 import { CTALink } from "@/app/components/CallToAction/Link";
+import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { validateRequest } from "@/lib/auth/lucia";
-import { getRecipe } from "@/lib/dal/recipe";
+import {
+  getCreatorsAndMaintainers,
+  getRecipe,
+  getRecipePreferences,
+  getRecipeSteps,
+} from "@/lib/dal/recipe";
 import { extractParts } from "@/lib/slug";
+import { Parser } from "@cooklang/cooklang-ts";
+import { IngredientList } from "./components/ingredient-list";
+import { AmountItem } from "./components/amount-item";
+import { ServingsQueryStore } from "./components/servings-query-store";
 
 type ShowRecipePageProps = {
   params: { slug: string };
+  searchParams: { servings: string };
 };
 
-const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
-  const { session } = await validateRequest();
+const ShowRecipePage = async ({
+  params,
+  searchParams,
+}: ShowRecipePageProps) => {
+  const { session, user } = await validateRequest();
 
   const { publicId } = extractParts(params.slug);
   const recipe = await getRecipe({ publicId }, session?.id);
+  const maintainers = await getCreatorsAndMaintainers(recipe.id);
+
+  const rawSteps = await getRecipeSteps(recipe.id);
+  const parser = new Parser();
+
+  const steps = rawSteps.map((step) => step.description);
+  const parsedSteps = parser.parse(steps.join());
+
+  const hasMaintainership = maintainers
+    .map((maintainer) => maintainer.publicId)
+    .includes(user!.publicId);
+
+  const preferences = session
+    ? await getRecipePreferences(session.id)
+    : undefined;
+
+  const servingsFromSearchParams = parseInt(searchParams.servings);
+  const defaultServingSize = isNaN(servingsFromSearchParams)
+    ? preferences?.defaultServingSize ?? recipe.recommendedServingSize
+    : servingsFromSearchParams;
 
   return (
     <>
-      {/* <header
-        className="px-4 py-4"
-        style={{ gridArea: "header", gridColumn: 1 }}
-      >
-        <div className="flex items-center gap-4">
-          <Link href="/">
-            <div className="rounded-lg p-1 bg-white ring-1 ring-black/5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
-            </div>
-          </Link>
-          <h1 className="font-medium">{recipe.name}</h1>
-        </div>
-      </header> */}
       <div>
         <div className="p-4 pt-6">
-          <section>
+          <h1 className="font-medium">{recipe.name}</h1>
+          <div className="mt-2 text-sm">
+            By{" "}
+            <span className="inline-block">
+              <AvatarStack users={maintainers} />
+            </span>{" "}
+            {new Intl.ListFormat(undefined, { type: "conjunction" }).format(
+              maintainers.map((u) => u.username),
+            )}
+          </div>
+          <section className="mt-12">
             <div className="mb-4 flex items-center gap-2">
               <span className="block h-1 w-1 rounded-full bg-green-600" />
               <h2 className="text-sm font-medium">Overview</h2>
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <InfoCard>
-                {/* <InfoCard.Value>{recipe.totalDuration}</InfoCard.Value> */}
-                <InfoCard.Label>Time needed</InfoCard.Label>
-              </InfoCard>
-              <InfoCard>
-                <InfoCard.Value>{recipe.recommendedServingSize}</InfoCard.Value>
-                <InfoCard.Label>Servings</InfoCard.Label>
-              </InfoCard>
+            <div className="overflow-x-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <InfoCard>
+                  <InfoCard.Value>
+                    {recipe.preparationTime} minutes
+                  </InfoCard.Value>
+                  <InfoCard.Label>Preparation time</InfoCard.Label>
+                </InfoCard>
+                <InfoCard>
+                  <InfoCard.Value>{recipe.cookingTime} minutes</InfoCard.Value>
+                  <InfoCard.Label>Cooking time</InfoCard.Label>
+                </InfoCard>
+                <InfoCard>
+                  <InfoCard.Value>
+                    {recipe.recommendedServingSize}
+                  </InfoCard.Value>
+                  <InfoCard.Label>Servings recommended</InfoCard.Label>
+                </InfoCard>
+              </div>
             </div>
           </section>
-          {/* <section className="p-4 m-1 bg-white ring-1 ring-black/5 rounded-xl shadow"> */}
-          {/* <div className="mt-4">
-            <section>
-              <div>
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="block h-1 w-1 rounded-full bg-green-600" />
-                  <h2 className="text-sm font-medium">Ingredients</h2>
-                </div>
-                <IngredientList ingredients={recipe.RecipeIngredient} />
-              </div>
-            </section>
-          </div> */}
+          <section className="mt-12">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="block h-1 w-1 rounded-full bg-green-600" />
+              <h2 className="text-sm font-medium">Ingredients</h2>
+            </div>
+            <IngredientList
+              ingredients={parsedSteps.ingredients}
+              recommendedServingSize={recipe.recommendedServingSize}
+            />
+          </section>
+          <section className="mt-12">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="block h-1 w-1 rounded-full bg-green-600" />
+              <h2 className="text-sm font-medium">Cookware</h2>
+            </div>
+            <ul>
+              {parsedSteps.cookwares.map((cookware) => (
+                <AmountItem label={cookware.name} amount={cookware.quantity} />
+              ))}
+            </ul>
+          </section>
         </div>
       </div>
 
@@ -78,7 +115,11 @@ const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
         className="flex w-full border-t p-4"
         style={{ gridArea: "action", gridColumn: 1 }}
       >
-        <div className="ml-auto">
+        <div className="flex w-full items-end justify-between">
+          <div>
+            <div className="mb-2">Servings</div>
+            <ServingsQueryStore defaultValue={defaultServingSize} />
+          </div>
           <CTALink href={`/recipes/${params.slug}/overview/wizard/0`}>
             <div className="flex items-center gap-6">
               Start
@@ -103,7 +144,9 @@ const ShowRecipePage = async ({ params }: ShowRecipePageProps) => {
 };
 
 const InfoCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-lg bg-white p-3 shadow-sm">{children}</div>
+  <div className="min-w-0 rounded-lg bg-stone-100 px-6 py-4 shadow-sm">
+    {children}
+  </div>
 );
 
 const Label = ({ children }: { children: React.ReactNode }) => (
@@ -111,78 +154,8 @@ const Label = ({ children }: { children: React.ReactNode }) => (
 );
 
 const Value = ({ children }: { children: React.ReactNode }) => (
-  <div>{children}</div>
+  <div className="font-medium">{children}</div>
 );
-
-// const IngredientList = ({
-//   ingredients,
-// }: {
-//   ingredients: Prisma.RecipeGetPayload<{
-//     include: {
-//       RecipeIngredient: {
-//         include: { Ingredient: { include: { name: true } } };
-//       };
-//     };
-//   }>["RecipeIngredient"];
-// }) => {
-//   return (
-//     <>
-//       <ul className="grid gap-2 md:grid-cols-2">
-//         {ingredients.map((ingredient) => (
-//           <IngredientListItem
-//             key={ingredient.ingredientId}
-//             ingredient={ingredient}
-//           />
-//         ))}
-//       </ul>
-//       {/* <div className="mt-4">
-//         <button className="w-full text-center p-2 hover:bg-stone-100 rounded-2xl">
-//           See all
-//         </button>
-//       </div> */}
-//     </>
-//   );
-// };
-
-// const IngredientListItem = ({
-//   ingredient,
-// }: {
-//   ingredient: Prisma.RecipeGetPayload<{
-//     include: {
-//       RecipeIngredient: {
-//         include: { Ingredient: { include: { name: true } } };
-//       };
-//     };
-//   }>["RecipeIngredient"][number];
-// }) => {
-//   return (
-//     <li>
-//       <div className="rounded-2xl bg-white shadow-sm">
-//         <div className="p-2">
-//           <article className="flex items-center justify-between">
-//             <div className="flex items-center">
-//               <div className="mr-2">
-//                 <div className="aspect-square rounded-lg bg-stone-100 p-2">
-//                   <div className="flex items-center justify-center">
-//                     <div className="m-auto">IMG</div>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="font-medium">
-//                 {ingredient.Ingredient.name[0].name}
-//               </div>
-//             </div>
-//             <div className="font-normal text-stone-500">
-//               <span>{ingredient.measurementAmount}</span>
-//               <span>{ingredient.measurementUnit}</span>
-//             </div>
-//             {/* <span className="flex-1 border-b border-dotted mx-4" /> */}
-//           </article>
-//         </div>
-//       </div>
-//     </li>
-//   );
-// };
 
 InfoCard.Label = Label;
 InfoCard.Value = Value;
