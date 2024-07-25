@@ -1,8 +1,14 @@
-import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
-import * as RecipeForm from "@/app/recipes/components/recipe-form";
-import { notFound } from "next/navigation";
-import { extractParts } from "@/lib/slug";
+import {
+  getRecipe,
+  getRecipeSteps,
+  recipeDtoFromFormData,
+  updateRecipe,
+} from "@/lib/dal/recipe";
+import * as Form from "@/app/recipes/components/recipe-form";
+import { notFound, redirect } from "next/navigation";
+import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { validateRequest } from "@/lib/auth/lucia";
+import { UpdateRecipeValidator } from "@/lib/dal/validators";
 
 type EditRecipePageProps = {
   params: {
@@ -19,23 +25,18 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
     const steps = await getRecipeSteps(recipe.id);
 
     return (
-      <div className="flex flex-col">
-        <div className="flex-1">
-          <form>
-            <div className="p-4">
-              <RecipeForm.Inputs defaultValue={{ recipe, steps }} />
-            </div>
-          </form>
+      <Form.Root action={update}>
+        <div className="p-4">
+          <input type="hidden" name="sessionId" value={session?.id} />
+          <input type="hidden" name="publicId" value={recipe.publicId} />
+          <Form.Inputs defaultValue={{ recipe, steps }} />
         </div>
-        <footer
-          className="flex w-full border-t p-4"
-          style={{ gridArea: "action", gridColumn: 1 }}
-        >
-          <div className="ml-auto">
-            <RecipeForm.Submit>Update Recipe</RecipeForm.Submit>
+        <div>
+          <div className="flex justify-end px-4">
+            <Form.Submit>Update Recipe</Form.Submit>
           </div>
-        </footer>
-      </div>
+        </div>
+      </Form.Root>
     );
   } catch (e) {
     if (e instanceof Error) {
@@ -43,5 +44,25 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
     }
   }
 };
+
+async function update(formData: FormData) {
+  "use server";
+
+  const sessionId = formData.get("sessionId");
+  if (typeof sessionId !== "string") throw new Error("SessionId is missing.");
+
+  const dto = recipeDtoFromFormData(formData, UpdateRecipeValidator);
+
+  if (!dto.success) {
+    throw new Error("Recipe DTO couldn't be updated.", {
+      cause: dto.error.flatten(),
+    });
+  }
+  const recipe = await updateRecipe(dto.data);
+
+  redirect(
+    `/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}/overview`,
+  );
+}
 
 export default EditRecipePage;

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { type Visibility } from "./visibility";
 import { findSessionUser } from "./user";
 import { generateSlug } from "../slug";
-import { AddRecipeValidator } from "./validators";
+import { AddRecipeValidator, UpdateRecipeValidator } from "./validators";
 import { nanoid } from "../nanoid";
 
 // MARK: Preferences
@@ -80,7 +80,7 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
       .returning();
 
     if (recipeQuery.length !== 1)
-      throw new Error("Recipe couldn't be created.");
+      throw new Error("Recipe couldn't be created.", { cause: dto });
     const recipe = recipeQuery.pop() as (typeof recipeQuery)[number];
 
     await tx.insert(schema.steps).values(
@@ -171,6 +171,7 @@ export async function getRecipe(
       slug: schema.recipes.slug,
       preparationTime: schema.recipes.preparationTime,
       cookingTime: schema.recipes.cookingTime,
+      visibility: schema.recipes.visibility,
     })
     .from(schema.recipes)
     .leftJoin(
@@ -213,6 +214,27 @@ export async function getRecipeSteps(recipeId: number) {
     .from(schema.steps)
     .where(eq(schema.steps.recipeId, recipeId))
     .orderBy(schema.steps.order);
+}
+
+export async function updateRecipe(dto: z.infer<typeof UpdateRecipeValidator>) {
+  const recipeQuery = await db
+    .update(schema.recipes)
+    .set({
+      cookingTime: dto.cookingTime,
+      name: dto.name,
+      slug: generateSlug(dto.name),
+      preparationTime: dto.preparationTime,
+      recommendedServingSize: dto.servings,
+      visibility: dto.visibility,
+    })
+    .where(eq(schema.recipes.publicId, dto.publicId))
+    .returning();
+
+  if (recipeQuery.length !== 1) {
+    throw new Error("Couldn't update recipe.", { cause: dto });
+  }
+
+  return recipeQuery.pop() as (typeof recipeQuery)[number];
 }
 
 // MARK: Actions
