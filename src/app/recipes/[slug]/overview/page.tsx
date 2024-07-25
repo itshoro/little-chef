@@ -133,7 +133,12 @@ const ShowRecipePage = async ({
             </div>
             <ul>
               {parsedSteps.cookwares.map((cookware) => (
-                <AmountItem label={cookware.name} amount={cookware.quantity} />
+                <li key={cookware.name}>
+                  <AmountItem
+                    label={cookware.name}
+                    amount={cookware.quantity}
+                  />
+                </li>
               ))}
             </ul>
           </section>
