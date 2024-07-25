@@ -217,24 +217,37 @@ export async function getRecipeSteps(recipeId: number) {
 }
 
 export async function updateRecipe(dto: z.infer<typeof UpdateRecipeValidator>) {
-  const recipeQuery = await db
-    .update(schema.recipes)
-    .set({
-      cookingTime: dto.cookingTime,
-      name: dto.name,
-      slug: generateSlug(dto.name),
-      preparationTime: dto.preparationTime,
-      recommendedServingSize: dto.servings,
-      visibility: dto.visibility,
-    })
-    .where(eq(schema.recipes.publicId, dto.publicId))
-    .returning();
+  return await db.transaction(async (tx) => {
+    const recipeQuery = await tx
+      .update(schema.recipes)
+      .set({
+        cookingTime: dto.cookingTime,
+        name: dto.name,
+        slug: generateSlug(dto.name),
+        preparationTime: dto.preparationTime,
+        recommendedServingSize: dto.servings,
+        visibility: dto.visibility,
+      })
+      .where(eq(schema.recipes.publicId, dto.publicId))
+      .returning();
 
-  if (recipeQuery.length !== 1) {
-    throw new Error("Couldn't update recipe.", { cause: dto });
-  }
+    if (recipeQuery.length !== 1) {
+      throw new Error("Couldn't update recipe.", { cause: dto });
+    }
+    const recipe = recipeQuery.pop() as (typeof recipeQuery)[number];
 
-  return recipeQuery.pop() as (typeof recipeQuery)[number];
+    await tx.delete(schema.steps).where(eq(schema.steps.recipeId, recipe.id));
+    await tx.insert(schema.steps).values(
+      dto.steps.map((step, i) => ({
+        description: step.description,
+        publicId: step.uuid,
+        order: i,
+        recipeId: recipe.id,
+      })),
+    );
+
+    return recipe;
+  });
 }
 
 // MARK: Actions
