@@ -49,12 +49,12 @@ const Inputs = ({ defaultValue }: InputsProps) => {
         <div className="mb-4 flex gap-4">
           <div className="flex-1">
             <Input.Root name="preparationTime">
-              <Input.Label>Preparation time</Input.Label>
+              <Input.Label>Preparation time (in minutes)</Input.Label>
               <Input.Group>
                 <Input.Element
                   type="text"
                   defaultValue={defaultValue?.preparationTime}
-                  pattern="\d{2}:\d{2}"
+                  pattern="\d+"
                   required
                 />
               </Input.Group>
@@ -62,12 +62,12 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           </div>
           <div className="flex-1">
             <Input.Root name="cookingTime">
-              <Input.Label>Cooking time</Input.Label>
+              <Input.Label>Cooking time (in minutes)</Input.Label>
               <Input.Group>
                 <Input.Element
                   type="text"
                   defaultValue={defaultValue?.cookingTime}
-                  pattern="\d{2}:\d{2}"
+                  pattern="\d+"
                   required
                 />
               </Input.Group>
