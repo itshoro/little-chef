@@ -12,17 +12,13 @@
     "drizzle-kit": "drizzle-kit"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.6",
     "@cooklang/cooklang-ts": "^1.2.6",
     "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@next/env": "^14.2.3",
     "@oddbird/popover-polyfill": "^0.4.3",
-    "@radix-ui/react-dialog": "^1.0.5",
-    "@radix-ui/react-popover": "^1.0.7",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.7",
     "better-sqlite3": "^10.0.0",
-    "cmdk": "^1.0.0",
     "drizzle-orm": "^0.30.10",
     "lucia": "^3.2.0",
     "nanoid": "^5.0.7",
@@ -31,7 +27,6 @@
     "oslo": "^1.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-mentions": "^4.4.10",
     "sharp": "^0.33.4",
     "uuid": "^9.0.1",
     "zod": "^3.23.8"
@@ -41,7 +36,6 @@
     "@types/node": "^20.12.12",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
-    "@types/react-mentions": "^4.1.13",
     "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.4.19",
     "drizzle-kit": "^0.21.2",
