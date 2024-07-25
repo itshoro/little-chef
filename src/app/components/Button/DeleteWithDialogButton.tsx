@@ -1,61 +1,26 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { DeleteDialog, useDeleteDialog } from "../Dialog/delete-dialog";
 
 type DeleteWithDialogButtonProps = {
   onDelete: () => void | Promise<void>;
 };
 
 const DeleteWithDialogButton = ({ onDelete }: DeleteWithDialogButtonProps) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  function openDialog() {
-    dialogRef.current!.showModal();
-  }
-
-  function closeDialog() {
-    dialogRef.current!.close();
-  }
-
-  const onDeleteCallback = useCallback(() => {
-    onDelete();
-    closeDialog();
-  }, [onDelete]);
+  const [openDialog, dialogProps] = useDeleteDialog(onDelete);
 
   return (
     <>
-      <dialog
-        className="p-6 rounded-2xl shadow-xl mx-auto mb-4 mt-auto absolute max-w-full backdrop:transform backdrop:backdrop-blur-sm"
-        ref={dialogRef}
-      >
-        <h1 className="text-xl">
-          Are you sure that you want to delete this recipe?
-        </h1>
-        <p>This action cannot be undone.</p>
-        <div className="flex justify-end gap-2 mt-8">
-          <button
-            className="p-2 text-red-700 hover:bg-red-800 hover:text-white rounded-lg transition-colors ease-out font-medium"
-            onClick={onDeleteCallback}
-          >
-            Yes, Delete it.
-          </button>
-          <button
-            className="bg-stone-200  p-2 rounded-lg font-medium"
-            onClick={closeDialog}
-          >
-            No, Take me back.
-          </button>
-        </div>
-      </dialog>
+      <DeleteDialog {...dialogProps} />
       <button
-        className="inline-flex px-3 text-sm items-center gap-1 bg-stone-50 border hover:bg-stone-200 hover:shadow-inner text-stone-600 rounded-full transition ease-out motion-reduce:transition-none font-medium p-1"
+        className="inline-flex items-center gap-1 rounded-full border bg-stone-50 p-1 px-3 text-sm font-medium text-stone-600 transition ease-out hover:bg-stone-200 hover:shadow-inner motion-reduce:transition-none"
         onClick={openDialog}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 16 16"
           fill="currentColor"
-          className="w-4 h-4"
+          className="h-4 w-4"
         >
           <path
             fillRule="evenodd"
