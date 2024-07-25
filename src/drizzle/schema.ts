@@ -52,25 +52,6 @@ export const steps = sqliteTable("steps", {
   description: text("description").notNull(),
 });
 
-// MARK: ingredients
-export const ingredients = sqliteTable("ingredients", {
-  id: integer("id").primaryKey(),
-  publicId: text("publicId").notNull().unique(),
-  name: text("name").notNull(),
-});
-
-export const ingredientDetails = sqliteTable("ingredientDetails", {
-  recipeId: integer("recipeId")
-    .notNull()
-    .references(() => recipes.id),
-  ingredientId: integer("ingredientId")
-    .notNull()
-    .references(() => ingredients.id),
-
-  measurementAmount: integer("measurementAmount"),
-  measurementUnit: text("measurementUnit"),
-});
-
 // MARK: collections
 export const collections = sqliteTable("collections", {
   id: integer("id").primaryKey(),
