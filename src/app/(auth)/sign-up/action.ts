@@ -15,9 +15,7 @@ async function signup(formData: FormData) {
   if (!validatePassword(password)) return;
 
   const hashedPassword = await new Argon2id().hash(password);
-  console.log(hashedPassword);
   const user = await createUser(username, hashedPassword);
-  console.log(user);
 
   const session = await lucia.createSession(user.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
