@@ -1,8 +1,8 @@
 "use client";
 
-import { Generator } from "./Generator";
-import { Items } from "./Items";
-import { Add } from "./Add";
-import { Remove } from "./Remove";
+import { Generator } from "./generator";
+import { Items } from "./items";
+import { Add } from "./add";
+import { Remove } from "./remove";
 
 export { Generator as Root, Items, Add, Remove };

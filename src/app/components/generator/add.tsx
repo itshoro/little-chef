@@ -11,7 +11,7 @@ const Add = ({ children }: AddProps) => {
   return (
     <button
       type="button"
-      className="flex items-center ml-auto disabled:hover:bg-none text-stone-600 hover:bg-stone-100 p-2 transition-all rounded-xl"
+      className="ml-auto flex items-center rounded-xl p-2 text-stone-600 transition-all hover:bg-stone-100 disabled:hover:bg-none"
       onClick={() => addItem()}
     >
       {children}
