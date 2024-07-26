@@ -9,15 +9,14 @@ type Props = {
 
 const Input = ({ urlParam = "q" }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout>();
   const [query, setQuery] = useSearchParamState(urlParam);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const form = e.target as HTMLFormElement;
-    const search = form.search as HTMLInputElement;
-
-    setQuery(search.value);
+    const formData = new FormData(e.target as HTMLFormElement);
+    setQuery(formData.get("search") as string);
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -32,15 +31,27 @@ const Input = ({ urlParam = "q" }: Props) => {
     }
   }
 
+  function onInput() {
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      formRef.current?.requestSubmit();
+    }, 100);
+  }
+
+  function onBlur() {
+    clearTimeout(timeoutRef.current);
+    formRef.current?.requestSubmit();
+  }
+
   return (
     <form ref={formRef} onSubmit={onSubmit}>
-      <label className="group block rounded-2xl bg-none text-gray-700 cursor-text">
+      <label className="group block cursor-text rounded-xl bg-stone-100 p-4 text-stone-700">
         <div className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="w-5 h-5 text-stone-500 group-hover:text-emerald-800 group-focus-within:text-emerald-800 transition-colors"
+            className="h-5 w-5 text-stone-500 transition-colors group-focus-within:text-emerald-800 group-hover:text-emerald-800"
           >
             <path
               fillRule="evenodd"
@@ -52,9 +63,11 @@ const Input = ({ urlParam = "q" }: Props) => {
             name="search"
             defaultValue={query ?? ""}
             onKeyDown={onKeyDown}
+            onInput={onInput}
+            onBlur={onBlur}
             placeholder="Search&#8230;"
             type="text"
-            className="w-full p-2 bg-transparent outline-none capitalize font-medium"
+            className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-none"
             autoComplete="off"
           />
         </div>
