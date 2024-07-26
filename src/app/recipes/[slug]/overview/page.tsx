@@ -154,7 +154,9 @@ const ShowRecipePage = async ({
             <div className="mb-2">Servings</div>
             <ServingsQueryStore defaultValue={defaultServingSize} />
           </div>
-          <CTALink href={`/recipes/${params.slug}/overview/wizard/0`}>
+          <CTALink
+            href={`/recipes/${params.slug}/overview/wizard/0?servings=${searchParams.servings}`}
+          >
             <div className="flex items-center gap-6">
               Start
               <svg
