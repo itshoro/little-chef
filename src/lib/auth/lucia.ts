@@ -1,13 +1,6 @@
 import { Lucia } from "lucia";
 import { cookies } from "next/headers";
 
-// import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
-// import type { User } from "@prisma/client";
-// import { PrismaClient } from "@prisma/client";
-
-// const client = new PrismaClient();
-// const adapter = new PrismaAdapter(client.session, client.user);
-
 import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
 import { db } from "@/drizzle/db";
 import type { InferSelectModel } from "drizzle-orm";
