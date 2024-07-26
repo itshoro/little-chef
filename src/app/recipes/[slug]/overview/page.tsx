@@ -152,7 +152,7 @@ const ShowRecipePage = async ({
         <div className="flex w-full items-end justify-between">
           <div>
             <div className="mb-2">Servings</div>
-            <ServingsQueryStore defaultValue={defaultServingSize} />
+            <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
           </div>
           <CTALink
             href={`/recipes/${params.slug}/overview/wizard/0?servings=${searchParams.servings}`}

@@ -9,8 +9,8 @@ import { useSearchParams } from "next/navigation";
 type ServingsQueryStoreProps = Omit<ServingsInputProps, "onChange">;
 
 const ServingsQueryStore = ({
-  name,
   defaultValue = 1,
+  ...props
 }: ServingsQueryStoreProps) => {
   const params = useSearchParams();
 
@@ -26,7 +26,7 @@ const ServingsQueryStore = ({
 
   return (
     <ServingsInput
-      name={name}
+      {...props}
       defaultValue={servings}
       onChange={(e) => {
         const searchParams = new URLSearchParams(params);

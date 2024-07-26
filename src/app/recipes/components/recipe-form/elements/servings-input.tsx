@@ -5,13 +5,15 @@ import { useRef } from "react";
 type ServingsInputProps = {
   defaultValue?: number;
   name?: string;
+  min?: number;
   onChange?: React.ChangeEventHandler<React.ElementRef<"input">>;
 };
 
 const ServingsInput = ({
-  defaultValue,
   name,
   onChange,
+  defaultValue = 1,
+  min = 1,
 }: ServingsInputProps) => {
   const ref = useRef<React.ElementRef<"input">>(null);
 
@@ -34,7 +36,7 @@ const ServingsInput = ({
           defaultValue={defaultValue ?? 1}
           type="number"
           name={name}
-          min={0}
+          min={min}
           step={0.5}
           ref={ref}
           className="min-w-[10ch] max-w-[12ch] border-none bg-transparent focus:ring-0"

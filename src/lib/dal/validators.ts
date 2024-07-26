@@ -3,7 +3,7 @@ import { supportedVisibilites } from "./visibility";
 
 const AddRecipeValidator = z.object({
   name: z.string().trim().min(2),
-  servings: z.coerce.number().min(0),
+  servings: z.coerce.number().min(1),
   preparationTime: z.coerce.number().min(0),
   cookingTime: z.coerce.number().min(0),
   visibility: z.enum(supportedVisibilites),
