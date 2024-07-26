@@ -5,6 +5,7 @@ import {
   type ServingsInputProps,
 } from "@/app/recipes/components/recipe-form/elements/servings-input";
 import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 type ServingsQueryStoreProps = Omit<ServingsInputProps, "onChange">;
 
@@ -15,14 +16,15 @@ const ServingsQueryStore = ({
   const params = useSearchParams();
 
   const sizingParam = parseInt(params.get("servings") ?? "");
-  const servings = !isNaN(sizingParam) ? sizingParam : defaultValue;
+  const servings = isNaN(sizingParam) ? defaultValue : sizingParam;
 
-  if (typeof window !== "undefined" && servings !== sizingParam) {
-    const url = new URL(window.location.href);
-    url.searchParams.set("servings", servings.toString());
-
-    window.location.replace(url);
-  }
+  useEffect(() => {
+    if (servings !== sizingParam) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("servings", servings.toString());
+      window.location.replace(url);
+    }
+  }, [servings, sizingParam]);
 
   return (
     <ServingsInput
@@ -31,7 +33,6 @@ const ServingsQueryStore = ({
       onChange={(e) => {
         const searchParams = new URLSearchParams(params);
         searchParams.set("servings", e.target.value);
-        debugger;
         window.history.replaceState(null, "", `?${searchParams.toString()}`);
       }}
     />
