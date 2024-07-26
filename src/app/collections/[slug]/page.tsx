@@ -2,7 +2,7 @@ import { RecipeCard } from "@/app/(search)/components/recipe-card";
 import { BackLink } from "@/app/components/BackLink";
 import { Header } from "@/app/components/header/header";
 import { getCollection, getRecipeIds } from "@/lib/dal/collections";
-import { extractParts } from "@/lib/slug";
+import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
 
 const CollectionPage = async ({ params }: { params: { slug: string } }) => {
@@ -12,7 +12,9 @@ const CollectionPage = async ({ params }: { params: { slug: string } }) => {
     const collection = await getCollection({ publicId });
 
     if (slug !== collection.slug) {
-      redirect(`/collections/${collection.slug}-${publicId}`);
+      redirect(
+        `/collections/${generateSlugPathSegment(collection.slug, publicId)}`,
+      );
     }
 
     const recipeIds = await getRecipeIds(collection.id);
