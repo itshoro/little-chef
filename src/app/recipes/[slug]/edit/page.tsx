@@ -60,9 +60,7 @@ async function update(formData: FormData) {
   }
   const recipe = await updateRecipe(dto.data);
 
-  redirect(
-    `/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}/overview`,
-  );
+  redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
 }
 
 export default EditRecipePage;

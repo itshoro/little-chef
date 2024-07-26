@@ -61,9 +61,7 @@ async function create(formData: FormData) {
   const recipe = await createRecipe(dto.data);
   await subscribeToRecipe(sessionId, recipe, "creator");
 
-  redirect(
-    `/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}/overview`,
-  );
+  redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
 }
 
 export default AddRecipePage;

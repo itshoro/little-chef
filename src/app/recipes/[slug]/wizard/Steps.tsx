@@ -1,4 +1,4 @@
-import { CooklangPreview } from "../../components/cooklang-preview";
+import { CooklangPreview } from "../components/cooklang-preview";
 
 const WizardSteps = ({
   description,

@@ -16,22 +16,17 @@ const Actions = ({
   const router = useRouter();
 
   function next() {
-    debugger;
     if (step < stepCount) {
-      router.replace(
-        `/recipes/${slug}-${publicId}/overview/wizard/${step + 1}`,
-      );
+      router.replace(`/recipes/${slug}-${publicId}/wizard/${step + 1}`);
     }
   }
 
   function previous() {
     if (step === 0) {
-      router.replace(`/recipes/${slug}-${publicId}/overview`);
+      router.replace(`/recipes/${slug}-${publicId}`);
       return;
     } else if (step > 0) {
-      router.replace(
-        `/recipes/${slug}-${publicId}/overview/wizard/${step - 1}`,
-      );
+      router.replace(`/recipes/${slug}-${publicId}/wizard/${step - 1}`);
     }
   }
 
