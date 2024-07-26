@@ -32,4 +32,14 @@ const UpdateRecipeValidator = AddRecipeValidator.merge(
 
 type Recipe = z.infer<typeof UpdateRecipeValidator>;
 
-export { AddRecipeValidator, UpdateRecipeValidator, type Recipe };
+const AddCollectionValidator = z.object({
+  title: z.string().trim().min(2),
+  visibility: z.enum(supportedVisibilites),
+});
+
+export {
+  AddRecipeValidator,
+  UpdateRecipeValidator,
+  AddCollectionValidator,
+  type Recipe,
+};

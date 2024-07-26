@@ -257,3 +257,17 @@ export async function subscribeToRecipe(
     role,
   });
 }
+
+export async function subscribeToCollection(
+  sessionId: string,
+  collection: typeof schema.collections.$inferSelect,
+  role: typeof schema.collectionSubscriptions.$inferInsert.role,
+) {
+  const sessionResult = await findSessionUser(sessionId);
+
+  await db.insert(schema.collectionSubscriptions).values({
+    collectionId: collection.id,
+    userId: sessionResult.users.id,
+    role,
+  });
+}

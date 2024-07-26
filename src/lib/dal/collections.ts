@@ -3,6 +3,10 @@ import { db } from "@/drizzle/db";
 import { eq, or, and, like } from "drizzle-orm";
 import type { Visibility } from "./visibility";
 import { findSessionUser } from "./user";
+import type { AnyZodObject, TypeOf, z } from "zod";
+import { AddCollectionValidator } from "./validators";
+import { nanoid } from "../nanoid";
+import { generateSlug } from "../slug";
 
 export async function getCollectionPreferences(sessionId: string) {
   const id = await getPreferencesId(sessionId);
@@ -33,16 +37,26 @@ export async function getPreferencesId(sessionId: string) {
   return user.collectionPreferencesId;
 }
 
-export async function createCollections(
-  ...collections: (typeof schema.collections.$inferSelect)[]
+export async function createCollection(
+  dto: z.infer<typeof AddCollectionValidator>,
 ) {
-  return await db.transaction(async (tx) => {
-    return await Promise.all(
-      collections.map((collection) =>
-        tx.insert(schema.collections).values(collection),
-      ),
-    );
-  });
+  const collectionQuery = await db
+    .insert(schema.collections)
+    .values({
+      name: dto.title,
+      slug: generateSlug(dto.title),
+      visibility: dto.visibility,
+      publicId: nanoid(),
+      isCustom: true,
+      itemCount: 0,
+    })
+    .returning();
+
+  if (collectionQuery.length !== 1) {
+    throw new Error("Couldn't create collection.", { cause: dto });
+  }
+
+  return collectionQuery.pop() as (typeof collectionQuery)[number];
 }
 
 export async function updateDefaultVisibility(
@@ -136,4 +150,18 @@ export async function getRecipeIds(collectionId: number) {
       schema.recipes,
       eq(schema.recipes.id, schema.collectionRecipes.recipeId),
     );
+}
+
+export function collectionDtoFromFormData<TValidator extends AnyZodObject>(
+  formData: FormData,
+  validator: TValidator,
+) {
+  const dto = {
+    title: formData.get("title"),
+    visibility: formData.get("visibility"),
+  };
+
+  return validator.safeParse(dto) as ReturnType<
+    (typeof validator)["safeParse"]
+  >;
 }
