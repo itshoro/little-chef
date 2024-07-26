@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { GeneratorContext } from "./Context";
+import { GeneratorContext } from "./context";
 
 type GeneratorOptions<TKey extends string | number = string> = {
   generator: () => TKey;

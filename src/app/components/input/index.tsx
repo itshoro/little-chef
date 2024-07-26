@@ -1,7 +1,7 @@
-import { Root } from "./Root";
-import { Element } from "./Element";
-import { Label } from "./Label";
-import { Group } from "./Group";
-import { Textarea } from "./Textarea";
+import { Root } from "./root";
+import { Element } from "./element";
+import { Label } from "./label";
+import { Group } from "./group";
+import { Textarea } from "./textarea";
 
 export { Root, Element, Label, Group, Textarea };

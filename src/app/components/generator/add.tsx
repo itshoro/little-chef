@@ -1,6 +1,6 @@
 "use client";
 
-import { useGeneratorContext } from "./Context";
+import { useGeneratorContext } from "./context";
 
 type AddProps = {
   children: React.ReactNode;

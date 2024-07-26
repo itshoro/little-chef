@@ -1,6 +1,6 @@
 "use client";
 
-import { useInputContext } from "./Context";
+import { useInputContext } from "./context";
 
 const Label = ({
   htmlFor,
@@ -13,7 +13,7 @@ const Label = ({
     <label
       htmlFor={htmlFor}
       className={[
-        "block group-data-[parent=true]:text-sm pb-1 font-medium text-stone-600",
+        "block pb-1 font-medium text-stone-600 group-data-[parent=true]:text-sm",
         props.className,
       ]
         .filter(Boolean)

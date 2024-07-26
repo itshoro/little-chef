@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { InputContext } from "./Context";
+import { InputContext } from "./context";
 
 type RootProps = {
   children: React.ReactNode;
