@@ -1,7 +1,7 @@
 import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
 import { extractParts } from "@/lib/slug";
 import { WizardSteps } from "../Steps";
-import { Actions } from "../Actions";
+import { Actions } from "../actions";
 
 type PageProps = {
   params: {
@@ -42,6 +42,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           publicId={recipe.publicId}
           stepCount={steps.length}
           step={step}
+          servings={searchParams.servings}
         />
       </section>
     </>

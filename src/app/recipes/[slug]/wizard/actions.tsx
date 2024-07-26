@@ -7,26 +7,31 @@ const Actions = ({
   publicId,
   slug,
   stepCount,
+  servings,
 }: {
   stepCount: number;
   step: number;
   publicId: string;
   slug: string;
+  servings: string;
 }) => {
   const router = useRouter();
 
   function next() {
     if (step < stepCount) {
-      router.replace(`/recipes/${slug}-${publicId}/wizard/${step + 1}`);
+      router.replace(
+        `/recipes/${slug}-${publicId}/wizard/${step + 1}?servings=${servings}`,
+      );
     }
   }
 
   function previous() {
     if (step === 0) {
-      router.replace(`/recipes/${slug}-${publicId}`);
-      return;
+      router.replace(`/recipes/${slug}-${publicId}?servings=${servings}`);
     } else if (step > 0) {
-      router.replace(`/recipes/${slug}-${publicId}/wizard/${step - 1}`);
+      router.replace(
+        `/recipes/${slug}-${publicId}/wizard/${step - 1}?servings=${servings}`,
+      );
     }
   }
 
