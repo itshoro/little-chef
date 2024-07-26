@@ -1,4 +1,4 @@
-import type { Visibility } from "@/lib/dal/recipe";
+import type { Visibility } from "@/lib/dal/visibility";
 import { RadioGroup } from "../primitives/radio-group/group";
 import { VisibilityOption } from "./visibility-option";
 
@@ -14,7 +14,7 @@ const VisibilitySwitcher = async ({
   triggerSubmitOnChange,
 }: VisibilitySwitcherProps) => {
   return (
-    <RadioGroup disabled={defaultValue === undefined}>
+    <RadioGroup>
       <VisibilityOption
         name={name}
         visibility="public"

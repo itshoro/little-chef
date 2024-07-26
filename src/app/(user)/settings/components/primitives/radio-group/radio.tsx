@@ -29,9 +29,11 @@ const Radio = ({
       <label
         tabIndex={0}
         htmlFor={`${name}-${value}`}
-        className="block cursor-pointer rounded-xl border-2 border-transparent p-2 peer-checked:border-lime-300 peer-checked:bg-lime-300 @xs:w-full"
+        className="group block cursor-pointer rounded-lg border border-transparent px-2 py-3 peer-checked:border-lime-300 peer-checked:bg-lime-300/60 peer-checked:text-green-950 @xs:w-full"
       >
-        <div className="flex items-center gap-2 @xs:flex-col">{children}</div>
+        <div className="flex items-center gap-2 @sm:justify-center">
+          {children}
+        </div>
       </label>
     </div>
   );

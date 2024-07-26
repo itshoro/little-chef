@@ -1,13 +1,7 @@
-const RadioGroup = ({
-  children,
-  disabled,
-}: {
-  children: React.ReactNode;
-  disabled?: boolean;
-}) => {
+const RadioGroup = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="w-full flex-1 rounded-2xl border border-gray-500 bg-white p-1.5 @container">
-      <div className="flex flex-col justify-between @xs:flex-row">
+    <div className="w-full flex-1 rounded-xl bg-neutral-100 p-1 @container">
+      <div className="flex flex-col justify-between @sm:flex-row">
         {children}
       </div>
     </div>
