@@ -94,17 +94,6 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
       }),
     );
 
-    // await tx.insert(schema.ingredientDetails).values(
-    //   await Promise.all(
-    //     dto.ingredients.map(async (ingredient) => ({
-    //       ingredientId: (await byPublicId(ingredient.publicId)).id,
-    //       recipeId: recipe[0].id,
-    //       measurementAmount: ingredient.measurement.amount,
-    //       measurementUnit: ingredient.measurement.unit,
-    //     })),
-    //   ),
-    // );
-
     return recipe;
   });
 }
@@ -262,15 +251,6 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
     description: formData.get(`step.${uuid}`) as string,
   }));
 
-  // const ingredientClientIds = formData.getAll("ingredient.uuid");
-  // const ingredients = ingredientClientIds.map((id) => ({
-  //   publicId: formData.get(`ingredient.${id}.publicId`),
-  //   measurement: {
-  //     amount: formData.get(`ingredient.${id}.measurement.amount`),
-  //     unit: formData.get(`ingredient.${id}.measurement.unit`),
-  //   },
-  // }));
-
   const dto = {
     publicId: formData.get("publicId") ?? undefined,
     name: formData.get("name"),
@@ -278,7 +258,7 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
     preparationTime: formData.get("preparationTime"),
     cookingTime: formData.get("cookingTime"),
     visibility: formData.get("visibility"),
-    // ingredients,
+
     steps,
   };
 

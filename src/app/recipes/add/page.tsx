@@ -11,13 +11,6 @@ import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 
 const AddRecipePage = async () => {
-  // const [state, action] = useFormState(
-  //   createRecipe,
-  //   initialState as never as Awaited<ReturnType<typeof createRecipe>>
-  // );
-
-  // const ingredients = await selectIngredients("");
-
   const { session } = await validateRequest();
   const preferences = session
     ? await getRecipePreferences(session.id)

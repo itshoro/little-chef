@@ -7,15 +7,6 @@ const AddRecipeValidator = z.object({
   preparationTime: z.coerce.number().min(0),
   cookingTime: z.coerce.number().min(0),
   visibility: z.enum(supportedVisibilites),
-  // ingredients: z.array(
-  //   z.object({
-  //     publicId: z.string(),
-  //     measurement: z.object({
-  //       amount: z.number(),
-  //       unit: z.string(),
-  //     }),
-  //   }),
-  // ),
   steps: z.array(
     z.object({
       uuid: z.string(),
