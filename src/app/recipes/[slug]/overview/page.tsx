@@ -38,12 +38,9 @@ const ShowRecipePage = async ({
   const steps = rawSteps.map((step) => step.description);
   const parsedSteps = parser.parse(steps.join());
 
-  const preferences = session
-    ? await getRecipePreferences(session.id)
-    : undefined;
   const servingsFromSearchParams = parseInt(searchParams.servings);
   const defaultServingSize = isNaN(servingsFromSearchParams)
-    ? preferences?.defaultServingSize ?? recipe.recommendedServingSize
+    ? recipe.recommendedServingSize
     : servingsFromSearchParams;
 
   const maintainers = await getCreatorsAndMaintainers(recipe.id);
