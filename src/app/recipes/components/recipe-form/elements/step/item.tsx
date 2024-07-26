@@ -4,8 +4,8 @@ import * as Generator from "@/app/components/generator";
 import * as Input from "@/app/components/input";
 import { Trash } from "@/app/components/icon/trash";
 import { useInputContext } from "@/app/components/input/Context";
-import { useDeferredValue, useRef, useState } from "react";
-import { Parser } from "@cooklang/cooklang-ts";
+import { useDeferredValue, useState } from "react";
+import { CooklangPreview } from "@/app/recipes/[slug]/components/cooklang-preview";
 
 type StepGeneratorItemProps = {
   uuid: string;
@@ -32,8 +32,9 @@ const StepGeneratorItem = ({
             onChange={(e) => setInput(e.target.value)}
           />
         </div>
-        <div className="mb-4 mt-3">
-          <PreviewMask value={deferredInput} />
+        <div className="mb-4 ml-12 mt-3">
+          <div className="pb-1 text-xs text-neutral-400">Preview</div>
+          <CooklangPreview value={deferredInput} />
         </div>
       </div>
       <span
@@ -80,56 +81,6 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
         </Generator.Remove>
       </Input.Root>
     </>
-  );
-};
-
-const PreviewMask = ({ value }: { value?: string }) => {
-  const parserRef = useRef<Parser>();
-  if (parserRef.current === undefined) {
-    parserRef.current = new Parser();
-  }
-
-  const parsedResult = value ? parserRef.current.parse(value).steps : [];
-
-  if (parsedResult.length === 0) return null;
-  const previewData = parsedResult.pop();
-
-  return (
-    <div className="ml-12">
-      <div className="pb-1 text-xs text-neutral-400">Preview</div>
-      <div>
-        {previewData?.map((segment) => {
-          switch (segment.type) {
-            case "text":
-              return <span>{segment.value}</span>;
-            case "ingredient":
-              return (
-                <span className="inline-flex divide-x rounded-full bg-neutral-100 px-2">
-                  <span className="px-2 py-2">
-                    {segment.quantity}
-                    {segment.units}
-                  </span>
-                  <span className="px-2 py-2">{segment.name}</span>
-                </span>
-              );
-            case "cookware":
-              return (
-                <span>
-                  {segment.quantity} {segment.name}
-                </span>
-              );
-            case "timer":
-              return (
-                <span>
-                  <time dateTime={`P${segment.quantity}`}>
-                    {segment.quantity} {segment.units}
-                  </time>
-                </span>
-              );
-          }
-        })}
-      </div>
-    </div>
   );
 };
 
