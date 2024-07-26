@@ -1,32 +1,37 @@
 "use client";
 
-import { useSearchParamState } from "@/hooks/useSearchParamState";
-import { toNumber } from "./lib";
 import { useRouter } from "next/navigation";
-import { Prisma } from "@prisma/client";
 
 const Actions = ({
   step,
-  recipe,
+  publicId,
+  slug,
+  stepCount,
 }: {
+  stepCount: number;
   step: number;
-  recipe: Prisma.RecipeGetPayload<{ include: { RecipeStep: true } }>;
+  publicId: string;
+  slug: string;
 }) => {
   const router = useRouter();
 
   function next() {
     debugger;
-    if (step < recipe.RecipeStep.length) {
-      router.replace(`/recipes/${recipe.publicId}/overview/wizard/${step + 1}`);
+    if (step < stepCount) {
+      router.replace(
+        `/recipes/${slug}-${publicId}/overview/wizard/${step + 1}`,
+      );
     }
   }
 
   function previous() {
     if (step === 0) {
-      router.replace(`/recipes/${recipe.publicId}/overview`);
+      router.replace(`/recipes/${slug}-${publicId}/overview`);
       return;
     } else if (step > 0) {
-      router.replace(`/recipes/${recipe.publicId}/overview/wizard/${step - 1}`);
+      router.replace(
+        `/recipes/${slug}-${publicId}/overview/wizard/${step - 1}`,
+      );
     }
   }
 
@@ -52,7 +57,7 @@ const Actions = ({
 
       <button
         className="inline-flex select-none items-center rounded-full border bg-stone-50 px-3 py-2 font-medium text-stone-800 transition ease-out hover:shadow-inner disabled:pointer-events-none disabled:text-gray-400"
-        disabled={step + 1 >= recipe.RecipeStep.length}
+        disabled={step + 1 >= stepCount}
         onClick={next}
       >
         <div className="inline-flex items-center gap-6">
