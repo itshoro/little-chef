@@ -1,6 +1,6 @@
 "use client";
 
-import { DeleteDialog, useDeleteDialog } from "../Dialog/delete-dialog";
+import { DeleteDialog, useDeleteDialog } from "../dialog/delete-dialog";
 
 type DeleteWithDialogButtonProps = {
   onDelete: () => void | Promise<void>;

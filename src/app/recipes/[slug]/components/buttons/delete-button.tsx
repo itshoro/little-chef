@@ -3,7 +3,7 @@
 import {
   DeleteDialog,
   useDeleteDialog,
-} from "@/app/components/Dialog/delete-dialog";
+} from "@/app/components/dialog/delete-dialog";
 
 const DeleteButton = ({
   deleteAction,
