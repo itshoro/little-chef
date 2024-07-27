@@ -3,7 +3,7 @@
 import * as Generator from "@/app/components/generator";
 import * as Input from "@/app/components/input";
 import { Trash } from "@/app/components/icon/trash";
-import { useInputContext } from "@/app/components/input/Context";
+import { useInputContext } from "@/app/components/input/context";
 import { useDeferredValue, useState } from "react";
 import { CooklangPreview } from "@/app/recipes/[slug]/components/cooklang-preview";
 
