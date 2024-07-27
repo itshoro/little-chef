@@ -160,6 +160,7 @@ export async function getRecipe(
           : eq(schema.recipes.publicId, query.publicId),
         or(
           eq(schema.recipes.visibility, "public"),
+          eq(schema.recipes.visibility, "unlisted"),
           sessionResult
             ? and(
                 eq(schema.recipeSubscriptions.userId, sessionResult.users.id),
