@@ -182,24 +182,6 @@ export async function createUser(username: string, hashedPassword: string) {
         .values({})
         .returning();
 
-      const defaultCollections = await tx
-        .insert(schema.collections)
-        .values([
-          {
-            name: "Liked",
-            slug: "liked",
-            publicId: nanoid(),
-            isCustom: false,
-          },
-          {
-            name: "General",
-            slug: "general",
-            publicId: nanoid(),
-            isCustom: false,
-          },
-        ])
-        .returning({ id: schema.collections.id });
-
       const [user] = await tx
         .insert(schema.users)
         .values({
@@ -211,17 +193,6 @@ export async function createUser(username: string, hashedPassword: string) {
           recipePreferencesId: recipePreferences.id,
         })
         .returning();
-
-      await tx.insert(schema.collectionSubscriptions).values(
-        defaultCollections.map(
-          (collection) =>
-            ({
-              collectionId: collection.id,
-              userId: user.id,
-              role: "maintainer",
-            }) as const,
-        ),
-      );
 
       return user;
     } catch (e) {
