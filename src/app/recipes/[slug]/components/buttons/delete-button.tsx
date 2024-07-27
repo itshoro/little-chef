@@ -1,22 +1,22 @@
 "use client";
 
-import {
-  DeleteDialog,
-  useDeleteDialog,
-} from "@/app/components/dialog/delete-dialog";
+import { DialogRoot, useDialog } from "@/app/components/dialog/dialog";
+import { DeleteRecipe } from "@/app/components/dialog/contents/delete-recipe";
 
 const DeleteButton = ({
   deleteAction,
 }: {
   deleteAction: () => Promise<void>;
 }) => {
-  const [openDialog, dialogProps] = useDeleteDialog(deleteAction);
+  const [ref, dialogActions] = useDialog(deleteAction);
 
   return (
     <>
-      <DeleteDialog {...dialogProps} />
+      <DialogRoot ref={ref}>
+        <DeleteRecipe {...dialogActions} />
+      </DialogRoot>
       <button
-        onClick={openDialog}
+        onClick={dialogActions.openDialog}
         className="inline-flex justify-center rounded-xl border-2 px-6 py-4 shadow active:bg-neutral-100"
       >
         <svg
