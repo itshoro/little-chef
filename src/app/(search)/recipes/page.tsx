@@ -11,7 +11,7 @@ const Page = async (props: { searchParams: { q: string } }) => {
   return (
     <>
       <main>
-        <SubscribedList user={user} />
+        <YourCookbook user={user} />
         <SearchResults query={props.searchParams.q} user={user} />
       </main>
       <AddButton href="/recipes/add" />
@@ -19,28 +19,12 @@ const Page = async (props: { searchParams: { q: string } }) => {
   );
 };
 
-const SubscribedList = async ({ user }: { user: User | null }) => {
+const YourCookbook = async ({ user }: { user: User | null }) => {
   if (!user) return null;
 
   const subscriptions = await getSubcribedRecipes(user.id);
 
-  return (
-    <section>
-      <header className="px-4 py-5">
-        <h1 className="flex items-center">
-          <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
-          <span className="text-sm font-medium">Your Saved Recipes</span>
-        </h1>
-      </header>
-      <ul className="grid gap-3 px-4">
-        {subscriptions.map((subcription) => (
-          <li key={subcription.id}>
-            <RecipeCard {...subcription} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
+  return <Section title="Your Cookbook" recipes={subscriptions} />;
 };
 
 const SearchResults = async ({
@@ -52,14 +36,24 @@ const SearchResults = async ({
 }) => {
   if (user === null) return null;
 
-  const recipes = await findPublicIds(query ?? "");
+  const recipes = await findPublicRecipeIds(query ?? "");
 
+  return <Section title="Public Recipes" recipes={recipes} />;
+};
+
+const Section = ({
+  title,
+  recipes,
+}: {
+  title: string;
+  recipes: { id: number; publicId: string }[];
+}) => {
   return (
     <section>
       <header className="px-4 py-5">
         <h1 className="flex items-center">
           <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
-          <span className="text-sm font-medium">Public Recipes</span>
+          <span className="text-sm font-medium">{title}</span>
         </h1>
       </header>
       <ul className="grid gap-3 px-4">
