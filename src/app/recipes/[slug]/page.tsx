@@ -140,32 +140,36 @@ const ShowRecipePage = async ({
               </div>
             </div>
           </section>
-          <section className="mt-12">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="block h-1 w-1 rounded-full bg-green-600" />
-              <h2 className="text-sm font-medium">Ingredients</h2>
-            </div>
-            <IngredientList
-              ingredients={parsedSteps.ingredients}
-              recommendedServingSize={recipe.recommendedServingSize}
-            />
-          </section>
-          <section className="mt-12">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="block h-1 w-1 rounded-full bg-green-600" />
-              <h2 className="text-sm font-medium">Cookware</h2>
-            </div>
-            <ul>
-              {parsedSteps.cookwares.map((cookware) => (
-                <li key={cookware.name}>
-                  <AmountItem
-                    label={cookware.name}
-                    amount={cookware.quantity}
-                  />
-                </li>
-              ))}
-            </ul>
-          </section>
+          {parsedSteps.ingredients.length > 0 && (
+            <section className="mt-12">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="block h-1 w-1 rounded-full bg-green-600" />
+                <h2 className="text-sm font-medium">Ingredients</h2>
+              </div>
+              <IngredientList
+                ingredients={parsedSteps.ingredients}
+                recommendedServingSize={recipe.recommendedServingSize}
+              />
+            </section>
+          )}
+          {parsedSteps.cookwares.length > 0 && (
+            <section className="mt-12">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="block h-1 w-1 rounded-full bg-green-600" />
+                <h2 className="text-sm font-medium">Cookware</h2>
+              </div>
+              <ul>
+                {parsedSteps.cookwares.map((cookware) => (
+                  <li key={cookware.name}>
+                    <AmountItem
+                      label={cookware.name}
+                      amount={cookware.quantity}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
       </div>
 
