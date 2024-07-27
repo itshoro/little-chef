@@ -271,3 +271,73 @@ export async function subscribeToCollection(
     role,
   });
 }
+
+export async function isRecipeLiked(sessionId: string, recipeId: number) {
+  const sessionResult = await findSessionUser(sessionId);
+
+  const queryResult = await db
+    .select()
+    .from(schema.recipeLikes)
+    .where(
+      and(
+        eq(schema.recipeLikes.userId, sessionResult.users.id),
+        eq(schema.recipeLikes.recipeId, recipeId),
+      ),
+    );
+  return queryResult.length !== 0;
+}
+
+export async function addRecipeLike(sessionId: string, recipePublicId: string) {
+  const sessionResult = await findSessionUser(sessionId);
+
+  return await db.transaction(async (tx) => {
+    const recipeQuery = await tx
+      .update(schema.recipes)
+      .set({ likes: sql`${schema.recipes.likes} + 1` })
+      .where(eq(schema.recipes.publicId, recipePublicId))
+      .returning();
+
+    if (recipeQuery.length !== 1) {
+      throw new Error("Couldn't increment like count");
+    }
+    const recipe = recipeQuery[0];
+
+    await tx.insert(schema.recipeLikes).values({
+      recipeId: recipe.id,
+      userId: sessionResult.users.id,
+    });
+
+    return recipe.likes;
+  });
+}
+
+export async function removeRecipeLike(
+  sessionId: string,
+  recipePublicId: string,
+) {
+  const sessionResult = await findSessionUser(sessionId);
+
+  return await db.transaction(async (tx) => {
+    const recipeQuery = await tx
+      .update(schema.recipes)
+      .set({ likes: sql`${schema.recipes.likes} - 1` })
+      .where(eq(schema.recipes.publicId, recipePublicId))
+      .returning();
+
+    if (recipeQuery.length !== 1) {
+      throw new Error("Couldn't increment like count");
+    }
+    const recipe = recipeQuery[0];
+
+    await tx
+      .delete(schema.recipeLikes)
+      .where(
+        and(
+          eq(schema.recipeLikes.recipeId, recipe.id),
+          eq(schema.recipeLikes.userId, sessionResult.users.id),
+        ),
+      );
+
+    return recipe.likes;
+  });
+}
