@@ -18,6 +18,8 @@ import { Parser } from "@cooklang/cooklang-ts";
 import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
+import { OptimisticLikeButton } from "./components/buttons/optimistic-like-button";
+import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
 
 type ShowRecipePageProps = {
   params: { slug: string };
@@ -52,6 +54,8 @@ const ShowRecipePage = async ({
     type: "conjunction",
   }).format(maintainers.map((u) => u.username));
 
+  const isLiked = session ? await isRecipeLiked(session.id, recipe.id) : false;
+
   return (
     <>
       <div>
@@ -80,6 +84,29 @@ const ShowRecipePage = async ({
                     <EditButton href={`/recipes/${params.slug}/edit`} />
                   </>
                 )}
+                <OptimisticLikeButton
+                  count={recipe.likes}
+                  isLiked={isLiked}
+                  canLike={session !== undefined}
+                  action={async (type) => {
+                    "use server";
+                    if (!session) throw new Error("No session available");
+
+                    if (type === "add") {
+                      const count = await addRecipeLike(
+                        session.id,
+                        recipe.publicId,
+                      );
+                      return { count, isLiked: true };
+                    } else {
+                      const count = await removeRecipeLike(
+                        session.id,
+                        recipe.publicId,
+                      );
+                      return { count, isLiked: false };
+                    }
+                  }}
+                />
                 <ShareCurrentPageButton
                   title={`${recipe.name} by ${attribution}`}
                 />

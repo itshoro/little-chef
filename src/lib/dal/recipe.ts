@@ -161,6 +161,7 @@ export async function getRecipe(
       preparationTime: schema.recipes.preparationTime,
       cookingTime: schema.recipes.cookingTime,
       visibility: schema.recipes.visibility,
+      likes: schema.recipes.likes,
     })
     .from(schema.recipes)
     .leftJoin(

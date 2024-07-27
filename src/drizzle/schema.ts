@@ -17,6 +17,7 @@ export const recipes = sqliteTable("recipes", {
   }).notNull(),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
+  likes: integer("likes").notNull().default(0),
 });
 
 export const recipeSubscriptions = sqliteTable(
