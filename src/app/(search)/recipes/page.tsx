@@ -2,7 +2,8 @@ import { validateRequest } from "@/lib/auth/lucia";
 import { User } from "lucia";
 import { AddButton } from "../components/AddButton";
 import { RecipeCard } from "../components/recipe-card";
-import { findPublicIds, getSubscriptions } from "@/lib/dal/recipe";
+import { findPublicRecipeIds } from "@/lib/dal/recipe";
+import { getSubcribedRecipes } from "@/lib/dal/user";
 
 const Page = async (props: { searchParams: { q: string } }) => {
   const { user } = await validateRequest();
@@ -21,7 +22,7 @@ const Page = async (props: { searchParams: { q: string } }) => {
 const SubscribedList = async ({ user }: { user: User | null }) => {
   if (!user) return null;
 
-  const subscriptions = await getSubscriptions(user.id);
+  const subscriptions = await getSubcribedRecipes(user.id);
 
   return (
     <section>

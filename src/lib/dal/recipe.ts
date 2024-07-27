@@ -98,21 +98,6 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
   });
 }
 
-export async function getSubscriptions(userId: number) {
-  return await db
-    .select({
-      id: schema.recipes.id,
-      publicId: schema.recipes.publicId,
-      role: schema.recipeSubscriptions.role,
-    })
-    .from(schema.recipeSubscriptions)
-    .where(eq(schema.recipeSubscriptions.userId, userId))
-    .innerJoin(
-      schema.recipes,
-      eq(schema.recipes.id, schema.recipeSubscriptions.recipeId),
-    );
-}
-
 export async function getCreatorsAndMaintainers(recipeId: number) {
   return await db
     .select({
@@ -135,7 +120,7 @@ export async function getCreatorsAndMaintainers(recipeId: number) {
     );
 }
 
-export async function findPublicIds(query: string) {
+export async function findPublicRecipeIds(query: string) {
   return await db
     .select({
       id: schema.recipes.id,

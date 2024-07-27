@@ -36,7 +36,7 @@ export const recipeSubscriptions = sqliteTable(
   (table) => {
     return {
       recipeSubscriptionsPkey: primaryKey({
-        columns: [table.recipeId, table.userId],
+        columns: [table.recipeId, table.userId, table.role],
         name: "recipeSubscriptionsPkey",
       }),
     };

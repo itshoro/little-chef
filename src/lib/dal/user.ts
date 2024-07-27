@@ -7,7 +7,7 @@ import path from "path";
 import * as fs from "fs/promises";
 
 import { db } from "@/drizzle/db";
-import { eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import * as schema from "@/drizzle/schema";
 
 // MARK: Auth
@@ -258,6 +258,20 @@ export async function subscribeToRecipe(
   });
 }
 
+export async function getSubcribedRecipes(userId: number) {
+  return await db
+    .selectDistinct({
+      id: schema.recipes.id,
+      publicId: schema.recipes.publicId,
+    })
+    .from(schema.recipeSubscriptions)
+    .where(eq(schema.recipeSubscriptions.userId, userId))
+    .innerJoin(
+      schema.recipes,
+      eq(schema.recipes.id, schema.recipeSubscriptions.recipeId),
+    );
+}
+
 export async function subscribeToCollection(
   sessionId: string,
   collection: typeof schema.collections.$inferSelect,
@@ -277,11 +291,12 @@ export async function isRecipeLiked(sessionId: string, recipeId: number) {
 
   const queryResult = await db
     .select()
-    .from(schema.recipeLikes)
+    .from(schema.recipeSubscriptions)
     .where(
       and(
-        eq(schema.recipeLikes.userId, sessionResult.users.id),
-        eq(schema.recipeLikes.recipeId, recipeId),
+        eq(schema.recipeSubscriptions.userId, sessionResult.users.id),
+        eq(schema.recipeSubscriptions.recipeId, recipeId),
+        eq(schema.recipeSubscriptions.role, "subscriber"),
       ),
     );
   return queryResult.length !== 0;
@@ -302,9 +317,10 @@ export async function addRecipeLike(sessionId: string, recipePublicId: string) {
     }
     const recipe = recipeQuery[0];
 
-    await tx.insert(schema.recipeLikes).values({
+    await tx.insert(schema.recipeSubscriptions).values({
       recipeId: recipe.id,
       userId: sessionResult.users.id,
+      role: "subscriber",
     });
 
     return recipe.likes;
@@ -330,11 +346,12 @@ export async function removeRecipeLike(
     const recipe = recipeQuery[0];
 
     await tx
-      .delete(schema.recipeLikes)
+      .delete(schema.recipeSubscriptions)
       .where(
         and(
-          eq(schema.recipeLikes.recipeId, recipe.id),
-          eq(schema.recipeLikes.userId, sessionResult.users.id),
+          eq(schema.recipeSubscriptions.recipeId, recipe.id),
+          eq(schema.recipeSubscriptions.userId, sessionResult.users.id),
+          eq(schema.recipeSubscriptions.role, "subscriber"),
         ),
       );
 
