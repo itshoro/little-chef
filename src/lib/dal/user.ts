@@ -7,7 +7,7 @@ import path from "path";
 import * as fs from "fs/promises";
 
 import { db } from "@/drizzle/db";
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import * as schema from "@/drizzle/schema";
 
 // MARK: Auth
@@ -241,6 +241,33 @@ export async function getSubcribedRecipes(userId: number) {
       schema.recipes,
       eq(schema.recipes.id, schema.recipeSubscriptions.recipeId),
     );
+}
+
+export async function getMaintainedCollections(userId: number) {
+  const maintainedCollectionIds = await db
+    .selectDistinct({ id: schema.collectionSubscriptions.collectionId })
+    .from(schema.collectionSubscriptions)
+    .where(
+      and(
+        eq(schema.collectionSubscriptions.userId, userId),
+        or(
+          eq(schema.collectionSubscriptions.role, "creator"),
+          eq(schema.collectionSubscriptions.role, "maintainer"),
+        ),
+      ),
+    );
+
+  const collectionResults = await db
+    .select()
+    .from(schema.collections)
+    .where(
+      inArray(
+        schema.collections.id,
+        maintainedCollectionIds.map(({ id }) => id),
+      ),
+    );
+
+  return collectionResults;
 }
 
 export async function subscribeToCollection(
