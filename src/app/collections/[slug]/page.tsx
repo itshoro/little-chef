@@ -1,5 +1,6 @@
 import { RecipeCard } from "@/app/(search)/components/recipe-card";
 import { BackLink } from "@/app/components/BackLink";
+import { NoRecipesStored } from "@/app/components/fallbacks/collections/no-recipe-stored";
 import { Header } from "@/app/components/header/header";
 import { getCollection, getRecipeIds } from "@/lib/dal/collections";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
@@ -42,7 +43,7 @@ const RecipeList = async ({
 }: {
   ids: { id: number; publicId: string }[];
 }) => {
-  if (ids.length === 0) return <NoRecipes />;
+  if (ids.length === 0) return <NoRecipesStored />;
 
   return (
     <ul>
@@ -52,15 +53,6 @@ const RecipeList = async ({
         </li>
       ))}
     </ul>
-  );
-};
-
-const NoRecipes = () => {
-  return (
-    <div className="flex h-full select-none flex-col items-center justify-center gap-4 text-center font-medium">
-      <div className="text-6xl">🍽️</div>
-      <div className="text-lg">You haven't stored a recipe yet.</div>
-    </div>
   );
 };
 

@@ -20,6 +20,8 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { OptimisticLikeButton } from "./components/buttons/optimistic-like-button";
 import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
+import { AddToCollectionButton } from "./components/buttons/add-to-collection-button";
+import { AddRecipeToCollectionServerRoot } from "@/app/components/dialog/contents/add-recipe-to-collection/server-root";
 
 type ShowRecipePageProps = {
   params: { slug: string };
@@ -84,35 +86,46 @@ const ShowRecipePage = async ({
                     <EditButton href={`/recipes/${params.slug}/edit`} />
                   </>
                 )}
-                <OptimisticLikeButton
-                  count={recipe.likes}
-                  isLiked={isLiked}
-                  canLike={session !== undefined}
-                  action={async (type) => {
-                    "use server";
-                    if (!session) throw new Error("No session available");
-
-                    if (type === "add") {
-                      const count = await addRecipeLike(
-                        session.id,
-                        recipe.publicId,
-                      );
-                      return { count, isLiked: true };
-                    } else {
-                      const count = await removeRecipeLike(
-                        session.id,
-                        recipe.publicId,
-                      );
-                      return { count, isLiked: false };
-                    }
-                  }}
-                />
-                <ShareCurrentPageButton
-                  title={`${recipe.name} by ${attribution}`}
-                />
               </section>
             </div>
           </div>
+
+          <section className="my-4">
+            <div className="flex items-center gap-4">
+              <OptimisticLikeButton
+                count={recipe.likes}
+                isLiked={isLiked}
+                canLike={session !== undefined}
+                action={async (type) => {
+                  "use server";
+                  if (!session) throw new Error("No session available");
+
+                  if (type === "add") {
+                    const count = await addRecipeLike(
+                      session.id,
+                      recipe.publicId,
+                    );
+                    return { count, isLiked: true };
+                  } else {
+                    const count = await removeRecipeLike(
+                      session.id,
+                      recipe.publicId,
+                    );
+                    return { count, isLiked: false };
+                  }
+                }}
+              />
+              <ShareCurrentPageButton
+                title={`${recipe.name} by ${attribution}`}
+              />
+              <AddToCollectionButton>
+                <AddRecipeToCollectionServerRoot
+                  recipePublicId={recipe.publicId}
+                  userId={session!.userId}
+                ></AddRecipeToCollectionServerRoot>
+              </AddToCollectionButton>
+            </div>
+          </section>
 
           <section className="mt-12">
             <div className="mb-4 flex items-center gap-2">
