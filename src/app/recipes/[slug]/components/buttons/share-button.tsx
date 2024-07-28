@@ -2,11 +2,11 @@
 
 import { BaseButton } from "./base-button";
 
-const ShareCurrentPageButton = ({ title }: { title: string }) => {
+const ShareCurrentPageButton = () => {
   return (
     <BaseButton
       onClick={() => {
-        navigator.share({ title, url: window.location.href });
+        navigator.share({ title: document.title, url: window.location.href });
       }}
     >
       <svg

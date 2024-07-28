@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, forwardRef, useRef } from "react";
 import { useContext } from "@/hooks/useContext";
 

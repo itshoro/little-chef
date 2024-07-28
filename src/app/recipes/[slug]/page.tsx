@@ -22,6 +22,8 @@ import { OptimisticLikeButton } from "./components/buttons/optimistic-like-butto
 import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
 import { AddToCollectionButton } from "./components/buttons/add-to-collection-button";
 import { AddRecipeToCollectionServerRoot } from "@/app/components/dialog/contents/add-recipe-to-collection/server-root";
+import { DialogRoot } from "@/app/components/dialog/dialog";
+import { UserActions } from "./components/user-actions";
 
 type ShowRecipePageProps = {
   params: { slug: string };
@@ -55,8 +57,6 @@ const ShowRecipePage = async ({
   const attribution = new Intl.ListFormat(undefined, {
     type: "conjunction",
   }).format(maintainers.map((u) => u.username));
-
-  const isLiked = session ? await isRecipeLiked(session.id, recipe.id) : false;
 
   return (
     <>
@@ -92,38 +92,7 @@ const ShowRecipePage = async ({
 
           <section className="my-4">
             <div className="flex items-center gap-4">
-              <OptimisticLikeButton
-                count={recipe.likes}
-                isLiked={isLiked}
-                canLike={session !== undefined}
-                action={async (type) => {
-                  "use server";
-                  if (!session) throw new Error("No session available");
-
-                  if (type === "add") {
-                    const count = await addRecipeLike(
-                      session.id,
-                      recipe.publicId,
-                    );
-                    return { count, isLiked: true };
-                  } else {
-                    const count = await removeRecipeLike(
-                      session.id,
-                      recipe.publicId,
-                    );
-                    return { count, isLiked: false };
-                  }
-                }}
-              />
-              <ShareCurrentPageButton
-                title={`${recipe.name} by ${attribution}`}
-              />
-              <AddToCollectionButton>
-                <AddRecipeToCollectionServerRoot
-                  recipePublicId={recipe.publicId}
-                  userId={session!.userId}
-                ></AddRecipeToCollectionServerRoot>
-              </AddToCollectionButton>
+              <UserActions session={session} recipe={recipe} />
             </div>
           </section>
 

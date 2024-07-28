@@ -4,9 +4,13 @@ import { BaseButton } from "./base-button";
 
 type AddToCollectionButtonProps = {
   children: React.ReactNode;
+  disabled?: boolean;
 };
 
-const AddToCollectionButton = ({ children }: AddToCollectionButtonProps) => {
+const AddToCollectionButton = ({
+  children,
+  disabled,
+}: AddToCollectionButtonProps) => {
   const [ref, dialogActions] = useDialog();
 
   return (
@@ -14,7 +18,11 @@ const AddToCollectionButton = ({ children }: AddToCollectionButtonProps) => {
       <DialogRoot ref={ref} {...dialogActions}>
         {children}
       </DialogRoot>
-      <BaseButton onClick={dialogActions.openDialog} type="button">
+      <BaseButton
+        onClick={dialogActions.openDialog}
+        type="button"
+        disabled={disabled}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
