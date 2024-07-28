@@ -1,6 +1,7 @@
 "use client";
 
 import { useOptimistic, useState } from "react";
+import { BaseButton } from "./base-button";
 
 type OptimisticLikeButtonProps = {
   count: number;
@@ -19,14 +20,14 @@ const OptimisticLikeButton = (props: OptimisticLikeButtonProps) => {
   );
 
   return (
-    <button
+    <BaseButton
       type="button"
       disabled={!props.canLike || optimisticLikes.pending}
       onClick={async () => {
         await dispatchToggleLike();
       }}
       data-liked={optimisticLikes.isLiked}
-      className=" inline-flex justify-center rounded-xl border-2 px-5 py-4 shadow active:bg-neutral-100 disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none data-[liked=true]:bg-neutral-50 data-[liked=true]:text-red-400 data-[liked=true]:shadow-inner"
+      className="data-[liked=true]:bg-neutral-50 data-[liked=true]:text-red-400 data-[liked=true]:shadow-inner"
     >
       <div className="flex items-center gap-1">
         <svg
@@ -41,7 +42,7 @@ const OptimisticLikeButton = (props: OptimisticLikeButtonProps) => {
 
         <span className="sr-only">Like</span>
       </div>
-    </button>
+    </BaseButton>
   );
 };
 

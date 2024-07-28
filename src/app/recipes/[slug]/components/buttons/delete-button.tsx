@@ -2,6 +2,7 @@
 
 import { DialogRoot, useDialog } from "@/app/components/dialog/dialog";
 import { DeleteRecipe } from "@/app/components/dialog/contents/delete-recipe";
+import { BaseButton } from "./base-button";
 
 const DeleteButton = ({
   deleteAction,
@@ -15,7 +16,7 @@ const DeleteButton = ({
       <DialogRoot ref={ref} {...dialogActions}>
         <DeleteRecipe deleteRecipeAction={deleteAction} />
       </DialogRoot>
-      <button
+      <BaseButton
         onClick={dialogActions.openDialog}
         className="inline-flex justify-center rounded-xl border-2 px-6 py-4 shadow active:bg-neutral-100"
       >
@@ -33,7 +34,7 @@ const DeleteButton = ({
         </svg>
 
         <span className="sr-only">Delete</span>
-      </button>
+      </BaseButton>
     </>
   );
 };

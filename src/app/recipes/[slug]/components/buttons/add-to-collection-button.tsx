@@ -1,5 +1,6 @@
 "use client";
 import { DialogRoot, useDialog } from "@/app/components/dialog/dialog";
+import { BaseButton } from "./base-button";
 
 type AddToCollectionButtonProps = {
   children: React.ReactNode;
@@ -13,11 +14,7 @@ const AddToCollectionButton = ({ children }: AddToCollectionButtonProps) => {
       <DialogRoot ref={ref} {...dialogActions}>
         {children}
       </DialogRoot>
-      <button
-        onClick={dialogActions.openDialog}
-        type="button"
-        className="inline-flex justify-center rounded-xl border-2 px-5 py-4 shadow active:bg-neutral-100 disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none data-[liked=true]:bg-neutral-50 data-[liked=true]:text-red-400 data-[liked=true]:shadow-inner"
-      >
+      <BaseButton onClick={dialogActions.openDialog} type="button">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
@@ -31,7 +28,7 @@ const AddToCollectionButton = ({ children }: AddToCollectionButtonProps) => {
           />
         </svg>
         <span className="sr-only">Add to Collection</span>
-      </button>
+      </BaseButton>
     </>
   );
 };

@@ -1,12 +1,13 @@
 "use client";
 
+import { BaseButton } from "./base-button";
+
 const ShareCurrentPageButton = ({ title }: { title: string }) => {
   return (
-    <button
+    <BaseButton
       onClick={() => {
         navigator.share({ title, url: window.location.href });
       }}
-      className="inline-flex justify-center rounded-xl border px-6 py-4 shadow transition-all active:bg-neutral-100 active:shadow-inner"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +19,7 @@ const ShareCurrentPageButton = ({ title }: { title: string }) => {
       </svg>
 
       <span className="sr-only">Share</span>
-    </button>
+    </BaseButton>
   );
 };
 
