@@ -2,6 +2,7 @@ import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
 import { extractParts } from "@/lib/slug";
 import { WizardSteps } from "../Steps";
 import { Actions } from "../actions";
+import { validateRequest } from "@/lib/auth/lucia";
 
 type PageProps = {
   params: {
@@ -14,9 +15,10 @@ type PageProps = {
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
+  const { user } = await validateRequest();
   const { publicId } = extractParts(params.slug);
 
-  const recipe = await getRecipe({ publicId });
+  const recipe = await getRecipe({ publicId }, user?.publicId);
   const steps = await getRecipeSteps(recipe.id);
 
   const step = Math.min(Number(params.step) || 0, steps.length);

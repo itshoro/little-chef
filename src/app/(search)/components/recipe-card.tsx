@@ -11,9 +11,9 @@ type RecipeCardProps = {
 };
 
 const RecipeCard = async ({ id, publicId }: RecipeCardProps) => {
-  const { session } = await validateRequest();
+  const { user } = await validateRequest();
   const [recipeResult, collaboratorsResult] = await Promise.allSettled([
-    getRecipe({ id }, session?.id),
+    getRecipe({ id }, user?.publicId),
     getCreatorsAndMaintainers(id),
   ]);
 

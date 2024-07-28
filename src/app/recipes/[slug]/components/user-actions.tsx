@@ -1,50 +1,52 @@
 import type { Recipe } from "@/drizzle/schema";
 import { OptimisticLikeButton } from "./buttons/optimistic-like-button";
 import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
-import { Session } from "lucia";
+import type { User } from "lucia";
 import { ShareCurrentPageButton } from "./buttons/share-button";
 import { AddToCollectionButton } from "./buttons/add-to-collection-button";
 import { AddRecipeToCollectionServerRoot } from "@/app/components/dialog/contents/add-recipe-to-collection/server-root";
 
 const UserActions = async ({
   recipe,
-  session,
+  publicUserId,
 }: {
   recipe: Recipe;
-  session: Session | null;
+  publicUserId: string | undefined;
 }) => {
   return (
     <>
-      <LikeButton recipe={recipe} session={session} />
+      <LikeButton recipe={recipe} publicUserId={publicUserId} />
       <ShareCurrentPageButton />
-      <AddToCollection recipe={recipe} session={session} />
+      <AddToCollection recipe={recipe} publicUserId={publicUserId} />
     </>
   );
 };
 
 const LikeButton = async ({
   recipe,
-  session,
+  publicUserId,
 }: {
   recipe: Recipe;
-  session: Session | null;
+  publicUserId: string | undefined;
 }) => {
-  const isLiked = session ? await isRecipeLiked(session.id, recipe.id) : false;
+  const isLiked = publicUserId
+    ? await isRecipeLiked(publicUserId, recipe.id)
+    : false;
 
   return (
     <OptimisticLikeButton
       count={recipe.likes}
       isLiked={isLiked}
-      disabled={session !== undefined}
+      disabled={publicUserId !== undefined}
       action={async (type) => {
         "use server";
-        if (!session) throw new Error("No session available");
+        if (!publicUserId) throw new Error("No session available");
 
         if (type === "add") {
-          const count = await addRecipeLike(session.id, recipe.publicId);
+          const count = await addRecipeLike(publicUserId, recipe.publicId);
           return { count, isLiked: true };
         } else {
-          const count = await removeRecipeLike(session.id, recipe.publicId);
+          const count = await removeRecipeLike(publicUserId, recipe.publicId);
           return { count, isLiked: false };
         }
       }}
@@ -54,16 +56,16 @@ const LikeButton = async ({
 
 const AddToCollection = async ({
   recipe,
-  session,
+  publicUserId,
 }: {
   recipe: Recipe;
-  session: Session | null;
+  publicUserId: string | undefined;
 }) => {
   return (
-    <AddToCollectionButton disabled={session === null}>
+    <AddToCollectionButton disabled={publicUserId === null}>
       <AddRecipeToCollectionServerRoot
         recipePublicId={recipe.publicId}
-        userId={session?.userId}
+        publicUserId={publicUserId}
       ></AddRecipeToCollectionServerRoot>
     </AddToCollectionButton>
   );

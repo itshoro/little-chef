@@ -12,14 +12,14 @@ import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 
 const Page = async () => {
-  const { session } = await validateRequest();
-  const preferences = session
-    ? await getCollectionPreferences(session.id)
+  const { user } = await validateRequest();
+  const preferences = user
+    ? await getCollectionPreferences(user.publicId)
     : undefined;
 
   return (
     <form action={create}>
-      <input type="hidden" name="sessionId" value={session?.id} />
+      <input type="hidden" name="publicUserId" value={user?.publicId} />
 
       <Input.Root name="title">
         <Input.Label>Title</Input.Label>
@@ -57,8 +57,9 @@ const Page = async () => {
 async function create(formData: FormData) {
   "use server";
 
-  const sessionId = formData.get("sessionId");
-  if (typeof sessionId !== "string") throw new Error("SessionId is missing.");
+  const publicUserId = formData.get("publicUserId");
+  if (typeof publicUserId !== "string")
+    throw new Error("Public user id is missing.");
   const dto = collectionDtoFromFormData(formData, AddCollectionValidator);
 
   if (!dto.success) {
@@ -67,7 +68,7 @@ async function create(formData: FormData) {
     });
   }
   const collection = await createCollection(dto.data);
-  await subscribeToCollection(sessionId, collection, "creator");
+  await subscribeToCollection(publicUserId, collection, "creator");
 
   redirect(
     `/collections/${generateSlugPathSegment(collection.slug, collection.publicId)}`,

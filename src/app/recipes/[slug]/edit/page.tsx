@@ -18,16 +18,16 @@ type EditRecipePageProps = {
 
 const EditRecipePage = async ({ params }: EditRecipePageProps) => {
   const { publicId } = extractParts(params.slug);
-  const { session } = await validateRequest();
+  const { user } = await validateRequest();
 
   try {
-    const recipe = await getRecipe({ publicId }, session?.id);
+    const recipe = await getRecipe({ publicId }, user?.publicId);
     const steps = await getRecipeSteps(recipe.id);
 
     return (
       <Form.Root action={update}>
         <div className="p-4">
-          <input type="hidden" name="sessionId" value={session?.id} />
+          <input type="hidden" name="publicUserId" value={user?.publicId} />
           <input type="hidden" name="publicId" value={recipe.publicId} />
           <Form.Inputs defaultValue={{ recipe, steps }} />
         </div>
@@ -48,8 +48,10 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
 async function update(formData: FormData) {
   "use server";
 
-  const sessionId = formData.get("sessionId");
-  if (typeof sessionId !== "string") throw new Error("SessionId is missing.");
+  const publicUserId = formData.get("publicUserId");
+  if (typeof publicUserId !== "string") {
+    throw new Error("Public userId is missing.");
+  }
 
   const dto = recipeDtoFromFormData(formData, UpdateRecipeValidator);
 

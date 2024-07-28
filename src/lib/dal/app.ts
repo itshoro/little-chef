@@ -1,22 +1,25 @@
 import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
 import { eq } from "drizzle-orm";
+import { getUser } from "./user";
 
-async function getPreferencesId(userId: number) {
+async function getPreferencesId(publicUserId: string) {
+  const user = await getUser(publicUserId);
+  if (!user) throw new Error("User doesn't exist.", { cause: publicUserId });
+
   const result = await db
     .select({ appPreferencesId: schema.users.appPreferencesId })
     .from(schema.users)
-    .where(eq(schema.users.id, userId))
+    .where(eq(schema.users.id, user.id))
     .limit(1);
 
   if (result.length === 0) throw new Error("Couldn't find user");
-  const [user] = result;
-
-  return user.appPreferencesId;
+  return result[0].appPreferencesId;
 }
 
-export async function getAppPreferences(userId: number) {
-  const id = await getPreferencesId(userId);
+export async function getAppPreferences(publicUserId: string) {
+  const id = await getPreferencesId(publicUserId);
+  if (!id) throw new Error("User doesn't exist.", { cause: publicUserId });
 
   const result = await db
     .select()
@@ -40,10 +43,10 @@ export function isSupportedTheme(
 }
 
 export async function changeTheme(
-  userId: number,
+  publicUserId: string,
   theme: (typeof supportedThemes)[number],
 ) {
-  const id = await getPreferencesId(userId);
+  const id = await getPreferencesId(publicUserId);
 
   await db
     .update(schema.appPreferences)

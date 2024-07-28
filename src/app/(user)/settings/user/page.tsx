@@ -12,13 +12,13 @@ import {
 } from "@/lib/dal/user";
 
 const UserPage = async () => {
-  const { user, session } = await validateRequest();
+  const { user } = await validateRequest();
 
-  const setProfileImageWithSession = setProfileImage.bind(null, session?.id);
-  const updatePasswordWithSession = updatePassword.bind(null, session?.id);
-  const updateUsernameActionWithSession = updateUsernameAction.bind(
+  const setProfileImageWithUser = setProfileImage.bind(null, user?.publicId);
+  const updatePasswordWithUser = updatePassword.bind(null, user?.publicId);
+  const updateUsernameActionWithUser = updateUsernameAction.bind(
     null,
-    session?.id,
+    user?.publicId,
   );
 
   return (
@@ -27,7 +27,7 @@ const UserPage = async () => {
         <SettingsSection.Label>User Preferences</SettingsSection.Label>
 
         <SettingsSection.Grid>
-          <form action={setProfileImageWithSession}>
+          <form action={setProfileImageWithUser}>
             <Fieldset label="Avatar">
               <UpdateAvatar
                 defaultValue={user ? `/${user.publicId}/avatar.webp` : ""}
@@ -41,7 +41,7 @@ const UserPage = async () => {
             </Fieldset>
           </form>
 
-          <form action={updatePasswordWithSession}>
+          <form action={updatePasswordWithUser}>
             <Fieldset label="Password">
               <div className="mb-4 flex flex-col gap-4">
                 <div>
@@ -64,7 +64,7 @@ const UserPage = async () => {
                 </div>
               </div>
               <button
-                className="rounded-full bg-lime-300 px-5 py-3 font-medium "
+                className="rounded-full bg-lime-300 px-5 py-3 font-medium"
                 type="submit"
               >
                 Update Password
@@ -72,7 +72,7 @@ const UserPage = async () => {
             </Fieldset>
           </form>
 
-          <form action={updateUsernameActionWithSession}>
+          <form action={updateUsernameActionWithUser}>
             <Fieldset label="Username">
               <div>
                 <label className="sr-only" htmlFor="username">
@@ -101,40 +101,40 @@ const UserPage = async () => {
 };
 
 async function updatePassword(
-  sessionId: string | undefined,
+  publicUserId: string | undefined,
   formData: FormData,
 ) {
   "use server";
-  if (typeof sessionId !== "string") return;
+  if (typeof publicUserId !== "string") return;
 
   const currentPassword = formData.get("currentPassword");
   const newPassword = formData.get("newPassword");
   if (typeof currentPassword !== "string" || !validatePassword(newPassword))
     return;
 
-  await changePassword(sessionId, currentPassword, newPassword);
+  await changePassword(publicUserId, currentPassword, newPassword);
 }
 
 const setProfileImage = async (
-  sessionId: string | undefined,
+  publicUserId: string | undefined,
   formData: FormData,
 ) => {
   "use server";
-  if (typeof sessionId !== "string") return;
+  if (typeof publicUserId !== "string") return;
 
   const image = formData.get("image");
   if (!(image instanceof File)) return;
-  await changeAvatar(sessionId, image);
 
+  await changeAvatar(publicUserId, image);
   revalidatePath("/settings/user", "page");
 };
 
 const updateUsernameAction = async (
-  sessionId: string | undefined,
+  publicUserId: string | undefined,
   formData: FormData,
 ) => {
   "use server";
-  if (typeof sessionId !== "string") return;
+  if (typeof publicUserId !== "string") return;
 
   const username = formData.get("username");
   try {
@@ -143,8 +143,7 @@ const updateUsernameAction = async (
     return;
   }
 
-  await changeUsername(sessionId, username);
-
+  await changeUsername(publicUserId, username);
   revalidatePath("/settings/user", "page");
 };
 

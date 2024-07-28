@@ -11,10 +11,10 @@ import { revalidatePath } from "next/cache";
 import { validateVisibility } from "@/lib/dal/visibility";
 
 const RecipeSettingsPage = async () => {
-  const { session } = await validateRequest();
+  const { user } = await validateRequest();
 
-  const preferences = session
-    ? await getRecipePreferences(session.id)
+  const preferences = user
+    ? await getRecipePreferences(user.publicId)
     : undefined;
   const defaultVisibility = validateVisibility(preferences?.defaultVisibility)
     ? preferences.defaultVisibility
@@ -22,11 +22,11 @@ const RecipeSettingsPage = async () => {
 
   const changeServingSizeWithUserId = changeDefaultRecipeServingSize.bind(
     null,
-    session?.id,
+    user?.publicId,
   );
   const changeVisibilityWithUserId = changeDefaultRecipeVisibility.bind(
     null,
-    session?.id,
+    user?.publicId,
   );
 
   return (
@@ -60,29 +60,29 @@ const RecipeSettingsPage = async () => {
 };
 
 async function changeDefaultRecipeVisibility(
-  sessionId: string | undefined,
+  publicUserId: string | undefined,
   formData: FormData,
 ) {
   "use server";
-  if (typeof sessionId !== "string") return;
+  if (typeof publicUserId !== "string") return;
   const visibility = formData.get("visibility");
 
   if (!validateVisibility(visibility)) return;
-  await updateDefaultVisibility(sessionId, visibility);
+  await updateDefaultVisibility(publicUserId, visibility);
 
   revalidatePath("/settings/recipe");
 }
 
 async function changeDefaultRecipeServingSize(
-  sessionId: string | undefined,
+  publicUserId: string | undefined,
   formData: FormData,
 ) {
   "use server";
-  if (typeof sessionId !== "string") return;
+  if (typeof publicUserId !== "string") return;
   const defaultServingSize = Number(formData.get("defaultServingSize"));
 
   if (isNaN(defaultServingSize)) return;
-  await updateDefaultServingSize(sessionId, defaultServingSize);
+  await updateDefaultServingSize(publicUserId, defaultServingSize);
 
   revalidatePath("/settings/recipe");
 }

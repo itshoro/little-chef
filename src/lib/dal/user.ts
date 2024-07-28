@@ -43,19 +43,19 @@ export async function invalidateSession(sessionId: Session["id"]) {
 
 // MARK: Password
 export async function changePassword(
-  sessionId: string,
+  publicUserId: string,
   currentPassword: string,
   newPassword: Password,
 ) {
-  const session = await findSessionUser(sessionId);
+  const user = await getUser(publicUserId);
+  if (!user) return;
 
-  if (!(await equalsPassword(session.users.hashedPassword, currentPassword)))
-    return;
+  if (!(await equalsPassword(user.hashedPassword, currentPassword))) return;
 
   await db
     .update(schema.users)
     .set({ hashedPassword: await new Argon2id().hash(newPassword) })
-    .where(eq(schema.users.id, session.users.id));
+    .where(eq(schema.users.id, user.id));
 }
 
 async function equalsPassword(hash: string, password: string) {
@@ -89,14 +89,8 @@ export function validatePassword(password: any): password is Password {
 }
 
 // MARK: Avatar
-export async function changeAvatar(sessionId: string, image: File) {
-  const session = await findSessionUser(sessionId);
-
-  const storageDirectoryPath = path.join(
-    process.cwd(),
-    "public",
-    session.users.publicId,
-  );
+export async function changeAvatar(publicUserId: string, image: File) {
+  const storageDirectoryPath = path.join(process.cwd(), "public", publicUserId);
 
   await fs.mkdir(storageDirectoryPath, { recursive: true });
 
@@ -107,14 +101,18 @@ export async function changeAvatar(sessionId: string, image: File) {
 }
 
 // MARK: Username
-export async function changeUsername(sessionId: string, newUsername: Username) {
+export async function changeUsername(
+  publicUserId: string,
+  newUsername: Username,
+) {
   // TODO: consider whether username should be unique, or some sort of discriminator system should be present.
-  const session = await findSessionUser(sessionId);
+  const user = await getUser(publicUserId);
+  if (!user) throw new Error("Couldn't find user.", { cause: publicUserId });
 
   await db
     .update(schema.users)
     .set({ username: newUsername })
-    .where(eq(schema.users.id, session.sessions.userId));
+    .where(eq(schema.users.id, user.id));
 }
 
 export type Username = string & { brand: "ValidUsername" };
@@ -147,21 +145,20 @@ export function validateUsername(username: any): username is Username | never {
 }
 
 // MARK: utils
-export async function findSessionUser(sessionId: string) {
-  const sessions = await db
+export async function getUser(publicId: string | undefined) {
+  if (!publicId) return undefined;
+
+  const userResult = await db
     .select()
-    .from(schema.sessions)
-    .where(eq(schema.sessions.id, sessionId)) // TODO: check expiresAt
-    .innerJoin(schema.users, eq(schema.users.id, schema.sessions.userId))
+    .from(schema.users)
+    .where(eq(schema.users.publicId, publicId))
     .limit(1);
 
-  if (sessions.length === 0)
-    throw new Error("No matching session found for " + sessionId);
+  if (userResult.length === 0) {
+    throw new Error("Couldn't find user", { cause: publicId });
+  }
 
-  const [session] = sessions;
-
-  // TODO look for less "hacky" solution
-  return session;
+  return userResult[0];
 }
 
 // MARK: CRUD
@@ -216,15 +213,18 @@ export async function findUserByQuery(query: string, take: number = 5) {
 }
 
 export async function subscribeToRecipe(
-  sessionId: string,
+  publicUserId: string,
   recipe: typeof schema.recipes.$inferSelect,
   role: typeof schema.recipeSubscriptions.$inferInsert.role,
 ) {
-  const sessionResult = await findSessionUser(sessionId);
+  const user = await getUser(publicUserId);
+  if (!user) {
+    throw new Error("Failed to subscribe to recipe", { cause: publicUserId });
+  }
 
   await db.insert(schema.recipeSubscriptions).values({
     recipeId: recipe.id,
-    userId: sessionResult.users.id,
+    userId: user.id,
     role,
   });
 }
@@ -243,13 +243,18 @@ export async function getSubcribedRecipes(userId: number) {
     );
 }
 
-export async function getMaintainedCollections(userId: number) {
+export async function getMaintainedCollections(
+  publicUserId: string | undefined,
+) {
+  const user = await getUser(publicUserId);
+  if (!user) return [];
+
   const maintainedCollectionIds = await db
     .selectDistinct({ id: schema.collectionSubscriptions.collectionId })
     .from(schema.collectionSubscriptions)
     .where(
       and(
-        eq(schema.collectionSubscriptions.userId, userId),
+        eq(schema.collectionSubscriptions.userId, user.id),
         or(
           eq(schema.collectionSubscriptions.role, "creator"),
           eq(schema.collectionSubscriptions.role, "maintainer"),
@@ -271,28 +276,34 @@ export async function getMaintainedCollections(userId: number) {
 }
 
 export async function subscribeToCollection(
-  sessionId: string,
+  publicUserId: string,
   collection: typeof schema.collections.$inferSelect,
   role: typeof schema.collectionSubscriptions.$inferInsert.role,
 ) {
-  const sessionResult = await findSessionUser(sessionId);
+  const user = await getUser(publicUserId);
+  if (!user) {
+    throw new Error("Unable to subscribe to collection", {
+      cause: publicUserId,
+    });
+  }
 
   await db.insert(schema.collectionSubscriptions).values({
     collectionId: collection.id,
-    userId: sessionResult.users.id,
+    userId: user.id,
     role,
   });
 }
 
-export async function isRecipeLiked(sessionId: string, recipeId: number) {
-  const sessionResult = await findSessionUser(sessionId);
+export async function isRecipeLiked(publicUserId: string, recipeId: number) {
+  const user = await getUser(publicUserId);
+  if (!user) return false;
 
   const queryResult = await db
     .select()
     .from(schema.recipeSubscriptions)
     .where(
       and(
-        eq(schema.recipeSubscriptions.userId, sessionResult.users.id),
+        eq(schema.recipeSubscriptions.userId, user.id),
         eq(schema.recipeSubscriptions.recipeId, recipeId),
         eq(schema.recipeSubscriptions.role, "subscriber"),
       ),
@@ -300,14 +311,22 @@ export async function isRecipeLiked(sessionId: string, recipeId: number) {
   return queryResult.length !== 0;
 }
 
-export async function addRecipeLike(sessionId: string, recipePublicId: string) {
-  const sessionResult = await findSessionUser(sessionId);
+export async function addRecipeLike(
+  publicUserId: string,
+  publicRecipeId: string,
+) {
+  const user = await getUser(publicUserId);
+  if (!user) {
+    throw new Error("Couldn't like recipe", {
+      cause: { publicUserId, publicRecipeId },
+    });
+  }
 
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
       .update(schema.recipes)
       .set({ likes: sql`${schema.recipes.likes} + 1` })
-      .where(eq(schema.recipes.publicId, recipePublicId))
+      .where(eq(schema.recipes.publicId, publicRecipeId))
       .returning();
 
     if (recipeQuery.length !== 1) {
@@ -317,7 +336,7 @@ export async function addRecipeLike(sessionId: string, recipePublicId: string) {
 
     await tx.insert(schema.recipeSubscriptions).values({
       recipeId: recipe.id,
-      userId: sessionResult.users.id,
+      userId: user.id,
       role: "subscriber",
     });
 
@@ -326,16 +345,21 @@ export async function addRecipeLike(sessionId: string, recipePublicId: string) {
 }
 
 export async function removeRecipeLike(
-  sessionId: string,
-  recipePublicId: string,
+  publicUserId: string,
+  publicRecipeId: string,
 ) {
-  const sessionResult = await findSessionUser(sessionId);
+  const user = await getUser(publicUserId);
+  if (!user) {
+    throw new Error("Couldn't like recipe", {
+      cause: { publicUserId, publicRecipeId },
+    });
+  }
 
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
       .update(schema.recipes)
       .set({ likes: sql`${schema.recipes.likes} - 1` })
-      .where(eq(schema.recipes.publicId, recipePublicId))
+      .where(eq(schema.recipes.publicId, publicRecipeId))
       .returning();
 
     if (recipeQuery.length !== 1) {
@@ -348,7 +372,7 @@ export async function removeRecipeLike(
       .where(
         and(
           eq(schema.recipeSubscriptions.recipeId, recipe.id),
-          eq(schema.recipeSubscriptions.userId, sessionResult.users.id),
+          eq(schema.recipeSubscriptions.userId, user.id),
           eq(schema.recipeSubscriptions.role, "subscriber"),
         ),
       );

@@ -3,7 +3,6 @@ import {
   deleteRecipe,
   getCreatorsAndMaintainers,
   getRecipe,
-  getRecipePreferences,
   getRecipeSteps,
 } from "@/lib/dal/recipe";
 import { CTALink } from "@/app/components/CallToAction/Link";
@@ -11,18 +10,12 @@ import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { AmountItem } from "./components/amount-item";
 import { IngredientList } from "./components/ingredient-list";
 import { ServingsQueryStore } from "./components/servings-query-store";
-import { ShareCurrentPageButton } from "./components/buttons/share-button";
 import { DeleteButton } from "./components/buttons/delete-button";
 import { extractParts } from "@/lib/slug";
 import { Parser } from "@cooklang/cooklang-ts";
 import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
-import { OptimisticLikeButton } from "./components/buttons/optimistic-like-button";
-import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
-import { AddToCollectionButton } from "./components/buttons/add-to-collection-button";
-import { AddRecipeToCollectionServerRoot } from "@/app/components/dialog/contents/add-recipe-to-collection/server-root";
-import { DialogRoot } from "@/app/components/dialog/dialog";
 import { UserActions } from "./components/user-actions";
 
 type ShowRecipePageProps = {
@@ -34,10 +27,10 @@ const ShowRecipePage = async ({
   params,
   searchParams,
 }: ShowRecipePageProps) => {
-  const { session, user } = await validateRequest();
-
+  const { user } = await validateRequest();
   const { publicId } = extractParts(params.slug);
-  const recipe = await getRecipe({ publicId }, session?.id);
+
+  const recipe = await getRecipe({ publicId }, user?.publicId);
 
   const rawSteps = await getRecipeSteps(recipe.id);
   const parser = new Parser();
@@ -92,7 +85,7 @@ const ShowRecipePage = async ({
 
           <section className="my-4">
             <div className="flex items-center gap-4">
-              <UserActions session={session} recipe={recipe} />
+              <UserActions publicUserId={user?.publicId} recipe={recipe} />
             </div>
           </section>
 

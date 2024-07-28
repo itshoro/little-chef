@@ -11,15 +11,15 @@ import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 
 const AddRecipePage = async () => {
-  const { session } = await validateRequest();
-  const preferences = session
-    ? await getRecipePreferences(session.id)
+  const { user } = await validateRequest();
+  const preferences = user
+    ? await getRecipePreferences(user.publicId)
     : undefined;
 
   return (
     <Form.Root action={create}>
       <div className="p-4">
-        <input type="hidden" name="sessionId" value={session?.id} />
+        <input type="hidden" name="publicUserId" value={user?.publicId} />
         <Form.Inputs
           defaultValue={{
             recipe: {
@@ -40,9 +40,10 @@ const AddRecipePage = async () => {
 
 async function create(formData: FormData) {
   "use server";
-
-  const sessionId = formData.get("sessionId");
-  if (typeof sessionId !== "string") throw new Error("SessionId is missing.");
+  const publicUserId = formData.get("publicUserId");
+  if (typeof publicUserId !== "string") {
+    throw new Error("Public user id is missing.");
+  }
 
   const dto = recipeDtoFromFormData(formData, AddRecipeValidator);
 
@@ -52,7 +53,7 @@ async function create(formData: FormData) {
     });
   }
   const recipe = await createRecipe(dto.data);
-  await subscribeToRecipe(sessionId, recipe, "creator");
+  await subscribeToRecipe(publicUserId, recipe, "creator");
 
   redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
 }

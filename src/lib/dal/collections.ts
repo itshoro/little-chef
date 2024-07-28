@@ -2,14 +2,33 @@ import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
 import { eq, or, and, like, sql } from "drizzle-orm";
 import type { Visibility } from "./visibility";
-import { findSessionUser } from "./user";
-import type { AnyZodObject, TypeOf, z } from "zod";
+import { getUser } from "./user";
+import type { AnyZodObject, z } from "zod";
 import { AddCollectionValidator } from "./validators";
 import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
 
-export async function getCollectionPreferences(sessionId: string) {
-  const id = await getPreferencesId(sessionId);
+async function getPreferencesId(publicUserId: string) {
+  const user = await getUser(publicUserId);
+  if (!user) throw new Error("User doesn't exist.", { cause: publicUserId });
+
+  const result = await db
+    .select({ collectionPreferencesId: schema.users.collectionPreferencesId })
+    .from(schema.users)
+    .where(eq(schema.users.id, user.id))
+    .limit(1);
+
+  if (result.length === 0) {
+    throw new Error("Couldn't find collection preferences", {
+      cause: publicUserId,
+    });
+  }
+
+  return user.collectionPreferencesId;
+}
+
+export async function getCollectionPreferences(publicUserId: string) {
+  const id = await getPreferencesId(publicUserId);
 
   const result = await db
     .select()
@@ -20,21 +39,6 @@ export async function getCollectionPreferences(sessionId: string) {
   if (result.length === 0) throw new Error("Couldn't find app preferences");
   const [preferences] = result;
   return preferences;
-}
-
-export async function getPreferencesId(sessionId: string) {
-  const sessionResult = await findSessionUser(sessionId);
-
-  const result = await db
-    .select({ collectionPreferencesId: schema.users.collectionPreferencesId })
-    .from(schema.users)
-    .where(eq(schema.users.id, sessionResult.sessions.userId))
-    .limit(1);
-
-  if (result.length === 0) throw new Error("Couldn't find user");
-  const [user] = result;
-
-  return user.collectionPreferencesId;
 }
 
 export async function createCollection(
@@ -52,6 +56,7 @@ export async function createCollection(
     })
     .returning();
 
+  // TODO: Should the user automatically subscribe to their createdCollections?
   if (collectionQuery.length !== 1) {
     throw new Error("Couldn't create collection.", { cause: dto });
   }
@@ -60,11 +65,11 @@ export async function createCollection(
 }
 
 export async function addRecipe(
-  // sessionId: string,
+  // publicUserId: string,
   collectionPublicId: string,
   recipePublicId: string,
 ) {
-  // const sessionResult = await findSessionUser(sessionId);
+  // const sessionResult = await findSessionUser(publicUserId);
 
   const [collectionIdResult, recipeIdResult] = await Promise.all([
     db
@@ -105,10 +110,10 @@ export async function addRecipe(
 }
 
 export async function updateDefaultVisibility(
-  sessionId: string,
+  publicUserId: string,
   defaultVisibility: Visibility,
 ) {
-  const id = await getPreferencesId(sessionId);
+  const id = await getPreferencesId(publicUserId);
 
   await db
     .update(schema.collectionPreferences)

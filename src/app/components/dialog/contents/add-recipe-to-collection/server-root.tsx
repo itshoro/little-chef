@@ -4,16 +4,15 @@ import { NoCollections } from "@/app/components/fallbacks/collections/no-collect
 import { addRecipe } from "@/lib/dal/collections";
 
 type RootProps = {
-  userId: number | undefined;
+  publicUserId: string | undefined;
   recipePublicId: string;
 };
 
 const AddRecipeToCollectionServerRoot = async ({
-  userId,
+  publicUserId,
   recipePublicId,
 }: RootProps) => {
-  const collections =
-    userId !== undefined ? await getMaintainedCollections(userId) : [];
+  const collections = await getMaintainedCollections(publicUserId);
   if (collections.length === 0) return <NoCollections />;
 
   return (

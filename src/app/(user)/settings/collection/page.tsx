@@ -9,21 +9,21 @@ import {
 import { validateVisibility } from "@/lib/dal/visibility";
 
 const CollectionSettingsPage = async () => {
-  const { session } = await validateRequest();
+  const { user } = await validateRequest();
 
-  const preferences = session
-    ? await getCollectionPreferences(session.id)
+  const preferences = user
+    ? await getCollectionPreferences(user.publicId)
     : undefined;
 
-  const changeCollectionVisibilityWithSessionId =
-    changeDefaultCollectionVisibility.bind(null, session?.id);
+  const changeCollectionVisibilityWithUser =
+    changeDefaultCollectionVisibility.bind(null, user?.publicId);
 
   return (
     <>
       <SettingsSection.Root>
         <SettingsSection.Label>Collection Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
-          <form action={changeCollectionVisibilityWithSessionId}>
+          <form action={changeCollectionVisibilityWithUser}>
             <Fieldset label="Default Visibility">
               <VisibilitySwitcher
                 name="visibility"
@@ -39,17 +39,17 @@ const CollectionSettingsPage = async () => {
 };
 
 async function changeDefaultCollectionVisibility(
-  sessionId: string | undefined,
+  publicUserId: string | undefined,
   formData: FormData,
 ) {
   "use server";
 
-  if (typeof sessionId !== "string") return;
+  if (typeof publicUserId !== "string") return;
 
   const visibility = formData.get("visibility");
   if (!validateVisibility(visibility)) return;
 
-  await updateDefaultVisibility(sessionId, visibility);
+  await updateDefaultVisibility(publicUserId, visibility);
 }
 
 export default CollectionSettingsPage;

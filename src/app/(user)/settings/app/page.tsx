@@ -6,8 +6,7 @@ import { changeTheme, isSupportedTheme } from "@/lib/dal/app";
 
 const AppSettingsPage = async () => {
   const { user } = await validateRequest();
-
-  const changeAppThemeWithUserId = changeAppTheme.bind(null, user?.id);
+  const changeAppThemeWithUserId = changeAppTheme.bind(null, user?.publicId);
 
   return (
     <>
@@ -25,9 +24,12 @@ const AppSettingsPage = async () => {
   );
 };
 
-async function changeAppTheme(userId: number | undefined, formData: FormData) {
+async function changeAppTheme(
+  publicUserId: string | undefined,
+  formData: FormData,
+) {
   "use server";
-  if (userId === undefined) return;
+  if (publicUserId === undefined) return;
 
   const theme = formData.get("theme");
 
@@ -35,7 +37,7 @@ async function changeAppTheme(userId: number | undefined, formData: FormData) {
     return;
   }
 
-  await changeTheme(userId, theme);
+  await changeTheme(publicUserId, theme);
 }
 
 export default AppSettingsPage;

@@ -1,5 +1,5 @@
 import { validateRequest } from "@/lib/auth/lucia";
-import type { User as LuciaUser } from "lucia";
+import type { User } from "lucia";
 import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
 import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
@@ -16,9 +16,8 @@ const Page = async (props: { searchParams: { q: string } }) => {
   );
 };
 
-const CollectionList = async ({ user }: { user: LuciaUser | null }) => {
+const CollectionList = async ({ user }: { user: User | null }) => {
   if (!user) return null;
-
   const subscriptions = await getSubscriptions(user.id);
 
   return (
@@ -47,10 +46,9 @@ const CollectionSearchResults = async ({
   user,
 }: {
   query?: string;
-  user: LuciaUser | null;
+  user: User | null;
 }) => {
   if (!user) return null;
-
   const collections = await findPublicCollections(query ?? "");
 
   return (

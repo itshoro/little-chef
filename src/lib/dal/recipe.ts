@@ -3,30 +3,32 @@ import { db } from "@/drizzle/db";
 import { eq, and, like, or } from "drizzle-orm";
 import { z } from "zod";
 import { type Visibility } from "./visibility";
-import { findSessionUser } from "./user";
+import { getUser } from "./user";
 import { generateSlug } from "../slug";
 import { AddRecipeValidator, UpdateRecipeValidator } from "./validators";
 import { nanoid } from "../nanoid";
 
-// MARK: Preferences
-
-async function getPreferencesId(sessionId: string) {
-  const sessionResult = await findSessionUser(sessionId);
+async function getPreferencesId(publicUserId: string) {
+  const user = await getUser(publicUserId);
+  if (!user) throw new Error("User doesn't exist.", { cause: publicUserId });
 
   const result = await db
     .select({ recipePreferencesId: schema.users.recipePreferencesId })
     .from(schema.users)
-    .where(eq(schema.users.id, sessionResult.users.id))
+    .where(eq(schema.users.id, user.id))
     .limit(1);
 
-  if (result.length === 0) throw new Error("Couldn't find user");
-  const [user] = result;
+  if (result.length === 0)
+    throw new Error("Couldn't find recipe preferences", {
+      cause: publicUserId,
+    });
 
-  return user.recipePreferencesId;
+  return result[0].recipePreferencesId;
 }
 
-export async function getRecipePreferences(sessionId: string) {
-  const id = await getPreferencesId(sessionId);
+export async function getRecipePreferences(publicUserId: string) {
+  const id = await getPreferencesId(publicUserId);
+  if (!id) throw new Error("Couldn't find recipe preferences");
 
   const result = await db
     .select()
@@ -40,10 +42,14 @@ export async function getRecipePreferences(sessionId: string) {
 }
 
 export async function updateDefaultServingSize(
-  sessionId: string,
+  publicUserId: string,
   defaultServingSize: number,
 ) {
-  const id = await getPreferencesId(sessionId);
+  const id = await getPreferencesId(publicUserId);
+  if (!id)
+    throw new Error("Couldn't find recipe preferences", {
+      cause: publicUserId,
+    });
 
   await db
     .update(schema.recipePreferences)
@@ -52,10 +58,14 @@ export async function updateDefaultServingSize(
 }
 
 export async function updateDefaultVisibility(
-  sessionId: string,
+  publicUserId: string,
   defaultVisibility: Visibility,
 ) {
-  const id = await getPreferencesId(sessionId);
+  const id = await getPreferencesId(publicUserId);
+  if (!id)
+    throw new Error("Couldn't find recipe preferences", {
+      cause: publicUserId,
+    });
 
   await db
     .update(schema.recipePreferences)
@@ -132,9 +142,9 @@ export async function findPublicRecipeIds(query: string) {
 
 export async function getRecipe(
   query: { id: number } | { publicId: string },
-  session?: string,
+  publicUserId?: string,
 ) {
-  const sessionResult = session ? await findSessionUser(session) : undefined;
+  const user = await getUser(publicUserId);
 
   const recipe = await db
     .select({
@@ -161,9 +171,9 @@ export async function getRecipe(
         or(
           eq(schema.recipes.visibility, "public"),
           eq(schema.recipes.visibility, "unlisted"),
-          sessionResult
+          user !== undefined
             ? and(
-                eq(schema.recipeSubscriptions.userId, sessionResult.users.id),
+                eq(schema.recipeSubscriptions.userId, user.id),
                 or(
                   eq(schema.recipeSubscriptions.role, "creator"),
                   eq(schema.recipeSubscriptions.role, "maintainer"),
@@ -193,6 +203,8 @@ export async function getRecipeSteps(recipeId: number) {
 }
 
 export async function updateRecipe(dto: z.infer<typeof UpdateRecipeValidator>) {
+  // TODO: check if user is allowed to update recipe.
+
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
       .update(schema.recipes)

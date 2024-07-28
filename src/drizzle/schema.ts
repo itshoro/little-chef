@@ -19,6 +19,7 @@ export const recipes = sqliteTable("recipes", {
   slug: text("slug").notNull(),
   likes: integer("likes").notNull().default(0),
 });
+export type Recipe = typeof recipes.$inferSelect;
 
 export const recipeSubscriptions = sqliteTable(
   "recipeSubscriptions",
