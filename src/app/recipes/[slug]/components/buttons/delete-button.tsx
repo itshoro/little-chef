@@ -8,12 +8,12 @@ const DeleteButton = ({
 }: {
   deleteAction: () => Promise<void>;
 }) => {
-  const [ref, dialogActions] = useDialog(deleteAction);
+  const [ref, dialogActions] = useDialog();
 
   return (
     <>
-      <DialogRoot ref={ref}>
-        <DeleteRecipe {...dialogActions} />
+      <DialogRoot ref={ref} {...dialogActions}>
+        <DeleteRecipe deleteRecipeAction={deleteAction} />
       </DialogRoot>
       <button
         onClick={dialogActions.openDialog}

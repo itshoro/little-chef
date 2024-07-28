@@ -1,29 +1,36 @@
-import { forwardRef, useCallback, useRef } from "react";
+import { createContext, forwardRef, useRef } from "react";
+import { useContext } from "@/hooks/useContext";
 
-type RootProps = {
-  children: React.ReactNode;
-};
-
-const DialogRoot = forwardRef<React.ElementRef<"dialog">, RootProps>(
-  ({ children }, ref) => {
-    return (
-      <dialog
-        className="absolute mx-auto mb-4 mt-auto max-w-full rounded-2xl p-6 shadow-xl backdrop:transform backdrop:backdrop-blur-sm"
-        ref={ref}
-      >
-        {children}
-      </dialog>
-    );
-  },
-);
-
-type DialogProps = {
-  onConfirm: () => void;
+type DialogContextProps = {
   closeDialog: () => void;
   openDialog: () => void;
 };
 
-function useDialog(onConfirmCallback: () => void) {
+const DialogContext = createContext<DialogContextProps>(null!);
+
+const useDialogContext = (calleeName: string) =>
+  useContext(calleeName, DialogContext);
+
+type RootProps = {
+  children: React.ReactNode;
+} & DialogContextProps;
+
+const DialogRoot = forwardRef<React.ElementRef<"dialog">, RootProps>(
+  ({ children, ...contextActions }, ref) => {
+    return (
+      <DialogContext.Provider value={contextActions}>
+        <dialog
+          className="absolute mx-auto mb-4 mt-auto max-w-full rounded-2xl p-6 shadow-xl backdrop:transform backdrop:backdrop-blur-sm"
+          ref={ref}
+        >
+          {children}
+        </dialog>
+      </DialogContext.Provider>
+    );
+  },
+);
+
+function useDialog() {
   const ref = useRef<React.ElementRef<"dialog">>(null);
 
   function openDialog() {
@@ -34,15 +41,10 @@ function useDialog(onConfirmCallback: () => void) {
     ref.current?.close();
   }
 
-  const onConfirm = useCallback(() => {
-    onConfirmCallback();
-    closeDialog();
-  }, [onConfirmCallback]);
-
   return [
     ref,
-    { openDialog, closeDialog, onConfirm } satisfies DialogProps,
+    { openDialog, closeDialog } satisfies DialogContextProps,
   ] as const;
 }
 
-export { DialogRoot, useDialog, type RootProps, type DialogProps };
+export { DialogRoot, useDialog, useDialogContext, type RootProps };
