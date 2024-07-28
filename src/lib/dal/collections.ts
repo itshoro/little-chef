@@ -59,6 +59,46 @@ export async function createCollection(
   return collectionQuery.pop() as (typeof collectionQuery)[number];
 }
 
+export async function addRecipe(
+  // sessionId: string,
+  collectionPublicId: string,
+  recipePublicId: string,
+) {
+  // const sessionResult = await findSessionUser(sessionId);
+
+  const [collectionIdResult, recipeIdResult] = await Promise.all([
+    db
+      .select({ id: schema.collections.id })
+      .from(schema.collections)
+      .where(eq(schema.collections.publicId, collectionPublicId)),
+    db
+      .select({ id: schema.recipes.id })
+      .from(schema.recipes)
+      .where(eq(schema.recipes.publicId, recipePublicId)),
+  ]);
+
+  if (collectionIdResult.length < 1) {
+    throw new Error("Collection couldn't be found", {
+      cause: collectionPublicId,
+    });
+  }
+
+  if (recipePublicId.length < 1) {
+    throw new Error("Recipe couldn't be found", {
+      cause: recipePublicId,
+    });
+  }
+
+  const recipeId = recipeIdResult[0].id;
+  const collectionId = collectionIdResult[0].id;
+
+  // TODO: Validate whether user has sufficient access rights to add recipe to collection.
+  await db.insert(schema.collectionRecipes).values({
+    recipeId,
+    collectionId,
+  });
+}
+
 export async function updateDefaultVisibility(
   sessionId: string,
   defaultVisibility: Visibility,
