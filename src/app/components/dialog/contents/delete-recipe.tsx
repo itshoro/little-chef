@@ -1,3 +1,5 @@
+"use client";
+
 import { useDialogContext } from "../dialog";
 
 type DeleteRecipeProps = {

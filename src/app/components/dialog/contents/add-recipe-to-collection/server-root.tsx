@@ -13,44 +13,26 @@ const AddRecipeToCollectionServerRoot = async ({
   recipePublicId,
 }: RootProps) => {
   const collections = await getMaintainedCollections(userId);
-  const hasNoCollections = collections.length === 0;
-
-  const addToCollectionWithRecipeId = addToCollection.bind(
-    null,
-    recipePublicId,
-  );
+  if (collections.length === 0) return <NoCollections />;
 
   return (
     <>
-      {hasNoCollections ? (
-        <NoCollections />
-      ) : (
-        <>
-          <div className="text-sm font-medium">Your Collections</div>
-          <ul className="mt-2">
-            {collections.map((collection) => (
-              <li key={collection.id}>
-                <CollectionItem
-                  publicId={collection.publicId}
-                  name={collection.name}
-                  addToCollectionAction={addToCollectionWithRecipeId}
-                />
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <div className="text-sm font-medium">Your Collections</div>
+      <ul className="mt-2">
+        {collections.map((collection) => (
+          <li key={collection.id}>
+            <CollectionItem
+              name={collection.name}
+              addToCollection={async () => {
+                "use server";
+                await addRecipe(collection.publicId, recipePublicId);
+              }}
+            />
+          </li>
+        ))}
+      </ul>
     </>
   );
 };
-
-async function addToCollection(
-  recipePublicId: string,
-  publicCollectionId: string,
-) {
-  "use server";
-
-  addRecipe(publicCollectionId, recipePublicId);
-}
 
 export { AddRecipeToCollectionServerRoot };

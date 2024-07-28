@@ -3,23 +3,18 @@
 import { useDialogContext } from "../../dialog";
 
 type CollectionItemProps = {
-  addToCollectionAction: (collectionPublicId: string) => Promise<void>;
+  addToCollection: () => Promise<void>;
   name: string;
-  publicId: string;
 };
 
-const CollectionItem = ({
-  addToCollectionAction,
-  name,
-  publicId,
-}: CollectionItemProps) => {
+const CollectionItem = ({ addToCollection, name }: CollectionItemProps) => {
   const { closeDialog } = useDialogContext(CollectionItem.name);
 
   return (
     <button
       className="block w-full rounded-xl bg-neutral-100 p-4"
       onClick={async () => {
-        await addToCollectionAction(publicId);
+        await addToCollection();
         closeDialog();
       }}
     >
