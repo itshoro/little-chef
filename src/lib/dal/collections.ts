@@ -1,6 +1,6 @@
 import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-import { eq, or, and, like } from "drizzle-orm";
+import { eq, or, and, like, sql } from "drizzle-orm";
 import type { Visibility } from "./visibility";
 import { findSessionUser } from "./user";
 import type { AnyZodObject, TypeOf, z } from "zod";
@@ -93,9 +93,14 @@ export async function addRecipe(
   const collectionId = collectionIdResult[0].id;
 
   // TODO: Validate whether user has sufficient access rights to add recipe to collection.
-  await db.insert(schema.collectionRecipes).values({
-    recipeId,
-    collectionId,
+  await db.transaction(async (tx) => {
+    await tx.insert(schema.collectionRecipes).values({
+      recipeId,
+      collectionId,
+    });
+    await tx
+      .update(schema.collections)
+      .set({ itemCount: sql`${schema.collections.itemCount} + 1` });
   });
 }
 
