@@ -105,7 +105,8 @@ export async function addRecipe(
     });
     await tx
       .update(schema.collections)
-      .set({ itemCount: sql`${schema.collections.itemCount} + 1` });
+      .set({ itemCount: sql`${schema.collections.itemCount} + 1` })
+      .where(eq(schema.collections.id, collectionId));
   });
 }
 

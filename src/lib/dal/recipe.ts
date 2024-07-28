@@ -1,6 +1,6 @@
 import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-import { eq, and, like, or } from "drizzle-orm";
+import { eq, and, like, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { type Visibility } from "./visibility";
 import { getUser } from "./user";
@@ -191,7 +191,30 @@ export async function getRecipe(
 }
 
 export async function deleteRecipe(recipeId: number) {
-  await db.delete(schema.recipes).where(eq(schema.recipes.id, recipeId));
+  await db.transaction(async (tx) => {
+    const affectedCollections = await tx
+      .selectDistinct({ id: schema.collectionRecipes.collectionId })
+      .from(schema.collectionRecipes)
+      .where(eq(schema.collectionRecipes.recipeId, recipeId))
+      .groupBy(schema.collectionRecipes.collectionId);
+
+    await tx.delete(schema.recipes).where(eq(schema.recipes.id, recipeId));
+
+    await Promise.all(
+      affectedCollections.map((collection) => {
+        return tx
+          .update(schema.collections)
+          .set({
+            itemCount: sql<number>`(
+              SELECT CAST(COUNT(${schema.collectionRecipes.recipeId}) AS INT)
+              FROM ${schema.collectionRecipes}
+              WHERE ${eq(schema.collectionRecipes.collectionId, collection.id)}
+            )`,
+          })
+          .where(eq(schema.collections.id, collection.id));
+      }),
+    );
+  });
 }
 
 export async function getRecipeSteps(recipeId: number) {
