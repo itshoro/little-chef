@@ -46,7 +46,7 @@ const RecipeList = async ({
   if (ids.length === 0) return <NoRecipesStored />;
 
   return (
-    <ul>
+    <ul className="space-y-2 p-4">
       {ids.map((id) => (
         <li key={id.publicId}>
           <RecipeCard {...id} />
