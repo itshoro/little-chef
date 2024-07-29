@@ -1,26 +1,14 @@
 import { BackLink } from "@/app/components/back-link";
-import { validateRequest } from "@/lib/auth/lucia";
-import { getRecipe } from "@/lib/dal/recipe";
-import { extractParts } from "@/lib/slug";
-import NextLink from "next/link";
+import { Header } from "@/app/components/header/header";
 
-const RecipeLayout = async ({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { slug: string };
-}) => {
+const RecipeLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <header
-        className="border-b p-4"
-        style={{ gridArea: "header", gridColumn: 1 }}
-      >
-        <div className="flex items-center gap-4">
+      <Header>
+        <div className="flex items-center gap-2">
           <BackLink />
         </div>
-      </header>
+      </Header>
       {children}
     </>
   );
