@@ -41,12 +41,10 @@ const Inputs = ({ defaultValue }: InputsProps) => {
       <div className="mb-8">
         <Input.Root name="visibility">
           <Input.Label>Visibility</Input.Label>
-          <div className="rounded-xl border border-neutral-200">
-            <VisibilitySwitcher
-              name={"visibility"}
-              defaultValue={defaultValue?.recipe?.visibility}
-            />
-          </div>
+          <VisibilitySwitcher
+            name={"visibility"}
+            defaultValue={defaultValue?.recipe?.visibility}
+          />
         </Input.Root>
       </div>
       <Fieldset.Root>
@@ -93,10 +91,39 @@ const Inputs = ({ defaultValue }: InputsProps) => {
             />
           </div>
         </div>
+        <CooklangInfo />
+        <StepsGenerator defaultValue={defaultValue?.steps} />
       </Fieldset.Root>
-
-      <StepsGenerator defaultValue={defaultValue?.steps} />
     </>
+  );
+};
+
+const CooklangInfo = () => {
+  return (
+    <div className="mb-6 mt-4 rounded-lg border bg-neutral-50 p-4 text-sm text-neutral-500">
+      <p>
+        Steps may be formated using the{" "}
+        <a
+          className="text-lime-500 underline"
+          href="https://cooklang.org/docs/spec/"
+        >
+          Cooklang specification
+        </a>
+        . Doing so will allow for automatic scaling of ingredients needed for
+        users.
+      </p>
+      <p className="mt-4">
+        Try using{" "}
+        <mark className="select-all rounded-lg border border-lime-200 bg-lime-100 p-1 text-lime-700">
+          @eggs{"{"}2{"}"}
+        </mark>{" "}
+        or{" "}
+        <mark className="select-all rounded-lg border border-lime-200 bg-lime-100 p-1 text-lime-700">
+          #Cooking pan{"{"}1{"}"}
+        </mark>{" "}
+        below and see the result, once your recipe is stored!
+      </p>
+    </div>
   );
 };
 
