@@ -168,7 +168,13 @@ export async function findPublicCollections(query: string) {
       slug: schema.collections.slug,
     })
     .from(schema.collections)
-    .where(like(schema.collections.name, `%${query}%`));
+    .where(
+      and(
+        like(schema.collections.name, `%${query}%`),
+        eq(schema.collections.visibility, "public"),
+      ),
+    )
+    .orderBy(query === "" ? sql`random()` : schema.collections.id);
 }
 
 export async function getCollection(

@@ -137,7 +137,13 @@ export async function findPublicRecipeIds(query: string) {
       publicId: schema.recipes.publicId,
     })
     .from(schema.recipes)
-    .where(like(schema.recipes.name, `%${query}%`));
+    .where(
+      and(
+        like(schema.recipes.name, `%${query}%`),
+        eq(schema.recipes.visibility, "public"),
+      ),
+    )
+    .groupBy(query === "" ? sql`random()` : schema.recipes.id);
 }
 
 export async function getRecipe(
