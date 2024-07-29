@@ -14,13 +14,19 @@ const themeMap = {
 type ThemeOptionProps = {
   theme: Theme;
   activeTheme: Theme;
+  disabled?: boolean;
 };
 
-const ThemeOption = ({ theme, activeTheme }: ThemeOptionProps) => {
+const ThemeOption = ({ theme, activeTheme, disabled }: ThemeOptionProps) => {
   const { label, icon } = themeMap[theme];
 
   return (
-    <Radio name="theme" value={theme} defaultChecked={activeTheme === theme}>
+    <Radio
+      name="theme"
+      value={theme}
+      defaultChecked={activeTheme === theme}
+      disabled={disabled}
+    >
       {icon}
       {label}
     </Radio>

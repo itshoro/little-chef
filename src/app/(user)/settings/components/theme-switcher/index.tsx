@@ -7,8 +7,8 @@ const ThemeSwitcher = async () => {
   return (
     <RadioGroup>
       <ThemeOption theme="light" activeTheme={activeTheme} />
-      <ThemeOption theme="dark" activeTheme={activeTheme} />
-      <ThemeOption theme="system" activeTheme={activeTheme} />
+      <ThemeOption disabled={true} theme="dark" activeTheme={activeTheme} />
+      <ThemeOption disabled={true} theme="system" activeTheme={activeTheme} />
     </RadioGroup>
   );
 };
