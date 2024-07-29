@@ -1,5 +1,5 @@
 import { RecipeCard } from "@/app/(search)/components/recipe-card";
-import { BackLink } from "@/app/components/BackLink";
+import { BackLink } from "@/app/components/back-link";
 import { NoRecipesStored } from "@/app/components/fallbacks/collections/no-recipe-stored";
 import { Header } from "@/app/components/header/header";
 import { getCollection, getRecipeIds } from "@/lib/dal/collections";
@@ -24,7 +24,7 @@ const CollectionPage = async ({ params }: { params: { slug: string } }) => {
       <>
         <Header>
           <div className="flex items-center gap-2">
-            <BackLink href="/collections" />
+            <BackLink />
             <h1>{collection.name}</h1>
           </div>
         </Header>

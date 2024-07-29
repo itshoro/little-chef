@@ -1,8 +1,11 @@
-import NextLink, { type LinkProps as NextLinkProps } from "next/link";
+"use client";
 
-const BackLink = ({ href }: { href: NextLinkProps<unknown>["href"] }) => {
+import { useRouter } from "next/navigation";
+
+const BackLink = () => {
+  const router = useRouter();
   return (
-    <NextLink href={href}>
+    <button type="button" onClick={() => router.back()}>
       <div className="rounded-lg bg-white p-1 ring-1 ring-black/5">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +22,7 @@ const BackLink = ({ href }: { href: NextLinkProps<unknown>["href"] }) => {
           />
         </svg>
       </div>
-    </NextLink>
+    </button>
   );
 };
 
