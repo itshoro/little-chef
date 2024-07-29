@@ -1,7 +1,6 @@
 import type { Recipe } from "@/drizzle/schema";
 import { OptimisticLikeButton } from "./buttons/optimistic-like-button";
 import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
-import type { User } from "lucia";
 import { ShareCurrentPageButton } from "./buttons/share-button";
 import { AddToCollectionButton } from "./buttons/add-to-collection-button";
 import { AddRecipeToCollectionServerRoot } from "@/app/components/dialog/contents/add-recipe-to-collection/server-root";

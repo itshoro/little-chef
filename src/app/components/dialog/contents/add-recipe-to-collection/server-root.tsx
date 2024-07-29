@@ -17,8 +17,7 @@ const AddRecipeToCollectionServerRoot = async ({
 
   return (
     <>
-      <div className="text-sm font-medium">Your Collections</div>
-      <ul className="mt-2">
+      <ul className="mt-2 flex flex-col gap-2">
         {collections.map((collection) => (
           <li key={collection.id}>
             <CollectionItem
