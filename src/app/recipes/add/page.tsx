@@ -1,3 +1,4 @@
+import { Header } from "@/app/components/header/header";
 import * as Form from "../components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
@@ -9,6 +10,7 @@ import { subscribeToRecipe } from "@/lib/dal/user";
 import { AddRecipeValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
+import { BackLink } from "@/app/components/back-link";
 
 const AddRecipePage = async () => {
   const { user } = await validateRequest();
@@ -17,24 +19,31 @@ const AddRecipePage = async () => {
     : undefined;
 
   return (
-    <Form.Root action={create}>
-      <div className="p-4">
-        <input type="hidden" name="publicUserId" value={user?.publicId} />
-        <Form.Inputs
-          defaultValue={{
-            recipe: {
-              recommendedServingSize: preferences?.defaultServingSize,
-              visibility: preferences?.defaultVisibility,
-            },
-          }}
-        />
-      </div>
-      <div>
-        <div className="flex justify-end px-4">
-          <Form.Submit>Add Recipe</Form.Submit>
+    <>
+      <Header>
+        <div className="flex items-center gap-2">
+          <BackLink />
         </div>
-      </div>
-    </Form.Root>
+      </Header>
+      <Form.Root action={create}>
+        <div className="p-4">
+          <input type="hidden" name="publicUserId" value={user?.publicId} />
+          <Form.Inputs
+            defaultValue={{
+              recipe: {
+                recommendedServingSize: preferences?.defaultServingSize,
+                visibility: preferences?.defaultVisibility,
+              },
+            }}
+          />
+        </div>
+        <div>
+          <div className="flex justify-end px-4">
+            <Form.Submit>Add Recipe</Form.Submit>
+          </div>
+        </div>
+      </Form.Root>
+    </>
   );
 };
 
