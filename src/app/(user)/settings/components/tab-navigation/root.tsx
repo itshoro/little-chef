@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { Highlight } from "./highlight";
 import { createContext, useRef } from "react";
 import { useContext } from "@/hooks/useContext";
@@ -15,7 +14,7 @@ const Root = ({ children, keepSearchParams, replace }: RootProps) => {
   const listRef = useRef<React.ElementRef<"ul">>(null);
 
   return (
-    <nav className="relative @container">
+    <nav className="relative">
       <TabNavigationContext.Provider value={{ keepSearchParams, replace }}>
         <ul ref={listRef} className="flex flex-col items-start @sm:flex-row">
           {children}

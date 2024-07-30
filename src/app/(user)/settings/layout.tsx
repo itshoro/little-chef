@@ -4,28 +4,33 @@ import { redirect } from "next/navigation";
 import * as TabNavigation from "./components/tab-navigation";
 import { invalidateSession } from "@/lib/dal/user";
 import { Avatar } from "@/app/components/header/avatar";
+import { BackLink } from "@/app/components/back-link";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
     <>
       <Header>
-        <h1>Settings</h1>
+        <BackLink />
       </Header>
       <div className="lg:flex">
-        <aside className="mb-8 flex flex-col justify-end gap-4 p-4 lg:w-[23rem] lg:flex-col-reverse lg:border-r">
-          <UserCard />
+        <div className="mb-8 @container">
+          <aside className="flex flex-col justify-end gap-4 p-4 lg:w-[23rem] lg:flex-col-reverse lg:border-r">
+            <UserCard />
 
-          <TabNavigation.Root>
-            <TabNavigation.Link href="/settings/app">App</TabNavigation.Link>
-            <TabNavigation.Link href="/settings/user">User</TabNavigation.Link>
-            <TabNavigation.Link href="/settings/recipe">
-              Recipe
-            </TabNavigation.Link>
-            <TabNavigation.Link href="/settings/collection">
-              Collection
-            </TabNavigation.Link>
-          </TabNavigation.Root>
-        </aside>
+            <TabNavigation.Root replace={true}>
+              <TabNavigation.Link href="/settings/app">App</TabNavigation.Link>
+              <TabNavigation.Link href="/settings/user">
+                User
+              </TabNavigation.Link>
+              <TabNavigation.Link href="/settings/recipe">
+                Recipe
+              </TabNavigation.Link>
+              <TabNavigation.Link href="/settings/collection">
+                Collection
+              </TabNavigation.Link>
+            </TabNavigation.Root>
+          </aside>
+        </div>
 
         <main className="flex-1 lg:p-4">{props.children}</main>
       </div>
