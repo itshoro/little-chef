@@ -25,7 +25,7 @@ const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
                 key={uuid}
                 uuid={uuid}
                 order={i + 1}
-                defaultValue={defaultValue?.[i].description}
+                defaultValue={defaultValue?.[i]?.description}
               />
             );
           }}
