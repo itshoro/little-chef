@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import { GeneratorContext } from "./context";
 
 type GeneratorOptions<TKey extends string | number = string> = {
@@ -41,17 +41,15 @@ const Generator = ({ children, options }: GeneratorProps) => {
 };
 
 function useInitialKeys(options: GeneratorOptions) {
-  const initialKey = useId();
-  const [ids, setIds] = useState(determineInitialKeys(options, initialKey));
-
+  const [ids, setIds] = useState(determineInitialKeys(options));
   return [ids, setIds] as const;
 }
 
-function determineInitialKeys(options: GeneratorOptions, initialKey: string) {
+function determineInitialKeys(options: GeneratorOptions) {
   if (Array.isArray(options.initialKeys) && options.initialKeys.length > 0) {
     return options.initialKeys;
   } else if (options.openFirstWhenEmpty) {
-    return [initialKey];
+    return [options.generator()];
   }
   return [];
 }
