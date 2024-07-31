@@ -8,11 +8,13 @@ const Page = async (props: { searchParams: { q: string } }) => {
   const { user } = await validateRequest();
 
   return (
-    <main>
-      <CollectionList user={user} />
-      <CollectionSearchResults user={user} query={props.searchParams.q} />
+    <>
+      <main className="flex-1">
+        <CollectionList user={user} />
+        <CollectionSearchResults user={user} query={props.searchParams.q} />
+      </main>
       <AddButton href="/collections/add" />
-    </main>
+    </>
   );
 };
 

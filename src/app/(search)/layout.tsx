@@ -8,7 +8,7 @@ const Layout = (props: {
   auth: React.ReactNode;
 }) => {
   return (
-    <>
+    <div className="flex min-h-full flex-col">
       <Header />
       <section className="p-4">
         <SearchInput />
@@ -26,7 +26,7 @@ const Layout = (props: {
       {props.children}
       {props.modal}
       {props.auth}
-    </>
+    </div>
   );
 };
 

@@ -10,7 +10,7 @@ const Page = async (props: { searchParams: { q: string } }) => {
 
   return (
     <>
-      <main>
+      <main className="flex-1">
         <YourCookbook user={user} />
         <SearchResults query={props.searchParams.q} user={user} />
       </main>
