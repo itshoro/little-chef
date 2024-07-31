@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { validateRequest } from "@/lib/auth/lucia";
-import { CTALink } from "./components/CallToAction/Link";
-import { Header } from "./components/header/header";
+import "@oddbird/popover-polyfill";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,10 +12,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { user } = await validateRequest();
-
   return (
-    <html lang="en" className="min-h-[100dvh] bg-white">
+    <html
+      lang="en"
+      className="mx-auto min-h-[100dvh] max-w-screen-xl bg-white xl:border"
+    >
       <body className={`${inter.className} min-h-[100dvh]`}>
         <div
           className="h-[100svh]"
