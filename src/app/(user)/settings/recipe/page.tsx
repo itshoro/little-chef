@@ -42,6 +42,12 @@ const RecipeSettingsPage = async () => {
                 defaultValue={preferences?.defaultServingSize}
                 name="defaultServingSize"
               />
+              <button
+                className="mt-4 rounded-full bg-lime-300 px-5 py-3 font-medium"
+                type="submit"
+              >
+                Update Servings
+              </button>
             </Fieldset>
           </form>
           <form action={changeVisibilityWithUserId}>
