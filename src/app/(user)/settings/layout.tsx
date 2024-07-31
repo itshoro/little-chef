@@ -8,33 +8,39 @@ import { BackLink } from "@/app/components/back-link";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
-    <>
+    <div className="flex min-h-full flex-col">
       <Header>
         <BackLink />
       </Header>
-      <div className="lg:flex">
-        <div className="mb-8 @container">
-          <aside className="flex flex-col justify-end gap-4 p-4 lg:w-[23rem] lg:flex-col-reverse lg:border-r">
-            <UserCard />
+      <div className="flex-1 lg:flex">
+        <div className="@container lg:w-[23rem]">
+          <aside className="flex flex-col justify-end gap-4 lg:h-full lg:flex-col-reverse lg:justify-between lg:border-r">
+            <div className="px-4 pt-4 lg:border-t lg:pb-4">
+              <UserCard />
+            </div>
 
-            <TabNavigation.Root replace={true}>
-              <TabNavigation.Link href="/settings/app">App</TabNavigation.Link>
-              <TabNavigation.Link href="/settings/user">
-                User
-              </TabNavigation.Link>
-              <TabNavigation.Link href="/settings/recipe">
-                Recipe
-              </TabNavigation.Link>
-              <TabNavigation.Link href="/settings/collection">
-                Collection
-              </TabNavigation.Link>
-            </TabNavigation.Root>
+            <div className="border-y p-4 lg:border-none">
+              <TabNavigation.Root replace={true}>
+                <TabNavigation.Link href="/settings/app">
+                  App
+                </TabNavigation.Link>
+                <TabNavigation.Link href="/settings/user">
+                  User
+                </TabNavigation.Link>
+                <TabNavigation.Link href="/settings/recipe">
+                  Recipe
+                </TabNavigation.Link>
+                <TabNavigation.Link href="/settings/collection">
+                  Collection
+                </TabNavigation.Link>
+              </TabNavigation.Root>
+            </div>
           </aside>
         </div>
 
         <main className="flex-1 lg:p-4">{props.children}</main>
       </div>
-    </>
+    </div>
   );
 };
 
