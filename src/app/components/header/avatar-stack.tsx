@@ -1,4 +1,4 @@
-import type { Route } from "next";
+// import type { Route } from "next";
 import Link from "next/link";
 
 const AvatarStack = ({
@@ -13,7 +13,8 @@ const AvatarStack = ({
       {slice.map((user, i) => (
         <Link
           key={user.publicId}
-          href={`/users/${user.publicId}` as Route}
+          href={"#"}
+          // href={`/users/${user.publicId}` as Route}
           className="isolate z-[var(--stack-positon)] transition-transform hover:z-50 hover:scale-110 focus:z-50 focus:scale-110"
           style={{ "--stack-positon": slice.length - i } as React.CSSProperties}
         >
