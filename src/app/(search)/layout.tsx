@@ -3,11 +3,7 @@ import { Header } from "../components/header/header";
 import * as TabNavigation from "../(user)/settings/components/tab-navigation";
 import { Suspense } from "react";
 
-const Layout = (props: {
-  children: React.ReactNode;
-  modal: React.ReactNode;
-  auth: React.ReactNode;
-}) => {
+const Layout = (props: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-full flex-col">
       <Header />
@@ -27,8 +23,6 @@ const Layout = (props: {
         </section>
       </div>
       {props.children}
-      {props.modal}
-      {props.auth}
     </div>
   );
 };
