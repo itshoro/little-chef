@@ -13,22 +13,21 @@ async function login(formData: FormData) {
   "use server";
   const username = formData.get("username");
   const password = formData.get("password");
+  // try {
+  if (!validateUsername(username)) return;
+  // } catch (e) {
+  //   return {
+  //     error: "Invalid Username",
+  //   };
+  // }
 
-  try {
-    if (!validateUsername(username)) return;
-  } catch (e) {
-    return {
-      error: "Invalid Username",
-    };
-  }
-
-  try {
-    if (!validatePassword(password)) return;
-  } catch (e) {
-    return {
-      error: "Invalid password",
-    };
-  }
+  // try {
+  if (!validatePassword(password)) return;
+  // } catch (e) {
+  //   return {
+  //     error: "Invalid password",
+  //   };
+  // }
 
   const user = await validateUser(username, password);
 

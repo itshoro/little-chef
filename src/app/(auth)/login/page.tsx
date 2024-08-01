@@ -1,7 +1,7 @@
 import NextLink from "next/link";
 import { login } from "./action";
 import * as Input from "@/app/components/input";
-import { Submit } from "@/app/(search)/recipes/components/RecipeForm/Form";
+import { Submit } from "@/app/recipes/components/recipe-form";
 
 const LoginPage = async () => {
   return (
