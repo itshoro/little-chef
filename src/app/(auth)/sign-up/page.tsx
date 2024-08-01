@@ -1,4 +1,4 @@
-import { Submit } from "@/app/(search)/recipes/components/RecipeForm/Form";
+import { Submit } from "@/app/recipes/components/recipe-form";
 import { signup } from "./action";
 import * as Input from "@/app/components/input";
 
@@ -6,10 +6,10 @@ const SignUpPage = async () => {
   return (
     <>
       <h1 className="font-medium">Create an account</h1>
-      <p className="py-4 max-w-prose">
+      <p className="max-w-prose py-4">
         Passwords are stored as an Argon2ID hash powered by{" "}
         <a
-          className="underline underline-offset-2 decoration-stone-400"
+          className="underline decoration-stone-400 underline-offset-2"
           href="https://oslo.js.org/"
         >
           oslo
@@ -19,7 +19,7 @@ const SignUpPage = async () => {
         run.
       </p>
       <form action={signup}>
-        <div className="pb-2">
+        <div className="max-w-96 pb-2">
           <Input.Root name="username">
             <Input.Label>Username</Input.Label>
             <Input.Group>
@@ -27,11 +27,19 @@ const SignUpPage = async () => {
             </Input.Group>
           </Input.Root>
         </div>
-        <div className="pb-6">
+        <div className="max-w-96 pb-6">
           <Input.Root name="password">
             <Input.Label>Password</Input.Label>
             <Input.Group>
               <Input.Element type="password" />
+            </Input.Group>
+          </Input.Root>
+        </div>
+        <div className="max-w-24 pb-6">
+          <Input.Root name="invite-code">
+            <Input.Label>Invite Code</Input.Label>
+            <Input.Group>
+              <Input.Element type="text" />
             </Input.Group>
           </Input.Root>
         </div>

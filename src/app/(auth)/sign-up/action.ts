@@ -10,6 +10,9 @@ async function signup(formData: FormData) {
   "use server";
   const username = formData.get("username");
   const password = formData.get("password");
+  const inviteCode = formData.get("invite-code");
+
+  if (inviteCode !== process.env.INVITE_CODE) return;
 
   if (!validateUsername(username)) return;
   if (!validatePassword(password)) return;
@@ -24,7 +27,7 @@ async function signup(formData: FormData) {
     sessionCookie.value,
     sessionCookie.attributes,
   );
-  return redirect("/");
+  return redirect("/recipes");
 }
 
 export { signup };
