@@ -5,6 +5,7 @@ import * as TabNavigation from "./components/tab-navigation";
 import { invalidateSession } from "@/lib/dal/user";
 import { Avatar } from "@/app/components/header/avatar";
 import { BackLink } from "@/app/components/back-link";
+import { Suspense } from "react";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
@@ -20,20 +21,22 @@ const SettingsLayout = async (props: { children: React.ReactNode }) => {
             </div>
 
             <div className="border-y p-4 lg:border-none">
-              <TabNavigation.Root replace={true}>
-                <TabNavigation.Link href="/settings/app">
-                  App
-                </TabNavigation.Link>
-                <TabNavigation.Link href="/settings/user">
-                  User
-                </TabNavigation.Link>
-                <TabNavigation.Link href="/settings/recipe">
-                  Recipe
-                </TabNavigation.Link>
-                <TabNavigation.Link href="/settings/collection">
-                  Collection
-                </TabNavigation.Link>
-              </TabNavigation.Root>
+              <Suspense>
+                <TabNavigation.Root replace={true}>
+                  <TabNavigation.Link href="/settings/app">
+                    App
+                  </TabNavigation.Link>
+                  <TabNavigation.Link href="/settings/user">
+                    User
+                  </TabNavigation.Link>
+                  <TabNavigation.Link href="/settings/recipe">
+                    Recipe
+                  </TabNavigation.Link>
+                  <TabNavigation.Link href="/settings/collection">
+                    Collection
+                  </TabNavigation.Link>
+                </TabNavigation.Root>
+              </Suspense>
             </div>
           </aside>
         </div>
