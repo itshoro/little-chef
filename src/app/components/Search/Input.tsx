@@ -67,7 +67,7 @@ const Input = ({ urlParam = "q" }: Props) => {
             onBlur={onBlur}
             placeholder="Search&#8230;"
             type="text"
-            className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-none"
+            className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-none focus:ring-0"
             autoComplete="off"
           />
         </div>
