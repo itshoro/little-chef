@@ -14,9 +14,9 @@ import { BackLink } from "@/app/components/back-link";
 
 const AddRecipePage = async () => {
   const { user } = await validateRequest();
-  const preferences = user
-    ? await getRecipePreferences(user.publicId)
-    : undefined;
+
+  if (!user) redirect("/login");
+  const preferences = await getRecipePreferences(user.publicId);
 
   return (
     <>

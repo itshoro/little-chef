@@ -16,9 +16,9 @@ import { redirect } from "next/navigation";
 
 const Page = async () => {
   const { user } = await validateRequest();
-  const preferences = user
-    ? await getCollectionPreferences(user.publicId)
-    : undefined;
+
+  if (!user) redirect("/login");
+  const preferences = await getCollectionPreferences(user.publicId);
 
   return (
     <>

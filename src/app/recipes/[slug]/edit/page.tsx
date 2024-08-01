@@ -20,14 +20,16 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
   const { publicId } = extractParts(params.slug);
   const { user } = await validateRequest();
 
+  if (!user) redirect("/login");
+
   try {
-    const recipe = await getRecipe({ publicId }, user?.publicId);
+    const recipe = await getRecipe({ publicId }, user.publicId);
     const steps = await getRecipeSteps(recipe.id);
 
     return (
       <Form.Root action={update}>
         <div className="p-4">
-          <input type="hidden" name="publicUserId" value={user?.publicId} />
+          <input type="hidden" name="publicUserId" value={user.publicId} />
           <input type="hidden" name="publicId" value={recipe.publicId} />
           <Form.Inputs defaultValue={{ recipe, steps }} />
         </div>

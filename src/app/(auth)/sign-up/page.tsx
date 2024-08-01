@@ -1,8 +1,14 @@
 import { Submit } from "@/app/recipes/components/recipe-form";
 import { signup } from "./action";
 import * as Input from "@/app/components/input";
+import { validateRequest } from "@/lib/auth/lucia";
+import { redirect } from "next/navigation";
 
 const SignUpPage = async () => {
+  const { user } = await validateRequest();
+
+  if (user) redirect("/recipes");
+
   return (
     <>
       <h1 className="font-medium">Create an account</h1>

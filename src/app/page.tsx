@@ -1,8 +1,12 @@
-"use client";
-
+import { validateRequest } from "@/lib/auth/lucia";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-const Page = () => {
+const Page = async () => {
+  const { user } = await validateRequest();
+
+  if (user) redirect("/recipes");
+
   return (
     <div className="flex h-full justify-center">
       <div className="my-auto rounded-xl bg-neutral-50 py-8">

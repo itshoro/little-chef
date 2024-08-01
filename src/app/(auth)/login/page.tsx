@@ -2,8 +2,14 @@ import NextLink from "next/link";
 import { login } from "./action";
 import * as Input from "@/app/components/input";
 import { Submit } from "@/app/recipes/components/recipe-form";
+import { validateRequest } from "@/lib/auth/lucia";
+import { redirect } from "next/navigation";
 
 const LoginPage = async () => {
+  const { user } = await validateRequest();
+
+  if (user) redirect("/recipes");
+
   return (
     <>
       <h1 className="font-medium">Login</h1>
