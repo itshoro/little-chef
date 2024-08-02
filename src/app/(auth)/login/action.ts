@@ -8,26 +8,14 @@ import {
   validatePassword,
   validateUsername,
 } from "@/lib/dal/user";
+import type { FormError } from "../../components/form/root";
 
 async function login(formData: FormData) {
-  "use server";
   const username = formData.get("username");
   const password = formData.get("password");
-  // try {
-  if (!validateUsername(username)) return;
-  // } catch (e) {
-  //   return {
-  //     error: "Invalid Username",
-  //   };
-  // }
 
-  // try {
+  if (!validateUsername(username)) return;
   if (!validatePassword(password)) return;
-  // } catch (e) {
-  //   return {
-  //     error: "Invalid password",
-  //   };
-  // }
 
   const user = await validateUser(username, password);
 
@@ -38,8 +26,29 @@ async function login(formData: FormData) {
     sessionCookie.value,
     sessionCookie.attributes,
   );
-
-  return redirect("/");
 }
 
-export { login };
+async function loginAction(previousState: FormError, formData: FormData) {
+  "use server";
+  try {
+    await login(formData);
+  } catch (e) {
+    if (
+      !(e instanceof Error) ||
+      !e.cause ||
+      typeof e.cause !== "object" ||
+      !("target" in e.cause) ||
+      typeof e.cause.target !== "string"
+    ) {
+      throw new Error("Unexpected error thrown.");
+    }
+
+    return {
+      error: { target: e.cause.target, message: e.message },
+    } satisfies FormError;
+  }
+
+  redirect("/recipes");
+}
+
+export { loginAction };
