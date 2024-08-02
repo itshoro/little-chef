@@ -12,7 +12,7 @@ const Page = async (props: { searchParams: { q: string } }) => {
     <>
       <main className="flex-1">
         <YourCookbook user={user} />
-        <SearchResults query={props.searchParams.q} user={user} />
+        <SearchResults query={props.searchParams.q} />
       </main>
       <AddButton href="/recipes/add" />
     </>
@@ -27,15 +27,7 @@ const YourCookbook = async ({ user }: { user: User | null }) => {
   return <Section title="Your Cookbook" recipes={subscriptions} />;
 };
 
-const SearchResults = async ({
-  query,
-  user,
-}: {
-  query?: string;
-  user: User | null;
-}) => {
-  if (user === null) return null;
-
+const SearchResults = async ({ query }: { query?: string }) => {
   const recipes = await findPublicRecipeIds(query ?? "");
 
   return <Section title="Public Recipes" recipes={recipes} />;
