@@ -11,6 +11,7 @@ import { AddRecipeValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import { BackLink } from "@/app/components/back-link";
+import type { FormError } from "@/app/components/form/root";
 
 const AddRecipePage = async () => {
   const { user } = await validateRequest();
@@ -25,8 +26,8 @@ const AddRecipePage = async () => {
           <BackLink />
         </div>
       </Header>
-      <Form.Root action={create}>
-        <div className="p-4">
+      <div className="p-4">
+        <Form.Root action={create}>
           <input type="hidden" name="publicUserId" value={user?.publicId} />
           <Form.Inputs
             defaultValue={{
@@ -36,30 +37,36 @@ const AddRecipePage = async () => {
               },
             }}
           />
-        </div>
-        <div>
-          <div className="flex justify-end px-4">
-            <Form.Submit>Add Recipe</Form.Submit>
-          </div>
-        </div>
-      </Form.Root>
+        </Form.Root>
+      </div>
     </>
   );
 };
 
-async function create(formData: FormData) {
+async function create(_: FormError, formData: FormData) {
   "use server";
   const publicUserId = formData.get("publicUserId");
   if (typeof publicUserId !== "string") {
-    throw new Error("Public user id is missing.");
+    return {
+      error: {
+        message: "Public user id is missing.",
+        target: "publicUserId",
+      },
+    } satisfies FormError;
   }
 
   const dto = recipeDtoFromFormData(formData, AddRecipeValidator);
 
   if (!dto.success) {
-    throw new Error("Recipe DTO couldn't be created.", {
-      cause: dto.error.flatten(),
-    });
+    const { fieldErrors } = dto.error.flatten();
+    console.log(fieldErrors);
+    const firstKey = Object.keys(fieldErrors).pop();
+    return {
+      error: {
+        message: `${firstKey}: ${fieldErrors[firstKey as keyof typeof fieldErrors]![0]}`,
+        target: firstKey!,
+      },
+    } satisfies FormError;
   }
   const recipe = await createRecipe(dto.data);
   await subscribeToRecipe(publicUserId, recipe, "creator");

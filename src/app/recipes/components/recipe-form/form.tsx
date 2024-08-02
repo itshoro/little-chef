@@ -1,4 +1,5 @@
 "use client";
+import * as RootForm from "@/app/components/form";
 
 type FormProps = {
   action: (formDate: FormData) => Promise<any>;
@@ -6,7 +7,17 @@ type FormProps = {
 };
 
 const Form = ({ action, children }: FormProps) => {
-  return <form action={action}>{children}</form>;
+  return (
+    <RootForm.Root action={action}>
+      {children}
+      <RootForm.ErrorDisplay />
+      <div>
+        <div className="flex justify-end px-4">
+          <Submit>Add Recipe</Submit>
+        </div>
+      </div>
+    </RootForm.Root>
+  );
 };
 
 const Submit = ({ children }: { children: React.ReactNode }) => (
@@ -20,4 +31,4 @@ const Submit = ({ children }: { children: React.ReactNode }) => (
   </button>
 );
 
-export { Form, Submit };
+export { Form };
