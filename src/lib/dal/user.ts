@@ -67,7 +67,9 @@ export type Password = string & { __brand: "ValidPassword" };
 const passwordRange = { min: 6, max: 255 } as const;
 export function validatePassword(password: any): password is Password {
   if (typeof password !== "string") {
-    throw new TypeError("Password needs to be a string.");
+    throw new TypeError("Password needs to be a string.", {
+      cause: { target: "password" },
+    });
   }
 
   if (
@@ -75,11 +77,12 @@ export function validatePassword(password: any): password is Password {
     password.length > passwordRange.max
   ) {
     throw new RangeError(
-      `Password needs to be between ${passwordRange.min} and ${passwordRange.max} characters long. Received ${password.length} characters`,
+      `Password needs to be between ${passwordRange.min} and ${passwordRange.max} characters long. Received ${password.length} characters.`,
       {
         cause: {
           ...passwordRange,
           actual: password.length,
+          target: "password",
         },
       },
     );
@@ -118,9 +121,11 @@ export async function changeUsername(
 export type Username = string & { brand: "ValidUsername" };
 
 const usernameRanges = { min: 3, max: 31 } as const;
-export function validateUsername(username: any): username is Username | never {
+export function validateUsername(username: any): username is Username {
   if (typeof username !== "string") {
-    throw new TypeError("Username needs to be a string.");
+    throw new TypeError("Username needs to be a string.", {
+      cause: { target: "username" },
+    });
   }
 
   if (
@@ -128,18 +133,24 @@ export function validateUsername(username: any): username is Username | never {
     username.length > usernameRanges.max
   ) {
     throw new RangeError(
-      `Username needs to be between ${usernameRanges.min} and ${usernameRanges.max} characters long. Received ${username.length} characters`,
+      `Username needs to be between ${usernameRanges.min} and ${usernameRanges.max} characters long.\r\n\r\n Received ${username.length} characters.`,
       {
         cause: {
           ...usernameRanges,
           actual: username.length,
+          target: "username",
         },
       },
     );
   }
 
   if (!/^[a-z0-9_-]+$/.test(username))
-    throw new TypeError("Username doesn't match required pattern.");
+    throw new TypeError(
+      "Username doesn't match required pattern. Only lowercase letters, numbers, minus and underscore are allowed symbols.",
+      {
+        cause: { target: "username" },
+      },
+    );
 
   return true;
 }
@@ -164,6 +175,17 @@ export async function getUser(publicId: string | undefined) {
 // MARK: CRUD
 
 export async function createUser(username: string, hashedPassword: string) {
+  const existingUser = await db
+    .selectDistinct({ username: schema.users.username })
+    .from(schema.users)
+    .where(eq(schema.users.username, username));
+
+  if (existingUser.length !== 0) {
+    throw new Error("A user with that name already exists.", {
+      cause: { target: "username" },
+    });
+  }
+
   return await db.transaction(async (tx) => {
     try {
       const [appPreferences] = await tx

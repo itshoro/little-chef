@@ -1,6 +1,7 @@
 import { Submit } from "@/app/recipes/components/recipe-form";
-import { signup } from "./action";
+import { signupAction } from "./action";
 import * as Input from "@/app/components/input";
+import * as Form from "@/app/components/form";
 import { validateRequest } from "@/lib/auth/lucia";
 import { redirect } from "next/navigation";
 
@@ -24,7 +25,7 @@ const SignUpPage = async () => {
         currently implemented and won't be as part of this small private test
         run.
       </p>
-      <form action={signup}>
+      <Form.Root action={signupAction}>
         <div className="max-w-96 pb-2">
           <Input.Root name="username">
             <Input.Label>Username</Input.Label>
@@ -49,8 +50,9 @@ const SignUpPage = async () => {
             </Input.Group>
           </Input.Root>
         </div>
+        <Form.ErrorDisplay />
         <Submit>Continue</Submit>
-      </form>
+      </Form.Root>
     </>
   );
 };
