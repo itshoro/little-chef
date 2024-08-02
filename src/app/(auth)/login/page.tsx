@@ -1,5 +1,5 @@
 import NextLink from "next/link";
-import { login } from "./action";
+import { loginAction } from "./action";
 import * as Input from "@/app/components/input";
 import { Submit } from "@/app/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
