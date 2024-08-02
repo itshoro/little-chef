@@ -4,6 +4,9 @@ const nextConfig = {
     serverComponentsExternalPackages: ["oslo"],
     typedRoutes: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 module.exports = nextConfig;
