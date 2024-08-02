@@ -31,4 +31,4 @@ const Submit = ({ children }: { children: React.ReactNode }) => (
   </button>
 );
 
-export { Form };
+export { Form, Submit };
