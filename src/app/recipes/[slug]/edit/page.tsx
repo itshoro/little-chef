@@ -9,6 +9,7 @@ import { notFound, redirect } from "next/navigation";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { validateRequest } from "@/lib/auth/lucia";
 import { UpdateRecipeValidator } from "@/lib/dal/validators";
+import type { FormError } from "@/app/components/form/root";
 
 type EditRecipePageProps = {
   params: {
@@ -47,7 +48,7 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
   }
 };
 
-async function update(formData: FormData) {
+async function update(_: FormError, formData: FormData) {
   "use server";
 
   const publicUserId = formData.get("publicUserId");
@@ -58,8 +59,8 @@ async function update(formData: FormData) {
   const dto = recipeDtoFromFormData(formData, UpdateRecipeValidator);
 
   if (!dto.success) {
-    throw new Error("Recipe DTO couldn't be updated.", {
-      cause: dto.error.flatten(),
+    throw new Error("Recipe update dto is invalid.", {
+      cause: { target: "general", details: dto.error.flatten() },
     });
   }
   const recipe = await updateRecipe(dto.data);

@@ -1,8 +1,9 @@
 "use client";
 import * as RootForm from "@/app/components/form";
+import type { FormError } from "@/app/components/form/root";
 
 type FormProps = {
-  action: (formDate: FormData) => Promise<any>;
+  action: (previousState: FormError, formDate: FormData) => Awaited<FormError>;
   children: React.ReactNode;
 };
 
@@ -11,11 +12,6 @@ const Form = ({ action, children }: FormProps) => {
     <RootForm.Root action={action}>
       {children}
       <RootForm.ErrorDisplay />
-      <div>
-        <div className="flex justify-end px-4">
-          <Submit>Add Recipe</Submit>
-        </div>
-      </div>
     </RootForm.Root>
   );
 };

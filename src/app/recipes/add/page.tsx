@@ -37,6 +37,11 @@ const AddRecipePage = async () => {
               },
             }}
           />
+          <div>
+            <div className="flex justify-end px-4">
+              <Form.Submit>Add Recipe</Form.Submit>
+            </div>
+          </div>
         </Form.Root>
       </div>
     </>

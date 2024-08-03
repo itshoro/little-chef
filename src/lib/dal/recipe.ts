@@ -249,7 +249,9 @@ export async function updateRecipe(dto: z.infer<typeof UpdateRecipeValidator>) {
       .returning();
 
     if (recipeQuery.length !== 1) {
-      throw new Error("Couldn't update recipe.", { cause: dto });
+      throw new Error("Couldn't update recipe.", {
+        cause: { target: "general", dto },
+      });
     }
     const recipe = recipeQuery.pop() as (typeof recipeQuery)[number];
 
@@ -286,7 +288,6 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
     preparationTime: formData.get("preparationTime"),
     cookingTime: formData.get("cookingTime"),
     visibility: formData.get("visibility"),
-
     steps,
   };
 
