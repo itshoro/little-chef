@@ -20,7 +20,9 @@ export async function validateUser(username: Username, password: Password) {
     .limit(1);
 
   if (result.length === 0) {
-    throw new Error("Username or password incorrect.");
+    throw new Error("Username or password incorrect.", {
+      cause: { target: "general" },
+    });
   }
 
   const [existingUser] = result;
@@ -31,7 +33,9 @@ export async function validateUser(username: Username, password: Password) {
   );
 
   if (!validPassword) {
-    throw new Error("Username or password incorrect.");
+    throw new Error("Username or password incorrect.", {
+      cause: { target: "general" },
+    });
   }
 
   return existingUser;
