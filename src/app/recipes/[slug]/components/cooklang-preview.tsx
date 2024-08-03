@@ -1,7 +1,7 @@
 "use client";
 
 import { Parser } from "@cooklang/cooklang-ts";
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 
 const CooklangPreview = ({
   value,
@@ -18,42 +18,48 @@ const CooklangPreview = ({
   const parsedResult = value ? parserRef.current.parse(value).steps : [];
 
   if (parsedResult.length === 0) return null;
-  const previewData = parsedResult.pop();
 
   return (
     <div>
-      {previewData?.map((segment) => {
-        switch (segment.type) {
-          case "text":
-            return <span>{segment.value}</span>;
-          case "ingredient":
-            return (
-              <span className="inline-flex divide-x rounded-full bg-neutral-100 px-2">
-                <span className="px-2 py-2">
-                  {typeof segment.quantity === "number"
-                    ? segment.quantity * ingredientScaleFactor
-                    : segment.quantity}
-                  {segment.units}
-                </span>
-                <span className="px-2 py-2">{segment.name}</span>
-              </span>
-            );
-          case "cookware":
-            return (
-              <span>
-                {segment.quantity} {segment.name}
-              </span>
-            );
-          case "timer":
-            return (
-              <span>
-                <time dateTime={`P${segment.quantity}`}>
-                  {segment.quantity} {segment.units}
-                </time>
-              </span>
-            );
-        }
-      })}
+      {parsedResult.map((step, i) => (
+        <p key={i}>
+          {step.map((segment, i) => {
+            switch (segment.type) {
+              case "text":
+                return <span key={i}>{segment.value}</span>;
+              case "ingredient":
+                return (
+                  <span
+                    key={i}
+                    className="inline-flex divide-x rounded-full bg-neutral-100 px-2"
+                  >
+                    <span className="px-2 py-2">
+                      {typeof segment.quantity === "number"
+                        ? segment.quantity * ingredientScaleFactor
+                        : segment.quantity}
+                      {segment.units}
+                    </span>
+                    <span className="px-2 py-2">{segment.name}</span>
+                  </span>
+                );
+              case "cookware":
+                return (
+                  <span key={i}>
+                    {segment.quantity} {segment.name}
+                  </span>
+                );
+              case "timer":
+                return (
+                  <span key={i}>
+                    <time dateTime={`P${segment.quantity}`}>
+                      {segment.quantity} {segment.units}
+                    </time>
+                  </span>
+                );
+            }
+          })}
+        </p>
+      ))}
     </div>
   );
 };
