@@ -27,19 +27,10 @@ const UserPage = async () => {
         <SettingsSection.Label>User Preferences</SettingsSection.Label>
 
         <SettingsSection.Grid>
-          <form action={setProfileImageWithUser}>
-            <Fieldset label="Avatar">
-              <UpdateAvatar
-                defaultValue={user ? `/${user.publicId}/avatar.webp` : ""}
-              />
-              <button
-                className="rounded-full bg-lime-300 px-5 py-3 font-medium"
-                type="submit"
-              >
-                Save
-              </button>
-            </Fieldset>
-          </form>
+          <UpdateAvatar
+            action={setProfileImageWithUser}
+            defaultValue={user ? `/${user.publicId}/avatar.webp` : ""}
+          />
 
           <form action={updatePasswordWithUser}>
             <Fieldset label="Password">
