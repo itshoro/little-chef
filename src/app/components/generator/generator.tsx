@@ -33,10 +33,10 @@ function useIdGenerator(options: GeneratorOptions) {
   const [uids, setUids] = useState(determineInitialKeys(options));
 
   useEffect(() => {
-    if (options.openFirstWhenEmpty) {
+    if (options.openFirstWhenEmpty && uids.length === 0) {
       setUids([options.generator()]);
     }
-  }, [options.openFirstWhenEmpty, options.generator]);
+  }, [options.openFirstWhenEmpty, options.generator, uids.length]);
 
   const addItem = () => {
     setUids((uids) => [...uids, options.generator()]);
