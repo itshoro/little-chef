@@ -45,7 +45,8 @@ const ShowRecipePage = async ({
   const maintainers = await getCreatorsAndMaintainers(recipe.id);
   const hasMaintainership = maintainers
     .map((maintainer) => maintainer.publicId)
-    .includes(user!.publicId);
+    // @ts-expect-error
+    .includes(user?.publicId);
 
   const attribution = new Intl.ListFormat(undefined, {
     type: "conjunction",
