@@ -17,7 +17,7 @@ const IngredientList = ({
   const preferredServingSize = Number(searchParams.get("servings"));
 
   return (
-    <ul>
+    <ul className="grid gap-2">
       {ingredients.map((ingredient) => (
         <li key={ingredient.name}>
           <AmountItem

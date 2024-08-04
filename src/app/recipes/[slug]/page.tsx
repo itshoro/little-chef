@@ -133,7 +133,7 @@ const ShowRecipePage = async ({
                 <span className="block h-1 w-1 rounded-full bg-green-600" />
                 <h2 className="text-sm font-medium">Cookware</h2>
               </div>
-              <ul>
+              <ul className="grid gap-2">
                 {parsedSteps.cookwares.map((cookware) => (
                   <li key={cookware.name}>
                     <AmountItem
