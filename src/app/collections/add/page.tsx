@@ -47,12 +47,11 @@ const Page = async () => {
 
           <Input.Root name="visibility">
             <Input.Label>Visibility</Input.Label>
-            <Input.Group>
-              <VisibilitySwitcher
-                name="visibility"
-                defaultValue={preferences?.defaultVisibility}
-              />
-            </Input.Group>
+
+            <VisibilitySwitcher
+              name="visibility"
+              defaultValue={preferences?.defaultVisibility}
+            />
           </Input.Root>
 
           <div className="mt-6">
