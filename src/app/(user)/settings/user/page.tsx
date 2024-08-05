@@ -10,6 +10,11 @@ import {
   validateUsername,
   validatePassword,
 } from "@/lib/dal/user";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "User Preferences",
+};
 
 const UserPage = async () => {
   const { user } = await validateRequest();

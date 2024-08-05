@@ -13,136 +13,163 @@ import { extractParts } from "@/lib/slug";
 import { Parser } from "@cooklang/cooklang-ts";
 import Link from "next/link";
 import type { Route } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { UserActions } from "./components/user-actions";
 import { StartButton } from "./components/buttons/start-button";
 import { Section } from "./components/section";
 import { CookwareList } from "./components/cookware-list";
+import type { Metadata, ResolvingMetadata } from "next";
 
 type ShowRecipePageProps = {
   params: { slug: string };
   searchParams: { servings: string };
 };
 
+function generateAttribution(maintainers: { username: string }[]) {
+  return new Intl.ListFormat(undefined, {
+    type: "conjunction",
+  }).format(maintainers.map((u) => u.username));
+}
+
+export async function generateMetadata(
+  { params, searchParams }: ShowRecipePageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { publicId } = extractParts(params.slug);
+  try {
+    const recipe = await getRecipe({ publicId });
+    const maintainers = await getCreatorsAndMaintainers(recipe.id);
+
+    return {
+      title: `${recipe.name} by ${generateAttribution(maintainers)}`,
+      description: `In just ${recipe.cookingTime + recipe.preparationTime} minutes you could be done, yielding ${searchParams.servings} servings!`,
+    };
+  } catch {
+    return parent as Metadata;
+  }
+}
+
 const ShowRecipePage = async ({
   params,
   searchParams,
 }: ShowRecipePageProps) => {
-  const { user } = await validateRequest();
-  const { publicId } = extractParts(params.slug);
+  try {
+    const { user } = await validateRequest();
+    const { publicId } = extractParts(params.slug);
+    const recipe = await getRecipe({ publicId }, user?.publicId);
 
-  const recipe = await getRecipe({ publicId }, user?.publicId);
+    const rawSteps = await getRecipeSteps(recipe.id);
+    const parser = new Parser();
+    const steps = rawSteps.map((step) => step.description);
+    const parsedSteps = parser.parse(steps.join());
 
-  const rawSteps = await getRecipeSteps(recipe.id);
-  const parser = new Parser();
-  const steps = rawSteps.map((step) => step.description);
-  const parsedSteps = parser.parse(steps.join());
+    const servingsFromSearchParams = parseInt(searchParams.servings);
+    const defaultServingSize = isNaN(servingsFromSearchParams)
+      ? recipe.recommendedServingSize
+      : servingsFromSearchParams;
 
-  const servingsFromSearchParams = parseInt(searchParams.servings);
-  const defaultServingSize = isNaN(servingsFromSearchParams)
-    ? recipe.recommendedServingSize
-    : servingsFromSearchParams;
+    const maintainers = await getCreatorsAndMaintainers(recipe.id);
+    const hasMaintainership = maintainers
+      .map((maintainer) => maintainer.publicId)
+      // @ts-expect-error
+      .includes(user?.publicId);
 
-  const maintainers = await getCreatorsAndMaintainers(recipe.id);
-  const hasMaintainership = maintainers
-    .map((maintainer) => maintainer.publicId)
-    // @ts-expect-error
-    .includes(user?.publicId);
+    const attribution = generateAttribution(maintainers);
+    return (
+      <>
+        <div>
+          <div className="p-4 pt-6">
+            <h1 className="font-medium">{recipe.name}</h1>
+            <div className="mt-2 text-base">
+              <div className="flex items-baseline justify-between">
+                <div>
+                  By{" "}
+                  <span className="inline-block">
+                    <AvatarStack users={maintainers} />
+                  </span>{" "}
+                  {attribution}
+                </div>
+                <section className="mt-4 grid grid-flow-col gap-4">
+                  {hasMaintainership && (
+                    <>
+                      <DeleteButton
+                        deleteAction={async () => {
+                          "use server";
 
-  const attribution = new Intl.ListFormat(undefined, {
-    type: "conjunction",
-  }).format(maintainers.map((u) => u.username));
+                          await deleteRecipe(recipe.id);
+                          redirect("/recipes");
+                        }}
+                      />
+                      <EditButton href={`/recipes/${params.slug}/edit`} />
+                    </>
+                  )}
+                </section>
+              </div>
+            </div>
 
-  return (
-    <>
-      <div>
-        <div className="p-4 pt-6">
-          <h1 className="font-medium">{recipe.name}</h1>
-          <div className="mt-2 text-base">
-            <div className="flex items-baseline justify-between">
+            <section className="my-4">
+              <div className="flex items-center gap-4">
+                <UserActions publicUserId={user?.publicId} recipe={recipe} />
+              </div>
+            </section>
+
+            <Section title="Overview">
               <div>
-                By{" "}
-                <span className="inline-block">
-                  <AvatarStack users={maintainers} />
-                </span>{" "}
-                {attribution}
+                <div className="grid grid-cols-2 gap-4">
+                  <InfoCard>
+                    <InfoCard.Value>
+                      {recipe.preparationTime} minutes
+                    </InfoCard.Value>
+                    <InfoCard.Label>Preparation time</InfoCard.Label>
+                  </InfoCard>
+                  <InfoCard>
+                    <InfoCard.Value>
+                      {recipe.cookingTime} minutes
+                    </InfoCard.Value>
+                    <InfoCard.Label>Cooking time</InfoCard.Label>
+                  </InfoCard>
+                  <InfoCard>
+                    <InfoCard.Value>
+                      {recipe.recommendedServingSize}
+                    </InfoCard.Value>
+                    <InfoCard.Label>Servings recommended</InfoCard.Label>
+                  </InfoCard>
+                </div>
               </div>
-              <section className="mt-4 grid grid-flow-col gap-4">
-                {hasMaintainership && (
-                  <>
-                    <DeleteButton
-                      deleteAction={async () => {
-                        "use server";
-
-                        await deleteRecipe(recipe.id);
-                        redirect("/recipes");
-                      }}
-                    />
-                    <EditButton href={`/recipes/${params.slug}/edit`} />
-                  </>
-                )}
-              </section>
-            </div>
+            </Section>
+            {parsedSteps.ingredients.length > 0 && (
+              <Section title="Ingredients">
+                <IngredientList
+                  ingredients={parsedSteps.ingredients}
+                  recommendedServingSize={recipe.recommendedServingSize}
+                />
+              </Section>
+            )}
+            {parsedSteps.cookwares.length > 0 && (
+              <Section title="Cookware">
+                <CookwareList cookwares={parsedSteps.cookwares} />
+              </Section>
+            )}
           </div>
+        </div>
 
-          <section className="my-4">
-            <div className="flex items-center gap-4">
-              <UserActions publicUserId={user?.publicId} recipe={recipe} />
-            </div>
-          </section>
-
-          <Section title="Overview">
+        <footer
+          className="flex w-full border-t p-4"
+          style={{ gridArea: "action", gridColumn: 1 }}
+        >
+          <div className="flex w-full items-end justify-between">
             <div>
-              <div className="grid grid-cols-2 gap-4">
-                <InfoCard>
-                  <InfoCard.Value>
-                    {recipe.preparationTime} minutes
-                  </InfoCard.Value>
-                  <InfoCard.Label>Preparation time</InfoCard.Label>
-                </InfoCard>
-                <InfoCard>
-                  <InfoCard.Value>{recipe.cookingTime} minutes</InfoCard.Value>
-                  <InfoCard.Label>Cooking time</InfoCard.Label>
-                </InfoCard>
-                <InfoCard>
-                  <InfoCard.Value>
-                    {recipe.recommendedServingSize}
-                  </InfoCard.Value>
-                  <InfoCard.Label>Servings recommended</InfoCard.Label>
-                </InfoCard>
-              </div>
+              <div className="mb-2">Servings</div>
+              <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
             </div>
-          </Section>
-          {parsedSteps.ingredients.length > 0 && (
-            <Section title="Ingredients">
-              <IngredientList
-                ingredients={parsedSteps.ingredients}
-                recommendedServingSize={recipe.recommendedServingSize}
-              />
-            </Section>
-          )}
-          {parsedSteps.cookwares.length > 0 && (
-            <Section title="Cookware">
-              <CookwareList cookwares={parsedSteps.cookwares} />
-            </Section>
-          )}
-        </div>
-      </div>
-
-      <footer
-        className="flex w-full border-t p-4"
-        style={{ gridArea: "action", gridColumn: 1 }}
-      >
-        <div className="flex w-full items-end justify-between">
-          <div>
-            <div className="mb-2">Servings</div>
-            <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
+            <StartButton slug={params.slug} />
           </div>
-          <StartButton slug={params.slug} />
-        </div>
-      </footer>
-    </>
-  );
+        </footer>
+      </>
+    );
+  } catch {
+    notFound();
+  }
 };
 
 const EditButton = ({ href }: { href: Route }) => {

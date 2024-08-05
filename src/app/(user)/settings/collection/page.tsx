@@ -7,6 +7,11 @@ import {
   updateDefaultVisibility,
 } from "@/lib/dal/collections";
 import { validateVisibility } from "@/lib/dal/visibility";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Collection Preferences",
+};
 
 const CollectionSettingsPage = async () => {
   const { user } = await validateRequest();

@@ -4,6 +4,11 @@ import { AddButton } from "../components/AddButton";
 import { RecipeCard } from "../components/recipe-card";
 import { findPublicRecipeIds } from "@/lib/dal/recipe";
 import { getSubcribedRecipes } from "@/lib/dal/user";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Recipes",
+};
 
 const Page = async (props: { searchParams: { q: string } }) => {
   const { user } = await validateRequest();

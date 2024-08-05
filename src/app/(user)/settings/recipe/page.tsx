@@ -9,6 +9,11 @@ import {
 } from "@/lib/dal/recipe";
 import { revalidatePath } from "next/cache";
 import { validateVisibility } from "@/lib/dal/visibility";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Recipe Preferences",
+};
 
 const RecipeSettingsPage = async () => {
   const { user } = await validateRequest();

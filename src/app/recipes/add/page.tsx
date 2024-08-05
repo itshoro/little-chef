@@ -12,6 +12,11 @@ import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import { BackLink } from "@/app/components/back-link";
 import type { FormError } from "@/app/components/form/root";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Add Recipe",
+};
 
 const AddRecipePage = async () => {
   const { user } = await validateRequest();

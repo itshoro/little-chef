@@ -3,6 +3,11 @@ import { ThemeSwitcher } from "../components/theme-switcher";
 import * as SettingsSection from "../components/settings-section";
 import { validateRequest } from "@/lib/auth/lucia";
 import { changeTheme, isSupportedTheme } from "@/lib/dal/app";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "App Preferences",
+};
 
 const AppSettingsPage = async () => {
   const { user } = await validateRequest();

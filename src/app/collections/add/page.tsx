@@ -15,6 +15,11 @@ import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import * as Form from "@/app/components/form";
 import type { FormError } from "@/app/components/form/root";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Add Collection",
+};
 
 const Page = async () => {
   const { user } = await validateRequest();

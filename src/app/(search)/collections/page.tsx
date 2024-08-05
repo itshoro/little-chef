@@ -3,6 +3,11 @@ import type { User } from "lucia";
 import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
 import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Collections",
+};
 
 const Page = async (props: { searchParams: { q: string } }) => {
   const { user } = await validateRequest();

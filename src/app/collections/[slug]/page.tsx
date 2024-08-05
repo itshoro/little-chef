@@ -5,13 +5,29 @@ import { Header } from "@/app/components/header/header";
 import { getCollection, getRecipeIds } from "@/lib/dal/collections";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
+import type { ResolvedMetadata, Metadata } from "next";
 
-const CollectionPage = async ({ params }: { params: { slug: string } }) => {
+type CollectionPageProps = { params: { slug: string } };
+
+export async function generateMetadata(
+  { params }: CollectionPageProps,
+  parent: ResolvedMetadata,
+): Promise<Metadata> {
+  try {
+    const { publicId } = extractParts(params.slug);
+    const collection = await getCollection({ publicId });
+
+    return { title: collection.name };
+  } catch {
+    return parent as Metadata;
+  }
+}
+
+const CollectionPage = async ({ params }: CollectionPageProps) => {
   const { slug, publicId } = extractParts(params.slug);
 
   try {
     const collection = await getCollection({ publicId });
-
     if (slug !== collection.slug) {
       redirect(
         `/collections/${generateSlugPathSegment(collection.slug, publicId)}`,
@@ -33,7 +49,6 @@ const CollectionPage = async ({ params }: { params: { slug: string } }) => {
       </>
     );
   } catch (e) {
-    console.error(e);
     notFound();
   }
 };

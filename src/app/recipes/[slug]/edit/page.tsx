@@ -10,11 +10,16 @@ import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { validateRequest } from "@/lib/auth/lucia";
 import { UpdateRecipeValidator } from "@/lib/dal/validators";
 import type { FormError } from "@/app/components/form/root";
+import type { Metadata } from "next";
 
 type EditRecipePageProps = {
   params: {
     slug: string;
   };
+};
+
+export const metadata: Metadata = {
+  title: "Editing Recipe",
 };
 
 const EditRecipePage = async ({ params }: EditRecipePageProps) => {
