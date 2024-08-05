@@ -15,8 +15,8 @@ const UserActions = async ({
   return (
     <>
       <LikeButton recipe={recipe} publicUserId={publicUserId} />
-      <ShareCurrentPageButton />
       <AddToCollection recipe={recipe} publicUserId={publicUserId} />
+      <ShareCurrentPageButton />
     </>
   );
 };
@@ -61,7 +61,7 @@ const AddToCollection = async ({
   publicUserId: string | undefined;
 }) => {
   return (
-    <AddToCollectionButton disabled={publicUserId === null}>
+    <AddToCollectionButton disabled={publicUserId === undefined}>
       <AddRecipeToCollectionServerRoot
         recipePublicId={recipe.publicId}
         publicUserId={publicUserId}
