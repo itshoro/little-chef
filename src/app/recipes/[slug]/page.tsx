@@ -6,7 +6,6 @@ import {
   getRecipeSteps,
 } from "@/lib/dal/recipe";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
-import { AmountItem } from "./components/amount-item";
 import { IngredientList } from "./components/ingredient-list";
 import { ServingsQueryStore } from "./components/servings-query-store";
 import { DeleteButton } from "./components/buttons/delete-button";
@@ -17,6 +16,8 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { UserActions } from "./components/user-actions";
 import { StartButton } from "./components/buttons/start-button";
+import { Section } from "./components/section";
+import { CookwareList } from "./components/cookware-list";
 
 type ShowRecipePageProps = {
   params: { slug: string };
@@ -90,12 +91,8 @@ const ShowRecipePage = async ({
             </div>
           </section>
 
-          <section className="mt-12">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="block h-1 w-1 rounded-full bg-green-600" />
-              <h2 className="text-sm font-medium">Overview</h2>
-            </div>
-            <div className="overflow-x-auto">
+          <Section title="Overview">
+            <div>
               <div className="grid grid-cols-2 gap-4">
                 <InfoCard>
                   <InfoCard.Value>
@@ -115,36 +112,19 @@ const ShowRecipePage = async ({
                 </InfoCard>
               </div>
             </div>
-          </section>
+          </Section>
           {parsedSteps.ingredients.length > 0 && (
-            <section className="mt-12">
-              <div className="mb-4 flex items-center gap-2">
-                <span className="block h-1 w-1 rounded-full bg-green-600" />
-                <h2 className="text-sm font-medium">Ingredients</h2>
-              </div>
+            <Section title="Ingredients">
               <IngredientList
                 ingredients={parsedSteps.ingredients}
                 recommendedServingSize={recipe.recommendedServingSize}
               />
-            </section>
+            </Section>
           )}
           {parsedSteps.cookwares.length > 0 && (
-            <section className="mt-12">
-              <div className="mb-4 flex items-center gap-2">
-                <span className="block h-1 w-1 rounded-full bg-green-600" />
-                <h2 className="text-sm font-medium">Cookware</h2>
-              </div>
-              <ul className="grid gap-2">
-                {parsedSteps.cookwares.map((cookware) => (
-                  <li key={cookware.name}>
-                    <AmountItem
-                      label={cookware.name}
-                      amount={cookware.quantity}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <Section title="Cookware">
+              <CookwareList cookwares={parsedSteps.cookwares} />
+            </Section>
           )}
         </div>
       </div>
