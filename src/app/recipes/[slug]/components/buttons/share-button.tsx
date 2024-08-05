@@ -1,6 +1,6 @@
 "use client";
 
-import { BaseButton } from "./base-button";
+import { BaseButton } from "../../../../components/base-button";
 
 const ShareCurrentPageButton = () => {
   return (

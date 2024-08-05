@@ -19,6 +19,7 @@ import { StartButton } from "./components/buttons/start-button";
 import { Section } from "./components/section";
 import { CookwareList } from "./components/cookware-list";
 import type { Metadata, ResolvingMetadata } from "next";
+import { MaintainerActions } from "./components/maintainer-actions";
 
 type ShowRecipePageProps = {
   params: { slug: string };
@@ -69,12 +70,8 @@ const ShowRecipePage = async ({
       : servingsFromSearchParams;
 
     const maintainers = await getCreatorsAndMaintainers(recipe.id);
-    const hasMaintainership = maintainers
-      .map((maintainer) => maintainer.publicId)
-      // @ts-expect-error
-      .includes(user?.publicId);
-
     const attribution = generateAttribution(maintainers);
+
     return (
       <>
         <div>
@@ -89,29 +86,22 @@ const ShowRecipePage = async ({
                   </span>{" "}
                   {attribution}
                 </div>
-                <section className="mt-4 grid grid-flow-col gap-4">
-                  {hasMaintainership && (
-                    <>
-                      <DeleteButton
-                        deleteAction={async () => {
-                          "use server";
-
-                          await deleteRecipe(recipe.id);
-                          redirect("/recipes");
-                        }}
-                      />
-                      <EditButton href={`/recipes/${params.slug}/edit`} />
-                    </>
-                  )}
+                <section className="grid grid-flow-col gap-4">
+                  <UserActions publicUserId={user?.publicId} recipe={recipe} />
                 </section>
               </div>
             </div>
 
             <section className="my-4">
-              <div className="flex items-center gap-4">
-                <UserActions publicUserId={user?.publicId} recipe={recipe} />
-              </div>
+              <div className="flex items-center gap-4"></div>
             </section>
+
+            <MaintainerActions
+              user={user}
+              maintainers={maintainers}
+              recipe={recipe}
+              slug={params.slug}
+            />
 
             <Section title="Overview">
               <div>
@@ -170,27 +160,6 @@ const ShowRecipePage = async ({
   } catch {
     notFound();
   }
-};
-
-const EditButton = ({ href }: { href: Route }) => {
-  return (
-    <Link
-      href={href}
-      className="inline-flex justify-center rounded-xl border-2 px-6 py-4 shadow active:bg-neutral-100"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        className="size-4"
-      >
-        <path d="M13.488 2.513a1.75 1.75 0 0 0-2.475 0L6.75 6.774a2.75 2.75 0 0 0-.596.892l-.848 2.047a.75.75 0 0 0 .98.98l2.047-.848a2.75 2.75 0 0 0 .892-.596l4.261-4.262a1.75 1.75 0 0 0 0-2.474Z" />
-        <path d="M4.75 3.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h6.5c.69 0 1.25-.56 1.25-1.25V9A.75.75 0 0 1 14 9v2.25A2.75 2.75 0 0 1 11.25 14h-6.5A2.75 2.75 0 0 1 2 11.25v-6.5A2.75 2.75 0 0 1 4.75 2H7a.75.75 0 0 1 0 1.5H4.75Z" />
-      </svg>
-
-      <span className="sr-only">Edit</span>
-    </Link>
-  );
 };
 
 const InfoCard = ({ children }: { children: React.ReactNode }) => (

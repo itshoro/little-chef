@@ -1,6 +1,6 @@
 "use client";
 import { DialogRoot, useDialog } from "@/app/components/dialog/dialog";
-import { BaseButton } from "./base-button";
+import { BaseButton } from "../../../../components/base-button";
 
 type AddToCollectionButtonProps = {
   children: React.ReactNode;

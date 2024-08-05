@@ -1,13 +1,13 @@
 "use client";
 
-import { CTALink } from "@/app/components/CallToAction/Link";
 import { useSearchParams } from "next/navigation";
+import { BaseButton } from "../../../../components/base-button";
 
 const StartButton = ({ slug }: { slug: string }) => {
   const params = useSearchParams();
 
   return (
-    <CTALink
+    <BaseButton
       href={`/recipes/${slug}/wizard/0?servings=${params.get("servings")}`}
     >
       <div className="flex items-center gap-6">
@@ -25,7 +25,7 @@ const StartButton = ({ slug }: { slug: string }) => {
           />
         </svg>
       </div>
-    </CTALink>
+    </BaseButton>
   );
 };
 

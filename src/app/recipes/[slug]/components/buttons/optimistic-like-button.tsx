@@ -1,7 +1,7 @@
 "use client";
 
 import { useOptimistic, useState } from "react";
-import { BaseButton } from "./base-button";
+import { BaseButton } from "../../../../components/base-button";
 
 type OptimisticLikeButtonProps = {
   count: number;

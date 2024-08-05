@@ -1,7 +1,7 @@
 import { validateRequest } from "@/lib/auth/lucia";
 import { Avatar } from "./avatar";
-import { CTALink } from "../CallToAction/Link";
 import NextLink from "next/link";
+import { BaseButton } from "../base-button";
 
 const Header = async ({ children }: { children?: React.ReactNode }) => {
   const { user } = await validateRequest();
@@ -20,9 +20,9 @@ const Header = async ({ children }: { children?: React.ReactNode }) => {
                 />
               </NextLink>
             ) : (
-              <CTALink href="/login">
-                <span className="pl-2">Login</span>
-              </CTALink>
+              <BaseButton href="/login">
+                <span>Login</span>
+              </BaseButton>
             )}
           </div>
         </div>
