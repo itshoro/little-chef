@@ -9,7 +9,7 @@ const AvatarStack = ({
   const slice = users.slice(0, 5);
 
   return (
-    <div className="isolate flex -space-x-3">
+    <div className="isolate flex flex-shrink-0 -space-x-3">
       {slice.map((user, i) => (
         <Link
           key={user.publicId}
