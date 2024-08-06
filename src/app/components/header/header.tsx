@@ -16,7 +16,7 @@ const Header = async ({ children }: { children?: React.ReactNode }) => {
           {children}
           <div className="ml-auto">
             {user ? (
-              <NextLink href="/settings/app">
+              <NextLink href="/settings/user">
                 <Avatar
                   src={`/${user.publicId}/avatar.webp`}
                   alt={user.username}

@@ -24,9 +24,6 @@ const SettingsLayout = async (props: { children: React.ReactNode }) => {
               <div className="border-y p-4 lg:border-none dark:border-stone-700">
                 <Suspense>
                   <TabNavigation.Root replace={true}>
-                    <TabNavigation.Link href="/settings/app">
-                      App
-                    </TabNavigation.Link>
                     <TabNavigation.Link href="/settings/user">
                       User
                     </TabNavigation.Link>
