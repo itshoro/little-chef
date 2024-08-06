@@ -5,7 +5,7 @@ const AddButton = <T extends string>({ href }: { href: Route<T> | URL }) => {
   return (
     <div className="sticky bottom-0 z-50 flex">
       <NextLink className="m-4 ml-auto inline-block" href={href as Route}>
-        <div className="rounded-full bg-lime-500 p-4 text-white shadow">
+        <div className="rounded-full bg-lime-300 p-4 text-black shadow">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
