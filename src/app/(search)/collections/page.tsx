@@ -19,7 +19,7 @@ const Page = async (props: { searchParams: { q: string } }) => {
         <CollectionList user={user} />
         <CollectionSearchResults user={user} query={props.searchParams.q} />
       </main>
-      <AddButton href="/collections/add" />
+      {user && <AddButton href="/collections/add" />}
     </>
   );
 };
