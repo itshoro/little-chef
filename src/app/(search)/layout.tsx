@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 const Layout = (props: { children: React.ReactNode }) => {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-screen flex-col">
       <Header />
       <section className="p-4">
         <SearchInput />
