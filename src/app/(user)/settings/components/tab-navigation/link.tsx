@@ -2,7 +2,7 @@
 
 import NextLink, { LinkProps } from "next/link";
 import { useTabNavigationContext } from "./root";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type Props = {
   href: LinkProps<unknown>["href"];
@@ -11,6 +11,7 @@ type Props = {
 };
 
 const Link = ({ href, children }: Props) => {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { keepSearchParams, replace } = useTabNavigationContext(Link.name);
 
@@ -21,7 +22,8 @@ const Link = ({ href, children }: Props) => {
   return (
     <li>
       <NextLink
-        className="block w-full rounded-full px-5 py-3 font-medium text-black"
+        data-active={href.toString().startsWith(pathname)}
+        className="block w-full rounded-full px-5 py-3 font-medium text-black dark:text-stone-500 dark:data-[active=true]:text-black"
         href={href}
         replace={replace}
       >

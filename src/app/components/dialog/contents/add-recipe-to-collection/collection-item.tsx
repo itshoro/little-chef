@@ -12,7 +12,7 @@ const CollectionItem = ({ addToCollection, name }: CollectionItemProps) => {
 
   return (
     <button
-      className="block w-full rounded-xl bg-neutral-100 p-4"
+      className="block w-full rounded-xl bg-neutral-100 p-4 dark:bg-stone-900 dark:text-white"
       onClick={async () => {
         await addToCollection();
         closeDialog();

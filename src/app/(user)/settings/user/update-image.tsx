@@ -31,7 +31,7 @@ const UpdateAvatar = ({
           <Avatar src={avatarSrc} alt="Uploaded image" size="size-24" />
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="file" className="flex-1 cursor-pointer">
-              <div className="w-full whitespace-nowrap rounded-full bg-lime-300 px-5 py-3 text-center font-medium">
+              <div className="w-full whitespace-nowrap rounded-full bg-lime-300 px-5 py-3 text-center font-medium dark:text-black">
                 Choose Image
               </div>
             </label>
@@ -51,7 +51,7 @@ const UpdateAvatar = ({
               className="hidden"
             />
             <button
-              className="flex-1 whitespace-nowrap rounded-full bg-black px-5 py-3 text-center font-medium text-white"
+              className="flex-1 whitespace-nowrap rounded-full bg-black px-5 py-3 text-center font-medium text-white dark:bg-white dark:text-black"
               type="button"
               onClick={onDeleteImage}
             >
@@ -60,7 +60,7 @@ const UpdateAvatar = ({
           </div>
         </div>
         <button
-          className="rounded-full bg-lime-300 px-5 py-3 font-medium"
+          className="rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
           type="submit"
         >
           Save

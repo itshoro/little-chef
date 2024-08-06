@@ -17,11 +17,13 @@ const AddToCollectionButton = ({
     <>
       <DialogRoot ref={ref} {...dialogActions}>
         <div className="flex items-center justify-between">
-          <div className="text-sm font-medium">Your Collections</div>
+          <div className="text-sm font-medium dark:text-white">
+            Your Collections
+          </div>
           <button
             onClick={dialogActions.closeDialog}
             type="button"
-            className="rounded-lg p-2 transition-colors hover:bg-neutral-100"
+            className="rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:bg-stone-800 dark:text-white"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

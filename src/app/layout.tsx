@@ -16,20 +16,19 @@ export const metadata: Metadata = {
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className="mx-auto min-h-[100dvh] max-w-screen-xl bg-white xl:border"
-    >
-      <body className={`${inter.className} min-h-[100dvh]`}>
+    <html lang="en" className="min-h-[100dvh]">
+      <body className={`${inter.className} dark:bg-black dark:text-white`}>
         <div
-          className="h-[100svh]"
+          className=""
           // className="magic-grid h-[100svh]"
           // style={{
           //   gridTemplateRows:
           //     "[header-start] min-content [header-end content-start] 1fr [content-end action-start] min-content [action-end]",
           // }}
         >
-          {props.children}
+          <div className="mx-auto min-h-[100dvh] max-w-screen-xl xl:border-x dark:border-stone-700">
+            <div className="min-h-[100svh]">{props.children}</div>
+          </div>
         </div>
       </body>
     </html>

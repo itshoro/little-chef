@@ -1,6 +1,6 @@
 import { CooklangPreview } from "../components/cooklang-preview";
 
-const WizardSteps = ({
+const WizardStep = ({
   description,
   ingredientScaleFactor,
 }: {
@@ -11,7 +11,7 @@ const WizardSteps = ({
     <div className="my-auto p-4">
       <div className="w-full text-xl">
         <div
-          className="mx-auto text-balance rounded-2xl bg-white px-3 py-2 text-center shadow-sm aria-[current=false]:scale-90 aria-[current=false]:opacity-60"
+          className="mx-auto text-balance rounded-2xl border px-3 py-2 text-center shadow-sm aria-[current=false]:scale-90 aria-[current=false]:opacity-60 dark:border-stone-700"
           aria-current={true}
         >
           <CooklangPreview
@@ -24,4 +24,4 @@ const WizardSteps = ({
   );
 };
 
-export { WizardSteps };
+export { WizardStep };

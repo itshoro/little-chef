@@ -11,12 +11,9 @@ const breakpoints = {
   "2xl": "1536",
 } as const;
 
-function calculateStyle(
-  activePathname: string,
-  listRef: React.RefObject<HTMLElement>,
-) {
+function calculateStyle(listRef: React.RefObject<HTMLElement>) {
   const activeTab = listRef.current?.querySelector<React.ElementRef<"a">>(
-    `a[href^='${activePathname}']`,
+    `a[data-active='true']`,
   );
 
   if (!activeTab) return undefined;
@@ -35,7 +32,7 @@ const Highlight = ({ listRef }: { listRef: React.RefObject<HTMLElement> }) => {
   function highlightActiveTab() {
     if (!ref.current) return;
 
-    const style = calculateStyle(activePathname, listRef);
+    const style = calculateStyle(listRef);
     if (!style) return;
 
     ref.current.style.width = style.width;

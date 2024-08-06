@@ -76,14 +76,14 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
         </Input.Root>
         <div className="mb-auto ml-4 grid place-items-center">
           <Generator.Remove
-            className="grid place-items-center rounded p-2.5 text-stone-500 transition-colors hover:bg-stone-100 disabled:bg-stone-200"
+            className="grid place-items-center rounded p-2.5 text-stone-500 transition-colors hover:bg-stone-100 disabled:bg-stone-200 dark:bg-stone-800 dark:disabled:bg-stone-700"
             uid={uuid}
           >
             <div title="Remove">
               <Trash />
             </div>
           </Generator.Remove>
-          <div className="mt-2 text-stone-400">
+          <div className="mt-2 text-stone-400 dark:text-stone-800">
             <CharacterCount textRef={textRef} />
           </div>
         </div>
@@ -149,7 +149,7 @@ const StepCounterLabel = ({
 
   return (
     <label
-      className="m-2 h-8 w-8 flex-shrink-0 flex-grow-0 select-none rounded-full bg-neutral-100 text-sm font-bold"
+      className="m-2 h-8 w-8 flex-shrink-0 flex-grow-0 select-none rounded-full bg-neutral-100 text-sm font-bold dark:bg-stone-900"
       htmlFor={_name}
     >
       <div className="translate-y-1.5 text-center">{children}</div>

@@ -45,13 +45,13 @@ const Input = ({ urlParam = "q" }: Props) => {
 
   return (
     <form ref={formRef} onSubmit={onSubmit}>
-      <label className="group block cursor-text rounded-xl bg-stone-100 p-4 text-stone-700">
+      <label className="group block cursor-text rounded-xl bg-stone-100 p-4 text-stone-700 dark:bg-stone-900 dark:text-stone-200">
         <div className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="h-5 w-5 text-stone-500 transition-colors group-focus-within:text-emerald-800 group-hover:text-emerald-800"
+            className="h-5 w-5 text-stone-500 transition-colors group-focus-within:text-lime-800 group-hover:text-lime-800 dark:group-focus-within:text-lime-500 dark:group-hover:text-lime-500"
           >
             <path
               fillRule="evenodd"
@@ -66,8 +66,8 @@ const Input = ({ urlParam = "q" }: Props) => {
             onInput={onInput}
             onBlur={onBlur}
             placeholder="Search&#8230;"
-            type="text"
-            className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-none focus:ring-0"
+            type="search"
+            className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-none focus:ring-0 dark:placeholder-stone-600"
             autoComplete="off"
           />
         </div>

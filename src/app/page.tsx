@@ -9,7 +9,7 @@ const Page = async () => {
 
   return (
     <div className="flex h-full justify-center">
-      <div className="my-auto rounded-xl bg-neutral-50 py-8">
+      <div className="my-auto rounded-xl bg-neutral-50 py-8 dark:bg-stone-900">
         <div className="flex flex-col">
           <div className="flex items-center gap-6">
             <Logo /> <span className="text-xl font-semibold">Little Chef</span>
@@ -23,13 +23,13 @@ const Page = async () => {
             <div className="mt-16 flex flex-wrap gap-2">
               <Link
                 href="/sign-up"
-                className="min-w-64 flex-1 rounded-lg border-2 border-lime-200 bg-lime-100 px-4 py-2 text-center font-medium text-lime-700"
+                className="min-w-64 flex-1 rounded-lg border-2 border-lime-200 bg-lime-100 px-4 py-2 text-center font-medium text-lime-700 dark:border-lime-700 dark:bg-lime-900 dark:text-lime-200"
               >
                 I've got an invite code
               </Link>
               <Link
                 href="/recipes"
-                className="min-w-64 flex-1 rounded-lg border bg-neutral-100 px-4 py-2 text-center font-medium"
+                className="min-w-64 flex-1 rounded-lg border bg-neutral-100 px-4 py-2 text-center font-medium dark:border-stone-700 dark:bg-stone-800"
               >
                 Continue as a guest
               </Link>

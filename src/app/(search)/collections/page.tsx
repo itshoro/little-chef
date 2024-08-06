@@ -4,6 +4,7 @@ import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
 import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
 import type { Metadata } from "next";
+import { Section } from "@/app/recipes/[slug]/components/section";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -28,23 +29,10 @@ const CollectionList = async ({ user }: { user: User | null }) => {
   const subscriptions = await getSubscriptions(user.id);
 
   return (
-    <section>
-      <header className="px-4 py-5">
-        <h1 className="flex items-center">
-          <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
-          <span className="text-sm font-medium">Your Saved Collections</span>
-        </h1>
-      </header>
-      <ul className="grid gap-3 px-4">
-        {subscriptions.map((subscription) => {
-          return (
-            <li key={subscription.id} className="">
-              <CollectionSubscriptionCard {...subscription} />
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <SectionWithCollections
+      title="Your Saved Collections"
+      collections={subscriptions}
+    />
   );
 };
 
@@ -59,23 +47,34 @@ const CollectionSearchResults = async ({
   const collections = await findPublicCollections(query ?? "");
 
   return (
-    <section>
-      <header className="px-4 py-5">
-        <h1 className="flex items-center">
-          <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />
-          <span className="text-sm font-medium">Public Collections</span>
-        </h1>
-      </header>
-      <ul className="grid gap-3 px-4">
-        {collections.map((collection) => {
-          return (
-            <li key={collection.id}>
-              <CollectionSubscriptionCard {...collection} />
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <SectionWithCollections
+      title="Public Collections"
+      collections={collections}
+    />
+  );
+};
+
+const SectionWithCollections = ({
+  title,
+  collections,
+}: {
+  title: string;
+  collections: { id: number; publicId: string }[];
+}) => {
+  return (
+    <div className="px-4">
+      <Section title={title}>
+        <ul className="grid gap-3">
+          {collections.map((collection) => {
+            return (
+              <li key={collection.id}>
+                <CollectionSubscriptionCard {...collection} />
+              </li>
+            );
+          })}
+        </ul>
+      </Section>
+    </div>
   );
 };
 

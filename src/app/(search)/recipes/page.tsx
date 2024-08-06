@@ -5,6 +5,7 @@ import { RecipeCard } from "../components/recipe-card";
 import { findPublicRecipeIds } from "@/lib/dal/recipe";
 import { getSubcribedRecipes } from "@/lib/dal/user";
 import type { Metadata } from "next";
+import { Section } from "@/app/recipes/[slug]/components/section";
 
 export const metadata: Metadata = {
   title: "Recipes",
@@ -29,16 +30,16 @@ const YourCookbook = async ({ user }: { user: User | null }) => {
 
   const subscriptions = await getSubcribedRecipes(user.id);
 
-  return <Section title="Your Cookbook" recipes={subscriptions} />;
+  return <SectionWithRecipes title="Your Cookbook" recipes={subscriptions} />;
 };
 
 const SearchResults = async ({ query }: { query?: string }) => {
   const recipes = await findPublicRecipeIds(query ?? "");
 
-  return <Section title="Public Recipes" recipes={recipes} />;
+  return <SectionWithRecipes title="Public Recipes" recipes={recipes} />;
 };
 
-const Section = ({
+const SectionWithRecipes = ({
   title,
   recipes,
 }: {
@@ -46,23 +47,19 @@ const Section = ({
   recipes: { id: number; publicId: string }[];
 }) => {
   return (
-    <section>
-      <header className="px-4 py-5">
-        <h1 className="flex items-center">
-          <span className="mr-2.5 inline-block size-2 rounded-full bg-lime-500" />{" "}
-          <span className="text-sm font-medium">{title}</span>
-        </h1>
-      </header>
-      <ul className="grid gap-3 px-4">
-        {recipes.map((recipe) => {
-          return (
-            <li key={recipe.id} className="">
-              <RecipeCard {...recipe} />
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <div className="px-4">
+      <Section title={title}>
+        <ul className="grid gap-3">
+          {recipes.map((recipe) => {
+            return (
+              <li key={recipe.id} className="">
+                <RecipeCard {...recipe} />
+              </li>
+            );
+          })}
+        </ul>
+      </Section>
+    </div>
   );
 };
 

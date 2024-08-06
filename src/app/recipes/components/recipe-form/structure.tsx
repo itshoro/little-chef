@@ -84,7 +84,9 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <Fieldset.Label>Steps</Fieldset.Label>
 
           <div className="mb-3 ml-auto flex items-center gap-4">
-            <span className="text-sm font-medium text-stone-600">Servings</span>
+            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+              Servings
+            </span>
             <ServingsInput
               defaultValue={defaultValue?.recipe?.recommendedServingSize}
               name="servings"
@@ -100,12 +102,13 @@ const Inputs = ({ defaultValue }: InputsProps) => {
 
 const CooklangInfo = () => {
   return (
-    <div className="mb-6 mt-4 rounded-lg border bg-neutral-50 p-4 text-sm text-neutral-500">
+    <div className="mb-6 mt-4 rounded-lg border bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-stone-700 dark:bg-stone-950">
       <p>
         Steps may be formated using the{" "}
         <a
           className="text-lime-500 underline"
           href="https://cooklang.org/docs/spec/"
+          target="_blank"
         >
           Cooklang specification
         </a>
@@ -114,11 +117,11 @@ const CooklangInfo = () => {
       </p>
       <p className="mt-4">
         Try using{" "}
-        <mark className="select-all rounded-lg border border-lime-200 bg-lime-100 p-1 text-lime-700">
+        <mark className="select-all rounded-lg border border-lime-200 bg-lime-100 p-1 text-lime-700 dark:border-lime-900 dark:bg-lime-950 dark:text-lime-200">
           @eggs{"{"}2{"}"}
         </mark>{" "}
         or{" "}
-        <mark className="select-all rounded-lg border border-lime-200 bg-lime-100 p-1 text-lime-700">
+        <mark className="select-all rounded-lg border border-lime-200 bg-lime-100 p-1 text-lime-700 dark:border-lime-900 dark:bg-lime-950 dark:text-lime-200">
           #Cooking pan{"{"}1{"}"}
         </mark>{" "}
         below and see the result, once your recipe is stored!

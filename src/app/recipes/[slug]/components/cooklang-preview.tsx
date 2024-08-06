@@ -1,7 +1,7 @@
 "use client";
 
 import { Parser } from "@cooklang/cooklang-ts";
-import { Fragment, useRef } from "react";
+import { useRef } from "react";
 
 const CooklangPreview = ({
   value,
@@ -31,9 +31,9 @@ const CooklangPreview = ({
                 return (
                   <span
                     key={i}
-                    className="inline-flex divide-x rounded-full bg-neutral-100 px-2"
+                    className="inline-flex rounded-full bg-neutral-100 px-2 dark:bg-stone-900"
                   >
-                    <span className="px-2 py-2">
+                    <span className="border-r px-2 py-2 dark:border-stone-700">
                       {typeof segment.quantity === "number"
                         ? segment.quantity * ingredientScaleFactor
                         : segment.quantity}

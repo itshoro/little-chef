@@ -7,7 +7,10 @@ const Header = async ({ children }: { children?: React.ReactNode }) => {
   const { user } = await validateRequest();
 
   return (
-    <header className="border-b" style={{ gridArea: "header", gridColumn: 1 }}>
+    <header
+      className="border-b border-stone-200 dark:border-stone-800"
+      style={{ gridArea: "header", gridColumn: 1 }}
+    >
       <div className="px-6 py-3">
         <div className="flex justify-between">
           {children}

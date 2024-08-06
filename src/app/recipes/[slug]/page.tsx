@@ -144,7 +144,7 @@ const ShowRecipePage = async ({
         </div>
 
         <footer
-          className="flex w-full border-t p-4"
+          className="flex w-full border-t p-4 dark:border-stone-800"
           style={{ gridArea: "action", gridColumn: 1 }}
         >
           <div className="flex w-full items-end justify-between">
@@ -163,13 +163,13 @@ const ShowRecipePage = async ({
 };
 
 const InfoCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-w-0 rounded-lg bg-stone-100 px-6 py-4 shadow-sm">
+  <div className="min-w-0 rounded-lg bg-stone-100 px-6 py-4 shadow-sm dark:bg-stone-900">
     {children}
   </div>
 );
 
 const Label = ({ children }: { children: React.ReactNode }) => (
-  <div className="text-sm">{children}</div>
+  <div className="text-sm text-stone-600 dark:text-stone-400">{children}</div>
 );
 
 const Value = ({ children }: { children: React.ReactNode }) => (

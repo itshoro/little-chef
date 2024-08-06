@@ -22,7 +22,7 @@ const DialogRoot = forwardRef<React.ElementRef<"dialog">, RootProps>(
     return (
       <DialogContext.Provider value={contextActions}>
         <dialog
-          className="absolute mx-auto mb-4 mt-auto max-w-full rounded-2xl p-6 shadow-xl backdrop:transform backdrop:backdrop-blur-sm"
+          className="absolute mx-auto mb-4 mt-auto max-w-full rounded-2xl p-6 shadow-xl backdrop:transform backdrop:backdrop-blur-sm dark:border-t dark:border-stone-800 dark:bg-black"
           ref={ref}
         >
           {children}

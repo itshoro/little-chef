@@ -1,6 +1,6 @@
 import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
 import { extractParts } from "@/lib/slug";
-import { WizardSteps } from "../Steps";
+import { WizardStep } from "../step";
 import { Actions } from "../actions";
 import { validateRequest } from "@/lib/auth/lucia";
 
@@ -30,13 +30,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
   return (
     <>
       <div className="flex items-center justify-center">
-        <WizardSteps
+        <WizardStep
           description={displayedStep.description}
           ingredientScaleFactor={ingredientScaleFactor}
         />
       </div>
       <section
-        className="flex justify-between border-t p-4"
+        className="flex justify-between border-t p-4 dark:border-stone-800"
         style={{ gridArea: "action", gridColumn: 1 }}
       >
         <Actions

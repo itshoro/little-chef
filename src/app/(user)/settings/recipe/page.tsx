@@ -1,6 +1,7 @@
 import { Fieldset } from "../components/primitives/fieldset";
 import { VisibilitySwitcher } from "../components/visibility-switcher";
 import * as SettingsSection from "../components/settings-section";
+import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   getRecipePreferences,
@@ -40,15 +41,18 @@ const RecipeSettingsPage = async () => {
         <SettingsSection.Label>Recipe Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
           <form action={changeServingSizeWithUserId}>
-            <Fieldset label="Default Serving Size">
-              <input
-                type="number"
-                className="w-full rounded-lg"
-                defaultValue={preferences?.defaultServingSize}
-                name="defaultServingSize"
-              />
+            <Fieldset label="Servings">
+              <Input.Root name="defaultServingSize">
+                <Input.Label>Default Serving Size</Input.Label>
+                <Input.Group>
+                  <Input.Element
+                    type="number"
+                    defaultValue={preferences?.defaultServingSize}
+                  />
+                </Input.Group>
+              </Input.Root>
               <button
-                className="mt-4 rounded-full bg-lime-300 px-5 py-3 font-medium"
+                className="mt-4 rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
                 type="submit"
               >
                 Update Servings

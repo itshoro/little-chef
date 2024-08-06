@@ -18,10 +18,10 @@ const ServingsInput = ({
   const ref = useRef<React.ElementRef<"input">>(null);
 
   return (
-    <div className="w-fit rounded-full border border-gray-200 bg-stone-100 font-semibold transition focus-within:!border-green-600/40 focus-within:outline-4 focus-within:outline-green-400/10">
+    <div className="w-fit rounded-full border bg-stone-100 font-semibold transition focus-within:!border-green-600/40 focus-within:outline-4 focus-within:outline-green-400/10 dark:border-stone-700 dark:bg-stone-900">
       <div className="inline-flex">
         <button
-          className="aspect-square h-12 rounded-full active:bg-black/5"
+          className="aspect-square h-12 select-none rounded-full active:bg-black/5 dark:active:bg-white/5"
           type="button"
           onClick={() => {
             if (!ref.current) return;
@@ -43,7 +43,7 @@ const ServingsInput = ({
           onChange={onChange}
         />
         <button
-          className="aspect-square h-12 rounded-full active:bg-black/5"
+          className="aspect-square h-12 select-none rounded-full active:bg-black/5 dark:active:bg-white/5"
           type="button"
           onClick={() => {
             if (!ref.current) return;

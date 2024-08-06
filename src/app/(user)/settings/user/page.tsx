@@ -10,6 +10,7 @@ import {
   validateUsername,
   validatePassword,
 } from "@/lib/dal/user";
+import * as Input from "@/app/components/input";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -41,26 +42,24 @@ const UserPage = async () => {
             <Fieldset label="Password">
               <div className="mb-4 flex flex-col gap-4">
                 <div>
-                  <label htmlFor="currentPassword">Current Password</label>
-                  <input
-                    className="mt-2 w-full rounded-lg"
-                    type="password"
-                    name="currentPassword"
-                    id="currentPassword"
-                  />
+                  <Input.Root name="currentPassword">
+                    <Input.Label>New Password</Input.Label>
+                    <Input.Group>
+                      <Input.Element type="password" />
+                    </Input.Group>
+                  </Input.Root>
                 </div>
                 <div>
-                  <label htmlFor="newPassword">New Password</label>
-                  <input
-                    className="mt-2 w-full rounded-lg"
-                    type="password"
-                    name="newPassword"
-                    id="newPassword"
-                  />
+                  <Input.Root name="newPassword">
+                    <Input.Label>New Password</Input.Label>
+                    <Input.Group>
+                      <Input.Element type="password" />
+                    </Input.Group>
+                  </Input.Root>
                 </div>
               </div>
               <button
-                className="rounded-full bg-lime-300 px-5 py-3 font-medium"
+                className="rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
                 type="submit"
               >
                 Update Password
@@ -71,19 +70,20 @@ const UserPage = async () => {
           <form action={updateUsernameActionWithUser}>
             <Fieldset label="Username">
               <div>
-                <label className="sr-only" htmlFor="username">
-                  Username
-                </label>
-                <input
-                  className="mt-2 w-full rounded-lg"
-                  type="text"
-                  name="username"
-                  defaultValue={user?.username}
-                  id="username"
-                />
+                <Input.Root name="username">
+                  <Input.Label>New Username</Input.Label>
+                  <Input.Group>
+                    <Input.Element
+                      type="text"
+                      name="username"
+                      defaultValue={user?.username}
+                      id="username"
+                    />
+                  </Input.Group>
+                </Input.Root>
               </div>
               <button
-                className="mt-4 rounded-full bg-lime-300 px-5 py-3 font-medium"
+                className="mt-4 rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
                 type="submit"
               >
                 Update Username

@@ -65,7 +65,7 @@ const AddToCollection = async ({
       <AddRecipeToCollectionServerRoot
         recipePublicId={recipe.publicId}
         publicUserId={publicUserId}
-      ></AddRecipeToCollectionServerRoot>
+      />
     </AddToCollectionButton>
   );
 };

@@ -9,7 +9,7 @@ const BaseButton = (
       <Link
         {...props}
         className={
-          "inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none " +
+          "inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700 " +
           props.className
         }
       />
@@ -19,7 +19,7 @@ const BaseButton = (
       <button
         {...props}
         className={
-          "inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none " +
+          "inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700 " +
           props.className
         }
       />

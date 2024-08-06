@@ -9,39 +9,41 @@ import { Suspense } from "react";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
-    <div className="flex min-h-full flex-col">
-      <Header>
-        <BackLink />
-      </Header>
-      <div className="flex-1 lg:flex">
-        <div className="@container lg:w-[23rem]">
-          <aside className="flex flex-col justify-end gap-4 lg:h-full lg:flex-col-reverse lg:justify-between lg:border-r">
-            <div className="px-4 pt-4 lg:border-t lg:pb-4">
-              <UserCard />
-            </div>
+    <div className="h-[100svh]">
+      <div className="flex min-h-full flex-col">
+        <Header>
+          <BackLink />
+        </Header>
+        <div className="flex-1 lg:flex">
+          <div className="@container lg:w-[23rem]">
+            <aside className="flex flex-col justify-end gap-4 lg:h-full lg:flex-col-reverse lg:justify-between lg:border-r dark:border-stone-700">
+              <div className="px-4 pt-4 lg:border-t lg:pb-4 dark:border-stone-700">
+                <UserCard />
+              </div>
 
-            <div className="border-y p-4 lg:border-none">
-              <Suspense>
-                <TabNavigation.Root replace={true}>
-                  <TabNavigation.Link href="/settings/app">
-                    App
-                  </TabNavigation.Link>
-                  <TabNavigation.Link href="/settings/user">
-                    User
-                  </TabNavigation.Link>
-                  <TabNavigation.Link href="/settings/recipe">
-                    Recipe
-                  </TabNavigation.Link>
-                  <TabNavigation.Link href="/settings/collection">
-                    Collection
-                  </TabNavigation.Link>
-                </TabNavigation.Root>
-              </Suspense>
-            </div>
-          </aside>
+              <div className="border-y p-4 lg:border-none dark:border-stone-700">
+                <Suspense>
+                  <TabNavigation.Root replace={true}>
+                    <TabNavigation.Link href="/settings/app">
+                      App
+                    </TabNavigation.Link>
+                    <TabNavigation.Link href="/settings/user">
+                      User
+                    </TabNavigation.Link>
+                    <TabNavigation.Link href="/settings/recipe">
+                      Recipe
+                    </TabNavigation.Link>
+                    <TabNavigation.Link href="/settings/collection">
+                      Collection
+                    </TabNavigation.Link>
+                  </TabNavigation.Root>
+                </Suspense>
+              </div>
+            </aside>
+          </div>
+
+          <main className="flex-1 lg:p-4">{props.children}</main>
         </div>
-
-        <main className="flex-1 lg:p-4">{props.children}</main>
       </div>
     </div>
   );
@@ -54,7 +56,7 @@ const UserCard = async () => {
   const signoutWithSessionId = signout.bind(null, session.id);
 
   return (
-    <div className="rounded-2xl bg-stone-100 p-4">
+    <div className="rounded-2xl bg-stone-100 p-4 dark:bg-stone-900">
       <div className="flex items-center gap-4">
         <Avatar src={`/${user.publicId}/avatar.webp`} alt="" size="size-16" />
         <div className="flex-1">
@@ -64,7 +66,7 @@ const UserCard = async () => {
 
         <form action={signoutWithSessionId}>
           <button
-            className="rounded-full border bg-black px-5 py-2 font-medium text-white"
+            className="rounded-full border bg-black px-5 py-2 font-medium text-white dark:border-stone-800"
             type="submit"
           >
             Sign out

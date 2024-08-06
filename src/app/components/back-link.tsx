@@ -6,7 +6,7 @@ const BackLink = () => {
   const router = useRouter();
   return (
     <button type="button" onClick={() => router.back()}>
-      <div className="rounded-lg bg-white p-1 ring-1 ring-black/5">
+      <div className="rounded-lg p-1 ring-1 ring-black/5 dark:bg-stone-800">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
