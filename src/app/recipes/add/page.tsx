@@ -19,10 +19,11 @@ export const metadata: Metadata = {
 };
 
 const AddRecipePage = async () => {
-  const { user } = await validateRequest();
+  const { user, session } = await validateRequest();
 
-  if (!user) redirect("/login");
-  const preferences = await getRecipePreferences(user.publicId);
+  const preferences = user
+    ? await getRecipePreferences(user.publicId)
+    : undefined;
 
   return (
     <>
@@ -31,14 +32,20 @@ const AddRecipePage = async () => {
           <BackLink />
         </div>
       </Header>
+      {!user && (
+        <div className="bg-lime-300 px-4 py-2 text-black">
+          <div className="mb-2 font-medium">Demo Mode</div>
+          <div className="text-sm">You will be unable to create a form.</div>
+        </div>
+      )}
       <div className="p-4">
         <Form.Root action={create}>
-          <input type="hidden" name="publicUserId" value={user?.publicId} />
+          <input type="hidden" name="sessionId" value={session?.id} />
           <Form.Inputs
             defaultValue={{
               recipe: {
                 recommendedServingSize: preferences?.defaultServingSize,
-                visibility: preferences?.defaultVisibility,
+                visibility: preferences?.defaultVisibility ?? "private",
               },
             }}
           />
@@ -65,12 +72,22 @@ const AddRecipePage = async () => {
 
 async function create(_: FormError, formData: FormData) {
   "use server";
-  const publicUserId = formData.get("publicUserId");
-  if (typeof publicUserId !== "string") {
+  const sessionId = formData.get("sessionId");
+  if (typeof sessionId !== "string") {
     return {
       error: {
-        message: "Public user id is missing.",
-        target: "publicUserId",
+        message: "You're currently not signed in, recipe creation is disabled.",
+        target: "sessionId",
+      },
+    } satisfies FormError;
+  }
+  const { user } = await validateRequest(sessionId);
+
+  if (!user) {
+    return {
+      error: {
+        message: "You're currently not signed in, recipe creation is disabled.",
+        target: "sessionId",
       },
     } satisfies FormError;
   }
@@ -89,7 +106,7 @@ async function create(_: FormError, formData: FormData) {
     } satisfies FormError;
   }
   const recipe = await createRecipe(dto.data);
-  await subscribeToRecipe(publicUserId, recipe, "creator");
+  await subscribeToRecipe(user.publicId, recipe, "creator");
 
   redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
 }

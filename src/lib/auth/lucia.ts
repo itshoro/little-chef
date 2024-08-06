@@ -25,8 +25,10 @@ const lucia = new Lucia(adapter, {
   },
 });
 
-async function validateRequest() {
-  const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+async function validateRequest(sessionId: string | null = null) {
+  if (!sessionId) {
+    sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+  }
   if (!sessionId) {
     return { user: null, session: null };
   }
