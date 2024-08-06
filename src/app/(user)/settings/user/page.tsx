@@ -12,6 +12,7 @@ import {
 } from "@/lib/dal/user";
 import * as Input from "@/app/components/input";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "User Preferences",
@@ -20,11 +21,15 @@ export const metadata: Metadata = {
 const UserPage = async () => {
   const { user } = await validateRequest();
 
-  const setProfileImageWithUser = setProfileImage.bind(null, user?.publicId);
-  const updatePasswordWithUser = updatePassword.bind(null, user?.publicId);
+  if (!user) {
+    redirect("/login");
+  }
+
+  const setProfileImageWithUser = setProfileImage.bind(null, user.publicId);
+  const updatePasswordWithUser = updatePassword.bind(null, user.publicId);
   const updateUsernameActionWithUser = updateUsernameAction.bind(
     null,
-    user?.publicId,
+    user.publicId,
   );
 
   return (
@@ -76,7 +81,7 @@ const UserPage = async () => {
                     <Input.Element
                       type="text"
                       name="username"
-                      defaultValue={user?.username}
+                      defaultValue={user.username}
                       id="username"
                     />
                   </Input.Group>

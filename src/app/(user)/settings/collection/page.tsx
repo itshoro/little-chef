@@ -8,6 +8,7 @@ import {
 } from "@/lib/dal/collections";
 import { validateVisibility } from "@/lib/dal/visibility";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Collection Preferences",
@@ -16,12 +17,14 @@ export const metadata: Metadata = {
 const CollectionSettingsPage = async () => {
   const { user } = await validateRequest();
 
-  const preferences = user
-    ? await getCollectionPreferences(user.publicId)
-    : undefined;
+  if (!user) {
+    redirect("/login");
+  }
+
+  const preferences = await getCollectionPreferences(user.publicId);
 
   const changeCollectionVisibilityWithUser =
-    changeDefaultCollectionVisibility.bind(null, user?.publicId);
+    changeDefaultCollectionVisibility.bind(null, user.publicId);
 
   return (
     <>
@@ -32,7 +35,7 @@ const CollectionSettingsPage = async () => {
             <Fieldset label="Default Visibility">
               <VisibilitySwitcher
                 name="visibility"
-                defaultValue={preferences?.defaultVisibility}
+                defaultValue={preferences.defaultVisibility}
                 triggerSubmitOnChange
               />
             </Fieldset>

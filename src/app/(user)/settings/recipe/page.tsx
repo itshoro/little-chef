@@ -11,6 +11,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { validateVisibility } from "@/lib/dal/visibility";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Recipe Preferences",
@@ -19,20 +20,19 @@ export const metadata: Metadata = {
 const RecipeSettingsPage = async () => {
   const { user } = await validateRequest();
 
-  const preferences = user
-    ? await getRecipePreferences(user.publicId)
-    : undefined;
-  const defaultVisibility = validateVisibility(preferences?.defaultVisibility)
-    ? preferences.defaultVisibility
-    : undefined;
+  if (!user) {
+    redirect("/login");
+  }
+
+  const preferences = await getRecipePreferences(user.publicId);
 
   const changeServingSizeWithUserId = changeDefaultRecipeServingSize.bind(
     null,
-    user?.publicId,
+    user.publicId,
   );
   const changeVisibilityWithUserId = changeDefaultRecipeVisibility.bind(
     null,
-    user?.publicId,
+    user.publicId,
   );
 
   return (
@@ -47,7 +47,7 @@ const RecipeSettingsPage = async () => {
                 <Input.Group>
                   <Input.Element
                     type="number"
-                    defaultValue={preferences?.defaultServingSize}
+                    defaultValue={preferences.defaultServingSize}
                   />
                 </Input.Group>
               </Input.Root>
@@ -63,7 +63,7 @@ const RecipeSettingsPage = async () => {
             <Fieldset label="Default Visibility">
               <VisibilitySwitcher
                 name="visibility"
-                defaultValue={defaultVisibility}
+                defaultValue={preferences.defaultVisibility}
                 triggerSubmitOnChange
               />
             </Fieldset>
