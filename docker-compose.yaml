@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    image: little-chef
+    ports:
+      - 127.0.0.1:3000:3000
+    env_file:
+      - .env.local
+    environment:
+      - DATABASE_URL=/src/dev.db
+    volumes:
+      - ./src/drizzle/dev.db:/src/dev.db

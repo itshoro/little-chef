@@ -1,0 +1,8 @@
+Dockerfile
+.dockerignore
+.env.local
+.env.example
+node_modules
+.next
+.contentlayer
+docker-compose.yaml
