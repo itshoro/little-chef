@@ -68,9 +68,9 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
               ref={textRef}
               value={value}
               onChange={onChange}
+              autoFocus={order > 1}
               maxLength={140}
               required
-              autoFocus
             />
           </Input.Group>
         </Input.Root>
