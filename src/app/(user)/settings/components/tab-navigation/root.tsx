@@ -16,7 +16,10 @@ const Root = ({ children, keepSearchParams, replace }: RootProps) => {
   return (
     <nav className="relative">
       <TabNavigationContext.Provider value={{ keepSearchParams, replace }}>
-        <ul ref={listRef} className="flex flex-col items-start @sm:flex-row">
+        <ul
+          ref={listRef}
+          className="flex flex-col @sm:flex-row @sm:items-start"
+        >
           {children}
         </ul>
       </TabNavigationContext.Provider>

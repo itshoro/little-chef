@@ -22,7 +22,7 @@ const CooklangPreview = ({
   return (
     <div>
       {parsedResult.map((step, i) => (
-        <p key={i}>
+        <p key={i} className="leading-relaxed">
           {step.map((segment, i) => {
             switch (segment.type) {
               case "text":
@@ -31,15 +31,15 @@ const CooklangPreview = ({
                 return (
                   <span
                     key={i}
-                    className="inline-flex rounded-full bg-neutral-100 px-2 dark:bg-stone-900"
+                    className="my-0.5 inline-flex rounded-full bg-neutral-100 px-2 dark:bg-stone-900"
                   >
-                    <span className="border-r px-2 py-2 dark:border-stone-700">
+                    <span className="border-r p-1 dark:border-stone-700">
                       {typeof segment.quantity === "number"
                         ? segment.quantity * ingredientScaleFactor
                         : segment.quantity}
                       {segment.units}
                     </span>
-                    <span className="px-2 py-2">{segment.name}</span>
+                    <span className="p-1">{segment.name}</span>
                   </span>
                 );
               case "cookware":

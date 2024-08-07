@@ -18,8 +18,8 @@ const ServingsInput = ({
   const ref = useRef<React.ElementRef<"input">>(null);
 
   return (
-    <div className="w-fit rounded-full border bg-stone-100 font-semibold transition focus-within:!border-green-600/40 focus-within:outline-4 focus-within:outline-green-400/10 dark:border-stone-700 dark:bg-stone-900">
-      <div className="inline-flex">
+    <div className="w-full min-w-0 rounded-full border bg-stone-100 font-semibold transition focus-within:!border-green-600/40 focus-within:outline-4 focus-within:outline-green-400/10 sm:w-auto dark:border-stone-700 dark:bg-stone-900">
+      <div className="flex">
         <button
           className="aspect-square h-12 select-none rounded-full active:bg-black/5 dark:active:bg-white/5"
           type="button"
@@ -39,7 +39,7 @@ const ServingsInput = ({
           min={min}
           step={0.5}
           ref={ref}
-          className="min-w-[10ch] max-w-[12ch] border-none bg-transparent focus:ring-0"
+          className="w-full flex-1 border-none bg-transparent focus:ring-0 sm:min-w-[6ch] sm:max-w-[12ch]"
           onChange={onChange}
         />
         <button

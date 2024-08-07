@@ -78,8 +78,8 @@ const ShowRecipePage = async ({
           <div className="p-4 pt-6">
             <h1 className="font-medium">{recipe.name}</h1>
             <div className="mt-2 text-base">
-              <div className="flex items-baseline justify-between">
-                <div>
+              <div className="flex flex-wrap items-baseline justify-between gap-4">
+                <div className="flex-shrink-0">
                   By{" "}
                   <span className="inline-block">
                     <AvatarStack users={maintainers} />
@@ -147,8 +147,8 @@ const ShowRecipePage = async ({
           className="flex w-full border-t p-4 dark:border-stone-800"
           style={{ gridArea: "action", gridColumn: 1 }}
         >
-          <div className="flex w-full items-end justify-between">
-            <div>
+          <div className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-4 sm:justify-between">
+            <div className="w-full sm:w-fit">
               <div className="mb-2">Servings</div>
               <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
             </div>

@@ -52,7 +52,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
         <div className="mb-4 flex gap-4">
           <div className="flex-1">
             <Input.Root name="preparationTime">
-              <Input.Label>Preparation time (in minutes)</Input.Label>
+              <Input.Label>Prep time (in mins)</Input.Label>
               <Input.Group>
                 <Input.Element
                   type="text"
@@ -65,7 +65,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           </div>
           <div className="flex-1">
             <Input.Root name="cookingTime">
-              <Input.Label>Cooking time (in minutes)</Input.Label>
+              <Input.Label>Cooking time (in mins)</Input.Label>
               <Input.Group>
                 <Input.Element
                   type="text"
@@ -80,13 +80,13 @@ const Inputs = ({ defaultValue }: InputsProps) => {
       </Fieldset.Root>
 
       <Fieldset.Root>
-        <div className="flex items-baseline">
-          <Fieldset.Label>Steps</Fieldset.Label>
+        <div className="mb-3 flex flex-col items-baseline justify-between gap-4 sm:ml-auto sm:flex-row">
+          <Fieldset.Label className="flex-shrink-0">Steps</Fieldset.Label>
 
-          <div className="mb-3 ml-auto flex items-center gap-4">
-            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="text-sm font-medium text-stone-600 dark:text-stone-400">
               Servings
-            </span>
+            </div>
             <ServingsInput
               defaultValue={defaultValue?.recipe?.recommendedServingSize}
               name="servings"

@@ -32,7 +32,7 @@ const StepGeneratorItem = ({
             onChange={(e) => setInput(e.target.value)}
           />
         </div>
-        <div className="mb-4 ml-12 mt-3">
+        <div className="mb-4 ml-12 mt-3 text-sm">
           <div className="pb-1 text-xs text-neutral-400">Preview</div>
           <CooklangPreview value={deferredInput} />
         </div>
@@ -74,7 +74,7 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
             />
           </Input.Group>
         </Input.Root>
-        <div className="mb-auto ml-4 grid place-items-center">
+        <div className="group mb-auto ml-4 grid place-items-center">
           <Generator.Remove
             className="grid place-items-center rounded p-2.5 text-stone-500 transition-colors hover:bg-stone-100 disabled:bg-stone-200 dark:bg-stone-800 dark:disabled:bg-stone-700"
             uid={uuid}
@@ -91,6 +91,19 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
     </>
   );
 };
+
+const characterCountColorMap: Record<CharacterCountRegions, string> = {
+  safe: "text-transparent",
+  warning: "text-yellow-700",
+  critical: "text-red-700",
+};
+const characterCountUpperBounds: Record<CharacterCountRegions, number> = {
+  safe: Number.MAX_SAFE_INTEGER,
+  warning: 50,
+  critical: 20,
+};
+
+type CharacterCountRegions = "safe" | "warning" | "critical";
 
 const CharacterCount = ({
   textRef,
@@ -110,29 +123,39 @@ const CharacterCount = ({
     });
   }, []);
 
+  let notificationLevel: CharacterCountRegions = "safe";
+  if (remainingCharacters < characterCountUpperBounds.warning)
+    notificationLevel = "warning";
+  if (remainingCharacters < characterCountUpperBounds.critical)
+    notificationLevel = "critical";
+
   return (
-    <span className="relative flex items-center justify-center">
-      <svg viewBox="0 0 20 20" className="size-7 -rotate-90 overflow-visible">
-        <circle
-          cx="50%"
-          cy="50%"
-          fill="none"
-          r="10"
-          stroke="currentColor"
-          stroke-dasharray="63"
-          stroke-dashoffset={
-            63 - (63 * remainingCharacters) / maxLength.current
-          }
-          stroke-linecap="round"
-          stroke-width="2"
-        ></circle>
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-sm">
-          {remainingCharacters < 50 && remainingCharacters}
-        </span>
+    <div
+      className={`invisible peer-focus-within:group-[]:visible ${characterCountColorMap[notificationLevel]}`}
+    >
+      <div className="relative flex items-center justify-center">
+        <svg viewBox="0 0 20 20" className="size-7 -rotate-90 overflow-visible">
+          <circle
+            cx="50%"
+            cy="50%"
+            fill="none"
+            r="10"
+            stroke="currentColor"
+            stroke-dasharray="63"
+            stroke-dashoffset={
+              63 - (63 * remainingCharacters) / maxLength.current
+            }
+            stroke-linecap="round"
+            stroke-width="2"
+          ></circle>
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-sm">
+            {remainingCharacters < 50 && remainingCharacters}
+          </span>
+        </div>
       </div>
-    </span>
+    </div>
   );
 };
 
