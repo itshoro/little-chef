@@ -253,3 +253,25 @@ export function collectionDtoFromFormData<TValidator extends AnyZodObject>(
     (typeof validator)["safeParse"]
   >;
 }
+
+export async function deleteCollection(collectionId: number, user: User) {
+  const result = await db
+    .select()
+    .from(schema.collectionSubscriptions)
+    .where(
+      and(
+        or(
+          eq(schema.collectionSubscriptions.role, "creator"),
+          eq(schema.collectionSubscriptions.role, "maintainer"),
+        ),
+        eq(schema.collectionSubscriptions.userId, user.id),
+        eq(schema.collectionSubscriptions.collectionId, collectionId),
+      ),
+    );
+
+  if (result.length === 0) throw new Error("Unauthorized.");
+
+  await db
+    .delete(schema.collections)
+    .where(eq(schema.collections.id, collectionId));
+}

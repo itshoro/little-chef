@@ -14,6 +14,7 @@ import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { generateAttribution } from "@/lib/utils";
 import { Section } from "@/app/recipes/[slug]/components/section";
 import { validateRequest } from "@/lib/auth/lucia";
+import { DeleteButton } from "./components/delete-button";
 
 type CollectionPageProps = { params: { slug: string } };
 
@@ -72,7 +73,11 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
         </div>
 
         <div className="px-4">
-          {isMaintainer && <Section title="Maintainer Actions"></Section>}
+          {isMaintainer && (
+            <Section title="Maintainer Actions">
+              <DeleteButton collectionId={collection.id} />
+            </Section>
+          )}
           <Section title="Recipes">
             <RecipeList ids={recipeIds} />
           </Section>
