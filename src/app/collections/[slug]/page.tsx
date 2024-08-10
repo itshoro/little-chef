@@ -25,7 +25,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   try {
     const { publicId } = extractParts(params.slug);
-    const collection = await getCollection({ publicId });
+    const collection = await getCollection({ publicId }, null);
 
     return { title: collection.name };
   } catch {
@@ -38,7 +38,7 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
   const { user } = await validateRequest();
 
   try {
-    const collection = await getCollection({ publicId }, user?.publicId);
+    const collection = await getCollection({ publicId }, user);
     if (slug !== collection.slug) {
       redirect(
         `/collections/${generateSlugPathSegment(collection.slug, publicId)}`,

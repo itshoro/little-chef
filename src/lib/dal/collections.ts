@@ -180,10 +180,8 @@ export async function findPublicCollections(query: string) {
 
 export async function getCollection(
   query: { id: number } | { publicId: string },
-  publicUserId?: string,
+  user: User | null,
 ) {
-  const user = await getUser(publicUserId);
-
   const collections = await db
     .select({
       id: schema.collections.id,
@@ -207,7 +205,7 @@ export async function getCollection(
         or(
           eq(schema.collections.visibility, "public"),
           eq(schema.collections.visibility, "unlisted"),
-          user !== undefined
+          user !== null
             ? and(
                 eq(schema.collectionSubscriptions.userId, user.id),
                 or(
