@@ -70,7 +70,7 @@ export const collections = sqliteTable("collections", {
 export const collectionRecipes = sqliteTable("collectionRecipes", {
   collectionId: integer("collectionId")
     .notNull()
-    .references(() => collections.id),
+    .references(() => collections.id, { onDelete: "cascade" }),
   recipeId: integer("recipeId")
     .notNull()
     .references(() => recipes.id, { onDelete: "cascade" }),
@@ -81,7 +81,7 @@ export const collectionSubscriptions = sqliteTable(
   {
     collectionId: integer("collectionId")
       .notNull()
-      .references(() => collections.id),
+      .references(() => collections.id, { onDelete: "cascade" }),
     userId: integer("userId")
       .notNull()
       .references(() => users.id),
