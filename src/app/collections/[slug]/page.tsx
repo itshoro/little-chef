@@ -15,6 +15,7 @@ import { generateAttribution } from "@/lib/utils";
 import { Section } from "@/app/recipes/[slug]/components/section";
 import { validateRequest } from "@/lib/auth/lucia";
 import { DeleteButton } from "./components/delete-button";
+import { EditButton } from "./components/edit-button";
 
 type CollectionPageProps = { params: { slug: string } };
 
@@ -76,6 +77,7 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
           {isMaintainer && (
             <Section title="Maintainer Actions">
               <DeleteButton collectionId={collection.id} />
+              <EditButton slug={params.slug} />
             </Section>
           )}
           <Section title="Recipes">
