@@ -2,7 +2,10 @@ import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
 import { eq, or, and, like, sql } from "drizzle-orm";
 import { getUser } from "./user";
-import { AddCollectionValidator } from "./validators";
+import {
+  AddCollectionValidator,
+  UpdateCollectionValidator,
+} from "./validators";
 import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
 import type { AnyZodObject, z } from "zod";
@@ -57,12 +60,48 @@ export async function createCollection(
     })
     .returning();
 
-  // TODO: Should the user automatically subscribe to their createdCollections?
   if (collectionQuery.length !== 1) {
     throw new Error("Couldn't create collection.", { cause: dto });
   }
 
   return collectionQuery.pop() as (typeof collectionQuery)[number];
+}
+
+export async function updateCollection(
+  dto: z.infer<typeof UpdateCollectionValidator>,
+  user: User,
+) {
+  const result = await db
+    .select({ recipeId: schema.collections.id })
+    .from(schema.collections)
+    .where(eq(schema.collections.publicId, dto.publicId));
+
+  if (result.length !== 1)
+    throw new Error("Couldn't find collection.", {
+      cause: { target: "general", publicId: dto.publicId },
+    });
+
+  const maintainers = await getCreatorsAndMaintainers(result[0].recipeId);
+  if (maintainers.find((maintainer) => maintainer.publicId !== user.publicId))
+    throw new Error("You aren't authorized to update this collection.", {
+      cause: { target: "user" },
+    });
+
+  const collectionQuery = await db
+    .update(schema.collections)
+    .set({
+      visibility: dto.visibility,
+      name: dto.title,
+    })
+    .where(eq(schema.collections.publicId, dto.publicId))
+    .returning();
+
+  if (collectionQuery.length !== 1) {
+    throw new Error("Couldn't update collection.", {
+      cause: { target: "general", dto },
+    });
+  }
+  return collectionQuery[0];
 }
 
 export async function addRecipe(
@@ -238,18 +277,17 @@ export async function getRecipeIds(collectionId: number) {
     );
 }
 
-export function collectionDtoFromFormData<TValidator extends AnyZodObject>(
+export function collectionDtoFromFormData<TValidator extends z.AnyZodObject>(
   formData: FormData,
   validator: TValidator,
 ) {
   const dto = {
+    publicId: formData.get("publicId") ?? undefined,
     title: formData.get("title"),
     visibility: formData.get("visibility"),
   };
 
-  return validator.safeParse(dto) as ReturnType<
-    (typeof validator)["safeParse"]
-  >;
+  return validator.safeParse(dto) as ReturnType<TValidator["safeParse"]>;
 }
 
 export async function deleteCollection(collectionId: number, user: User) {

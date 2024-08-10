@@ -16,7 +16,11 @@ const Inputs = ({ defaultValue }: InputsProps) => {
         <Input.Root name="title">
           <Input.Label>Title</Input.Label>
           <Input.Group>
-            <Input.Element type="text" autoComplete="off" />
+            <Input.Element
+              type="text"
+              autoComplete="off"
+              defaultValue={defaultValue?.name}
+            />
           </Input.Group>
         </Input.Root>
       </div>

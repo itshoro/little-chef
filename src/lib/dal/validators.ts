@@ -28,9 +28,16 @@ const AddCollectionValidator = z.object({
   visibility: z.enum(supportedVisibilites),
 });
 
+const UpdateCollectionValidator = AddCollectionValidator.merge(
+  z.object({
+    publicId: z.string(),
+  }),
+);
+
 export {
   AddRecipeValidator,
   UpdateRecipeValidator,
   AddCollectionValidator,
+  UpdateCollectionValidator,
   type Recipe,
 };
