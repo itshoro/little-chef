@@ -180,14 +180,44 @@ export async function findPublicCollections(query: string) {
 
 export async function getCollection(
   query: { id: number } | { publicId: string },
+  publicUserId?: string,
 ) {
+  const user = await getUser(publicUserId);
+
   const collections = await db
-    .select()
+    .select({
+      id: schema.collections.id,
+      publicId: schema.collections.publicId,
+      isCustom: schema.collections.isCustom,
+      name: schema.collections.name,
+      slug: schema.collections.slug,
+      visibility: schema.collections.visibility,
+      itemCount: schema.collections.itemCount,
+    })
     .from(schema.collections)
+    .leftJoin(
+      schema.collectionSubscriptions,
+      eq(schema.collectionSubscriptions.collectionId, schema.collections.id),
+    )
     .where(
-      "id" in query
-        ? eq(schema.collections.id, query.id)
-        : eq(schema.collections.publicId, query.publicId),
+      and(
+        "id" in query
+          ? eq(schema.collections.id, query.id)
+          : eq(schema.collections.publicId, query.publicId),
+        or(
+          eq(schema.collections.visibility, "public"),
+          eq(schema.collections.visibility, "unlisted"),
+          user !== undefined
+            ? and(
+                eq(schema.collectionSubscriptions.userId, user.id),
+                or(
+                  eq(schema.collectionSubscriptions.role, "creator"),
+                  eq(schema.collectionSubscriptions.role, "maintainer"),
+                ),
+              )
+            : undefined,
+        ),
+      ),
     );
 
   if (collections.length === 0) {

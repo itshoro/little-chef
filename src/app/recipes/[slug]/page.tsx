@@ -1,6 +1,5 @@
 import { validateRequest } from "@/lib/auth/lucia";
 import {
-  deleteRecipe,
   getCreatorsAndMaintainers,
   getRecipe,
   getRecipeSteps,
@@ -8,29 +7,21 @@ import {
 import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { IngredientList } from "./components/ingredient-list";
 import { ServingsQueryStore } from "./components/servings-query-store";
-import { DeleteButton } from "./components/buttons/delete-button";
 import { extractParts } from "@/lib/slug";
 import { Parser } from "@cooklang/cooklang-ts";
-import Link from "next/link";
-import type { Route } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { UserActions } from "./components/user-actions";
 import { StartButton } from "./components/buttons/start-button";
 import { Section } from "./components/section";
 import { CookwareList } from "./components/cookware-list";
 import type { Metadata, ResolvingMetadata } from "next";
 import { MaintainerActions } from "./components/maintainer-actions";
+import { generateAttribution } from "@/lib/utils";
 
 type ShowRecipePageProps = {
   params: { slug: string };
   searchParams: { servings: string };
 };
-
-function generateAttribution(maintainers: { username: string }[]) {
-  return new Intl.ListFormat(undefined, {
-    type: "conjunction",
-  }).format(maintainers.map((u) => u.username));
-}
 
 export async function generateMetadata(
   { params, searchParams }: ShowRecipePageProps,
@@ -75,21 +66,20 @@ const ShowRecipePage = async ({
     return (
       <>
         <div>
-          <div className="p-4 pt-6">
+          <div className="p-4">
             <h1 className="font-medium">{recipe.name}</h1>
-            <div className="mt-2 text-base">
-              <div className="flex flex-wrap items-baseline justify-between gap-4">
-                <div className="flex-shrink-0">
-                  By{" "}
-                  <span className="inline-block">
-                    <AvatarStack users={maintainers} />
-                  </span>{" "}
-                  {attribution}
+
+            <div className="flex flex-wrap items-baseline justify-between gap-4">
+              <div className="flex flex-shrink-0 items-center gap-3 text-sm">
+                <span>By </span>
+                <div className="flex items-center gap-1">
+                  <AvatarStack users={maintainers} />
+                  <span>{attribution}</span>
                 </div>
-                <section className="grid grid-flow-col gap-4">
-                  <UserActions publicUserId={user?.publicId} recipe={recipe} />
-                </section>
               </div>
+              <section className="grid grid-flow-col gap-4">
+                <UserActions publicUserId={user?.publicId} recipe={recipe} />
+              </section>
             </div>
 
             <section className="my-4">

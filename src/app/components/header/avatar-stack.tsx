@@ -19,7 +19,7 @@ const AvatarStack = ({
           style={{ "--stack-positon": slice.length - i } as React.CSSProperties}
         >
           <img
-            className="inline-block size-10 rounded-full border-2 border-white"
+            className="inline-block size-8 rounded-full border-2 border-white"
             src={`/${user.publicId}/avatar.webp`}
             alt={`${user.username}`}
           />
