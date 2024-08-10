@@ -1,0 +1,1 @@
+ALTER TABLE `collections` ADD `likes` integer DEFAULT 0 NOT NULL;

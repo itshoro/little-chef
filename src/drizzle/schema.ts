@@ -65,6 +65,7 @@ export const collections = sqliteTable("collections", {
   itemCount: integer("itemCount").notNull().default(0),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
+  likes: integer("likes").notNull().default(0),
 });
 
 export const collectionRecipes = sqliteTable("collectionRecipes", {

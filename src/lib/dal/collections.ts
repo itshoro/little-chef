@@ -230,6 +230,7 @@ export async function getCollection(
       slug: schema.collections.slug,
       visibility: schema.collections.visibility,
       itemCount: schema.collections.itemCount,
+      likes: schema.collections.likes,
     })
     .from(schema.collections)
     .leftJoin(

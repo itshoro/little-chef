@@ -22,6 +22,13 @@
       "when": 1723328062136,
       "tag": "0002_majestic_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1723331496590,
+      "tag": "0003_classy_romulus",
+      "breakpoints": true
     }
   ]
 }
