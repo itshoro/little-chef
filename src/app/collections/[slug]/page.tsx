@@ -6,6 +6,7 @@ import {
   getCollection,
   getCreatorsAndMaintainers,
   getRecipeIds,
+  isCollectionLiked,
 } from "@/lib/dal/collections";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
@@ -16,6 +17,8 @@ import { Section } from "@/app/recipes/[slug]/components/section";
 import { validateRequest } from "@/lib/auth/lucia";
 import { DeleteButton } from "./components/delete-button";
 import { EditButton } from "./components/edit-button";
+import { OptimisticLikeButton } from "./components/optimistic-like-button";
+import { addCollectionLike, removeCollectionLike } from "@/lib/dal/user";
 
 type CollectionPageProps = { params: { slug: string } };
 
@@ -54,6 +57,10 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
       .map((maintainer) => maintainer.publicId)
       .includes(user?.publicId);
 
+    const isLiked = user
+      ? await isCollectionLiked(user?.publicId, collection.id)
+      : false;
+
     return (
       <>
         <Header>
@@ -63,21 +70,44 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
         </Header>
 
         <div className="p-4">
-          <h1 className="font-medium">{collection.name}</h1>
-          <div className="flex items-center gap-3 text-sm">
-            <span>By </span>
-            <div className="flex items-center gap-1">
-              <AvatarStack users={maintainers} />
-              <span>{attribution}</span>
+          <div>
+            <h1 className="font-medium">{collection.name}</h1>
+            <div className="flex items-center gap-3 text-sm">
+              <span>By </span>
+              <div className="flex items-center gap-1">
+                <AvatarStack users={maintainers} />
+                <span>{attribution}</span>
+              </div>
             </div>
+          </div>
+          <div>
+            <OptimisticLikeButton
+              action={async (type) => {
+                "use server";
+                if (!user) throw new Error("No session available");
+
+                if (type === "add") {
+                  const count = await addCollectionLike(user, collection.id);
+                  return { count, isLiked: true };
+                } else {
+                  const count = await removeCollectionLike(user, collection.id);
+                  return { count, isLiked: false };
+                }
+              }}
+              disabled={user === null}
+              isLiked={isLiked}
+              count={collection.likes}
+            />
           </div>
         </div>
 
         <div className="px-4">
           {isMaintainer && (
             <Section title="Maintainer Actions">
-              <DeleteButton collectionId={collection.id} />
-              <EditButton slug={params.slug} />
+              <div className="flex items-center gap-4">
+                <EditButton slug={params.slug} />
+                <DeleteButton collectionId={collection.id} />
+              </div>
             </Section>
           )}
           <Section title="Recipes">

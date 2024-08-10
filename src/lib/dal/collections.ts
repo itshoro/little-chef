@@ -312,3 +312,23 @@ export async function deleteCollection(collectionId: number, user: User) {
     .delete(schema.collections)
     .where(eq(schema.collections.id, collectionId));
 }
+
+export async function isCollectionLiked(
+  publicUserId: string,
+  collectionId: number,
+) {
+  const user = await getUser(publicUserId);
+  if (!user) return false;
+
+  const queryResult = await db
+    .select()
+    .from(schema.collectionSubscriptions)
+    .where(
+      and(
+        eq(schema.collectionSubscriptions.userId, user.id),
+        eq(schema.collectionSubscriptions.collectionId, collectionId),
+        eq(schema.collectionSubscriptions.role, "subscriber"),
+      ),
+    );
+  return queryResult.length !== 0;
+}

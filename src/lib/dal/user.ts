@@ -404,6 +404,56 @@ export async function removeRecipeLike(
   });
 }
 
+export async function addCollectionLike(user: User, collectionId: number) {
+  return await db.transaction(async (tx) => {
+    const collectionQuery = await tx
+      .update(schema.collections)
+      .set({ likes: sql`${schema.collections.likes} + 1` })
+      .where(eq(schema.collections.id, collectionId))
+      .returning();
+
+    if (collectionQuery.length !== 1) {
+      throw new Error("Couldn't increment like count");
+    }
+    const collection = collectionQuery[0];
+
+    await tx.insert(schema.collectionSubscriptions).values({
+      collectionId: collection.id,
+      userId: user.id,
+      role: "subscriber",
+    });
+
+    return collection.likes;
+  });
+}
+
+export async function removeCollectionLike(user: User, collectionId: number) {
+  return await db.transaction(async (tx) => {
+    const collectionQuery = await tx
+      .update(schema.collections)
+      .set({ likes: sql`${schema.collections.likes} - 1` })
+      .where(eq(schema.collections.id, collectionId))
+      .returning();
+
+    if (collectionQuery.length !== 1) {
+      throw new Error("Couldn't decrement like count");
+    }
+    const collection = collectionQuery[0];
+
+    await tx
+      .delete(schema.collectionSubscriptions)
+      .where(
+        and(
+          eq(schema.collectionSubscriptions.collectionId, collection.id),
+          eq(schema.collectionSubscriptions.userId, user.id),
+          eq(schema.collectionSubscriptions.role, "subscriber"),
+        ),
+      );
+
+    return collection.likes;
+  });
+}
+
 export async function authorizeFromSession(sessionId: any) {
   if (typeof sessionId !== "string") {
     throw new Error("Unauthorized.");
