@@ -61,7 +61,7 @@ export const collections = sqliteTable("collections", {
   isCustom: integer("isCustom", { mode: "boolean" }),
   visibility: text("visibility", {
     enum: ["public", "unlisted", "private"],
-  }),
+  }).notNull(),
   itemCount: integer("itemCount").notNull().default(0),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
