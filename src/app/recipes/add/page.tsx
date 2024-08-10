@@ -6,13 +6,14 @@ import {
   recipeDtoFromFormData,
   getRecipePreferences,
 } from "@/lib/dal/recipe";
-import { subscribeToRecipe } from "@/lib/dal/user";
+import { subscribeToRecipe, authorizeFromSession } from "@/lib/dal/user";
 import { AddRecipeValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import { BackLink } from "@/app/components/back-link";
 import type { FormError } from "@/app/components/form/root";
 import type { Metadata } from "next";
+import type { User } from "lucia";
 
 export const metadata: Metadata = {
   title: "Add Recipe",
@@ -72,8 +73,11 @@ const AddRecipePage = async () => {
 
 async function create(_: FormError, formData: FormData) {
   "use server";
-  const sessionId = formData.get("sessionId");
-  if (typeof sessionId !== "string") {
+  let user: User;
+  try {
+    const sessionId = formData.get("sessionId");
+    user = await authorizeFromSession(sessionId);
+  } catch {
     return {
       error: {
         message: "You're currently not signed in, recipe creation is disabled.",
@@ -81,7 +85,6 @@ async function create(_: FormError, formData: FormData) {
       },
     } satisfies FormError;
   }
-  const { user } = await validateRequest(sessionId);
 
   if (!user) {
     return {

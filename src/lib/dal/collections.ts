@@ -1,12 +1,13 @@
 import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
 import { eq, or, and, like, sql } from "drizzle-orm";
-import type { Visibility } from "./visibility";
 import { getUser } from "./user";
-import type { AnyZodObject, z } from "zod";
 import { AddCollectionValidator } from "./validators";
 import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
+import type { AnyZodObject, z } from "zod";
+import type { Visibility } from "./visibility";
+import type { User } from "lucia";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);
@@ -111,10 +112,10 @@ export async function addRecipe(
 }
 
 export async function updateDefaultVisibility(
-  publicUserId: string,
+  user: User,
   defaultVisibility: Visibility,
 ) {
-  const id = await getPreferencesId(publicUserId);
+  const id = await getPreferencesId(user.publicId);
 
   await db
     .update(schema.collectionPreferences)

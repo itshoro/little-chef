@@ -9,13 +9,14 @@ import {
 import { validateVisibility } from "@/lib/dal/visibility";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { authorizeFromSession } from "@/lib/dal/user";
 
 export const metadata: Metadata = {
   title: "Collection Preferences",
 };
 
 const CollectionSettingsPage = async () => {
-  const { user } = await validateRequest();
+  const { user, session } = await validateRequest();
 
   if (!user) {
     redirect("/login");
@@ -24,7 +25,7 @@ const CollectionSettingsPage = async () => {
   const preferences = await getCollectionPreferences(user.publicId);
 
   const changeCollectionVisibilityWithUser =
-    changeDefaultCollectionVisibility.bind(null, user.publicId);
+    changeDefaultCollectionVisibility.bind(null, session.id);
 
   return (
     <>
@@ -47,17 +48,16 @@ const CollectionSettingsPage = async () => {
 };
 
 async function changeDefaultCollectionVisibility(
-  publicUserId: string | undefined,
+  sessionId: string,
   formData: FormData,
 ) {
   "use server";
-
-  if (typeof publicUserId !== "string") return;
+  const user = await authorizeFromSession(sessionId);
 
   const visibility = formData.get("visibility");
   if (!validateVisibility(visibility)) return;
 
-  await updateDefaultVisibility(publicUserId, visibility);
+  await updateDefaultVisibility(user, visibility);
 }
 
 export default CollectionSettingsPage;

@@ -11,6 +11,8 @@ import { validateRequest } from "@/lib/auth/lucia";
 import { UpdateRecipeValidator } from "@/lib/dal/validators";
 import type { FormError } from "@/app/components/form/root";
 import type { Metadata } from "next";
+import type { User } from "lucia";
+import { authorizeFromSession } from "@/lib/dal/user";
 
 type EditRecipePageProps = {
   params: {
@@ -24,7 +26,7 @@ export const metadata: Metadata = {
 
 const EditRecipePage = async ({ params }: EditRecipePageProps) => {
   const { publicId } = extractParts(params.slug);
-  const { user } = await validateRequest();
+  const { user, session } = await validateRequest();
 
   if (!user) redirect("/login");
 
@@ -35,7 +37,7 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
     return (
       <Form.Root action={update}>
         <div className="p-4">
-          <input type="hidden" name="publicUserId" value={user.publicId} />
+          <input type="hidden" name="sessionId" value={session.id} />
           <input type="hidden" name="publicId" value={recipe.publicId} />
           <Form.Inputs defaultValue={{ recipe, steps }} />
         </div>
@@ -56,9 +58,17 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
 async function update(_: FormError, formData: FormData) {
   "use server";
 
-  const publicUserId = formData.get("publicUserId");
-  if (typeof publicUserId !== "string") {
-    throw new Error("Public userId is missing.");
+  let user: User;
+  try {
+    const sessionId = formData.get("sessionId");
+    user = await authorizeFromSession(sessionId);
+  } catch {
+    return {
+      error: {
+        message: "You're currently not signed in, recipe update is disabled.",
+        target: "sessionId",
+      },
+    } satisfies FormError;
   }
 
   const dto = recipeDtoFromFormData(formData, UpdateRecipeValidator);
@@ -68,7 +78,7 @@ async function update(_: FormError, formData: FormData) {
       cause: { target: "general", details: dto.error.flatten() },
     });
   }
-  const recipe = await updateRecipe(dto.data);
+  const recipe = await updateRecipe(dto.data, user);
 
   redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
 }

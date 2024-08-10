@@ -9,20 +9,21 @@ import {
   createCollection,
   getCollectionPreferences,
 } from "@/lib/dal/collections";
-import { subscribeToCollection } from "@/lib/dal/user";
+import { subscribeToCollection, authorizeFromSession } from "@/lib/dal/user";
 import { AddCollectionValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import * as Form from "@/app/components/form";
 import type { FormError } from "@/app/components/form/root";
 import type { Metadata } from "next";
+import type { User } from "lucia";
 
 export const metadata: Metadata = {
   title: "Add Collection",
 };
 
 const Page = async () => {
-  const { user } = await validateRequest();
+  const { user, session } = await validateRequest();
 
   if (!user) redirect("/login");
   const preferences = await getCollectionPreferences(user.publicId);
@@ -36,7 +37,7 @@ const Page = async () => {
       </Header>
       <div className="p-4">
         <Form.Root action={create}>
-          <input type="hidden" name="publicUserId" value={user?.publicId} />
+          <input type="hidden" name="sessionId" value={session?.id} />
 
           <Input.Root name="title">
             <Input.Label>Title</Input.Label>
@@ -77,18 +78,23 @@ const Page = async () => {
   );
 };
 
-async function create(previousState: FormError, formData: FormData) {
+async function create(_: FormError, formData: FormData) {
   "use server";
 
-  const publicUserId = formData.get("publicUserId");
-  if (typeof publicUserId !== "string") {
+  let user: User;
+  try {
+    const sessionId = formData.get("sessionId");
+    user = await authorizeFromSession(sessionId);
+  } catch {
     return {
       error: {
-        message: "Public user id is missing.",
-        target: "publicUserId",
+        message:
+          "You're currently not signed in, collection creation is disabled.",
+        target: "sessionId",
       },
     } satisfies FormError;
   }
+
   const dto = collectionDtoFromFormData(formData, AddCollectionValidator);
 
   if (!dto.success) {
@@ -103,7 +109,7 @@ async function create(previousState: FormError, formData: FormData) {
     } satisfies FormError;
   }
   const collection = await createCollection(dto.data);
-  await subscribeToCollection(publicUserId, collection, "creator");
+  await subscribeToCollection(user.publicId, collection, "creator");
 
   redirect(
     `/collections/${generateSlugPathSegment(collection.slug, collection.publicId)}`,

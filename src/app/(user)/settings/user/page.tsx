@@ -9,6 +9,7 @@ import {
   changeUsername,
   validateUsername,
   validatePassword,
+  authorizeFromSession,
 } from "@/lib/dal/user";
 import * as Input from "@/app/components/input";
 import type { Metadata } from "next";
@@ -19,17 +20,17 @@ export const metadata: Metadata = {
 };
 
 const UserPage = async () => {
-  const { user } = await validateRequest();
+  const { user, session } = await validateRequest();
 
   if (!user) {
     redirect("/login");
   }
 
-  const setProfileImageWithUser = setProfileImage.bind(null, user.publicId);
-  const updatePasswordWithUser = updatePassword.bind(null, user.publicId);
-  const updateUsernameActionWithUser = updateUsernameAction.bind(
+  const setProfileImageWithSession = setProfileImage.bind(null, session.id);
+  const updatePasswordWithSession = updatePassword.bind(null, session.id);
+  const updateUsernameActionWithSession = updateUsernameAction.bind(
     null,
-    user.publicId,
+    session.id,
   );
 
   return (
@@ -39,16 +40,16 @@ const UserPage = async () => {
 
         <SettingsSection.Grid>
           <UpdateAvatar
-            action={setProfileImageWithUser}
+            action={setProfileImageWithSession}
             defaultValue={user ? `/${user.publicId}/avatar.webp` : ""}
           />
 
-          <form action={updatePasswordWithUser}>
+          <form action={updatePasswordWithSession}>
             <Fieldset label="Password">
               <div className="mb-4 flex flex-col gap-4">
                 <div>
                   <Input.Root name="currentPassword">
-                    <Input.Label>New Password</Input.Label>
+                    <Input.Label>Current password</Input.Label>
                     <Input.Group>
                       <Input.Element type="password" />
                     </Input.Group>
@@ -56,7 +57,15 @@ const UserPage = async () => {
                 </div>
                 <div>
                   <Input.Root name="newPassword">
-                    <Input.Label>New Password</Input.Label>
+                    <Input.Label>New password</Input.Label>
+                    <Input.Group>
+                      <Input.Element type="password" />
+                    </Input.Group>
+                  </Input.Root>
+                </div>
+                <div>
+                  <Input.Root name="confirmPassword">
+                    <Input.Label>Confirm new password</Input.Label>
                     <Input.Group>
                       <Input.Element type="password" />
                     </Input.Group>
@@ -72,18 +81,13 @@ const UserPage = async () => {
             </Fieldset>
           </form>
 
-          <form action={updateUsernameActionWithUser}>
+          <form action={updateUsernameActionWithSession}>
             <Fieldset label="Username">
               <div>
                 <Input.Root name="username">
                   <Input.Label>New Username</Input.Label>
                   <Input.Group>
-                    <Input.Element
-                      type="text"
-                      name="username"
-                      defaultValue={user.username}
-                      id="username"
-                    />
+                    <Input.Element type="text" defaultValue={user.username} />
                   </Input.Group>
                 </Input.Root>
               </div>
@@ -102,49 +106,48 @@ const UserPage = async () => {
 };
 
 async function updatePassword(
-  publicUserId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) {
   "use server";
-  if (typeof publicUserId !== "string") return;
+  const user = await authorizeFromSession(sessionId);
 
   const currentPassword = formData.get("currentPassword");
+  const confirmPassword = formData.get("confirmPassword");
   const newPassword = formData.get("newPassword");
   if (typeof currentPassword !== "string" || !validatePassword(newPassword))
     return;
 
-  await changePassword(publicUserId, currentPassword, newPassword);
+  if (confirmPassword !== newPassword) return;
+
+  await changePassword(user, currentPassword, newPassword);
 }
 
 const setProfileImage = async (
-  publicUserId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) => {
   "use server";
-  if (typeof publicUserId !== "string") return;
+  const user = await authorizeFromSession(sessionId);
 
   const image = formData.get("image");
   if (!(image instanceof File)) return;
 
-  await changeAvatar(publicUserId, image);
+  await changeAvatar(user, image);
   revalidatePath("/settings/user", "page");
 };
 
 const updateUsernameAction = async (
-  publicUserId: string | undefined,
+  sessionId: string | undefined,
   formData: FormData,
 ) => {
   "use server";
-  if (typeof publicUserId !== "string") return;
+  const user = await authorizeFromSession(sessionId);
 
   const username = formData.get("username");
-  try {
-    if (!validateUsername(username)) return;
-  } catch {
-    return;
-  }
+  if (!validateUsername(username)) return;
 
-  await changeUsername(publicUserId, username);
+  await changeUsername(user, username);
   revalidatePath("/settings/user", "page");
 };
 

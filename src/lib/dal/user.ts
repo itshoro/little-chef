@@ -1,8 +1,8 @@
 import { Argon2id } from "oslo/password";
 import sharp from "sharp";
 import { nanoid } from "../nanoid";
-import { lucia } from "../auth/lucia";
-import { Session } from "lucia";
+import { lucia, validateRequest } from "../auth/lucia";
+import type { Session, User } from "lucia";
 import path from "path";
 import * as fs from "fs/promises";
 
@@ -47,14 +47,12 @@ export async function invalidateSession(sessionId: Session["id"]) {
 
 // MARK: Password
 export async function changePassword(
-  publicUserId: string,
+  user: User,
   currentPassword: string,
   newPassword: Password,
 ) {
-  const user = await getUser(publicUserId);
-  if (!user) return;
-
-  if (!(await equalsPassword(user.hashedPassword, currentPassword))) return;
+  const hashedPassword = await getHashedPassword(user.id);
+  if (!(await equalsPassword(hashedPassword, currentPassword))) return;
 
   await db
     .update(schema.users)
@@ -96,8 +94,12 @@ export function validatePassword(password: any): password is Password {
 }
 
 // MARK: Avatar
-export async function changeAvatar(publicUserId: string, image: File) {
-  const storageDirectoryPath = path.join(process.cwd(), "public", publicUserId);
+export async function changeAvatar(user: User, image: File) {
+  const storageDirectoryPath = path.join(
+    process.cwd(),
+    "public",
+    user.publicId,
+  );
 
   await fs.mkdir(storageDirectoryPath, { recursive: true });
 
@@ -108,13 +110,8 @@ export async function changeAvatar(publicUserId: string, image: File) {
 }
 
 // MARK: Username
-export async function changeUsername(
-  publicUserId: string,
-  newUsername: Username,
-) {
+export async function changeUsername(user: User, newUsername: Username) {
   // TODO: consider whether username should be unique, or some sort of discriminator system should be present.
-  const user = await getUser(publicUserId);
-  if (!user) throw new Error("Couldn't find user.", { cause: publicUserId });
 
   await db
     .update(schema.users)
@@ -405,4 +402,28 @@ export async function removeRecipeLike(
 
     return recipe.likes;
   });
+}
+
+export async function authorizeFromSession(sessionId: any) {
+  if (typeof sessionId !== "string") {
+    throw new Error("Unauthorized.");
+  }
+
+  const { user } = await validateRequest(sessionId);
+
+  if (!user) {
+    throw new Error("Unauthorized.");
+  }
+  return user;
+}
+
+export async function getHashedPassword(userId: number) {
+  const result = await db
+    .select({ hashedPassword: schema.users.hashedPassword })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId));
+
+  if (result.length !== 1)
+    throw new Error("Couldn't find user.", { cause: { userId } });
+  return result[0].hashedPassword;
 }

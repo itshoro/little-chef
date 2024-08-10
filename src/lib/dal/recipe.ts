@@ -7,6 +7,7 @@ import { getUser } from "./user";
 import { generateSlug } from "../slug";
 import { AddRecipeValidator, UpdateRecipeValidator } from "./validators";
 import { nanoid } from "../nanoid";
+import { User } from "lucia";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);
@@ -42,13 +43,13 @@ export async function getRecipePreferences(publicUserId: string) {
 }
 
 export async function updateDefaultServingSize(
-  publicUserId: string,
+  user: User,
   defaultServingSize: number,
 ) {
-  const id = await getPreferencesId(publicUserId);
+  const id = await getPreferencesId(user.publicId);
   if (!id)
     throw new Error("Couldn't find recipe preferences", {
-      cause: publicUserId,
+      cause: user,
     });
 
   await db
@@ -58,13 +59,13 @@ export async function updateDefaultServingSize(
 }
 
 export async function updateDefaultVisibility(
-  publicUserId: string,
+  user: User,
   defaultVisibility: Visibility,
 ) {
-  const id = await getPreferencesId(publicUserId);
+  const id = await getPreferencesId(user.publicId);
   if (!id)
     throw new Error("Couldn't find recipe preferences", {
-      cause: publicUserId,
+      cause: user,
     });
 
   await db
@@ -231,8 +232,25 @@ export async function getRecipeSteps(recipeId: number) {
     .orderBy(schema.steps.order);
 }
 
-export async function updateRecipe(dto: z.infer<typeof UpdateRecipeValidator>) {
-  // TODO: check if user is allowed to update recipe.
+export async function updateRecipe(
+  dto: z.infer<typeof UpdateRecipeValidator>,
+  user: User,
+) {
+  const result = await db
+    .select({ recipeId: schema.recipes.id })
+    .from(schema.recipes)
+    .where(eq(schema.recipes.publicId, dto.publicId));
+
+  if (result.length !== 1)
+    throw new Error("Couldn't find recipe.", {
+      cause: { target: "general", publicId: dto.publicId },
+    });
+
+  const maintainers = await getCreatorsAndMaintainers(result[0].recipeId);
+  if (maintainers.find((maintainer) => maintainer.publicId !== user.publicId))
+    throw new Error("You aren't authorized to update this recipe.", {
+      cause: { target: "user" },
+    });
 
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
