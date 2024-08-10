@@ -4,6 +4,7 @@ import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
 import { ShareCurrentPageButton } from "./buttons/share-button";
 import { AddToCollectionButton } from "./buttons/add-to-collection-button";
 import { AddRecipeToCollectionServerRoot } from "@/app/components/dialog/contents/add-recipe-to-collection/server-root";
+import { revalidatePath } from "next/cache";
 
 const UserActions = async ({
   recipe,
@@ -43,9 +44,11 @@ const LikeButton = async ({
 
         if (type === "add") {
           const count = await addRecipeLike(publicUserId, recipe.publicId);
+          revalidatePath("/recipes", "page");
           return { count, isLiked: true };
         } else {
           const count = await removeRecipeLike(publicUserId, recipe.publicId);
+          revalidatePath("/recipes", "page");
           return { count, isLiked: false };
         }
       }}

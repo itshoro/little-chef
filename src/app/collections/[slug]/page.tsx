@@ -19,6 +19,7 @@ import { DeleteButton } from "./components/delete-button";
 import { EditButton } from "./components/edit-button";
 import { OptimisticLikeButton } from "./components/optimistic-like-button";
 import { addCollectionLike, removeCollectionLike } from "@/lib/dal/user";
+import { revalidatePath } from "next/cache";
 
 type CollectionPageProps = { params: { slug: string } };
 
@@ -81,6 +82,7 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
             </div>
           </div>
           <div>
+            {/* TODO: Liking fails when creator tries to increment it. */}
             <OptimisticLikeButton
               action={async (type) => {
                 "use server";
@@ -88,9 +90,11 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
 
                 if (type === "add") {
                   const count = await addCollectionLike(user, collection.id);
+                  revalidatePath("/collections", "page");
                   return { count, isLiked: true };
                 } else {
                   const count = await removeCollectionLike(user, collection.id);
+                  revalidatePath("/collections", "page");
                   return { count, isLiked: false };
                 }
               }}
