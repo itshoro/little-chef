@@ -71,8 +71,8 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
         </Header>
 
         <div className="p-4">
-          <div>
-            <h1 className="font-medium">{collection.name}</h1>
+          <h1 className="font-medium">{collection.name}</h1>
+          <div className="flex justify-between">
             <div className="flex items-center gap-3 text-sm">
               <span>By </span>
               <div className="flex items-center gap-1">
@@ -80,28 +80,30 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
                 <span>{attribution}</span>
               </div>
             </div>
-          </div>
-          <div>
-            {/* TODO: Liking fails when creator tries to increment it. */}
-            <OptimisticLikeButton
-              action={async (type) => {
-                "use server";
-                if (!user) throw new Error("No session available");
+            <div>
+              <OptimisticLikeButton
+                action={async (type) => {
+                  "use server";
+                  if (!user) throw new Error("No session available");
 
-                if (type === "add") {
-                  const count = await addCollectionLike(user, collection.id);
-                  revalidatePath("/collections", "page");
-                  return { count, isLiked: true };
-                } else {
-                  const count = await removeCollectionLike(user, collection.id);
-                  revalidatePath("/collections", "page");
-                  return { count, isLiked: false };
-                }
-              }}
-              disabled={user === null}
-              isLiked={isLiked}
-              count={collection.likes}
-            />
+                  if (type === "add") {
+                    const count = await addCollectionLike(user, collection.id);
+                    revalidatePath("/collections", "page");
+                    return { count, isLiked: true };
+                  } else {
+                    const count = await removeCollectionLike(
+                      user,
+                      collection.id,
+                    );
+                    revalidatePath("/collections", "page");
+                    return { count, isLiked: false };
+                  }
+                }}
+                disabled={user === null}
+                isLiked={isLiked}
+                count={collection.likes}
+              />
+            </div>
           </div>
         </div>
 
@@ -130,7 +132,12 @@ const RecipeList = async ({
 }: {
   ids: { id: number; publicId: string }[];
 }) => {
-  if (ids.length === 0) return <NoRecipesStored />;
+  if (ids.length === 0)
+    return (
+      <div className="py-12">
+        <NoRecipesStored />
+      </div>
+    );
 
   return (
     <ul className="space-y-2">
