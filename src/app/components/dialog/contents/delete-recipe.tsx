@@ -1,6 +1,6 @@
 "use client";
 
-import { useDialogContext } from "../dialog";
+import { useDialogContext } from "../root";
 
 type DeleteRecipeProps = {
   deleteRecipeAction: () => Promise<void>;

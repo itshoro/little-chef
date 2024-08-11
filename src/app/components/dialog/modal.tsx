@@ -1,0 +1,22 @@
+"use client";
+
+import { useDialogContext } from "./root";
+
+type ModalProps = {
+  children: React.ReactNode;
+};
+
+const Modal = ({ children }: ModalProps) => {
+  const { ref } = useDialogContext(Modal.name);
+
+  return (
+    <dialog
+      className="absolute m-auto mb-0 max-w-full rounded-2xl p-6 shadow-xl backdrop:transform backdrop:backdrop-blur-sm lg:mb-auto lg:max-w-prose dark:border-t dark:border-stone-800 dark:bg-black lg:dark:border"
+      ref={ref}
+    >
+      {children}
+    </dialog>
+  );
+};
+
+export { Modal };

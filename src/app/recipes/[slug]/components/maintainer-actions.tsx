@@ -1,7 +1,5 @@
-import { deleteRecipe } from "@/lib/dal/recipe";
 import { DeleteButton } from "./buttons/delete-button";
 import { EditButton } from "./buttons/edit-button";
-import { redirect } from "next/navigation";
 import { Section } from "./section";
 
 type MaintainerActionsProps = {
@@ -28,14 +26,7 @@ const MaintainerActions = ({
     <Section title="Maintainer Actions">
       <div className="flex gap-4">
         <EditButton href={`/recipes/${slug}/edit`} />
-        <DeleteButton
-          deleteAction={async () => {
-            "use server";
-
-            await deleteRecipe(recipe.id);
-            redirect("/recipes");
-          }}
-        />
+        <DeleteButton recipeId={recipe.id} />
       </div>
     </Section>
   );

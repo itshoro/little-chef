@@ -1,18 +1,17 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
 import { validateRequest } from "@/lib/auth/lucia";
-import { deleteRecipe } from "@/lib/dal/recipe";
-import { authorizeFromSession } from "@/lib/dal/user";
+import { deleteCollection } from "@/lib/dal/collections";
 import { redirect } from "next/navigation";
 
 type DeleteButtonProps = {
-  recipeId: number;
+  collectionId: number;
 };
 
-const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
+const DeleteButton = async ({ collectionId }: DeleteButtonProps) => {
   const { session } = await validateRequest();
   if (!session) return null;
 
-  const boundDeleteAction = deleteAction.bind(null, recipeId, session.id);
+  const boundDeleteAction = deleteAction.bind(null, collectionId, session.id);
 
   return (
     <WithConfirmation.Root>
@@ -20,7 +19,7 @@ const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
         <form action={boundDeleteAction}>
           <div className="text-black dark:text-white">
             <h1 className="text-xl font-bold">
-              Are you sure you want to delete this recipe?
+              Are you sure you want to delete this collection?
             </h1>
             <p className="mt-2">
               This <em>cannot</em> be undone.
@@ -31,7 +30,7 @@ const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
               Cancel
             </WithConfirmation.CancelButton>
             <WithConfirmation.ConfirmButton>
-              Delete Recipe
+              Delete Collection
             </WithConfirmation.ConfirmButton>
           </div>
         </form>
@@ -55,14 +54,13 @@ const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
   );
 };
 
-async function deleteAction(recipeId: number, sessionId: string) {
+async function deleteAction(collectionId: number, sessionId: string) {
   "use server";
-  const user = await authorizeFromSession(sessionId);
+  const { user } = await validateRequest(sessionId);
   if (!user) throw new Error("Unauthorized");
 
-  // TODO: check if user is allowed to delete recipe
-  await deleteRecipe(recipeId);
-  redirect("/recipes");
+  await deleteCollection(collectionId, user);
+  redirect("/collections");
 }
 
 export { DeleteButton };

@@ -4,6 +4,7 @@ import { createContext, forwardRef, useRef } from "react";
 import { useContext } from "@/hooks/useContext";
 
 type DialogContextProps = {
+  ref: React.RefObject<React.ElementRef<"dialog">>;
   closeDialog: () => void;
   openDialog: () => void;
 };
@@ -15,18 +16,18 @@ const useDialogContext = (calleeName: string) =>
 
 type RootProps = {
   children: React.ReactNode;
-} & DialogContextProps;
+} & Omit<DialogContextProps, "ref">;
 
-const DialogRoot = forwardRef<React.ElementRef<"dialog">, RootProps>(
+const Root = forwardRef<React.ElementRef<"dialog">, RootProps>(
   ({ children, ...contextActions }, ref) => {
     return (
-      <DialogContext.Provider value={contextActions}>
-        <dialog
-          className="absolute mx-auto mb-4 mt-auto max-w-full rounded-2xl p-6 shadow-xl backdrop:transform backdrop:backdrop-blur-sm dark:border-t dark:border-stone-800 dark:bg-black"
-          ref={ref}
-        >
-          {children}
-        </dialog>
+      <DialogContext.Provider
+        value={{
+          ...contextActions,
+          ref: ref as React.RefObject<React.ElementRef<"dialog">>,
+        }}
+      >
+        {children}
       </DialogContext.Provider>
     );
   },
@@ -43,10 +44,11 @@ function useDialog() {
     ref.current?.close();
   }
 
-  return [
+  return {
     ref,
-    { openDialog, closeDialog } satisfies DialogContextProps,
-  ] as const;
+    openDialog,
+    closeDialog,
+  } satisfies DialogContextProps;
 }
 
-export { DialogRoot, useDialog, useDialogContext, type RootProps };
+export { Root, useDialog, useDialogContext, type RootProps };
