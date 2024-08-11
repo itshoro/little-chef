@@ -93,7 +93,7 @@ export const collectionSubscriptions = sqliteTable(
   (table) => {
     return {
       collectionSubscriptionsPkey: primaryKey({
-        columns: [table.collectionId, table.userId],
+        columns: [table.collectionId, table.userId, table.role],
         name: "collectionSubscriptionsPkey",
       }),
     };
