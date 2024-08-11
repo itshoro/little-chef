@@ -16,7 +16,7 @@ const AddToCollectionButton = async ({
   const { user, session } = await validateRequest();
   if (!user || !session) return null;
 
-  const collections = await getMaintainedCollections(user.publicId);
+  const collections = await getMaintainedCollections(user, recipePublicId);
 
   const boundAddToCollectionsAction = addToCollections.bind(
     null,
@@ -44,27 +44,35 @@ const AddToCollectionButton = async ({
                 </svg>
               </WithConfirmation.CancelButton>
             </div>
-            <ul className="grid w-full pb-8 pt-4">
-              {collections.map((collection) => (
+            <ul className="grid w-full gap-2 pb-8 pt-4">
+              {collections.map(({ collection, recipeOccurrences }) => (
                 <li key={collection.publicId}>
                   <input
+                    disabled={recipeOccurrences > 0}
                     name="collection"
                     value={collection.publicId}
                     id={collection.publicId}
-                    type="checkbox"
+                    type="radio"
                     className="peer sr-only"
                   />
                   <label
                     htmlFor={collection.publicId}
                     className="block w-full cursor-pointer rounded-2xl bg-stone-100 p-4 peer-checked:bg-lime-300 peer-checked:text-black dark:bg-stone-900 dark:text-white"
                   >
-                    <span className="font-medium">{collection.name}</span>
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{collection.name}</span>
+                      {recipeOccurrences > 0 && (
+                        <span className="rounded-xl border p-2 text-xs uppercase">
+                          Already Added
+                        </span>
+                      )}
+                    </div>
                   </label>
                 </li>
               ))}
             </ul>
             <WithConfirmation.ConfirmButton>
-              Add to collections
+              Add to collection
             </WithConfirmation.ConfirmButton>
           </form>
         </WithConfirmation.Modal>
@@ -95,14 +103,9 @@ async function addToCollections(
 ) {
   "use server";
   const user = await authorizeFromSession(sessionId);
-  const collections = formData.getAll("collection");
+  const collection = formData.get("collection");
 
-  // TODO check if user is allowed to add to collection
-  await Promise.allSettled(
-    collections.map((collection) =>
-      addRecipe(collection as string, recipePublicId),
-    ),
-  );
+  await addRecipe(collection as string, recipePublicId, user);
 }
 
 export { AddToCollectionButton };

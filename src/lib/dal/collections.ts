@@ -1,16 +1,17 @@
-import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-import { eq, or, and, like, sql } from "drizzle-orm";
+import * as schema from "@/drizzle/schema";
+import { and, eq, like, or, sql } from "drizzle-orm";
+import type { User } from "lucia";
+import { revalidatePath } from "next/cache";
+import type { z } from "zod";
+import { nanoid } from "../nanoid";
+import { generateSlug, generateSlugPathSegment } from "../slug";
 import { getUser } from "./user";
 import {
   AddCollectionValidator,
   UpdateCollectionValidator,
 } from "./validators";
-import { nanoid } from "../nanoid";
-import { generateSlug } from "../slug";
-import type { AnyZodObject, z } from "zod";
 import type { Visibility } from "./visibility";
-import type { User } from "lucia";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);
@@ -105,19 +106,33 @@ export async function updateCollection(
 }
 
 export async function addRecipe(
-  // publicUserId: string,
   collectionPublicId: string,
   recipePublicId: string,
+  user: User,
 ) {
-  // const sessionResult = await findSessionUser(publicUserId);
-
-  const [collectionIdResult, recipeIdResult] = await Promise.all([
+  const [collectionIdResult, recipeResult] = await Promise.all([
     db
       .select({ id: schema.collections.id })
       .from(schema.collections)
-      .where(eq(schema.collections.publicId, collectionPublicId)),
+      .leftJoin(
+        schema.collectionSubscriptions,
+        eq(schema.collectionSubscriptions.collectionId, schema.collections.id),
+      )
+      .where(
+        and(
+          eq(schema.collections.publicId, collectionPublicId),
+          eq(schema.collectionSubscriptions.userId, user.id),
+          or(
+            eq(schema.collectionSubscriptions.role, "maintainer"),
+            eq(schema.collectionSubscriptions.role, "creator"),
+          ),
+        ),
+      ),
     db
-      .select({ id: schema.recipes.id })
+      .select({
+        id: schema.recipes.id,
+        slug: schema.recipes.slug,
+      })
       .from(schema.recipes)
       .where(eq(schema.recipes.publicId, recipePublicId)),
   ]);
@@ -134,7 +149,7 @@ export async function addRecipe(
     });
   }
 
-  const recipeId = recipeIdResult[0].id;
+  const recipeId = recipeResult[0].id;
   const collectionId = collectionIdResult[0].id;
 
   // TODO: Validate whether user has sufficient access rights to add recipe to collection.
@@ -148,6 +163,11 @@ export async function addRecipe(
       .set({ itemCount: sql`${schema.collections.itemCount} + 1` })
       .where(eq(schema.collections.id, collectionId));
   });
+
+  // TODO: element stays selected
+  revalidatePath(
+    `/recipes/${generateSlugPathSegment(recipeResult[0].slug, recipePublicId)}`,
+  );
 }
 
 export async function updateDefaultVisibility(

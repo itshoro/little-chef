@@ -1,14 +1,15 @@
-import { Argon2id } from "oslo/password";
-import sharp from "sharp";
-import { nanoid } from "../nanoid";
-import { lucia, validateRequest } from "../auth/lucia";
-import type { Session, User } from "lucia";
-import path from "path";
 import * as fs from "fs/promises";
+import type { Session, User } from "lucia";
+import { Argon2id } from "oslo/password";
+import path from "path";
+import sharp from "sharp";
+import { lucia, validateRequest } from "../auth/lucia";
+import { nanoid } from "../nanoid";
 
 import { db } from "@/drizzle/db";
-import { and, eq, inArray, or, sql } from "drizzle-orm";
 import * as schema from "@/drizzle/schema";
+import { and, count, eq, inArray, or, sql } from "drizzle-orm";
+import { getRecipe } from "./recipe";
 
 // MARK: Auth
 /** Use @see{validateUsername} and @see{validatePassword} to validate your parameters. */
@@ -267,11 +268,9 @@ export async function getSubcribedRecipes(userId: number) {
 }
 
 export async function getMaintainedCollections(
-  publicUserId: string | undefined,
+  user: User,
+  recipePublicId: string,
 ) {
-  const user = await getUser(publicUserId);
-  if (!user) return [];
-
   const maintainedCollectionIds = await db
     .selectDistinct({ id: schema.collectionSubscriptions.collectionId })
     .from(schema.collectionSubscriptions)
@@ -285,15 +284,36 @@ export async function getMaintainedCollections(
       ),
     );
 
+  const recipe = await getRecipe({ publicId: recipePublicId });
   const collectionResults = await db
-    .select()
+    .selectDistinct({
+      collection: {
+        id: schema.collections.id,
+        publicId: schema.collections.publicId,
+        itemCount: schema.collections.itemCount,
+        isCustom: schema.collections.isCustom,
+        likes: schema.collections.likes,
+        name: schema.collections.name,
+        slug: schema.collections.slug,
+        visibility: schema.collections.visibility,
+      },
+      recipeOccurrences: count(schema.collectionRecipes.recipeId),
+    })
     .from(schema.collections)
+    .leftJoin(
+      schema.collectionRecipes,
+      and(
+        eq(schema.collectionRecipes.collectionId, schema.collections.id),
+        eq(schema.collectionRecipes.recipeId, recipe.id),
+      ),
+    )
     .where(
       inArray(
         schema.collections.id,
         maintainedCollectionIds.map(({ id }) => id),
       ),
-    );
+    )
+    .groupBy(schema.collectionRecipes.recipeId, schema.collections.id);
 
   return collectionResults;
 }
