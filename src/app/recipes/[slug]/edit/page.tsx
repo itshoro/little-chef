@@ -74,11 +74,10 @@ async function update(_: FormContext, formData: FormData) {
   if (!dto.success) {
     return {
       success: false,
-      error: Object.values(
+      error: Object.entries(
         dto.error.flatten((issue) => issue.message).fieldErrors,
-      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),,
+      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
     } satisfies FormContext;
-
   }
   const recipe = await updateRecipe(dto.data, user);
 

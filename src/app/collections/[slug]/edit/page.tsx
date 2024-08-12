@@ -61,7 +61,7 @@ async function update(_: FormContext, formData: FormData) {
   if (!dto.success) {
     return {
       success: false,
-      error: Object.values(
+      error: Object.entries(
         dto.error.flatten((issue) => issue.message).fieldErrors,
       ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
     };
