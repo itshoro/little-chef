@@ -1,4 +1,6 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
+import * as Form from "@/app/components/form";
+import { FormContext } from "@/app/components/form/root";
 import { validateRequest } from "@/lib/auth/lucia";
 import { addRecipe } from "@/lib/dal/collections";
 import { authorizeFromSession, getMaintainedCollections } from "@/lib/dal/user";
@@ -28,7 +30,7 @@ const AddToCollectionButton = async ({
     <>
       <WithConfirmation.Root>
         <WithConfirmation.Modal>
-          <form action={boundAddToCollectionsAction}>
+          <Form.Root action={boundAddToCollectionsAction}>
             <div className="flex items-end justify-between">
               <div className="text-sm font-medium dark:text-white">
                 Your Collections
@@ -74,7 +76,7 @@ const AddToCollectionButton = async ({
             <WithConfirmation.ConfirmButton>
               Add to collection
             </WithConfirmation.ConfirmButton>
-          </form>
+          </Form.Root>
         </WithConfirmation.Modal>
         <WithConfirmation.TriggerButton disabled={disabled}>
           <svg
@@ -99,6 +101,7 @@ const AddToCollectionButton = async ({
 async function addToCollections(
   sessionId: string,
   recipePublicId: string,
+  _: FormContext,
   formData: FormData,
 ) {
   "use server";
@@ -106,6 +109,7 @@ async function addToCollections(
   const collection = formData.get("collection");
 
   await addRecipe(collection as string, recipePublicId, user);
+  return { success: true } satisfies FormContext;
 }
 
 export { AddToCollectionButton };
