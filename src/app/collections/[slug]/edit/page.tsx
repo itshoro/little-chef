@@ -9,7 +9,7 @@ import {
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
 import * as Form from "../../components/collection-form";
-import { FormError } from "@/app/components/form/root";
+import { FormContext } from "@/app/components/form/root";
 import { authorizeFromSession } from "@/lib/dal/user";
 import { UpdateCollectionValidator } from "@/lib/dal/validators";
 
@@ -52,16 +52,19 @@ const Page = async ({ params }: PageProps) => {
   }
 };
 
-async function update(_: FormError, formData: FormData) {
+async function update(_: FormContext, formData: FormData) {
   "use server";
   const sessionId = formData.get("sessionId");
   const user = await authorizeFromSession(sessionId);
   const dto = collectionDtoFromFormData(formData, UpdateCollectionValidator);
 
   if (!dto.success) {
-    throw new Error("Collection update dto is invalid.", {
-      cause: { target: "general", details: dto.error.flatten() },
-    });
+    return {
+      success: false,
+      error: Object.values(
+        dto.error.flatten((issue) => issue.message).fieldErrors,
+      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
+    };
   }
 
   const collection = await updateCollection(dto.data, user);

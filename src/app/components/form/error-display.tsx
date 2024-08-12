@@ -2,9 +2,9 @@
 import { useFormErrorContext } from "./root";
 
 const FormErrorDisplay = () => {
-  const { error } = useFormErrorContext(FormErrorDisplay.name);
+  const formProps = useFormErrorContext(FormErrorDisplay.name);
 
-  if (!error) return null;
+  if (formProps.success || !formProps.error) return null;
 
   return (
     <div
@@ -26,7 +26,7 @@ const FormErrorDisplay = () => {
           d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
         />
       </svg>
-      {error.message}
+      {formProps.error}
     </div>
   );
 };

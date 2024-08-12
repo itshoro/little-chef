@@ -1,19 +1,19 @@
+import { BackLink } from "@/app/components/back-link";
+import type { FormContext } from "@/app/components/form/root";
 import { Header } from "@/app/components/header/header";
-import * as Form from "../components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   createRecipe,
-  recipeDtoFromFormData,
   getRecipePreferences,
+  recipeDtoFromFormData,
 } from "@/lib/dal/recipe";
-import { subscribeToRecipe, authorizeFromSession } from "@/lib/dal/user";
+import { authorizeFromSession, subscribeToRecipe } from "@/lib/dal/user";
 import { AddRecipeValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
-import { redirect } from "next/navigation";
-import { BackLink } from "@/app/components/back-link";
-import type { FormError } from "@/app/components/form/root";
-import type { Metadata } from "next";
 import type { User } from "lucia";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import * as Form from "../components/recipe-form";
 
 export const metadata: Metadata = {
   title: "Add Recipe",
@@ -71,7 +71,7 @@ const AddRecipePage = async () => {
   );
 };
 
-async function create(_: FormError, formData: FormData) {
+async function create(_: FormContext, formData: FormData) {
   "use server";
   let user: User;
   try {
@@ -79,34 +79,27 @@ async function create(_: FormError, formData: FormData) {
     user = await authorizeFromSession(sessionId);
   } catch {
     return {
-      error: {
-        message: "You're currently not signed in, recipe creation is disabled.",
-        target: "sessionId",
-      },
-    } satisfies FormError;
+      success: false,
+      error: "You're currently not signed in, recipe creation is disabled.",
+    } satisfies FormContext;
   }
 
   if (!user) {
     return {
-      error: {
-        message: "You're currently not signed in, recipe creation is disabled.",
-        target: "sessionId",
-      },
-    } satisfies FormError;
+      success: false,
+      error: "You're currently not signed in, recipe creation is disabled.",
+    } satisfies FormContext;
   }
 
   const dto = recipeDtoFromFormData(formData, AddRecipeValidator);
 
   if (!dto.success) {
-    const { fieldErrors } = dto.error.flatten();
-    console.log(fieldErrors);
-    const firstKey = Object.keys(fieldErrors).pop();
     return {
-      error: {
-        message: `${firstKey}: ${fieldErrors[firstKey as keyof typeof fieldErrors]![0]}`,
-        target: firstKey!,
-      },
-    } satisfies FormError;
+      success: false,
+      error: Object.values(
+        dto.error.flatten((issue) => issue.message).fieldErrors,
+      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
+    } satisfies FormContext;
   }
   const recipe = await createRecipe(dto.data);
   await subscribeToRecipe(user.publicId, recipe, "creator");

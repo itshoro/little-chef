@@ -1,14 +1,14 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { lucia } from "@/lib/auth/lucia";
-import { redirect } from "next/navigation";
 import {
-  validateUser,
   validatePassword,
+  validateUser,
   validateUsername,
 } from "@/lib/dal/user";
-import type { FormError } from "../../components/form/root";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import type { FormContext } from "../../components/form/root";
 
 async function login(formData: FormData) {
   const username = formData.get("username");
@@ -28,24 +28,19 @@ async function login(formData: FormData) {
   );
 }
 
-async function loginAction(previousState: FormError, formData: FormData) {
+async function loginAction(_: FormContext, formData: FormData) {
   "use server";
   try {
     await login(formData);
   } catch (e) {
-    if (
-      !(e instanceof Error) ||
-      !e.cause ||
-      typeof e.cause !== "object" ||
-      !("target" in e.cause) ||
-      typeof e.cause.target !== "string"
-    ) {
+    if (!(e instanceof Error)) {
       throw new Error("Unexpected error thrown.");
     }
 
     return {
-      error: { target: e.cause.target, message: e.message },
-    } satisfies FormError;
+      success: false,
+      error: e.message,
+    } satisfies FormContext;
   }
 
   redirect("/recipes");

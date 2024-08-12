@@ -21,9 +21,7 @@ export async function validateUser(username: Username, password: Password) {
     .limit(1);
 
   if (result.length === 0) {
-    throw new Error("Username or password incorrect.", {
-      cause: { target: "general" },
-    });
+    throw new Error("Username or password incorrect.");
   }
 
   const [existingUser] = result;
@@ -34,9 +32,7 @@ export async function validateUser(username: Username, password: Password) {
   );
 
   if (!validPassword) {
-    throw new Error("Username or password incorrect.", {
-      cause: { target: "general" },
-    });
+    throw new Error("Username or password incorrect.");
   }
 
   return existingUser;
@@ -67,12 +63,10 @@ async function equalsPassword(hash: string, password: string) {
 
 export type Password = string & { __brand: "ValidPassword" };
 
-const passwordRange = { min: 6, max: 255 } as const;
+export const passwordRange = { min: 6, max: 255 } as const;
 export function validatePassword(password: any): password is Password {
   if (typeof password !== "string") {
-    throw new TypeError("Password needs to be a string.", {
-      cause: { target: "password" },
-    });
+    throw new TypeError("Password needs to be a string.");
   }
 
   if (
@@ -122,7 +116,7 @@ export async function changeUsername(user: User, newUsername: Username) {
 
 export type Username = string & { brand: "ValidUsername" };
 
-const usernameRanges = { min: 3, max: 31 } as const;
+export const usernameRange = { min: 3, max: 31 } as const;
 export function validateUsername(username: any): username is Username {
   if (typeof username !== "string") {
     throw new TypeError("Username needs to be a string.", {
@@ -131,14 +125,14 @@ export function validateUsername(username: any): username is Username {
   }
 
   if (
-    username.length < usernameRanges.min ||
-    username.length > usernameRanges.max
+    username.length < usernameRange.min ||
+    username.length > usernameRange.max
   ) {
     throw new RangeError(
-      `Username needs to be between ${usernameRanges.min} and ${usernameRanges.max} characters long.\r\n\r\n Received ${username.length} characters.`,
+      `Username needs to be between ${usernameRange.min} and ${usernameRange.max} characters long.\r\n\r\n Received ${username.length} characters.`,
       {
         cause: {
-          ...usernameRanges,
+          ...usernameRange,
           actual: username.length,
           target: "username",
         },

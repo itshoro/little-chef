@@ -1,22 +1,19 @@
-import { VisibilitySwitcher } from "@/app/(user)/settings/components/visibility-switcher";
 import { BackLink } from "@/app/components/back-link";
+import type { FormContext } from "@/app/components/form/root";
 import { Header } from "@/app/components/header/header";
-import * as Input from "@/app/components/input";
-import { Submit } from "@/app/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   collectionDtoFromFormData,
   createCollection,
   getCollectionPreferences,
 } from "@/lib/dal/collections";
-import { subscribeToCollection, authorizeFromSession } from "@/lib/dal/user";
+import { authorizeFromSession, subscribeToCollection } from "@/lib/dal/user";
 import { AddCollectionValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
+import type { User } from "lucia";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import * as Form from "../components/collection-form";
-import type { FormError } from "@/app/components/form/root";
-import type { Metadata } from "next";
-import type { User } from "lucia";
 
 export const metadata: Metadata = {
   title: "Add Collection",
@@ -60,7 +57,7 @@ const Page = async () => {
   );
 };
 
-async function create(_: FormError, formData: FormData) {
+async function create(_: FormContext, formData: FormData) {
   "use server";
 
   let user: User;
@@ -69,26 +66,20 @@ async function create(_: FormError, formData: FormData) {
     user = await authorizeFromSession(sessionId);
   } catch {
     return {
-      error: {
-        message:
-          "You're currently not signed in, collection creation is disabled.",
-        target: "sessionId",
-      },
-    } satisfies FormError;
+      success: false,
+      error: "You're currently not signed in, collection creation is disabled.",
+    } satisfies FormContext;
   }
 
   const dto = collectionDtoFromFormData(formData, AddCollectionValidator);
 
   if (!dto.success) {
-    const { fieldErrors } = dto.error.flatten();
-    console.log(fieldErrors);
-    const firstKey = Object.keys(fieldErrors).pop();
     return {
-      error: {
-        message: `${firstKey}: ${fieldErrors[firstKey as keyof typeof fieldErrors]![0]}`,
-        target: firstKey!,
-      },
-    } satisfies FormError;
+      success: false,
+      error: Object.values(
+        dto.error.flatten((issue) => issue.message).fieldErrors,
+      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
+    } satisfies FormContext;
   }
   const collection = await createCollection(dto.data);
   await subscribeToCollection(user.publicId, collection, "creator");

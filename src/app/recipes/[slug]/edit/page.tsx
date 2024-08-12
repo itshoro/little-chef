@@ -1,18 +1,18 @@
+import type { FormContext } from "@/app/components/form/root";
+import * as Form from "@/app/recipes/components/recipe-form";
+import { validateRequest } from "@/lib/auth/lucia";
 import {
   getRecipe,
   getRecipeSteps,
   recipeDtoFromFormData,
   updateRecipe,
 } from "@/lib/dal/recipe";
-import * as Form from "@/app/recipes/components/recipe-form";
-import { notFound, redirect } from "next/navigation";
-import { extractParts, generateSlugPathSegment } from "@/lib/slug";
-import { validateRequest } from "@/lib/auth/lucia";
-import { UpdateRecipeValidator } from "@/lib/dal/validators";
-import type { FormError } from "@/app/components/form/root";
-import type { Metadata } from "next";
-import type { User } from "lucia";
 import { authorizeFromSession } from "@/lib/dal/user";
+import { UpdateRecipeValidator } from "@/lib/dal/validators";
+import { extractParts, generateSlugPathSegment } from "@/lib/slug";
+import type { User } from "lucia";
+import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 
 type EditRecipePageProps = {
   params: {
@@ -55,7 +55,7 @@ const EditRecipePage = async ({ params }: EditRecipePageProps) => {
   }
 };
 
-async function update(_: FormError, formData: FormData) {
+async function update(_: FormContext, formData: FormData) {
   "use server";
 
   let user: User;
@@ -64,19 +64,21 @@ async function update(_: FormError, formData: FormData) {
     user = await authorizeFromSession(sessionId);
   } catch {
     return {
-      error: {
-        message: "You're currently not signed in, recipe update is disabled.",
-        target: "sessionId",
-      },
-    } satisfies FormError;
+      success: false,
+      error: "You're currently not signed in, recipe update is disabled.",
+    } satisfies FormContext;
   }
 
   const dto = recipeDtoFromFormData(formData, UpdateRecipeValidator);
 
   if (!dto.success) {
-    throw new Error("Recipe update dto is invalid.", {
-      cause: { target: "general", details: dto.error.flatten() },
-    });
+    return {
+      success: false,
+      error: Object.values(
+        dto.error.flatten((issue) => issue.message).fieldErrors,
+      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),,
+    } satisfies FormContext;
+
   }
   const recipe = await updateRecipe(dto.data, user);
 

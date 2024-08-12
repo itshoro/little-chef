@@ -5,6 +5,7 @@ import * as Form from "@/app/components/form";
 import { Submit } from "@/app/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import { redirect } from "next/navigation";
+import { passwordRange, usernameRange } from "@/lib/dal/user";
 
 const LoginPage = async () => {
   const { user } = await validateRequest();
@@ -20,7 +21,11 @@ const LoginPage = async () => {
             <Input.Root name="username">
               <Input.Label>Username</Input.Label>
               <Input.Group>
-                <Input.Element type="text" />
+                <Input.Element
+                  type="text"
+                  minLength={usernameRange.min}
+                  maxLength={usernameRange.max}
+                />
               </Input.Group>
             </Input.Root>
           </div>
@@ -28,7 +33,11 @@ const LoginPage = async () => {
             <Input.Root name="password">
               <Input.Label>Password</Input.Label>
               <Input.Group>
-                <Input.Element type="password" />
+                <Input.Element
+                  type="password"
+                  minLength={passwordRange.min}
+                  maxLength={passwordRange.max}
+                />
               </Input.Group>
             </Input.Root>
           </div>

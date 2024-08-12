@@ -1,34 +1,50 @@
 "use client";
 
 import { useContext } from "@/hooks/useContext";
-import { createContext } from "react";
+import { createContext, useRef } from "react";
 import { useFormState } from "react-dom";
 
-type FormError = {
-  error?: {
-    message: string;
-    target: string;
-  };
-};
+type FormContext =
+  | {
+      success: false;
+      error?: string | string[];
+    }
+  | {
+      success: true;
+    };
 
-const FormErrorContext = createContext<FormError | null>(null);
+const FormErrorContext = createContext<FormContext | null>(null);
 const useFormErrorContext = (calleeName: string) =>
   useContext(calleeName, FormErrorContext);
 
 type FormProps = {
-  action: (previousState: FormError, formData: FormData) => Awaited<FormError>;
+  action: (
+    previousState: FormContext,
+    formData: FormData,
+  ) => FormContext | Promise<FormContext>;
   children: React.ReactNode;
-  initialState?: FormError;
+  initialState?: FormContext;
 };
 
-const Form = ({ action, children, initialState = {} }: FormProps) => {
+const Form = ({
+  action,
+  children,
+  initialState = { success: false },
+}: FormProps) => {
+  const ref = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState(action, initialState);
+
+  if (state.success) {
+    ref.current?.reset();
+  }
 
   return (
     <FormErrorContext.Provider value={state}>
-      <form action={formAction}>{children}</form>
+      <form ref={ref} action={formAction}>
+        {children}
+      </form>
     </FormErrorContext.Provider>
   );
 };
 
-export { Form, useFormErrorContext, type FormError };
+export { Form, useFormErrorContext, type FormContext };

@@ -1,12 +1,9 @@
 "use client";
+
 import { BaseButton } from "@/app/components/base-button";
 import * as RootForm from "@/app/components/form";
-import type { FormError } from "@/app/components/form/root";
 
-type FormProps = {
-  action: (previousState: FormError, formDate: FormData) => Awaited<FormError>;
-  children: React.ReactNode;
-};
+type FormProps = React.ComponentProps<typeof RootForm.Root>;
 
 const Form = ({ action, children }: FormProps) => {
   return (
