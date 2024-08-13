@@ -164,9 +164,75 @@ export async function addRecipe(
       .where(eq(schema.collections.id, collectionId));
   });
 
-  // TODO: element stays selected
   revalidatePath(
     `/recipes/${generateSlugPathSegment(recipeResult[0].slug, recipePublicId)}`,
+  );
+}
+
+export async function removeRecipe(
+  collectionPublicId: string,
+  recipePublicId: string,
+  user: User,
+) {
+  const [collectionResult, recipeResult] = await Promise.all([
+    db
+      .select({ id: schema.collections.id, slug: schema.collections.slug })
+      .from(schema.collections)
+      .leftJoin(
+        schema.collectionSubscriptions,
+        eq(schema.collectionSubscriptions.collectionId, schema.collections.id),
+      )
+      .where(
+        and(
+          eq(schema.collections.publicId, collectionPublicId),
+          eq(schema.collectionSubscriptions.userId, user.id),
+          or(
+            eq(schema.collectionSubscriptions.role, "maintainer"),
+            eq(schema.collectionSubscriptions.role, "creator"),
+          ),
+        ),
+      ),
+    db
+      .select({
+        id: schema.recipes.id,
+      })
+      .from(schema.recipes)
+      .where(eq(schema.recipes.publicId, recipePublicId)),
+  ]);
+
+  if (collectionResult.length < 1) {
+    throw new Error("Collection couldn't be found", {
+      cause: collectionPublicId,
+    });
+  }
+
+  if (recipePublicId.length < 1) {
+    throw new Error("Recipe couldn't be found", {
+      cause: recipePublicId,
+    });
+  }
+
+  const recipeId = recipeResult[0].id;
+  const collectionId = collectionResult[0].id;
+
+  // TODO: Validate whether user has sufficient access rights to add recipe to collection.
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(schema.collectionRecipes)
+      .where(
+        and(
+          eq(schema.collectionRecipes.recipeId, recipeId),
+          eq(schema.collectionRecipes.collectionId, collectionId),
+        ),
+      );
+    await tx
+      .update(schema.collections)
+      .set({ itemCount: sql`${schema.collections.itemCount} - 1` })
+      .where(eq(schema.collections.id, collectionId));
+  });
+
+  revalidatePath(
+    `/collections/${generateSlugPathSegment(collectionResult[0].slug, collectionPublicId)}`,
   );
 }
 

@@ -1,22 +1,22 @@
+import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   getCreatorsAndMaintainers,
   getRecipe,
   getRecipeSteps,
 } from "@/lib/dal/recipe";
-import { AvatarStack } from "@/app/components/header/avatar-stack";
-import { IngredientList } from "./components/ingredient-list";
-import { ServingsQueryStore } from "./components/servings-query-store";
 import { extractParts } from "@/lib/slug";
-import { Parser } from "@cooklang/cooklang-ts";
-import { notFound } from "next/navigation";
-import { UserActions } from "./components/user-actions";
-import { StartButton } from "./components/buttons/start-button";
-import { Section } from "./components/section";
-import { CookwareList } from "./components/cookware-list";
-import type { Metadata, ResolvingMetadata } from "next";
-import { MaintainerActions } from "./components/maintainer-actions";
 import { generateAttribution } from "@/lib/utils";
+import { Parser } from "@cooklang/cooklang-ts";
+import type { Metadata, ResolvingMetadata } from "next";
+import { notFound } from "next/navigation";
+import { StartButton } from "./components/buttons/start-button";
+import { CookwareList } from "./components/cookware-list";
+import { IngredientList } from "./components/ingredient-list";
+import { MaintainerActions } from "./components/maintainer-actions";
+import { Section } from "./components/section";
+import { ServingsQueryStore } from "./components/servings-query-store";
+import { UserActions } from "./components/user-actions";
 
 type ShowRecipePageProps = {
   params: { slug: string };

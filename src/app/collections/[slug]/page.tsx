@@ -7,6 +7,7 @@ import {
   getCreatorsAndMaintainers,
   getRecipeIds,
   isCollectionLiked,
+  removeRecipe,
 } from "@/lib/dal/collections";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
@@ -18,8 +19,13 @@ import { validateRequest } from "@/lib/auth/lucia";
 import { DeleteButton } from "./components/delete-button";
 import { EditButton } from "./components/edit-button";
 import { OptimisticLikeButton } from "./components/optimistic-like-button";
-import { addCollectionLike, removeCollectionLike } from "@/lib/dal/user";
+import {
+  addCollectionLike,
+  authorizeFromSession,
+  removeCollectionLike,
+} from "@/lib/dal/user";
 import { revalidatePath } from "next/cache";
+import { BaseButton } from "@/app/components/base-button";
 
 type CollectionPageProps = { params: { slug: string } };
 
@@ -50,8 +56,6 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
     }
 
     const maintainers = await getCreatorsAndMaintainers(collection.id);
-    const recipeIds = await getRecipeIds(collection.id);
-
     const attribution = generateAttribution(maintainers);
 
     const isMaintainer = maintainers
@@ -117,7 +121,7 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
             </Section>
           )}
           <Section title="Recipes">
-            <RecipeList ids={recipeIds} />
+            <RecipeList collection={collection} isMaintainer={isMaintainer} />
           </Section>
         </div>
       </>
@@ -128,11 +132,17 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
 };
 
 const RecipeList = async ({
-  ids,
+  collection,
+  isMaintainer,
 }: {
-  ids: { id: number; publicId: string }[];
+  collection: { id: number; publicId: string };
+  isMaintainer: boolean;
 }) => {
-  if (ids.length === 0)
+  const { session } = await validateRequest();
+
+  const recipeIds = await getRecipeIds(collection.id);
+
+  if (recipeIds.length === 0)
     return (
       <div className="py-12">
         <NoRecipesStored />
@@ -141,13 +151,40 @@ const RecipeList = async ({
 
   return (
     <ul className="space-y-2">
-      {ids.map((id) => (
+      {recipeIds.map((id) => (
         <li key={id.publicId}>
-          <RecipeCard {...id} />
+          <div className="rounded-xl dark:bg-stone-950">
+            <RecipeCard {...id} />
+            {isMaintainer && (
+              <div className="p-2">
+                <form
+                  action={removeRecipeFromCollection.bind(
+                    null,
+                    session?.id,
+                    collection.publicId,
+                    id.publicId,
+                  )}
+                >
+                  <BaseButton type="submit">Remove</BaseButton>
+                </form>
+              </div>
+            )}
+          </div>
         </li>
       ))}
     </ul>
   );
 };
+
+async function removeRecipeFromCollection(
+  sessionId: string | undefined,
+  collectionPublicId: string,
+  recipePublicId: string,
+) {
+  "use server";
+  const user = await authorizeFromSession(sessionId);
+
+  await removeRecipe(collectionPublicId, recipePublicId, user);
+}
 
 export default CollectionPage;
