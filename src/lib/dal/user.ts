@@ -302,9 +302,11 @@ export async function getMaintainedCollections(
       ),
     )
     .where(
-      inArray(
-        schema.collections.id,
-        maintainedCollectionIds.map(({ id }) => id),
+      and(
+        inArray(
+          schema.collections.id,
+          maintainedCollectionIds.map(({ id }) => id),
+        ),
       ),
     )
     .groupBy(schema.collectionRecipes.recipeId, schema.collections.id);

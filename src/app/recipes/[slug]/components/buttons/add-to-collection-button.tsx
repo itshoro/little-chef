@@ -18,7 +18,9 @@ const AddToCollectionButton = async ({
   const { user, session } = await validateRequest();
   if (!user || !session) return null;
 
-  const collections = await getMaintainedCollections(user, recipePublicId);
+  const collections = (
+    await getMaintainedCollections(user, recipePublicId)
+  ).filter(({ recipeOccurrences }) => recipeOccurrences === 0);
 
   const boundAddToCollectionsAction = addToCollections.bind(
     null,
@@ -64,11 +66,6 @@ const AddToCollectionButton = async ({
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{collection.name}</span>
-                        {recipeOccurrences > 0 && (
-                          <span className="rounded-xl border border-current p-1.5 text-xs uppercase">
-                            Already Added
-                          </span>
-                        )}
                       </div>
                     </label>
                   </li>
