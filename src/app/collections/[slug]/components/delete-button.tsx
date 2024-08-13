@@ -16,7 +16,7 @@ const DeleteButton = async ({ collectionId }: DeleteButtonProps) => {
   return (
     <WithConfirmation.Root>
       <WithConfirmation.Modal>
-        <form action={boundDeleteAction}>
+        <form action={boundDeleteAction} className="p-6">
           <div className="text-black dark:text-white">
             <h1 className="text-xl font-bold">
               Are you sure you want to delete this collection?

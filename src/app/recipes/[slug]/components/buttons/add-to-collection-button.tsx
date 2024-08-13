@@ -30,52 +30,57 @@ const AddToCollectionButton = async ({
     <>
       <WithConfirmation.Root>
         <WithConfirmation.Modal>
-          <Form.Root action={boundAddToCollectionsAction}>
-            <div className="flex items-end justify-between">
-              <div className="text-sm font-medium dark:text-white">
-                Your Collections
-              </div>
-              <WithConfirmation.CancelButton>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="size-5"
-                >
-                  <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-                </svg>
-              </WithConfirmation.CancelButton>
+          <div className="m-6 mb-2 flex items-end justify-between">
+            <div className="text-sm font-medium dark:text-white">
+              Your Collections
             </div>
-            <ul className="grid w-full gap-2 pb-8 pt-4">
-              {collections.map(({ collection, recipeOccurrences }) => (
-                <li key={collection.publicId}>
-                  <input
-                    disabled={recipeOccurrences > 0}
-                    name="collection"
-                    value={collection.publicId}
-                    id={collection.publicId}
-                    type="radio"
-                    className="peer sr-only"
-                  />
-                  <label
-                    htmlFor={collection.publicId}
-                    className="block w-full cursor-pointer rounded-2xl bg-stone-100 p-4 peer-checked:bg-lime-300 peer-checked:text-black dark:bg-stone-900 dark:text-white"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{collection.name}</span>
-                      {recipeOccurrences > 0 && (
-                        <span className="rounded-xl border p-2 text-xs uppercase">
-                          Already Added
-                        </span>
-                      )}
-                    </div>
-                  </label>
-                </li>
-              ))}
-            </ul>
-            <WithConfirmation.ConfirmButton>
-              Add to collection
-            </WithConfirmation.ConfirmButton>
+            <WithConfirmation.CancelButton>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="size-5"
+              >
+                <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+              </svg>
+            </WithConfirmation.CancelButton>
+          </div>
+          <Form.Root action={boundAddToCollectionsAction}>
+            <div className="relative flex max-h-[50vh] flex-col overflow-auto">
+              <div className="pointer-events-none sticky top-0 z-10 h-8 w-full shrink-0 bg-gradient-to-b from-black" />
+              <ul className="grid w-full flex-1 gap-2 px-6">
+                {collections.map(({ collection, recipeOccurrences }) => (
+                  <li key={collection.publicId}>
+                    <input
+                      name="collection"
+                      value={collection.publicId}
+                      id={collection.publicId}
+                      type="radio"
+                      className="peer sr-only"
+                    />
+                    <label
+                      htmlFor={collection.publicId}
+                      className="block w-full cursor-pointer rounded-2xl bg-stone-100 p-4 peer-checked:bg-lime-300 peer-checked:text-black dark:bg-stone-900 dark:text-white"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{collection.name}</span>
+                        {recipeOccurrences > 0 && (
+                          <span className="rounded-xl border border-current p-1.5 text-xs uppercase">
+                            Already Added
+                          </span>
+                        )}
+                      </div>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <div className="pointer-events-none sticky -bottom-1 z-10 h-8 w-full shrink-0 bg-gradient-to-t from-black" />
+            </div>
+            <div className="p-6">
+              <WithConfirmation.ConfirmButton>
+                Add to collection
+              </WithConfirmation.ConfirmButton>
+            </div>
           </Form.Root>
         </WithConfirmation.Modal>
         <WithConfirmation.TriggerButton disabled={disabled}>
