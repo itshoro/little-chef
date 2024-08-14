@@ -48,4 +48,3 @@ CREATE TABLE `collectionSubscriptions` (
 INSERT INTO `collectionSubscriptions` SELECT * FROM `collectionSubscriptions_TMP`;
 --> statement-breakpoint
 DROP TABLE `collectionSubscriptions_TMP`;
---> statement-breakpoint
