@@ -153,7 +153,7 @@ const RecipeList = async ({
     <ul className="space-y-2">
       {recipeIds.map((id) => (
         <li key={id.publicId}>
-          <div className="rounded-xl dark:bg-stone-950">
+          <div className="rounded-xl border dark:border-none dark:bg-stone-950">
             <RecipeCard {...id} />
             {isMaintainer && (
               <div className="p-2">
