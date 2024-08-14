@@ -49,9 +49,9 @@ const AddToCollectionButton = async ({
           </div>
           <Form.Root action={boundAddToCollectionsAction}>
             <div className="relative flex max-h-[50vh] flex-col overflow-auto">
-              <div className="pointer-events-none sticky top-0 z-10 h-8 w-full shrink-0 bg-gradient-to-b from-black" />
+              <div className="pointer-events-none sticky top-0 z-10 h-8 w-full shrink-0 bg-gradient-to-b from-white dark:from-black" />
               <ul className="grid w-full flex-1 gap-2 px-6">
-                {collections.map(({ collection, recipeOccurrences }) => (
+                {collections.map(({ collection }) => (
                   <li key={collection.publicId}>
                     <input
                       name="collection"
@@ -71,7 +71,7 @@ const AddToCollectionButton = async ({
                   </li>
                 ))}
               </ul>
-              <div className="pointer-events-none sticky -bottom-1 z-10 h-8 w-full shrink-0 bg-gradient-to-t from-black" />
+              <div className="pointer-events-none sticky -bottom-1 z-10 h-8 w-full shrink-0 bg-gradient-to-t from-white dark:from-black" />
             </div>
             <div className="p-6">
               <WithConfirmation.ConfirmButton>
