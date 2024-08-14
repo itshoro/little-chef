@@ -8,7 +8,7 @@ import { nanoid } from "../nanoid";
 
 import { db } from "@/drizzle/db";
 import * as schema from "@/drizzle/schema";
-import { and, count, eq, inArray, or, sql } from "drizzle-orm";
+import { and, count, eq, inArray, like, or, sql } from "drizzle-orm";
 import { getRecipe } from "./recipe";
 
 // MARK: Auth
@@ -247,14 +247,19 @@ export async function subscribeToRecipe(
   });
 }
 
-export async function getSubcribedRecipes(userId: number) {
+export async function getSubcribedRecipes(userId: number, query: string) {
   return await db
     .selectDistinct({
       id: schema.recipes.id,
       publicId: schema.recipes.publicId,
     })
     .from(schema.recipeSubscriptions)
-    .where(eq(schema.recipeSubscriptions.userId, userId))
+    .where(
+      and(
+        eq(schema.recipeSubscriptions.userId, userId),
+        like(schema.recipes.name, `%${query}%`),
+      ),
+    )
     .innerJoin(
       schema.recipes,
       eq(schema.recipes.id, schema.recipeSubscriptions.recipeId),

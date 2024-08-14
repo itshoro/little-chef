@@ -16,7 +16,7 @@ const Page = async (props: { searchParams: { q: string } }) => {
   return (
     <>
       <main className="flex-1">
-        <CollectionList user={user} />
+        <CollectionList user={user} query={props.searchParams.q} />
         <CollectionSearchResults user={user} query={props.searchParams.q} />
       </main>
       {user && <AddButton href="/collections/add" />}
@@ -24,9 +24,15 @@ const Page = async (props: { searchParams: { q: string } }) => {
   );
 };
 
-const CollectionList = async ({ user }: { user: User | null }) => {
+const CollectionList = async ({
+  user,
+  query,
+}: {
+  user: User | null;
+  query: string;
+}) => {
   if (!user) return null;
-  const subscriptions = await getSubscriptions(user.id);
+  const subscriptions = await getSubscriptions(user.id, query);
 
   return (
     <SectionWithCollections

@@ -270,7 +270,7 @@ export async function getCreatorsAndMaintainers(collectionId: number) {
     );
 }
 
-export async function getSubscriptions(userId: number) {
+export async function getSubscriptions(userId: number, query: string) {
   return await db
     .select({
       id: schema.collections.id,
@@ -278,7 +278,12 @@ export async function getSubscriptions(userId: number) {
       role: schema.collectionSubscriptions.role,
     })
     .from(schema.collectionSubscriptions)
-    .where(eq(schema.collectionSubscriptions.userId, userId))
+    .where(
+      and(
+        eq(schema.collectionSubscriptions.userId, userId),
+        like(schema.collections.name, `%${query}%`),
+      ),
+    )
     .innerJoin(
       schema.collections,
       eq(schema.collections.id, schema.collectionSubscriptions.collectionId),
@@ -296,8 +301,8 @@ export async function findPublicCollections(query: string) {
     .from(schema.collections)
     .where(
       and(
-        like(schema.collections.name, `%${query}%`),
         eq(schema.collections.visibility, "public"),
+        query ? like(schema.collections.name, `%${query}%`) : undefined,
       ),
     )
     .orderBy(query === "" ? sql`random()` : schema.collections.id);

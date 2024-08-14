@@ -17,7 +17,7 @@ const Page = async (props: { searchParams: { q: string } }) => {
   return (
     <>
       <main className="flex-1">
-        <YourCookbook user={user} />
+        <YourCookbook user={user} query={props.searchParams.q} />
         <SearchResults query={props.searchParams.q} />
       </main>
       <AddButton href="/recipes/add" />
@@ -25,10 +25,16 @@ const Page = async (props: { searchParams: { q: string } }) => {
   );
 };
 
-const YourCookbook = async ({ user }: { user: User | null }) => {
+const YourCookbook = async ({
+  user,
+  query,
+}: {
+  user: User | null;
+  query: string;
+}) => {
   if (!user) return null;
 
-  const subscriptions = await getSubcribedRecipes(user.id);
+  const subscriptions = await getSubcribedRecipes(user.id, query);
 
   return <SectionWithRecipes title="Your Cookbook" recipes={subscriptions} />;
 };
