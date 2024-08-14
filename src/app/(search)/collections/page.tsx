@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Collections",
 };
 
-const Page = async (props: { searchParams: { q: string } }) => {
+const Page = async (props: { searchParams: { q?: string } }) => {
   const { user } = await validateRequest();
 
   return (
@@ -29,10 +29,10 @@ const CollectionList = async ({
   query,
 }: {
   user: User | null;
-  query: string;
+  query?: string;
 }) => {
   if (!user) return null;
-  const subscriptions = await getSubscriptions(user.id, query);
+  const subscriptions = await getSubscriptions(user.id, query ?? "");
 
   return (
     <SectionWithCollections

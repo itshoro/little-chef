@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Recipes",
 };
 
-const Page = async (props: { searchParams: { q: string } }) => {
+const Page = async (props: { searchParams: { q?: string } }) => {
   const { user } = await validateRequest();
 
   return (
@@ -30,11 +30,11 @@ const YourCookbook = async ({
   query,
 }: {
   user: User | null;
-  query: string;
+  query?: string;
 }) => {
   if (!user) return null;
 
-  const subscriptions = await getSubcribedRecipes(user.id, query);
+  const subscriptions = await getSubcribedRecipes(user.id, query ?? "");
 
   return <SectionWithRecipes title="Your Cookbook" recipes={subscriptions} />;
 };
