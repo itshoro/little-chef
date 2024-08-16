@@ -27,7 +27,7 @@ const OptimisticLikeButton = (props: OptimisticLikeButtonProps) => {
         await dispatchToggleLike();
       }}
       data-liked={optimisticLikes.isLiked}
-      className="data-[liked=true]:bg-neutral-50 data-[liked=true]:text-red-400 data-[liked=true]:shadow-inner"
+      className="px-4 data-[liked=true]:bg-neutral-50 data-[liked=true]:text-red-400 data-[liked=true]:shadow-inner"
     >
       <div className="flex items-center gap-1">
         <svg
@@ -54,7 +54,6 @@ function useOptimisticLikes(
   const [likes, setLikes] = useState({
     count: count,
     isLiked: isLiked,
-    pending: false,
   });
 
   const [optimisticLikes, setOptimisticLikes] = useOptimistic(
@@ -62,10 +61,10 @@ function useOptimisticLikes(
     (state, action: "add" | "remove") => {
       switch (action) {
         case "add": {
-          return { count: state.count + 1, isLiked: true, pending: true };
+          return { count: state.count + 1, isLiked: true };
         }
         case "remove": {
-          return { count: state.count - 1, isLiked: false, pending: true };
+          return { count: state.count - 1, isLiked: false };
         }
       }
     },
@@ -75,7 +74,7 @@ function useOptimisticLikes(
     const actionType = optimisticLikes.isLiked ? "remove" : "add";
     setOptimisticLikes(actionType);
     const serverResult = await action(actionType);
-    setLikes({ ...serverResult, pending: false });
+    setLikes({ ...serverResult });
   }
 
   return [optimisticLikes, dispatch] as const;
