@@ -34,10 +34,12 @@ const CooklangPreview = ({
                     className="my-0.5 inline-flex rounded-full bg-neutral-100 px-2 dark:bg-stone-900"
                   >
                     <span className="border-r p-1 dark:border-stone-700">
-                      {typeof segment.quantity === "number"
-                        ? segment.quantity * ingredientScaleFactor
-                        : segment.quantity}
-                      {segment.units}
+                      <span>
+                        {typeof segment.quantity === "number"
+                          ? segment.quantity * ingredientScaleFactor
+                          : segment.quantity}{" "}
+                      </span>
+                      <span>{segment.units}</span>
                     </span>
                     <span className="p-1">{segment.name}</span>
                   </span>

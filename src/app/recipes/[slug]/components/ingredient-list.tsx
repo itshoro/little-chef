@@ -24,10 +24,11 @@ const IngredientList = ({
             label={ingredient.name}
             amount={
               typeof ingredient.quantity === "number"
-                ? (ingredient.quantity / recommendedServingSize) *
-                    preferredServingSize +
-                  ingredient.units
-                : ingredient.quantity + ingredient.units
+                ? `${
+                    (ingredient.quantity / recommendedServingSize) *
+                    preferredServingSize
+                  } ${ingredient.units}`
+                : `${ingredient.quantity} ${ingredient.units}`
             }
           />
         </li>
