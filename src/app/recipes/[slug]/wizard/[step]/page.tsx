@@ -29,11 +29,14 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <>
-      <div className="flex items-center justify-center">
+      <div className="mt-auto flex flex-col items-center justify-center px-4 py-8">
         <WizardStep
           description={displayedStep.description}
           ingredientScaleFactor={ingredientScaleFactor}
         />
+        <div className="mt-4 text-sm">
+          Step {step + 1} of {steps.length}
+        </div>
       </div>
       <section
         className="flex justify-between border-t p-4 dark:border-stone-800"
