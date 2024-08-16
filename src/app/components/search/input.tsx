@@ -1,23 +1,17 @@
 "use client";
 
-import { useSearchParamState } from "@/hooks/useSearchParamState";
-import { useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+import Form from "next/form";
 
 type Props = {
-  urlParam?: string;
+  initialQuery: string;
 };
 
-const Input = ({ urlParam = "q" }: Props) => {
+const Input = ({ initialQuery }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
-  const [query, setQuery] = useSearchParamState(urlParam);
-
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const formData = new FormData(e.target as HTMLFormElement);
-    setQuery(formData.get("search") as string);
-  }
+  const pathname = usePathname();
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Escape") {
@@ -35,16 +29,15 @@ const Input = ({ urlParam = "q" }: Props) => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       formRef.current?.requestSubmit();
-    }, 100);
+    }, 200);
   }
 
-  function onBlur() {
-    clearTimeout(timeoutRef.current);
-    formRef.current?.requestSubmit();
-  }
+  useEffect(() => {
+    formRef.current?.querySelector("input")?.focus();
+  }, []);
 
   return (
-    <form ref={formRef} onSubmit={onSubmit}>
+    <Form ref={formRef} action={pathname}>
       <label className="group block cursor-text rounded-xl bg-stone-100 p-4 text-stone-700 dark:bg-stone-900 dark:text-stone-200">
         <div className="flex items-center">
           <svg
@@ -60,20 +53,27 @@ const Input = ({ urlParam = "q" }: Props) => {
             />
           </svg>
           <input
-            name="search"
-            defaultValue={query ?? ""}
+            name="q"
+            defaultValue={initialQuery}
             onKeyDown={onKeyDown}
-            onInput={onInput}
-            onBlur={onBlur}
+            onChange={onInput}
             placeholder="Search&#8230;"
-            type="search"
+            // type="search"
             className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-none focus:ring-0 dark:placeholder-stone-600"
             autoComplete="off"
           />
         </div>
       </label>
-    </form>
+    </Form>
   );
 };
 
-export { Input as SearchInput };
+const Search = () => {
+  const initialQuery = useSearchParams().get("q") ?? "";
+
+  return <Input initialQuery={initialQuery} />;
+};
+
+const SearchFallback = () => <Input initialQuery="" />;
+
+export { Search, SearchFallback };
