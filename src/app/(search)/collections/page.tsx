@@ -68,7 +68,7 @@ const SectionWithCollections = ({
   collections: { id: number; publicId: string }[];
 }) => {
   return (
-    <div className="px-4">
+    <div className="my-12 px-4">
       <Section title={title}>
         <ul className="grid gap-3">
           {collections.map((collection) => {

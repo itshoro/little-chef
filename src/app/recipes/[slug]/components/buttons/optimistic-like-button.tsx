@@ -26,7 +26,7 @@ const OptimisticLikeButton = (props: OptimisticLikeButtonProps) => {
       disabled={!props.disabled || pending}
       onClick={dispatchToggleLike}
       data-liked={optimisticLikes.isLiked}
-      className="relative px-4 data-[liked=true]:border-rose-100 data-[liked=true]:bg-rose-50 data-[liked=true]:text-rose-400 data-[liked=true]:shadow-none"
+      className="relative px-4 data-[liked=true]:border-rose-100 data-[liked=true]:bg-rose-50 data-[liked=true]:text-rose-400 data-[liked=true]:shadow-none dark:data-[liked=true]:border-rose-800 dark:data-[liked=true]:bg-rose-950 dark:data-[liked=true]:text-rose-300"
     >
       <div className="flex items-center gap-1">
         {pending ? (

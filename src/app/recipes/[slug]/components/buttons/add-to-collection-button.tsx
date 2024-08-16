@@ -80,7 +80,10 @@ const AddToCollectionButton = async ({
             </div>
           </Form.Root>
         </WithConfirmation.Modal>
-        <WithConfirmation.TriggerButton disabled={disabled}>
+        <WithConfirmation.TriggerButton
+          className="col-span-2 bg-white dark:bg-black"
+          disabled={disabled}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
@@ -93,7 +96,7 @@ const AddToCollectionButton = async ({
               clipRule="evenodd"
             />
           </svg>
-          <span className="sr-only">Add to Collection</span>
+          <span>Add to collection</span>
         </WithConfirmation.TriggerButton>
       </WithConfirmation.Root>
     </>

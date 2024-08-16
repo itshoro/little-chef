@@ -10,13 +10,14 @@ import { generateAttribution } from "@/lib/utils";
 import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
+import { ShareCurrentPageButton } from "./components/buttons/share-button";
 import { StartButton } from "./components/buttons/start-button";
 import { CookwareList } from "./components/cookware-list";
 import { IngredientList } from "./components/ingredient-list";
 import { MaintainerActions } from "./components/maintainer-actions";
 import { Section } from "./components/section";
 import { ServingsQueryStore } from "./components/servings-query-store";
-import { UserActions } from "./components/user-actions";
+import { AddToCollection, LikeButton } from "./components/user-actions";
 
 type ShowRecipePageProps = {
   params: { slug: string };
@@ -67,68 +68,80 @@ const ShowRecipePage = async ({
       <>
         <div>
           <div className="p-4">
-            <h1 className="font-medium">{recipe.name}</h1>
-
-            <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <div className="flex flex-shrink-0 items-center gap-3 text-sm">
-                <span>By </span>
-                <div className="flex items-center gap-1">
+            <div className="flex items-baseline justify-between gap-4">
+              <div>
+                <h1 className="text-xl font-medium">{recipe.name}</h1>
+                <div className="flex items-center gap-1 text-sm">
                   <AvatarStack users={maintainers} />
                   <span>{attribution}</span>
                 </div>
               </div>
-              <section className="grid grid-flow-col gap-4">
-                <UserActions publicUserId={user?.publicId} recipe={recipe} />
-              </section>
+              <div className="flex flex-shrink-0 flex-col items-center gap-2">
+                <ShareCurrentPageButton />
+                <LikeButton publicUserId={user?.publicId} recipe={recipe} />
+              </div>
             </div>
 
-            <section className="my-4">
-              <div className="flex items-center gap-4"></div>
-            </section>
-
-            <MaintainerActions
-              user={user}
-              maintainers={maintainers}
-              recipe={recipe}
-              slug={params.slug}
-            />
-
-            <Section title="Overview">
-              <div>
+            <div className="-mx-4 my-4 border-y border-dashed bg-stone-100 px-4 py-8 dark:border-stone-700 dark:bg-stone-900">
+              <Section title="Actions">
                 <div className="grid grid-cols-2 gap-4">
-                  <InfoCard>
-                    <InfoCard.Value>
-                      {recipe.preparationTime} minutes
-                    </InfoCard.Value>
-                    <InfoCard.Label>Preparation time</InfoCard.Label>
-                  </InfoCard>
-                  <InfoCard>
-                    <InfoCard.Value>
-                      {recipe.cookingTime} minutes
-                    </InfoCard.Value>
-                    <InfoCard.Label>Cooking time</InfoCard.Label>
-                  </InfoCard>
-                  <InfoCard>
-                    <InfoCard.Value>
-                      {recipe.recommendedServingSize}
-                    </InfoCard.Value>
-                    <InfoCard.Label>Servings recommended</InfoCard.Label>
-                  </InfoCard>
+                  <MaintainerActions
+                    user={user}
+                    maintainers={maintainers}
+                    recipe={recipe}
+                    slug={params.slug}
+                  />
+                  <AddToCollection
+                    publicUserId={user?.publicId}
+                    recipe={recipe}
+                  />
                 </div>
-              </div>
-            </Section>
-            {parsedSteps.ingredients.length > 0 && (
-              <Section title="Ingredients">
-                <IngredientList
-                  ingredients={parsedSteps.ingredients}
-                  recommendedServingSize={recipe.recommendedServingSize}
-                />
               </Section>
+            </div>
+
+            <div className="my-8">
+              <Section title="Overview">
+                <div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <InfoCard>
+                      <InfoCard.Value>
+                        {recipe.preparationTime} minutes
+                      </InfoCard.Value>
+                      <InfoCard.Label>Preparation time</InfoCard.Label>
+                    </InfoCard>
+                    <InfoCard>
+                      <InfoCard.Value>
+                        {recipe.cookingTime} minutes
+                      </InfoCard.Value>
+                      <InfoCard.Label>Cooking time</InfoCard.Label>
+                    </InfoCard>
+                    <InfoCard>
+                      <InfoCard.Value>
+                        {recipe.recommendedServingSize}
+                      </InfoCard.Value>
+                      <InfoCard.Label>Servings recommended</InfoCard.Label>
+                    </InfoCard>
+                  </div>
+                </div>
+              </Section>
+            </div>
+
+            {parsedSteps.ingredients.length > 0 && (
+              <div className="my-8">
+                <Section title="Ingredients">
+                  <IngredientList
+                    ingredients={parsedSteps.ingredients}
+                    recommendedServingSize={recipe.recommendedServingSize}
+                  />
+                </Section>
+              </div>
             )}
             {parsedSteps.cookwares.length > 0 && (
-              <Section title="Cookware">
-                <CookwareList cookwares={parsedSteps.cookwares} />
-              </Section>
+              <div className="my-8">
+                <Section title="Cookware">
+                  <CookwareList cookwares={parsedSteps.cookwares} />
+                </Section>
+              </div>
             )}
           </div>
         </div>

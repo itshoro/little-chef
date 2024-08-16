@@ -16,12 +16,11 @@ const UserActions = async ({
     <>
       <LikeButton recipe={recipe} publicUserId={publicUserId} />
       <AddToCollection recipe={recipe} publicUserId={publicUserId} />
-      <ShareCurrentPageButton />
     </>
   );
 };
 
-const LikeButton = async ({
+export const LikeButton = async ({
   recipe,
   publicUserId,
 }: {
@@ -55,7 +54,7 @@ const LikeButton = async ({
   );
 };
 
-const AddToCollection = async ({
+export const AddToCollection = async ({
   recipe,
   publicUserId,
 }: {

@@ -1,6 +1,5 @@
 import { DeleteButton } from "./buttons/delete-button";
 import { EditButton } from "./buttons/edit-button";
-import { Section } from "./section";
 
 type MaintainerActionsProps = {
   slug: string;
@@ -23,12 +22,10 @@ const MaintainerActions = ({
   if (!hasMaintainership) return null;
 
   return (
-    <Section title="Maintainer Actions">
-      <div className="flex gap-4">
-        <EditButton href={`/recipes/${slug}/edit`} />
-        <DeleteButton recipeId={recipe.id} />
-      </div>
-    </Section>
+    <>
+      <EditButton href={`/recipes/${slug}/edit`} />
+      <DeleteButton recipeId={recipe.id} />
+    </>
   );
 };
 

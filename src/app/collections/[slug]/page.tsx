@@ -113,16 +113,20 @@ const CollectionPage = async ({ params }: CollectionPageProps) => {
 
         <div className="px-4">
           {isMaintainer && (
-            <Section title="Maintainer Actions">
-              <div className="flex items-center gap-4">
-                <EditButton slug={params.slug} />
-                <DeleteButton collectionId={collection.id} />
-              </div>
-            </Section>
+            <div className="my-12">
+              <Section title="Maintainer Actions">
+                <div className="flex items-center gap-4">
+                  <EditButton slug={params.slug} />
+                  <DeleteButton collectionId={collection.id} />
+                </div>
+              </Section>
+            </div>
           )}
-          <Section title="Recipes">
-            <RecipeList collection={collection} isMaintainer={isMaintainer} />
-          </Section>
+          <div className="my-12">
+            <Section title="Recipes">
+              <RecipeList collection={collection} isMaintainer={isMaintainer} />
+            </Section>
+          </div>
         </div>
       </>
     );
