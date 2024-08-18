@@ -6,10 +6,7 @@ type EditButtonProps = {
 
 const EditButton = ({ slug }: EditButtonProps) => {
   return (
-    <BaseButton
-      href={`/collections/${slug}/edit`}
-      className="inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner"
-    >
+    <BaseButton href={`/collections/${slug}/edit`}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"
