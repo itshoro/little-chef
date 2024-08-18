@@ -1,7 +1,12 @@
 import { RecipeCard } from "@/app/(search)/components/recipe-card";
 import { BackLink } from "@/app/components/back-link";
+import { BaseButton } from "@/app/components/base-button";
+import { OptimisticLikeButton } from "@/app/components/button/optimistic-like-button";
 import { NoRecipesStored } from "@/app/components/fallbacks/collections/no-recipe-stored";
+import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { Header } from "@/app/components/header/header";
+import { Section } from "@/app/recipes/[slug]/components/section";
+import { validateRequest } from "@/lib/auth/lucia";
 import {
   getCollection,
   getCreatorsAndMaintainers,
@@ -9,23 +14,18 @@ import {
   isCollectionLiked,
   removeRecipe,
 } from "@/lib/dal/collections";
-import { extractParts, generateSlugPathSegment } from "@/lib/slug";
-import { notFound, redirect } from "next/navigation";
-import type { ResolvedMetadata, Metadata } from "next";
-import { AvatarStack } from "@/app/components/header/avatar-stack";
-import { generateAttribution } from "@/lib/utils";
-import { Section } from "@/app/recipes/[slug]/components/section";
-import { validateRequest } from "@/lib/auth/lucia";
-import { DeleteButton } from "./components/delete-button";
-import { EditButton } from "./components/edit-button";
-import { OptimisticLikeButton } from "./components/optimistic-like-button";
 import {
   addCollectionLike,
   authorizeFromSession,
   removeCollectionLike,
 } from "@/lib/dal/user";
+import { extractParts, generateSlugPathSegment } from "@/lib/slug";
+import { generateAttribution } from "@/lib/utils";
+import type { Metadata, ResolvedMetadata } from "next";
 import { revalidatePath } from "next/cache";
-import { BaseButton } from "@/app/components/base-button";
+import { notFound, redirect } from "next/navigation";
+import { DeleteButton } from "./components/delete-button";
+import { EditButton } from "./components/edit-button";
 
 type CollectionPageProps = { params: { slug: string } };
 

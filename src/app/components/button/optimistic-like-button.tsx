@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useOptimistic, useTransition } from "react";
-import { BaseButton } from "../../../../components/base-button";
-import { set } from "zod";
+import { BaseButton } from "../base-button";
 
 type OptimisticLikeButtonProps = {
   count: number;
@@ -72,17 +71,22 @@ function useOptimisticLikes(
     }),
     [count, isLiked],
   );
-  const [optimisticLikes, setOptimisticLikes] = useOptimistic(likes);
+  const [optimisticLikes, dispatch] = useOptimistic(
+    likes,
+    ({ count }, action: "add" | "remove") => {
+      if (action === "add") {
+        return { isLiked: true, count: count + 1 };
+      } else {
+        return { isLiked: false, count: count - 1 };
+      }
+    },
+  );
   const [pending, startTransition] = useTransition();
 
-  function dispatch() {
+  function dispatchAction() {
     startTransition(async () => {
       const actionType = optimisticLikes.isLiked ? "remove" : "add";
-      if (optimisticLikes)
-        setOptimisticLikes(({ count, isLiked }) => ({
-          isLiked: !isLiked,
-          count: isLiked ? count - 1 : count + 1,
-        }));
+      if (optimisticLikes) dispatch(actionType);
       await new Promise((resolve) =>
         setTimeout(() => resolve(undefined), 1000),
       );
@@ -90,7 +94,7 @@ function useOptimisticLikes(
     });
   }
 
-  return [pending, optimisticLikes, dispatch] as const;
+  return [pending, optimisticLikes, dispatchAction] as const;
 }
 
 export { OptimisticLikeButton };
