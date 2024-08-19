@@ -75,6 +75,9 @@ const ShowRecipePage = async ({
                   <AvatarStack users={maintainers} />
                   <span>{attribution}</span>
                 </div>
+                <div className="my-4 text-stone-600 dark:text-stone-400">
+                  {recipe.description}
+                </div>
               </div>
               <div className="flex flex-shrink-0 flex-col items-center gap-2">
                 <ShareCurrentPageButton />

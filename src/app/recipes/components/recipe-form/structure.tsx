@@ -38,6 +38,17 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           </Input.Group>
         </Input.Root>
       </div>
+      <div className="mb-4">
+        <Input.Root name="description">
+          <Input.Label>Description</Input.Label>
+          <Input.Group>
+            <Input.Textarea
+              defaultValue={defaultValue?.recipe?.description}
+              required
+            />
+          </Input.Group>
+        </Input.Root>
+      </div>
       <div className="mb-8">
         <Input.Root name="visibility">
           <Input.Label>Visibility</Input.Label>

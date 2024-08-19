@@ -1,13 +1,13 @@
-import * as schema from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-import { eq, and, like, or, sql } from "drizzle-orm";
-import { z } from "zod";
-import { type Visibility } from "./visibility";
-import { getUser } from "./user";
-import { generateSlug } from "../slug";
-import { AddRecipeValidator, UpdateRecipeValidator } from "./validators";
-import { nanoid } from "../nanoid";
+import * as schema from "@/drizzle/schema";
+import { and, eq, like, or, sql } from "drizzle-orm";
 import { User } from "lucia";
+import { z } from "zod";
+import { nanoid } from "../nanoid";
+import { generateSlug } from "../slug";
+import { getUser } from "./user";
+import { AddRecipeValidator, UpdateRecipeValidator } from "./validators";
+import { type Visibility } from "./visibility";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);
@@ -81,6 +81,7 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
       .insert(schema.recipes)
       .values({
         name: dto.name,
+        description: dto.description,
         publicId: nanoid(),
         recommendedServingSize: dto.servings,
         slug: generateSlug(dto.name),
@@ -158,6 +159,7 @@ export async function getRecipe(
       id: schema.recipes.id,
       publicId: schema.recipes.publicId,
       name: schema.recipes.name,
+      description: schema.recipes.description,
       recommendedServingSize: schema.recipes.recommendedServingSize,
       slug: schema.recipes.slug,
       preparationTime: schema.recipes.preparationTime,
@@ -257,6 +259,7 @@ export async function updateRecipe(
       .update(schema.recipes)
       .set({
         cookingTime: dto.cookingTime,
+        description: dto.description,
         name: dto.name,
         slug: generateSlug(dto.name),
         preparationTime: dto.preparationTime,
@@ -302,6 +305,7 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
   const dto = {
     publicId: formData.get("publicId") ?? undefined,
     name: formData.get("name"),
+    description: formData.get("description"),
     servings: formData.get("servings"),
     preparationTime: formData.get("preparationTime"),
     cookingTime: formData.get("cookingTime"),

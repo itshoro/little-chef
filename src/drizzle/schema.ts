@@ -9,6 +9,7 @@ import {
 export const recipes = sqliteTable("recipes", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
+  description: text("description"),
   recommendedServingSize: integer("recommendedServingSize").notNull(),
   cookingTime: integer("cookingTime").notNull().default(0),
   preparationTime: integer("preparationTime").notNull().default(0),
