@@ -1,7 +1,7 @@
 "use client";
 
 import { Parser } from "@cooklang/cooklang-ts";
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 
 const CooklangPreview = ({
   value,
@@ -22,16 +22,16 @@ const CooklangPreview = ({
   return (
     <div>
       {parsedResult.map((step, i) => (
-        <p key={i} className="leading-relaxed">
+        <p key={i} className="whitespace-normal text-balance leading-relaxed">
           {step.map((segment, i) => {
             switch (segment.type) {
               case "text":
-                return <span key={i}>{segment.value}</span>;
+                return <Fragment key={i}>{segment.value}</Fragment>;
               case "ingredient":
                 return (
                   <span
                     key={i}
-                    className="my-0.5 inline-flex rounded-full bg-neutral-100 px-2 dark:bg-stone-900"
+                    className="my-0.5 inline-flex whitespace-pre-line rounded-full bg-neutral-100 px-2 dark:bg-stone-900"
                   >
                     <span className="border-r p-1 dark:border-stone-700">
                       <span>
@@ -46,17 +46,17 @@ const CooklangPreview = ({
                 );
               case "cookware":
                 return (
-                  <span key={i}>
+                  <Fragment key={i}>
                     {segment.quantity} {segment.name}
-                  </span>
+                  </Fragment>
                 );
               case "timer":
                 return (
-                  <span key={i}>
+                  <Fragment key={i}>
                     <time dateTime={`P${segment.quantity}`}>
                       {segment.quantity} {segment.units}
                     </time>
-                  </span>
+                  </Fragment>
                 );
             }
           })}
