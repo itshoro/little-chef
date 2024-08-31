@@ -107,6 +107,7 @@ export const users = sqliteTable("users", {
   publicId: text("publicId").notNull().unique(),
   hashedPassword: text("hashedPassword").notNull(),
   username: text("username").notNull(),
+  avatar: text("avatar"),
 
   appPreferencesId: integer("appPreferencesId")
     .notNull()

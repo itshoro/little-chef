@@ -14,6 +14,7 @@ const lucia = new Lucia(adapter, {
     return {
       publicId: attributes.publicId,
       username: attributes.username,
+      avatar: attributes.avatar,
     };
   },
   sessionCookie: {

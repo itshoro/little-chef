@@ -43,6 +43,13 @@
       "when": 1724007337145,
       "tag": "0005_dry_triton",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1725139381160,
+      "tag": "0006_silky_toad",
+      "breakpoints": true
     }
   ]
 }
