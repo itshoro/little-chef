@@ -55,7 +55,7 @@ const UserCard = async () => {
   return (
     <div className="rounded-2xl bg-stone-100 p-4 dark:bg-stone-900">
       <div className="flex items-center gap-4">
-        <Avatar src={`/${user.publicId}/avatar.webp`} alt="" size="size-16" />
+        <Avatar src={user.avatar ?? undefined} alt="" size="size-16" />
         <div className="flex-1">
           <div className="text-xs">Current User</div>
           <div className="font-medium">{user.username}</div>

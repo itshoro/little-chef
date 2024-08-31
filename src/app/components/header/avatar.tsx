@@ -1,5 +1,5 @@
 type AvatarProps = {
-  src: string;
+  src?: string;
   alt: string;
   size?: `size-${number}`;
 };

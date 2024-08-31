@@ -4,7 +4,7 @@ import Link from "next/link";
 const AvatarStack = ({
   users,
 }: {
-  users: { username: string; publicId: string }[];
+  users: { username: string; publicId: string; avatar: string | null }[];
 }) => {
   const slice = users.slice(0, 5);
 
@@ -20,7 +20,7 @@ const AvatarStack = ({
         >
           <img
             className="inline-block size-8 rounded-full border-2 border-white"
-            src={`/${user.publicId}/avatar.webp`}
+            src={user.avatar ?? undefined}
             alt={`${user.username}`}
           />
         </Link>

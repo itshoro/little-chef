@@ -41,7 +41,7 @@ const UserPage = async () => {
         <SettingsSection.Grid>
           <UpdateAvatar
             action={setProfileImageWithSession}
-            defaultValue={user ? `/${user.publicId}/avatar.webp` : ""}
+            defaultValue={user?.avatar ?? undefined}
           />
 
           <form action={updatePasswordWithSession}>
@@ -131,7 +131,7 @@ const setProfileImage = async (
   const user = await authorizeFromSession(sessionId);
 
   const image = formData.get("image");
-  if (!(image instanceof File)) return;
+  if (typeof image !== "string") return;
 
   await changeAvatar(user, image);
   revalidatePath("/settings/user", "page");
