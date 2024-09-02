@@ -1,21 +1,28 @@
 import { validateRequest } from "@/lib/auth/lucia";
-import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { changeAvatar } from "@/lib/dal/user";
+import { revalidatePath } from "next/cache";
+import {
+  createUploadthing,
+  type FileRouter as UTFileRouter,
+} from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
-export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: "1MB" } })
-    .middleware(async ({ req }) => {
+export const fileRouter = {
+  profilePicture: f({
+    image: { maxFileSize: "512KB", maxFileCount: 1, minFileCount: 1 },
+  })
+    .middleware(async () => {
       const { user } = await validateRequest();
-
       if (!user) throw new UploadThingError("Unauthorized");
 
-      return { userId: user.id };
+      return { user };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      return { uploadedBy: metadata.userId };
+      await changeAvatar(metadata.user, file.url);
+      revalidatePath("/settings/user");
     }),
-} satisfies FileRouter;
+} satisfies UTFileRouter;
 
-export type OurFileRouter = typeof ourFileRouter;
+export type FileRouter = typeof fileRouter;

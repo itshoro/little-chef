@@ -1,6 +1,6 @@
 import { createRouteHandler } from "uploadthing/next";
-import { ourFileRouter } from "./core";
+import { fileRouter } from "./core";
 
 export const { GET, POST } = createRouteHandler({
-  router: ourFileRouter,
+  router: fileRouter,
 });

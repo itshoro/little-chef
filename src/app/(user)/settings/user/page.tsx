@@ -14,6 +14,7 @@ import {
 import * as Input from "@/app/components/input";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Avatar } from "@/app/components/header/avatar";
 
 export const metadata: Metadata = {
   title: "User Preferences",
@@ -26,7 +27,6 @@ const UserPage = async () => {
     redirect("/login");
   }
 
-  const setProfileImageWithSession = setProfileImage.bind(null, session.id);
   const updatePasswordWithSession = updatePassword.bind(null, session.id);
   const updateUsernameActionWithSession = updateUsernameAction.bind(
     null,
@@ -39,10 +39,18 @@ const UserPage = async () => {
         <SettingsSection.Label>User Preferences</SettingsSection.Label>
 
         <SettingsSection.Grid>
-          <UpdateAvatar
-            action={setProfileImageWithSession}
-            defaultValue={user?.avatar ?? undefined}
-          />
+          <Fieldset label="Profile picture">
+            <div className="mb-4 flex items-center gap-4">
+              <Avatar
+                src={user.avatar ?? undefined}
+                alt="Uploaded image"
+                size="size-24"
+              />
+              <div className="flex w-full flex-wrap items-center gap-2">
+                <UpdateAvatar />
+              </div>
+            </div>
+          </Fieldset>
 
           <form action={updatePasswordWithSession}>
             <Fieldset label="Password">
@@ -122,20 +130,6 @@ async function updatePassword(
 
   await changePassword(user, currentPassword, newPassword);
 }
-
-const setProfileImage = async (
-  sessionId: string | undefined,
-  formData: FormData,
-) => {
-  "use server";
-  const user = await authorizeFromSession(sessionId);
-
-  const image = formData.get("image");
-  if (typeof image !== "string") return;
-
-  await changeAvatar(user, image);
-  revalidatePath("/settings/user", "page");
-};
 
 const updateUsernameAction = async (
   sessionId: string | undefined,

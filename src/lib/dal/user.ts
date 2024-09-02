@@ -89,19 +89,11 @@ export function validatePassword(password: any): password is Password {
 }
 
 // MARK: Avatar
-export async function changeAvatar(user: User, image: File) {
-  const storageDirectoryPath = path.join(
-    process.cwd(),
-    "public",
-    user.publicId,
-  );
-
-  await fs.mkdir(storageDirectoryPath, { recursive: true });
-
-  const storagePath = path.join(storageDirectoryPath, "avatar.webp");
-  await sharp(await image.arrayBuffer())
-    .resize(200, 200)
-    .toFile(storagePath);
+export async function changeAvatar(user: User, src: string) {
+  await db
+    .update(schema.users)
+    .set({ avatar: src })
+    .where(eq(schema.users.id, user.id));
 }
 
 // MARK: Username
