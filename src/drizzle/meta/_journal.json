@@ -50,6 +50,20 @@
       "when": 1725139381160,
       "tag": "0006_silky_toad",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1725295148874,
+      "tag": "0007_purple_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1725300811521,
+      "tag": "0008_loose_storm",
+      "breakpoints": true
     }
   ]
 }
