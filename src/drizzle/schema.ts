@@ -20,7 +20,7 @@ export const recipes = sqliteTable("recipes", {
   name: text("name").notNull(),
   slug: text("slug").notNull(),
   likes: integer("likes").notNull().default(0),
-  coverUrl: text("coverUrl"),
+  coverSrc: text("coverSrc"),
 });
 export type Recipe = typeof recipes.$inferSelect;
 

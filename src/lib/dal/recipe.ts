@@ -85,7 +85,7 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
       .insert(schema.recipes)
       .values({
         name: dto.name,
-        coverUrl: coverImage?.data?.url,
+        coverSrc: coverImage?.data?.url,
         description: dto.description,
         publicId: nanoid(),
         recommendedServingSize: dto.servings,
@@ -163,7 +163,7 @@ export async function getRecipe(
   const recipe = await db
     .select({
       id: schema.recipes.id,
-      coverSrc: schema.recipes.coverUrl,
+      coverSrc: schema.recipes.coverSrc,
       publicId: schema.recipes.publicId,
       name: schema.recipes.name,
       description: schema.recipes.description,
@@ -248,7 +248,7 @@ export async function updateRecipe(
   const result = await db
     .select({
       recipeId: schema.recipes.id,
-      coverImage: schema.recipes.coverUrl,
+      coverSrc: schema.recipes.coverSrc,
     })
     .from(schema.recipes)
     .where(eq(schema.recipes.publicId, dto.publicId));
@@ -267,8 +267,8 @@ export async function updateRecipe(
   const utapi = new UTApi();
   const coverImage = dto.cover ? await utapi.uploadFiles(dto.cover) : undefined;
 
-  if (result[0].coverImage) {
-    const fileKey = result[0].coverImage.split("/").at(-1) as string;
+  if (result[0].coverSrc) {
+    const fileKey = result[0].coverSrc.split("/").at(-1) as string;
     await utapi.deleteFiles(fileKey);
   }
 
@@ -276,7 +276,7 @@ export async function updateRecipe(
     const recipeQuery = await tx
       .update(schema.recipes)
       .set({
-        coverUrl: coverImage?.data?.url,
+        coverSrc: coverImage?.data?.url,
         cookingTime: dto.cookingTime,
         description: dto.description,
         name: dto.name,

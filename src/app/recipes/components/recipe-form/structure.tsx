@@ -14,7 +14,8 @@ type InputsProps = {
       preparationTime?: number;
       cookingTime?: number;
       visibility?: Visibility;
-      coverSrc?: string;
+      coverSrc?: string | null;
+      description?: string | null;
     };
     steps?: {
       publicId: string;
@@ -28,7 +29,9 @@ const Inputs = ({ defaultValue }: InputsProps) => {
   return (
     <>
       <div className="mb-4">
-        <CoverImage defaultValue={defaultValue?.recipe?.coverSrc} />
+        <CoverImage
+          defaultValue={defaultValue?.recipe?.coverSrc ?? undefined}
+        />
         <Input.Root name="name">
           <Input.Label>Name</Input.Label>
           <Input.Group>
@@ -46,7 +49,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <Input.Label>Description</Input.Label>
           <Input.Group>
             <Input.Textarea
-              defaultValue={defaultValue?.recipe?.description}
+              defaultValue={defaultValue?.recipe?.description ?? undefined}
               required
             />
           </Input.Group>
