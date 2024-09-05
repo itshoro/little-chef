@@ -18,6 +18,7 @@ import { MaintainerActions } from "./components/maintainer-actions";
 import { Section } from "./components/section";
 import { ServingsQueryStore } from "./components/servings-query-store";
 import { AddToCollection, LikeButton } from "./components/user-actions";
+import Image from "next/image";
 
 type ShowRecipePageProps = {
   params: { slug: string };
@@ -67,6 +68,15 @@ const ShowRecipePage = async ({
     return (
       <>
         <div>
+          {recipe.coverSrc && (
+            <Image
+              alt=""
+              src={recipe.coverSrc}
+              height={400}
+              width={600}
+              className="h-64 object-cover"
+            />
+          )}
           <div className="p-4">
             <div className="flex items-baseline justify-between gap-4">
               <div>
@@ -81,7 +91,11 @@ const ShowRecipePage = async ({
               </div>
               <div className="flex flex-shrink-0 flex-col items-center gap-2">
                 <ShareCurrentPageButton />
-                <LikeButton publicUserId={user?.publicId} recipe={recipe} />
+                <LikeButton
+                  disabled={!user}
+                  publicUserId={user?.publicId}
+                  recipe={recipe}
+                />
               </div>
             </div>
 
