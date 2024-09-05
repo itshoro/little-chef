@@ -6,7 +6,7 @@ import { BaseButton } from "../base-button";
 type OptimisticLikeButtonProps = {
   count: number;
   isLiked: boolean;
-  disabled: boolean;
+  disabled?: boolean;
   action: (
     type: "add" | "remove",
   ) => Promise<{ count: number; isLiked: boolean }>;
@@ -22,7 +22,7 @@ const OptimisticLikeButton = (props: OptimisticLikeButtonProps) => {
   return (
     <BaseButton
       type="button"
-      disabled={!props.disabled || pending}
+      disabled={props.disabled || pending}
       onClick={dispatchToggleLike}
       data-liked={optimisticLikes.isLiked}
       className="relative px-4 data-[liked=true]:border-rose-100 data-[liked=true]:bg-rose-50 data-[liked=true]:text-rose-400 data-[liked=true]:shadow-none dark:data-[liked=true]:border-rose-800 dark:data-[liked=true]:bg-rose-950 dark:data-[liked=true]:text-rose-300"

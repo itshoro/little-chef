@@ -4,27 +4,14 @@ import { revalidatePath } from "next/cache";
 import { OptimisticLikeButton } from "../../../components/button/optimistic-like-button";
 import { AddToCollectionButton } from "./buttons/add-to-collection-button";
 
-const UserActions = async ({
-  recipe,
-  publicUserId,
-}: {
-  recipe: Recipe;
-  publicUserId: string | undefined;
-}) => {
-  return (
-    <>
-      <LikeButton recipe={recipe} publicUserId={publicUserId} />
-      <AddToCollection recipe={recipe} publicUserId={publicUserId} />
-    </>
-  );
-};
-
 export const LikeButton = async ({
   recipe,
   publicUserId,
+  disabled,
 }: {
   recipe: Recipe;
   publicUserId: string | undefined;
+  disabled?: boolean;
 }) => {
   const isLiked = publicUserId
     ? await isRecipeLiked(publicUserId, recipe.id)
@@ -34,7 +21,7 @@ export const LikeButton = async ({
     <OptimisticLikeButton
       count={recipe.likes}
       isLiked={isLiked}
-      disabled={publicUserId !== undefined}
+      disabled={disabled}
       action={async (type) => {
         "use server";
         if (!publicUserId) throw new Error("No session available");
@@ -67,5 +54,3 @@ export const AddToCollection = async ({
     />
   );
 };
-
-export { UserActions };
