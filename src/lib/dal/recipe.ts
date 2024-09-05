@@ -265,12 +265,14 @@ export async function updateRecipe(
     });
 
   const utapi = new UTApi();
-  const coverImage = dto.cover ? await utapi.uploadFiles(dto.cover) : undefined;
+  const fileKey = result[0].coverSrc
+    ? result[0].coverSrc.split("/").at(-1)
+    : undefined;
 
-  if (result[0].coverSrc) {
-    const fileKey = result[0].coverSrc.split("/").at(-1) as string;
-    await utapi.deleteFiles(fileKey);
-  }
+  const [coverImage] = await Promise.all([
+    dto.cover ? await utapi.uploadFiles(dto.cover) : undefined,
+    fileKey ? utapi.deleteFiles(fileKey) : undefined,
+  ]);
 
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx

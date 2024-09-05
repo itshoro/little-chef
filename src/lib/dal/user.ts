@@ -93,16 +93,16 @@ export async function changeAvatar(user: User, image: File) {
     .resize(200, 200)
     .toBuffer();
 
+  const fileKey = user.avatar ? user.avatar.split("/").at(-1) : undefined;
   const utapi = new UTApi();
 
-  const avatar = await utapi.uploadFiles(new File([resizedBuffer], image.name));
-  if (user.avatar) {
-    const fileKey = user.avatar.split("/").at(-1) as string;
-    await utapi.deleteFiles(fileKey);
-  }
+  const [avatar] = await Promise.all([
+    utapi.uploadFiles(new File([resizedBuffer], image.name)),
+    fileKey ? utapi.deleteFiles(fileKey) : undefined,
+  ]);
 
   await db.transaction(async (tx) => {
-    await db
+    await tx
       .update(schema.users)
       .set({
         avatar: avatar.data?.url,
