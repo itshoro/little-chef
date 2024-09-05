@@ -1,7 +1,5 @@
-import * as fs from "fs/promises";
 import type { Session, User } from "lucia";
 import { Argon2id } from "oslo/password";
-import path from "path";
 import sharp from "sharp";
 import { lucia, validateRequest } from "../auth/lucia";
 import { nanoid } from "../nanoid";
@@ -9,6 +7,7 @@ import { nanoid } from "../nanoid";
 import { db } from "@/drizzle/db";
 import * as schema from "@/drizzle/schema";
 import { and, count, eq, inArray, like, or, sql } from "drizzle-orm";
+import { UTApi } from "uploadthing/server";
 import { getRecipe } from "./recipe";
 
 // MARK: Auth
@@ -90,18 +89,26 @@ export function validatePassword(password: any): password is Password {
 
 // MARK: Avatar
 export async function changeAvatar(user: User, image: File) {
-  const storageDirectoryPath = path.join(
-    process.cwd(),
-    "public",
-    user.publicId,
-  );
-
-  await fs.mkdir(storageDirectoryPath, { recursive: true });
-
-  const storagePath = path.join(storageDirectoryPath, "avatar.webp");
-  await sharp(await image.arrayBuffer())
+  const resizedBuffer = await sharp(await image.arrayBuffer())
     .resize(200, 200)
-    .toFile(storagePath);
+    .toBuffer();
+
+  const utapi = new UTApi();
+
+  const avatar = await utapi.uploadFiles(new File([resizedBuffer], image.name));
+  if (user.avatar) {
+    const fileKey = user.avatar.split("/").at(-1) as string;
+    await utapi.deleteFiles(fileKey);
+  }
+
+  await db.transaction(async (tx) => {
+    await db
+      .update(schema.users)
+      .set({
+        avatar: avatar.data?.url,
+      })
+      .where(eq(schema.users.id, user.id));
+  });
 }
 
 // MARK: Username

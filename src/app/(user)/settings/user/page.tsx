@@ -131,7 +131,7 @@ const setProfileImage = async (
   const user = await authorizeFromSession(sessionId);
 
   const image = formData.get("image");
-  if (typeof image !== "string") return;
+  if (!(image instanceof File)) return;
 
   await changeAvatar(user, image);
   revalidatePath("/settings/user", "page");

@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar } from "@/app/components/header/avatar";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Fieldset } from "../components/primitives/fieldset";
 
@@ -8,14 +9,15 @@ const UpdateAvatar = ({
   defaultValue,
   action,
 }: {
-  defaultValue: string;
+  defaultValue?: string;
   action: (formData: FormData) => Promise<void>;
 }) => {
-  const inputRef = useRef<React.ElementRef<"input">>(null);
+  const router = useRouter();
+  const inputRef = useRef<React.ElementRef<"input">>(null!);
   const [avatarSrc, setAvatarSrc] = useState(defaultValue);
 
   function onDeleteImage() {
-    if (inputRef.current) inputRef.current.value = "";
+    inputRef.current.value = "";
     setAvatarSrc(defaultValue);
   }
 
@@ -23,7 +25,7 @@ const UpdateAvatar = ({
     <form
       action={async (formData: FormData) => {
         await action(formData);
-        window.location.reload();
+        router.refresh();
       }}
     >
       <Fieldset label="Avatar">
@@ -49,6 +51,7 @@ const UpdateAvatar = ({
               id="file"
               name="image"
               className="hidden"
+              accept="image/jpeg, image/png"
             />
             <button
               className="flex-1 whitespace-nowrap rounded-full bg-black px-5 py-3 text-center font-medium text-white dark:bg-white dark:text-black"
