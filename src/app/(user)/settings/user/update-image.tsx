@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { Avatar } from "@/app/components/header/avatar";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -51,7 +52,7 @@ const UpdateAvatar = ({
               id="file"
               name="image"
               className="hidden"
-              accept="image/jpeg, image/png"
+              accept="image/jpeg, image/png, image/webp"
             />
             <button
               className="flex-1 whitespace-nowrap rounded-full bg-black px-5 py-3 text-center font-medium text-white dark:bg-white dark:text-black"
@@ -62,12 +63,12 @@ const UpdateAvatar = ({
             </button>
           </div>
         </div>
-        <button
+        <SubmitWithPending
           className="rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
           type="submit"
         >
           Save
-        </button>
+        </SubmitWithPending>
       </Fieldset>
     </form>
   );

@@ -1,5 +1,6 @@
 import { BackLink } from "@/app/components/back-link";
 import type { FormContext } from "@/app/components/form/root";
+import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { Header } from "@/app/components/header/header";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
@@ -51,18 +52,20 @@ const AddRecipePage = async () => {
             }}
           />
           <div>
-            <div className="flex justify-end px-4">
-              <Form.Submit>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="size-4"
-                >
-                  <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
-                </svg>
-                Add Recipe
-              </Form.Submit>
+            <div className="flex justify-end">
+              <SubmitWithPending className="group inline-flex items-center justify-center gap-2 rounded-full border p-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700">
+                <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    className="size-4"
+                  >
+                    <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
+                  </svg>
+                  Add Recipe
+                </div>
+              </SubmitWithPending>
             </div>
           </div>
         </Form.Root>
