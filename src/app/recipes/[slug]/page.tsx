@@ -74,7 +74,7 @@ const ShowRecipePage = async ({
               src={recipe.coverSrc}
               height={400}
               width={600}
-              className="h-64 object-cover"
+              className="h-64 w-full object-cover"
             />
           )}
           <div className="p-4">
