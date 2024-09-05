@@ -1,9 +1,10 @@
-import * as Input from "@/app/components/input";
-import { StepsGenerator } from "./elements/step/generator";
 import { VisibilitySwitcher } from "@/app/(user)/settings/components/visibility-switcher";
-import { ServingsInput } from "./elements/servings-input";
 import * as Fieldset from "@/app/components/fieldset";
+import * as Input from "@/app/components/input";
 import type { Visibility } from "@/lib/dal/visibility";
+import { CoverImage } from "./cover-image";
+import { ServingsInput } from "./elements/servings-input";
+import { StepsGenerator } from "./elements/step/generator";
 
 type InputsProps = {
   defaultValue?: {
@@ -13,6 +14,7 @@ type InputsProps = {
       preparationTime?: number;
       cookingTime?: number;
       visibility?: Visibility;
+      coverSrc?: string;
     };
     steps?: {
       publicId: string;
@@ -26,6 +28,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
   return (
     <>
       <div className="mb-4">
+        <CoverImage defaultValue={defaultValue?.recipe?.coverSrc} />
         <Input.Root name="name">
           <Input.Label>Name</Input.Label>
           <Input.Group>

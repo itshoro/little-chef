@@ -14,6 +14,7 @@ const AddRecipeValidator = z.object({
       description: z.string().max(255),
     }),
   ),
+  cover: z.instanceof(File).optional(),
 });
 
 const UpdateRecipeValidator = AddRecipeValidator.merge(

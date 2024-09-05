@@ -2,6 +2,7 @@ import { db } from "@/drizzle/db";
 import * as schema from "@/drizzle/schema";
 import { and, eq, like, or, sql } from "drizzle-orm";
 import { User } from "lucia";
+import { UTApi } from "uploadthing/server";
 import { z } from "zod";
 import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
@@ -76,11 +77,15 @@ export async function updateDefaultVisibility(
 
 // MARK: App
 export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
+  const utapi = new UTApi();
+  const coverImage = dto.cover ? await utapi.uploadFiles(dto.cover) : undefined;
+
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
       .insert(schema.recipes)
       .values({
         name: dto.name,
+        coverUrl: coverImage?.data?.url,
         description: dto.description,
         publicId: nanoid(),
         recommendedServingSize: dto.servings,
@@ -115,6 +120,7 @@ export async function getCreatorsAndMaintainers(recipeId: number) {
     .select({
       username: schema.users.username,
       publicId: schema.users.publicId,
+      avatar: schema.users.avatar,
     })
     .from(schema.recipeSubscriptions)
     .where(
@@ -157,6 +163,7 @@ export async function getRecipe(
   const recipe = await db
     .select({
       id: schema.recipes.id,
+      coverSrc: schema.recipes.coverUrl,
       publicId: schema.recipes.publicId,
       name: schema.recipes.name,
       description: schema.recipes.description,
@@ -239,7 +246,10 @@ export async function updateRecipe(
   user: User,
 ) {
   const result = await db
-    .select({ recipeId: schema.recipes.id })
+    .select({
+      recipeId: schema.recipes.id,
+      coverImage: schema.recipes.coverUrl,
+    })
     .from(schema.recipes)
     .where(eq(schema.recipes.publicId, dto.publicId));
 
@@ -254,10 +264,19 @@ export async function updateRecipe(
       cause: { target: "user" },
     });
 
+  const utapi = new UTApi();
+  const coverImage = dto.cover ? await utapi.uploadFiles(dto.cover) : undefined;
+
+  if (result[0].coverImage) {
+    const fileKey = result[0].coverImage.split("/").at(-1) as string;
+    await utapi.deleteFiles(fileKey);
+  }
+
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
       .update(schema.recipes)
       .set({
+        coverUrl: coverImage?.data?.url,
         cookingTime: dto.cookingTime,
         description: dto.description,
         name: dto.name,
@@ -304,6 +323,7 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
 
   const dto = {
     publicId: formData.get("publicId") ?? undefined,
+    cover: formData.get("cover") ?? undefined,
     name: formData.get("name"),
     description: formData.get("description"),
     servings: formData.get("servings"),
