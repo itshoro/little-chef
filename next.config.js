@@ -1,8 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ["oslo"],
     typedRoutes: true,
+  },
+  serverExternalPackages: ["oslo"],
+  images: {
+    remotePatterns: [
+      {
+        hostname: "utfs.io",
+      },
+    ],
   },
   typescript: {
     ignoreBuildErrors: true,
