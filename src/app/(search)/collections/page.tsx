@@ -10,18 +10,16 @@ export const metadata: Metadata = {
   title: "Collections",
 };
 
-const Page = async (props: { searchParams: { q?: string } }) => {
+const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   const { user } = await validateRequest();
 
-  return (
-    <>
-      <main className="flex-1">
-        <CollectionList user={user} query={props.searchParams.q} />
-        <CollectionSearchResults user={user} query={props.searchParams.q} />
-      </main>
-      {user && <AddButton href="/collections/add" />}
-    </>
-  );
+  return (<>
+    <main className="flex-1">
+      <CollectionList user={user} query={(await props.searchParams).q} />
+      <CollectionSearchResults user={user} query={(await props.searchParams).q} />
+    </main>
+    {user && <AddButton href="/collections/add" />}
+  </>);
 };
 
 const CollectionList = async ({

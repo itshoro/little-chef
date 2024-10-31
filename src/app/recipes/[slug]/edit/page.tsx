@@ -16,16 +16,17 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 type EditRecipePageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export const metadata: Metadata = {
   title: "Editing Recipe",
 };
 
-const EditRecipePage = async ({ params }: EditRecipePageProps) => {
+const EditRecipePage = async (props: EditRecipePageProps) => {
+  const params = await props.params;
   const { publicId } = extractParts(params.slug);
   const { user, session } = await validateRequest();
 

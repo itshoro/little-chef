@@ -14,12 +14,13 @@ import { authorizeFromSession } from "@/lib/dal/user";
 import { UpdateCollectionValidator } from "@/lib/dal/validators";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
-const Page = async ({ params }: PageProps) => {
+const Page = async (props: PageProps) => {
+  const params = await props.params;
   const { publicId } = extractParts(params.slug);
   const { user, session } = await validateRequest();
 

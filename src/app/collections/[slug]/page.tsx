@@ -27,12 +27,10 @@ import { notFound, redirect } from "next/navigation";
 import { DeleteButton } from "./components/delete-button";
 import { EditButton } from "./components/edit-button";
 
-type CollectionPageProps = { params: { slug: string } };
+type CollectionPageProps = { params: Promise<{ slug: string }> };
 
-export async function generateMetadata(
-  { params }: CollectionPageProps,
-  parent: ResolvedMetadata,
-): Promise<Metadata> {
+export async function generateMetadata(props: CollectionPageProps, parent: ResolvedMetadata): Promise<Metadata> {
+  const params = await props.params;
   try {
     const { publicId } = extractParts(params.slug);
     const collection = await getCollection({ publicId }, null);
@@ -43,7 +41,8 @@ export async function generateMetadata(
   }
 }
 
-const CollectionPage = async ({ params }: CollectionPageProps) => {
+const CollectionPage = async (props: CollectionPageProps) => {
+  const params = await props.params;
   const { slug, publicId } = extractParts(params.slug);
   const { user } = await validateRequest();
 

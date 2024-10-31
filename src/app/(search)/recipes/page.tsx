@@ -11,18 +11,16 @@ export const metadata: Metadata = {
   title: "Recipes",
 };
 
-const Page = async (props: { searchParams: { q?: string } }) => {
+const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   const { user } = await validateRequest();
 
-  return (
-    <>
-      <main className="flex-1">
-        <YourCookbook user={user} query={props.searchParams.q} />
-        <SearchResults query={props.searchParams.q} />
-      </main>
-      <AddButton href="/recipes/add" />
-    </>
-  );
+  return (<>
+    <main className="flex-1">
+      <YourCookbook user={user} query={(await props.searchParams).q} />
+      <SearchResults query={(await props.searchParams).q} />
+    </main>
+    <AddButton href="/recipes/add" />
+  </>);
 };
 
 const YourCookbook = async ({

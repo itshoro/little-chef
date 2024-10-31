@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@cooklang/cooklang-ts": "^1.2.6",
     "@lucia-auth/adapter-drizzle": "^1.1.0",
-    "@next/env": "^14.2.9",
+    "@next/env": "15.0.0",
     "@oddbird/popover-polyfill": "^0.4.4",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.9",
@@ -23,11 +23,11 @@
     "drizzle-orm": "^0.33.0",
     "lucia": "^3.2.0",
     "nanoid": "^5.0.7",
-    "next": "15.0.0-canary.116",
+    "next": "15.0.0",
     "optional": "^0.1.4",
     "oslo": "^1.2.1",
-    "react": "19.0.0-rc-e948a5ac-20240807",
-    "react-dom": "19.0.0-rc-e948a5ac-20240807",
+    "react": "19.0.0-rc-65a56d0e-20241020",
+    "react-dom": "19.0.0-rc-65a56d0e-20241020",
     "sharp": "^0.33.5",
     "uploadthing": "^6.13.3",
     "uuid": "^10.0.0",
@@ -36,8 +36,8 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^22.5.4",
-    "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
+    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.24.2",
@@ -46,5 +46,11 @@
     "tailwindcss": "^3.4.10",
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@8.9.0",
+  "pnpm": {
+    "overrides": {
+      "@types/react": "npm:types-react@19.0.0-rc.1",
+      "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
+    }
+  }
 }

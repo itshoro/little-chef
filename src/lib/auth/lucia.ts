@@ -28,7 +28,7 @@ const lucia = new Lucia(adapter, {
 
 async function validateRequest(sessionId: string | null = null) {
   if (!sessionId) {
-    sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+    sessionId = (await cookies()).get(lucia.sessionCookieName)?.value ?? null;
   }
   if (!sessionId) {
     return { user: null, session: null };
@@ -38,14 +38,14 @@ async function validateRequest(sessionId: string | null = null) {
   try {
     if (result.session?.fresh) {
       const sessionCookie = lucia.createSessionCookie(result.session.id);
-      cookies().set(
+      (await cookies()).set(
         sessionCookie.name,
         sessionCookie.value,
         sessionCookie.attributes,
       );
     } else if (!result.session) {
       const sessionCookie = lucia.createBlankSessionCookie();
-      cookies().set(
+      (await cookies()).set(
         sessionCookie.name,
         sessionCookie.value,
         sessionCookie.attributes,

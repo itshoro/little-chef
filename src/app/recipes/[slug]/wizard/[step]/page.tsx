@@ -5,16 +5,18 @@ import { Actions } from "../actions";
 import { validateRequest } from "@/lib/auth/lucia";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string;
     step: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     servings: string;
-  };
+  }>;
 };
 
-const Page = async ({ params, searchParams }: PageProps) => {
+const Page = async (props: PageProps) => {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { user } = await validateRequest();
   const { publicId } = extractParts(params.slug);
 

@@ -21,14 +21,13 @@ import { AddToCollection, LikeButton } from "./components/user-actions";
 import Image from "next/image";
 
 type ShowRecipePageProps = {
-  params: { slug: string };
-  searchParams: { servings: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ servings: string }>;
 };
 
-export async function generateMetadata(
-  { params, searchParams }: ShowRecipePageProps,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata(props: ShowRecipePageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { publicId } = extractParts(params.slug);
   try {
     const recipe = await getRecipe({ publicId });
@@ -43,10 +42,9 @@ export async function generateMetadata(
   }
 }
 
-const ShowRecipePage = async ({
-  params,
-  searchParams,
-}: ShowRecipePageProps) => {
+const ShowRecipePage = async (props: ShowRecipePageProps) => {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   try {
     const { user } = await validateRequest();
     const { publicId } = extractParts(params.slug);
