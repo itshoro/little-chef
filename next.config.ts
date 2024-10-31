@@ -1,9 +1,7 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    typedRoutes: true,
-  },
-  serverExternalPackages: ["oslo"],
+import { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  serverExternalPackages: ["oslo", "better-sqlite3", "sharp"],
   images: {
     remotePatterns: [
       {
