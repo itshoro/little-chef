@@ -1,8 +1,7 @@
 "use client";
 
 import { useContext } from "@/hooks/useContext";
-import { createContext, useRef } from "react";
-import { useFormState } from "react-dom";
+import { createContext, useRef, useActionState } from "react";
 
 type FormContext =
   | {
@@ -32,7 +31,7 @@ const Form = ({
   initialState = { success: false },
 }: FormProps) => {
   const ref = useRef<HTMLFormElement>(null);
-  const [state, formAction] = useFormState(action, initialState);
+  const [state, formAction] = useActionState(action, initialState);
 
   if (state.success) {
     ref.current?.reset();
