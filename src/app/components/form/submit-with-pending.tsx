@@ -23,8 +23,8 @@ const SubmitWithPending = ({
               fill="none"
               r="10"
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeWidth="2"
               strokeDasharray={24}
               strokeDashoffset={4}
             ></circle>

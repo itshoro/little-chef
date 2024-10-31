@@ -141,12 +141,12 @@ const CharacterCount = ({
             fill="none"
             r="10"
             stroke="currentColor"
-            stroke-dasharray="63"
-            stroke-dashoffset={
+            strokeDasharray="63"
+            strokeDashoffset={
               63 - (63 * remainingCharacters) / maxLength.current
             }
-            stroke-linecap="round"
-            stroke-width="2"
+            strokeLinecap="round"
+            strokeWidth="2"
           ></circle>
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
