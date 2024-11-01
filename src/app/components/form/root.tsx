@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "@/hooks/useContext";
-import { createContext, useRef, useActionState } from "react";
+import { createContext, useRef, useActionState, useTransition } from "react";
 
 type FormContext =
   | {
@@ -23,15 +23,18 @@ type FormProps = {
   ) => FormContext | Promise<FormContext>;
   children: React.ReactNode;
   initialState?: FormContext;
+  retainFormDataOnFailure?: boolean;
 };
 
 const Form = ({
   action,
   children,
+  retainFormDataOnFailure,
   initialState = { success: false },
 }: FormProps) => {
   const ref = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(action, initialState);
+  const [_, startTransition] = useTransition();
 
   if (state.success) {
     ref.current?.reset();
@@ -39,7 +42,17 @@ const Form = ({
 
   return (
     <FormErrorContext.Provider value={state}>
-      <form ref={ref} action={formAction}>
+      <form
+        ref={ref}
+        action={formAction}
+        onSubmit={(e) => {
+          if (retainFormDataOnFailure) {
+            e.preventDefault();
+
+            startTransition(() => formAction(new FormData(e.currentTarget)));
+          }
+        }}
+      >
         {children}
       </form>
     </FormErrorContext.Provider>

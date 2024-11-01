@@ -25,7 +25,7 @@ const SignUpPage = async () => {
         currently implemented and won't be as part of this small private test
         run.
       </p>
-      <Form.Root action={signupAction}>
+      <Form.Root action={signupAction} retainFormDataOnFailure={true}>
         <div className="max-w-96 pb-2">
           <Input.Root name="username">
             <Input.Label>Username</Input.Label>
