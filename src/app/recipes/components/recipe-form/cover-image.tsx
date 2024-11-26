@@ -4,16 +4,16 @@ import Image from "next/image";
 import { useState } from "react";
 
 const CoverImage = ({ defaultValue }: { defaultValue?: string }) => {
-  const [src, setSrc] = useState(defaultValue);
+  const [src, setSrc] = useState(defaultValue ?? "");
 
   function setCover(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.currentTarget.files) return;
-    if (!e.currentTarget.files[0] && src) {
-      URL.revokeObjectURL(src);
-      setSrc(undefined);
-      return;
-    }
-    setSrc(URL.createObjectURL(e.currentTarget.files[0]));
+    const coverImage = e.currentTarget.files?.[0];
+
+    setSrc((src) => {
+      if (src) URL.revokeObjectURL(src);
+
+      return coverImage ? URL.createObjectURL(coverImage) : "";
+    });
   }
 
   return (
@@ -46,7 +46,6 @@ const CoverImage = ({ defaultValue }: { defaultValue?: string }) => {
           <div className="absolute bottom-0 h-full w-full bg-gradient-to-t from-white/70 dark:from-black/70" />
         </div>
       </div>
-      <input type="hidden" name="coverImage" value={src} />
     </>
   );
 };

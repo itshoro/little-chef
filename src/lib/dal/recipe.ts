@@ -78,7 +78,7 @@ export async function updateDefaultVisibility(
 // MARK: App
 export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
   const utapi = new UTApi();
-  const coverImage = dto.cover ? await utapi.uploadFiles(dto.cover) : undefined;
+  const coverImage = dto.cover ? dto.cover : undefined;
 
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
@@ -323,9 +323,15 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
     description: formData.get(`step.${uuid}`) as string,
   }));
 
+  // for some reason not supplying a file to the input can lead to a file of size 0 being appended.
+  let coverImage = formData.get("cover");
+  if (coverImage instanceof File && coverImage.size === 0) {
+    coverImage = undefined;
+  }
+
   const dto = {
     publicId: formData.get("publicId") ?? undefined,
-    cover: formData.get("cover") ?? undefined,
+    cover: coverImage ?? undefined,
     name: formData.get("name"),
     description: formData.get("description"),
     servings: formData.get("servings"),
