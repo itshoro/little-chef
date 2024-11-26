@@ -278,7 +278,7 @@ export async function updateRecipe(
     const recipeQuery = await tx
       .update(schema.recipes)
       .set({
-        coverSrc: coverImage?.data?.url,
+        coverSrc: coverImage?.data?.url ?? null,
         cookingTime: dto.cookingTime,
         description: dto.description,
         name: dto.name,
