@@ -73,7 +73,7 @@ export function validatePassword(password: any): password is Password {
     password.length > passwordRange.max
   ) {
     throw new RangeError(
-      `Password needs to be between ${passwordRange.min} and ${passwordRange.max} characters long. Received ${password.length} characters.`,
+      `Password needs to be between ${passwordRange.min} and ${passwordRange.max} characters long.\r\n\r\n Received ${password.length} characters.`,
       {
         cause: {
           ...passwordRange,

@@ -1,9 +1,10 @@
-import { Submit } from "@/app/recipes/components/recipe-form";
-import { signupAction } from "./action";
-import * as Input from "@/app/components/input";
 import * as Form from "@/app/components/form";
+import * as Input from "@/app/components/input";
+import { Submit } from "@/app/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
+import { passwordRange, usernameRange } from "@/lib/dal/user";
 import { redirect } from "next/navigation";
+import { signupAction } from "./action";
 
 const SignUpPage = async () => {
   const { user } = await validateRequest();
@@ -25,12 +26,17 @@ const SignUpPage = async () => {
         currently implemented and won't be as part of this small private test
         run.
       </p>
-      <Form.Root action={signupAction} retainFormDataOnFailure={true}>
+      <Form.Root action={signupAction}>
         <div className="max-w-96 pb-2">
           <Input.Root name="username">
             <Input.Label>Username</Input.Label>
             <Input.Group>
-              <Input.Element type="text" />
+              <Input.Element
+                type="text"
+                required
+                minLength={usernameRange.min}
+                maxLength={usernameRange.max}
+              />
             </Input.Group>
           </Input.Root>
         </div>
@@ -38,7 +44,12 @@ const SignUpPage = async () => {
           <Input.Root name="password">
             <Input.Label>Password</Input.Label>
             <Input.Group>
-              <Input.Element type="password" />
+              <Input.Element
+                type="password"
+                required
+                minLength={passwordRange.min}
+                maxLength={passwordRange.max}
+              />
             </Input.Group>
           </Input.Root>
         </div>
@@ -46,7 +57,7 @@ const SignUpPage = async () => {
           <Input.Root name="invite-code">
             <Input.Label>Invite Code</Input.Label>
             <Input.Group>
-              <Input.Element type="text" />
+              <Input.Element type="text" required />
             </Input.Group>
           </Input.Root>
         </div>
