@@ -32,7 +32,7 @@ const VisibilityOption = ({
       defaultChecked={defaultValue === visibility}
       triggerSubmitOnChange={triggerSubmitOnChange}
     >
-      <span className="text-neutral-400 peer-checked:group-[]:text-lime-600">
+      <span className="text-neutral-400 in-[.group]:peer-checked:text-lime-600">
         {icon}
       </span>
       <span className="text-sm font-medium">{label}</span>

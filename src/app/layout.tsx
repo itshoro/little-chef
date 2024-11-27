@@ -25,7 +25,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           //     "[header-start] min-content [header-end content-start] 1fr [content-end action-start] min-content [action-end]",
           // }}
         >
-          <div className="mx-auto min-h-[100dvh] max-w-screen-xl xl:border-x dark:border-stone-700">
+          <div className="mx-auto min-h-[100dvh] max-w-(--breakpoint-xl) xl:border-x dark:border-stone-700">
             <div className="min-h-[100svh]">{props.children}</div>
           </div>
         </div>

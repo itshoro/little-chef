@@ -60,7 +60,7 @@ const CoverImage = ({ defaultValue = "" }: { defaultValue?: string }) => {
               </label>
             </div>
           </div>
-          <div className="absolute bottom-0 h-full w-full bg-gradient-to-t from-white/70 dark:from-black/70" />
+          <div className="absolute bottom-0 h-full w-full bg-linear-to-t from-white/70 dark:from-black/70" />
         </div>
       </div>
     </>

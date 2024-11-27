@@ -76,7 +76,7 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
         </Input.Root>
         <div className="group mb-auto ml-4 grid place-items-center">
           <Generator.Remove
-            className="grid place-items-center rounded p-2.5 text-stone-500 transition-colors hover:bg-stone-100 disabled:bg-stone-200 dark:bg-stone-800 dark:disabled:bg-stone-700"
+            className="grid place-items-center rounded-sm p-2.5 text-stone-500 transition-colors hover:bg-stone-100 disabled:bg-stone-200 dark:bg-stone-800 dark:disabled:bg-stone-700"
             uid={uuid}
           >
             <div title="Remove">
@@ -131,7 +131,7 @@ const CharacterCount = ({
 
   return (
     <div
-      className={`invisible peer-focus-within:group-[]:visible ${characterCountColorMap[notificationLevel]}`}
+      className={`invisible in-[.group]:peer-focus-within:visible ${characterCountColorMap[notificationLevel]}`}
     >
       <div className="relative flex items-center justify-center">
         <svg viewBox="0 0 20 20" className="size-7 -rotate-90 overflow-visible">
@@ -172,7 +172,7 @@ const StepCounterLabel = ({
 
   return (
     <label
-      className="m-2 h-8 w-8 flex-shrink-0 flex-grow-0 select-none rounded-full bg-neutral-100 text-sm font-bold dark:bg-stone-900"
+      className="m-2 h-8 w-8 shrink-0 grow-0 select-none rounded-full bg-neutral-100 text-sm font-bold dark:bg-stone-900"
       htmlFor={_name}
     >
       <div className="translate-y-1.5 text-center">{children}</div>

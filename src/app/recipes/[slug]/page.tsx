@@ -87,7 +87,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                   {recipe.description}
                 </div>
               </div>
-              <div className="flex flex-shrink-0 flex-col items-center gap-2">
+              <div className="flex shrink-0 flex-col items-center gap-2">
                 <ShareCurrentPageButton />
                 <LikeButton
                   disabled={!user}
@@ -181,7 +181,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
 };
 
 const InfoCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-w-0 rounded-lg bg-stone-100 px-6 py-4 shadow-sm dark:bg-stone-900">
+  <div className="min-w-0 rounded-lg bg-stone-100 px-6 py-4 shadow-xs dark:bg-stone-900">
     {children}
   </div>
 );

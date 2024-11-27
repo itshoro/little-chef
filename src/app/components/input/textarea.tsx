@@ -14,7 +14,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         ref={ref}
         {...props}
-        className="m-0.5 min-h-[3lh] w-full rounded-lg border-none bg-transparent p-1.5 font-medium outline-none transition focus:ring-transparent"
+        className="m-0.5 min-h-[3lh] w-full rounded-lg border-none bg-transparent p-1.5 font-medium outline-hidden transition focus:ring-transparent"
         name={_name}
         id={_name}
       />

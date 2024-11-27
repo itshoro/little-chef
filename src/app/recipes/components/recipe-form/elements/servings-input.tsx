@@ -18,7 +18,7 @@ const ServingsInput = ({
   const ref = useRef<React.ElementRef<"input">>(null);
 
   return (
-    <div className="w-full min-w-0 rounded-full border bg-stone-100 font-semibold transition focus-within:!border-green-600/40 focus-within:outline-4 focus-within:outline-green-400/10 sm:w-auto dark:border-stone-700 dark:bg-stone-900">
+    <div className="w-full min-w-0 rounded-full border bg-stone-100 font-semibold transition focus-within:border-green-600/40! focus-within:outline-4 focus-within:outline-green-400/10 sm:w-auto dark:border-stone-700 dark:bg-stone-900">
       <div className="flex">
         <button
           className="aspect-square h-12 select-none rounded-full active:bg-black/5 dark:active:bg-white/5"

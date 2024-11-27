@@ -53,7 +53,7 @@ const AddRecipePage = async () => {
           />
           <div>
             <div className="flex justify-end">
-              <SubmitWithPending className="group inline-flex items-center justify-center gap-2 rounded-full border p-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700">
+              <SubmitWithPending className="group inline-flex items-center justify-center gap-2 rounded-full border p-4 text-sm font-medium shadow-sm active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700">
                 <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

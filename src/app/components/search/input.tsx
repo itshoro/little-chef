@@ -59,7 +59,7 @@ const Input = ({ initialQuery }: Props) => {
             onChange={onInput}
             placeholder="Search&#8230;"
             // type="search"
-            className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-none focus:ring-0 dark:placeholder-stone-600"
+            className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-hidden focus:ring-0 dark:placeholder-stone-600"
             autoComplete="off"
           />
         </div>

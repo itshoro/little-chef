@@ -98,7 +98,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
 
       <Fieldset.Root>
         <div className="mb-3 flex flex-col items-baseline justify-between gap-4 sm:ml-auto sm:flex-row">
-          <Fieldset.Label className="flex-shrink-0">Steps</Fieldset.Label>
+          <Fieldset.Label className="shrink-0">Steps</Fieldset.Label>
 
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             <div className="text-sm font-medium text-stone-600 dark:text-stone-400">

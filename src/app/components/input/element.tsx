@@ -16,7 +16,7 @@ const Element = forwardRef<
       ref={ref}
       name={_name}
       id={_name}
-      className="w-full rounded-lg border-none bg-transparent p-2 outline-none focus:ring-transparent"
+      className="w-full rounded-lg border-none bg-transparent p-2 outline-hidden focus:ring-transparent"
     />
   );
 });
