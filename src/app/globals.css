@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@variant dark (&:where(.dark, .dark *));
+@variant dark (@media (prefers-color-scheme: dark));
 
 @theme {
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
