@@ -1,6 +1,7 @@
 import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   serverExternalPackages: ["oslo", "better-sqlite3", "sharp"],
   images: {
     remotePatterns: [
