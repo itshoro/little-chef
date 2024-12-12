@@ -1,10 +1,13 @@
 "use client";
 
-const Group = (props: { children: React.ReactNode }) => {
+const Group = ({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) => {
   return (
     <div
-      data-group="true"
-      className="group peer relative flex w-full rounded-lg border border-neutral-200 bg-neutral-100 font-medium outline-hidden outline-offset-0 ring-0 transition focus-within:border-green-600/40! focus-within:outline-4 focus-within:outline-green-400/10 dark:border-stone-700 dark:bg-stone-900"
+      data-slot="control"
+      className={`isolate grid grid-cols-[calc(var(--spacing)*12)_1fr_calc(var(--spacing)*12)] [&>[data-slot=control]]:col-span-3 [&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]:has(+[data-slot=icon])]:pr-12 [&>[data-slot=icon]]:z-10 [&>[data-slot=icon]]:col-start-1 [&>[data-slot=icon]]:row-start-1 [&>[data-slot=icon]+[data-slot=control]]:pl-12 [&>[data-slot=icon]:last-child]:col-start-3 ${className}`}
       {...props}
     />
   );

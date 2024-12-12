@@ -17,15 +17,8 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" className="min-h-[100dvh]">
       <body className={`${inter.className} dark:bg-black dark:text-white`}>
-        <div
-          className=""
-          // className="magic-grid h-[100svh]"
-          // style={{
-          //   gridTemplateRows:
-          //     "[header-start] min-content [header-end content-start] 1fr [content-end action-start] min-content [action-end]",
-          // }}
-        >
-          <div className="mx-auto min-h-[100dvh] max-w-(--breakpoint-xl) xl:border-x dark:border-stone-700">
+        <div>
+          <div className="mx-auto min-h-[100dvh] max-w-(--breakpoint-xl) border-stone-200 xl:border-x dark:border-stone-700">
             <div className="min-h-[100svh]">{props.children}</div>
           </div>
         </div>

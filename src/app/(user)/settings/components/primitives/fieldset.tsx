@@ -5,7 +5,7 @@ type FieldsetProps = {
 const Fieldset = ({ label, children, ...props }: FieldsetProps) => {
   return (
     <fieldset
-      className="rounded-xl bg-stone-100 p-3 dark:bg-stone-900"
+      className="rounded-xl border border-stone-200 p-3 dark:border-stone-800"
       {...props}
     >
       <legend className="sr-only">{label}</legend>

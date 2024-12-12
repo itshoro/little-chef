@@ -10,7 +10,7 @@ const CooklangPreview = ({
   value?: string;
   ingredientScaleFactor?: number;
 }) => {
-  const parserRef = useRef<Parser>();
+  const parserRef = useRef<Parser>(undefined);
   if (parserRef.current === undefined) {
     parserRef.current = new Parser();
   }
@@ -22,7 +22,7 @@ const CooklangPreview = ({
   return (
     <div>
       {parsedResult.map((step, i) => (
-        <p key={i} className="whitespace-normal text-balance leading-relaxed">
+        <p key={i} className="leading-relaxed text-balance whitespace-normal">
           {step.map((segment, i) => {
             switch (segment.type) {
               case "text":
@@ -31,7 +31,7 @@ const CooklangPreview = ({
                 return (
                   <span
                     key={i}
-                    className="my-0.5 inline-flex whitespace-pre-line rounded-full bg-neutral-100 px-2 dark:bg-stone-900"
+                    className="my-0.5 inline-flex rounded-full bg-neutral-100 px-2 whitespace-pre-line dark:bg-stone-900"
                   >
                     <span className="border-r p-1 dark:border-stone-700">
                       <span>

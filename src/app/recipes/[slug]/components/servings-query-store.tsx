@@ -6,6 +6,7 @@ import {
 } from "@/app/recipes/components/recipe-form/elements/servings-input";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import * as Input from "@/app/components/input";
 
 type ServingsQueryStoreProps = Omit<ServingsInputProps, "onChange">;
 
@@ -27,15 +28,24 @@ const ServingsQueryStore = ({
   }, [servings, sizingParam]);
 
   return (
-    <ServingsInput
-      {...props}
-      defaultValue={servings}
-      onChange={(e) => {
-        const searchParams = new URLSearchParams(params);
-        searchParams.set("servings", e.target.value);
-        window.history.replaceState(null, "", `?${searchParams.toString()}`);
-      }}
-    />
+    <Input.Root>
+      <Input.Group>
+        <Input.Label className="mb-2">Servings</Input.Label>
+        <ServingsInput
+          {...props}
+          defaultValue={servings}
+          onChange={(e) => {
+            const searchParams = new URLSearchParams(params);
+            searchParams.set("servings", e.target.value);
+            window.history.replaceState(
+              null,
+              "",
+              `?${searchParams.toString()}`,
+            );
+          }}
+        />
+      </Input.Group>
+    </Input.Root>
   );
 };
 

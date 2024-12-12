@@ -32,14 +32,14 @@ const StepGeneratorItem = ({
             onChange={(e) => setInput(e.target.value)}
           />
         </div>
-        <div className="mb-4 ml-12 mt-3 text-sm">
+        <div className="mt-3 mb-4 ml-12 text-sm">
           <div className="pb-1 text-xs text-neutral-400">Preview</div>
           <CooklangPreview value={deferredInput} />
         </div>
       </div>
       <span
         style={{ height: "calc(100% - 3rem)" }}
-        className="absolute left-6 top-12 w-px bg-neutral-200"
+        className="absolute top-12 left-6 w-px bg-stone-100 dark:bg-stone-800"
       />
     </li>
   );
@@ -63,20 +63,19 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
         </Input.Root>
         <Input.Root name={uuid}>
           <StepCounterLabel>{order}</StepCounterLabel>
-          <Input.Group>
-            <Input.Textarea
-              ref={textRef}
-              value={value}
-              onChange={onChange}
-              autoFocus={order > 1}
-              maxLength={140}
-              required
-            />
-          </Input.Group>
+          <Input.Textarea
+            className="w-full flex-1"
+            ref={textRef}
+            value={value}
+            onChange={onChange}
+            autoFocus={order > 1}
+            maxLength={140}
+            required
+          />
         </Input.Root>
         <div className="group mb-auto ml-4 grid place-items-center">
           <Generator.Remove
-            className="grid place-items-center rounded-sm p-2.5 text-stone-500 transition-colors hover:bg-stone-100 disabled:bg-stone-200 dark:bg-stone-800 dark:disabled:bg-stone-700"
+            className="grid place-items-center rounded-sm p-2.5 text-stone-500 transition-colors disabled:bg-stone-200 dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:not-disabled:bg-stone-700 dark:disabled:bg-stone-900 dark:disabled:text-stone-700"
             uid={uuid}
           >
             <div title="Remove">
@@ -172,7 +171,7 @@ const StepCounterLabel = ({
 
   return (
     <label
-      className="m-2 h-8 w-8 shrink-0 grow-0 select-none rounded-full bg-neutral-100 text-sm font-bold dark:bg-stone-900"
+      className="m-2 h-8 w-8 shrink-0 grow-0 rounded-full bg-neutral-100 text-sm font-bold select-none dark:bg-stone-900"
       htmlFor={_name}
     >
       <div className="translate-y-1.5 text-center">{children}</div>

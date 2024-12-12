@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import * as Input from "@/app/components/input";
 
 type ServingsInputProps = {
   defaultValue?: number;
@@ -15,47 +16,52 @@ const ServingsInput = ({
   defaultValue = 1,
   min = 1,
 }: ServingsInputProps) => {
-  const ref = useRef<React.ElementRef<"input">>(null);
+  const ref = useRef<React.ComponentRef<"input">>(null);
 
   return (
-    <div className="w-full min-w-0 rounded-full border bg-stone-100 font-semibold transition focus-within:border-green-600/40! focus-within:outline-4 focus-within:outline-green-400/10 sm:w-auto dark:border-stone-700 dark:bg-stone-900">
-      <div className="flex">
-        <button
-          className="aspect-square h-12 select-none rounded-full active:bg-black/5 dark:active:bg-white/5"
-          type="button"
-          onClick={() => {
-            if (!ref.current) return;
-            ref.current.stepDown();
-            // stepDown and stepUp don't trigger onChange automatically.
-            ref.current.dispatchEvent(new Event("input", { bubbles: true }));
-          }}
-        >
-          -
-        </button>
-        <input
+    <Input.Root>
+      <Input.Group className="w-full min-w-0 rounded-full sm:w-auto">
+        <span data-slot="icon" className="p-1">
+          <button
+            className="grid size-10 place-items-center rounded-lg border-stone-200 bg-white font-semibold text-stone-500 shadow-sm select-none active:border active:shadow-inner active:*:translate-y-px dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:bg-stone-700"
+            type="button"
+            onClick={() => {
+              ref.current?.stepDown();
+              // stepDown and stepUp don't trigger onChange automatically.
+              ref.current?.dispatchEvent(new Event("input", { bubbles: true }));
+            }}
+            tabIndex={-1}
+          >
+            <span className="transform">-</span>
+          </button>
+        </span>
+        <Input.Element
           defaultValue={defaultValue ?? 1}
           type="number"
           name={name}
           min={min}
           step={0.5}
           ref={ref}
-          className="w-full flex-1 border-none bg-transparent focus:ring-0 sm:min-w-[6ch] sm:max-w-[12ch]"
+          className="w-full flex-1 rounded-xl sm:max-w-[20ch] sm:min-w-[13ch]"
           onChange={onChange}
+          style={{ paddingInline: "calc(var(--spacing) * 14)" }}
         />
-        <button
-          className="aspect-square h-12 select-none rounded-full active:bg-black/5 dark:active:bg-white/5"
-          type="button"
-          onClick={() => {
-            if (!ref.current) return;
-            ref.current.stepUp();
-            // stepDown and stepUp don't trigger onChange automatically.
-            ref.current.dispatchEvent(new Event("input", { bubbles: true }));
-          }}
-        >
-          +
-        </button>
-      </div>
-    </div>
+        <span data-slot="icon" className="p-1">
+          <button
+            className="grid size-10 place-items-center rounded-lg border-stone-200 bg-white font-semibold text-stone-500 shadow-sm select-none active:border active:shadow-inner active:*:translate-y-px dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:bg-stone-700"
+            type="button"
+            onClick={() => {
+              ref.current?.stepUp();
+              // stepDown and stepUp don't trigger onChange automatically.
+              ref.current?.dispatchEvent(new Event("input", { bubbles: true }));
+            }}
+            tabIndex={-1}
+          >
+            <span className="transform">+</span>
+          </button>
+        </span>
+      </Input.Group>
+    </Input.Root>
   );
 };
 

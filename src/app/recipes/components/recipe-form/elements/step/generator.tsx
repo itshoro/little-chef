@@ -31,7 +31,7 @@ const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
           }}
         </Generator.Items>
       </ol>
-      <Generator.Add>
+      <Generator.Add className="ml-auto flex cursor-pointer font-medium text-stone-600">
         <Plus />
         <span className="pr-2">Add More</span>
       </Generator.Add>
