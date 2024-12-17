@@ -11,9 +11,11 @@ const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
     <div className="h-[100svh]">
       <div className="flex min-h-full flex-col">
-        <Header>
-          <BackLink />
-        </Header>
+        <div className="p-4">
+          <Header>
+            <BackLink />
+          </Header>
+        </div>
         <div className="flex-1 lg:flex">
           <div className="@container lg:w-[23rem]">
             <aside className="flex flex-col justify-end gap-4 border-stone-200 lg:h-full lg:flex-col-reverse lg:justify-between lg:border-r dark:border-stone-700">

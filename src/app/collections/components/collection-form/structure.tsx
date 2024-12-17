@@ -14,9 +14,11 @@ const Inputs = ({ defaultValue }: InputsProps) => {
     <>
       <div>
         <Input.Root name="title">
-          <Input.Label>Title</Input.Label>
+          <Input.Label>Name</Input.Label>
           <Input.Group>
             <Input.Element
+              required
+              autoFocus={true}
               type="text"
               autoComplete="off"
               defaultValue={defaultValue?.name}

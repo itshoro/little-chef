@@ -40,7 +40,7 @@ const AddRecipePage = async () => {
           <div className="text-sm">You will be unable to create a form.</div>
         </div>
       )}
-      <div className="p-4">
+      <div className="mx-auto max-w-(--breakpoint-xl) p-4">
         <Form.Root action={create}>
           <input type="hidden" name="sessionId" value={session?.id} />
           <Form.Inputs

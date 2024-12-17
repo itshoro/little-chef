@@ -1,8 +1,8 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
 import Form from "next/form";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRef } from "react";
 
 type Props = {
   initialQuery: string;
@@ -10,7 +10,7 @@ type Props = {
 
 const Input = ({ initialQuery }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout>(undefined);
   const pathname = usePathname();
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -32,10 +32,6 @@ const Input = ({ initialQuery }: Props) => {
     }, 200);
   }
 
-  useEffect(() => {
-    formRef.current?.querySelector("input")?.focus();
-  }, []);
-
   return (
     <Form ref={formRef} action={pathname}>
       <label className="group block cursor-text rounded-xl bg-stone-100 p-4 text-stone-700 dark:bg-stone-900 dark:text-stone-200">
@@ -53,12 +49,12 @@ const Input = ({ initialQuery }: Props) => {
             />
           </svg>
           <input
+            autoFocus={true}
             name="q"
             defaultValue={initialQuery}
             onKeyDown={onKeyDown}
             onChange={onInput}
             placeholder="Search&#8230;"
-            // type="search"
             className="w-full border-none bg-transparent pl-3 font-medium capitalize outline-hidden focus:ring-0 dark:placeholder-stone-600"
             autoComplete="off"
           />

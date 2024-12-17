@@ -25,7 +25,10 @@ type ShowRecipePageProps = {
   searchParams: Promise<{ servings: string }>;
 };
 
-export async function generateMetadata(props: ShowRecipePageProps, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(
+  props: ShowRecipePageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { publicId } = extractParts(params.slug);
@@ -75,7 +78,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               className="h-64 w-full object-cover"
             />
           )}
-          <div className="p-4">
+          <div className="mx-auto max-w-(--breakpoint-xl) p-4">
             <div className="flex items-baseline justify-between gap-4">
               <div>
                 <h1 className="text-xl font-medium">{recipe.name}</h1>
@@ -167,7 +170,6 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
         >
           <div className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-4 sm:justify-between">
             <div className="w-full sm:w-fit">
-              <div className="mb-2">Servings</div>
               <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
             </div>
             <StartButton slug={params.slug} />

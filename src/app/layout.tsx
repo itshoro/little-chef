@@ -18,7 +18,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" className="min-h-[100dvh]">
       <body className={`${inter.className} dark:bg-black dark:text-white`}>
         <div>
-          <div className="mx-auto min-h-[100dvh] max-w-(--breakpoint-xl) border-stone-200 xl:border-x dark:border-stone-700">
+          <div className="mx-auto min-h-[100dvh]">
             <div className="min-h-[100svh]">{props.children}</div>
           </div>
         </div>

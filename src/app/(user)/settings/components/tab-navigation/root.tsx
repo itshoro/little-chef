@@ -11,10 +11,10 @@ type RootProps = {
 };
 
 const Root = ({ children, keepSearchParams, replace }: RootProps) => {
-  const listRef = useRef<React.ElementRef<"ul">>(null);
+  const listRef = useRef<React.ComponentRef<"ul">>(null);
 
   return (
-    <nav className="relative">
+    <nav className="relative isolate">
       <TabNavigationContext.Provider value={{ keepSearchParams, replace }}>
         <ul
           ref={listRef}
