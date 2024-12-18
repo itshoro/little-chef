@@ -14,6 +14,7 @@ import {
 import * as Input from "@/app/components/input";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { BaseButton } from "@/app/components/base-button";
 
 export const metadata: Metadata = {
   title: "User Preferences",
@@ -72,12 +73,9 @@ const UserPage = async () => {
                   </Input.Root>
                 </div>
               </div>
-              <button
-                className="rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
-                type="submit"
-              >
+              <BaseButton className="mt-6" type="submit">
                 Update Password
-              </button>
+              </BaseButton>
             </Fieldset>
           </form>
 
@@ -91,12 +89,9 @@ const UserPage = async () => {
                   </Input.Group>
                 </Input.Root>
               </div>
-              <button
-                className="mt-4 rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
-                type="submit"
-              >
+              <BaseButton className="mt-6" type="submit">
                 Update Username
-              </button>
+              </BaseButton>
             </Fieldset>
           </form>
         </SettingsSection.Grid>

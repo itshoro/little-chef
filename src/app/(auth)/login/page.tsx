@@ -15,7 +15,7 @@ const LoginPage = async () => {
   return (
     <>
       <h1 className="font-medium">Login</h1>
-      <div className="py-4">
+      <div className="max-w-(--breakpoint-sm) py-4">
         <Form.Root action={loginAction}>
           <div>
             <Input.Root name="username">
@@ -42,10 +42,14 @@ const LoginPage = async () => {
             </Input.Root>
           </div>
           <Form.ErrorDisplay />
-          <Submit>Continue</Submit>
+          <div className="flex items-baseline justify-between">
+            <NextLink className="text-lime-300 underline" href="/sign-up">
+              Create an account
+            </NextLink>
+            <Submit>Continue</Submit>
+          </div>
         </Form.Root>
       </div>
-      <NextLink href="/sign-up">Create an account</NextLink>
     </>
   );
 };

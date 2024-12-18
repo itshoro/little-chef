@@ -13,6 +13,7 @@ import { validateVisibility } from "@/lib/dal/visibility";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { authorizeFromSession } from "@/lib/dal/user";
+import { BaseButton } from "@/app/components/base-button";
 
 export const metadata: Metadata = {
   title: "Recipe Preferences",
@@ -52,12 +53,9 @@ const RecipeSettingsPage = async () => {
                   />
                 </Input.Group>
               </Input.Root>
-              <button
-                className="mt-4 rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
-                type="submit"
-              >
+              <BaseButton className="mt-6" type="submit">
                 Update Servings
-              </button>
+              </BaseButton>
             </Fieldset>
           </form>
           <form action={changeVisibilityWithUserId}>
