@@ -5,7 +5,7 @@ import { OptimisticLikeButton } from "@/app/components/button/optimistic-like-bu
 import { NoRecipesStored } from "@/app/components/fallbacks/collections/no-recipe-stored";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { Header } from "@/app/components/header/header";
-import { Section } from "@/app/recipes/[slug]/components/section";
+import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   getCollection,
@@ -29,7 +29,10 @@ import { EditButton } from "./components/edit-button";
 
 type CollectionPageProps = { params: Promise<{ slug: string }> };
 
-export async function generateMetadata(props: CollectionPageProps, parent: ResolvedMetadata): Promise<Metadata> {
+export async function generateMetadata(
+  props: CollectionPageProps,
+  parent: ResolvedMetadata,
+): Promise<Metadata> {
   const params = await props.params;
   try {
     const { publicId } = extractParts(params.slug);
@@ -67,65 +70,51 @@ const CollectionPage = async (props: CollectionPageProps) => {
 
     return (
       <>
-        <Header>
-          <div className="flex items-center gap-2">
-            <BackLink />
+        <h1 className="font-medium">{collection.name}</h1>
+        <div className="flex justify-between">
+          <div className="flex items-center gap-3 text-sm">
+            <span>By </span>
+            <div className="flex items-center gap-1">
+              <AvatarStack users={maintainers} />
+              <span>{attribution}</span>
+            </div>
           </div>
-        </Header>
+          <div>
+            <OptimisticLikeButton
+              action={async (type) => {
+                "use server";
+                if (!user) throw new Error("No session available");
 
-        <div className="p-4">
-          <h1 className="font-medium">{collection.name}</h1>
-          <div className="flex justify-between">
-            <div className="flex items-center gap-3 text-sm">
-              <span>By </span>
-              <div className="flex items-center gap-1">
-                <AvatarStack users={maintainers} />
-                <span>{attribution}</span>
-              </div>
-            </div>
-            <div>
-              <OptimisticLikeButton
-                action={async (type) => {
-                  "use server";
-                  if (!user) throw new Error("No session available");
-
-                  if (type === "add") {
-                    const count = await addCollectionLike(user, collection.id);
-                    revalidatePath("/collections", "page");
-                    return { count, isLiked: true };
-                  } else {
-                    const count = await removeCollectionLike(
-                      user,
-                      collection.id,
-                    );
-                    revalidatePath("/collections", "page");
-                    return { count, isLiked: false };
-                  }
-                }}
-                disabled={user === null}
-                isLiked={isLiked}
-                count={collection.likes}
-              />
-            </div>
+                if (type === "add") {
+                  const count = await addCollectionLike(user, collection.id);
+                  revalidatePath("/collections", "page");
+                  return { count, isLiked: true };
+                } else {
+                  const count = await removeCollectionLike(user, collection.id);
+                  revalidatePath("/collections", "page");
+                  return { count, isLiked: false };
+                }
+              }}
+              disabled={user === null}
+              isLiked={isLiked}
+              count={collection.likes}
+            />
           </div>
         </div>
-
-        <div className="px-4">
-          {isMaintainer && (
-            <div className="my-12">
-              <Section title="Maintainer Actions">
-                <div className="flex items-center gap-4">
-                  <EditButton slug={params.slug} />
-                  <DeleteButton collectionId={collection.id} />
-                </div>
-              </Section>
-            </div>
-          )}
+        {isMaintainer && (
           <div className="my-12">
-            <Section title="Recipes">
-              <RecipeList collection={collection} isMaintainer={isMaintainer} />
+            <Section title="Maintainer Actions">
+              <div className="flex items-center gap-4">
+                <EditButton slug={params.slug} />
+                <DeleteButton collectionId={collection.id} />
+              </div>
             </Section>
           </div>
+        )}
+        <div className="my-12">
+          <Section title="Recipes">
+            <RecipeList collection={collection} isMaintainer={isMaintainer} />
+          </Section>
         </div>
       </>
     );

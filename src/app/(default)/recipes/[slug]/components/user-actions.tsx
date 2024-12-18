@@ -1,7 +1,7 @@
 import type { Recipe } from "@/drizzle/schema";
 import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
 import { revalidatePath } from "next/cache";
-import { OptimisticLikeButton } from "../../../components/button/optimistic-like-button";
+import { OptimisticLikeButton } from "../../../../components/button/optimistic-like-button";
 import { AddToCollectionButton } from "./buttons/add-to-collection-button";
 
 export const LikeButton = async ({

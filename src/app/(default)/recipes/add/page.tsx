@@ -29,47 +29,38 @@ const AddRecipePage = async () => {
 
   return (
     <>
-      <Header>
-        <div className="flex items-center gap-2">
-          <BackLink />
-        </div>
-      </Header>
       {!user && (
-        <div className="bg-lime-300 px-4 py-2 text-black">
+        <div className="mb-6 rounded-lg bg-lime-300 px-6 py-4 text-black">
           <div className="mb-2 font-medium">Demo Mode</div>
           <div className="text-sm">You will be unable to create a form.</div>
         </div>
       )}
-      <div className="mx-auto max-w-(--breakpoint-xl) p-4">
-        <Form.Root action={create}>
-          <input type="hidden" name="sessionId" value={session?.id} />
-          <Form.Inputs
-            defaultValue={{
-              recipe: {
-                recommendedServingSize: preferences?.defaultServingSize,
-                visibility: preferences?.defaultVisibility ?? "private",
-              },
-            }}
-          />
-          <div>
-            <div className="flex justify-end">
-              <SubmitWithPending className="group inline-flex items-center justify-center gap-2 rounded-full border p-4 text-sm font-medium shadow-sm active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700">
-                <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    className="size-4"
-                  >
-                    <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
-                  </svg>
-                  Add Recipe
-                </div>
-              </SubmitWithPending>
+      <Form.Root action={create}>
+        <input type="hidden" name="sessionId" value={session?.id} />
+        <Form.Inputs
+          defaultValue={{
+            recipe: {
+              recommendedServingSize: preferences?.defaultServingSize ?? 1,
+              visibility: preferences?.defaultVisibility ?? "private",
+            },
+          }}
+        />
+        <div className="flex justify-end py-4">
+          <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
+            <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="var(--color-lime-800)"
+                className="size-4"
+              >
+                <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
+              </svg>
+              <span>Add Recipe</span>
             </div>
-          </div>
-        </Form.Root>
-      </div>
+          </SubmitWithPending>
+        </div>
+      </Form.Root>
     </>
   );
 };

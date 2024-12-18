@@ -2,7 +2,7 @@ import NextLink from "next/link";
 import { loginAction } from "./action";
 import * as Input from "@/app/components/input";
 import * as Form from "@/app/components/form";
-import { Submit } from "@/app/recipes/components/recipe-form";
+import { Submit } from "@/app/(default)/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import { redirect } from "next/navigation";
 import { passwordRange, usernameRange } from "@/lib/dal/user";
@@ -29,7 +29,7 @@ const LoginPage = async () => {
               </Input.Group>
             </Input.Root>
           </div>
-          <div className="mb-6 mt-2">
+          <div className="mt-2 mb-6">
             <Input.Root name="password">
               <Input.Label>Password</Input.Label>
               <Input.Group>

@@ -78,94 +78,92 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               className="h-64 w-full object-cover"
             />
           )}
-          <div className="mx-auto max-w-(--breakpoint-xl) p-4">
-            <div className="flex items-baseline justify-between gap-4">
-              <div>
-                <h1 className="text-xl font-medium">{recipe.name}</h1>
-                <div className="flex items-center gap-1 text-sm">
-                  <AvatarStack users={maintainers} />
-                  <span>{attribution}</span>
-                </div>
-                <div className="my-4 text-stone-600 dark:text-stone-400">
-                  {recipe.description}
-                </div>
+          <div className="flex items-baseline justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-medium">{recipe.name}</h1>
+              <div className="flex items-center gap-1 text-sm">
+                <AvatarStack users={maintainers} />
+                <span>{attribution}</span>
               </div>
-              <div className="flex shrink-0 flex-col items-center gap-2">
-                <ShareCurrentPageButton />
-                <LikeButton
-                  disabled={!user}
+              <div className="my-4 text-stone-600 dark:text-stone-400">
+                {recipe.description}
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-col items-center gap-2">
+              <ShareCurrentPageButton />
+              <LikeButton
+                disabled={!user}
+                publicUserId={user?.publicId}
+                recipe={recipe}
+              />
+            </div>
+          </div>
+
+          <div className="-mx-4 my-4 border-y border-dashed bg-stone-100 px-4 py-8 dark:border-stone-700 dark:bg-stone-900">
+            <Section title="Actions">
+              <div className="grid grid-cols-2 gap-4">
+                <MaintainerActions
+                  user={user}
+                  maintainers={maintainers}
+                  recipe={recipe}
+                  slug={params.slug}
+                />
+                <AddToCollection
                   publicUserId={user?.publicId}
                   recipe={recipe}
                 />
               </div>
-            </div>
-
-            <div className="-mx-4 my-4 border-y border-dashed bg-stone-100 px-4 py-8 dark:border-stone-700 dark:bg-stone-900">
-              <Section title="Actions">
-                <div className="grid grid-cols-2 gap-4">
-                  <MaintainerActions
-                    user={user}
-                    maintainers={maintainers}
-                    recipe={recipe}
-                    slug={params.slug}
-                  />
-                  <AddToCollection
-                    publicUserId={user?.publicId}
-                    recipe={recipe}
-                  />
-                </div>
-              </Section>
-            </div>
-
-            <div className="my-8">
-              <Section title="Overview">
-                <div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <InfoCard>
-                      <InfoCard.Value>
-                        {recipe.preparationTime} minutes
-                      </InfoCard.Value>
-                      <InfoCard.Label>Preparation time</InfoCard.Label>
-                    </InfoCard>
-                    <InfoCard>
-                      <InfoCard.Value>
-                        {recipe.cookingTime} minutes
-                      </InfoCard.Value>
-                      <InfoCard.Label>Cooking time</InfoCard.Label>
-                    </InfoCard>
-                    <InfoCard>
-                      <InfoCard.Value>
-                        {recipe.recommendedServingSize}
-                      </InfoCard.Value>
-                      <InfoCard.Label>Servings recommended</InfoCard.Label>
-                    </InfoCard>
-                  </div>
-                </div>
-              </Section>
-            </div>
-
-            {parsedSteps.ingredients.length > 0 && (
-              <div className="my-8">
-                <Section title="Ingredients">
-                  <IngredientList
-                    ingredients={parsedSteps.ingredients}
-                    recommendedServingSize={recipe.recommendedServingSize}
-                  />
-                </Section>
-              </div>
-            )}
-            {parsedSteps.cookwares.length > 0 && (
-              <div className="my-8">
-                <Section title="Cookware">
-                  <CookwareList cookwares={parsedSteps.cookwares} />
-                </Section>
-              </div>
-            )}
+            </Section>
           </div>
+
+          <div className="my-8">
+            <Section title="Overview">
+              <div>
+                <div className="grid grid-cols-2 gap-4">
+                  <InfoCard>
+                    <InfoCard.Value>
+                      {recipe.preparationTime} minutes
+                    </InfoCard.Value>
+                    <InfoCard.Label>Preparation time</InfoCard.Label>
+                  </InfoCard>
+                  <InfoCard>
+                    <InfoCard.Value>
+                      {recipe.cookingTime} minutes
+                    </InfoCard.Value>
+                    <InfoCard.Label>Cooking time</InfoCard.Label>
+                  </InfoCard>
+                  <InfoCard>
+                    <InfoCard.Value>
+                      {recipe.recommendedServingSize}
+                    </InfoCard.Value>
+                    <InfoCard.Label>Servings recommended</InfoCard.Label>
+                  </InfoCard>
+                </div>
+              </div>
+            </Section>
+          </div>
+
+          {parsedSteps.ingredients.length > 0 && (
+            <div className="my-8">
+              <Section title="Ingredients">
+                <IngredientList
+                  ingredients={parsedSteps.ingredients}
+                  recommendedServingSize={recipe.recommendedServingSize}
+                />
+              </Section>
+            </div>
+          )}
+          {parsedSteps.cookwares.length > 0 && (
+            <div className="my-8">
+              <Section title="Cookware">
+                <CookwareList cookwares={parsedSteps.cookwares} />
+              </Section>
+            </div>
+          )}
         </div>
 
         <footer
-          className="flex w-full border-t p-4 dark:border-stone-800"
+          className="flex w-full border-t py-4 dark:border-stone-800"
           style={{ gridArea: "action", gridColumn: 1 }}
         >
           <div className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-4 sm:justify-between">

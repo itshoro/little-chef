@@ -5,7 +5,7 @@ import * as Input from "@/app/components/input";
 import { Trash } from "@/app/components/icon/trash";
 import { useInputContext } from "@/app/components/input/context";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
-import { CooklangPreview } from "@/app/recipes/[slug]/components/cooklang-preview";
+import { CooklangPreview } from "@/app/(default)/recipes/[slug]/components/cooklang-preview";
 
 type StepGeneratorItemProps = {
   uuid: string;

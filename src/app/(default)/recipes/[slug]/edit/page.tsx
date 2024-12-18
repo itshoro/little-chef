@@ -1,6 +1,6 @@
 import type { FormContext } from "@/app/components/form/root";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import * as Form from "@/app/recipes/components/recipe-form";
+import * as Form from "@/app/(default)/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   getRecipe,

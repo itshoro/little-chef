@@ -14,6 +14,7 @@ import type { User } from "lucia";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import * as Form from "../components/collection-form";
+import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 
 export const metadata: Metadata = {
   title: "Add Collection",
@@ -27,32 +28,29 @@ const Page = async () => {
 
   return (
     <>
-      <Header>
-        <div className="flex items-center gap-2">
-          <BackLink />
-        </div>
-      </Header>
-      <div className="p-4">
-        <Form.Root action={create}>
-          <div className="grid gap-4">
-            <input type="hidden" name="sessionId" value={session?.id} />
-            <Form.Inputs
-              defaultValue={{ visibility: preferences.defaultVisibility }}
-            />
-            <Form.Submit>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="size-4"
-              >
-                <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
-              </svg>
-              Create Collection
-            </Form.Submit>
+      <Form.Root action={create}>
+        <div className="grid gap-4">
+          <input type="hidden" name="sessionId" value={session?.id} />
+          <Form.Inputs
+            defaultValue={{ visibility: preferences.defaultVisibility }}
+          />
+          <div className="flex justify-end py-4">
+            <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
+              <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="var(--color-lime-800)"
+                  className="size-4"
+                >
+                  <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
+                </svg>
+                <span>Add Collection</span>
+              </div>
+            </SubmitWithPending>
           </div>
-        </Form.Root>
-      </div>
+        </div>
+      </Form.Root>
     </>
   );
 };

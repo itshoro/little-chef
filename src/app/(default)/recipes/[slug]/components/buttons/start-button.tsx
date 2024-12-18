@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { BaseButton } from "../../../../components/base-button";
+import { BaseButton } from "../../../../../components/base-button";
 
 const StartButton = ({ slug }: { slug: string }) => {
   const params = useSearchParams();

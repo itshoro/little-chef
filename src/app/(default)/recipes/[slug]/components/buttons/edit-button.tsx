@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { BaseButton } from "../../../../components/base-button";
+import { BaseButton } from "../../../../../components/base-button";
 
 const EditButton = ({ href }: { href: Route }) => {
   return (

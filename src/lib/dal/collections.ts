@@ -253,6 +253,7 @@ export async function getCreatorsAndMaintainers(collectionId: number) {
     .select({
       username: schema.users.username,
       publicId: schema.users.publicId,
+      avatar: schema.users.avatar,
     })
     .from(schema.collectionSubscriptions)
     .where(
