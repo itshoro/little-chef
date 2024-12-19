@@ -16,7 +16,10 @@ const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   return (
     <>
       <main className="flex-1">
-        <CollectionList user={user} query={(await props.searchParams).q} />
+        <CurrentUserCollections
+          user={user}
+          query={(await props.searchParams).q}
+        />
         <CollectionSearchResults
           user={user}
           query={(await props.searchParams).q}
@@ -27,7 +30,7 @@ const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   );
 };
 
-const CollectionList = async ({
+const CurrentUserCollections = async ({
   user,
   query,
 }: {

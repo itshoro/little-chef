@@ -14,15 +14,17 @@ const Layout = async (props: { children: React.ReactNode }) => {
         </div>
       </Header>
       <div className="@container">
-        <section className="border-b border-stone-200 px-4 py-3 dark:border-stone-800">
-          <Suspense>
-            <TabNavigation.Root keepSearchParams={true} replace={true}>
-              <TabNavigation.Link href="/collections">
-                Collections
-              </TabNavigation.Link>
-              <TabNavigation.Link href="/recipes">Recipes</TabNavigation.Link>
-            </TabNavigation.Root>
-          </Suspense>
+        <section className="border-b border-stone-200 pb-2 dark:border-stone-800">
+          <div className="mx-auto max-w-(--breakpoint-xl) px-4">
+            <Suspense>
+              <TabNavigation.Root keepSearchParams={true} replace={true}>
+                <TabNavigation.Link href="/collections">
+                  Collections
+                </TabNavigation.Link>
+                <TabNavigation.Link href="/recipes">Recipes</TabNavigation.Link>
+              </TabNavigation.Root>
+            </Suspense>
+          </div>
         </section>
       </div>
       {props.children}
