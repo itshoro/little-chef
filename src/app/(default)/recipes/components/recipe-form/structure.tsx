@@ -2,7 +2,7 @@ import { VisibilitySwitcher } from "@/app/(user)/settings/components/visibility-
 import * as Fieldset from "@/app/components/fieldset";
 import * as Input from "@/app/components/input";
 import type { Visibility } from "@/lib/dal/visibility";
-import { CoverImage } from "./cover-image";
+import { CoverImageInput } from "./cover-image";
 import { ServingsInput } from "./elements/servings-input";
 import { StepsGenerator } from "./elements/step/generator";
 
@@ -33,7 +33,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <Fieldset.Label>Overview</Fieldset.Label>
 
           <div className="mb-4 rounded-2xl bg-stone-50 dark:bg-stone-950">
-            <CoverImage
+            <CoverImageInput
               defaultValue={defaultValue?.recipe?.coverSrc ?? undefined}
             />
           </div>
