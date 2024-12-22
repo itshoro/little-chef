@@ -1,17 +1,15 @@
-import { BackLink } from "@/app/components/back-link";
-import { Header } from "@/app/components/header/header";
+import { FormContext } from "@/app/components/form/root";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   collectionDtoFromFormData,
   getCollection,
   updateCollection,
 } from "@/lib/dal/collections";
+import { authorizeFromSession } from "@/lib/dal/user";
+import { UpdateCollectionValidator } from "@/lib/dal/validators";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
 import * as Form from "../../components/collection-form";
-import { FormContext } from "@/app/components/form/root";
-import { authorizeFromSession } from "@/lib/dal/user";
-import { UpdateCollectionValidator } from "@/lib/dal/validators";
 
 type PageProps = {
   params: Promise<{
@@ -31,21 +29,14 @@ const Page = async (props: PageProps) => {
 
     return (
       <>
-        <Header>
-          <div className="flex items-center gap-2">
-            <BackLink />
+        <Form.Root action={update}>
+          <input type="hidden" name="sessionId" value={session?.id} />
+          <input type="hidden" name="publicId" value={collection.publicId} />
+          <div className="grid gap-4">
+            <Form.Inputs defaultValue={collection} />
+            <Form.Submit>Update Collection</Form.Submit>
           </div>
-        </Header>
-        <div className="p-4">
-          <Form.Root action={update}>
-            <input type="hidden" name="sessionId" value={session?.id} />
-            <input type="hidden" name="publicId" value={collection.publicId} />
-            <div className="grid gap-4">
-              <Form.Inputs defaultValue={collection} />
-              <Form.Submit>Update Collection</Form.Submit>
-            </div>
-          </Form.Root>
-        </div>
+        </Form.Root>
       </>
     );
   } catch {
