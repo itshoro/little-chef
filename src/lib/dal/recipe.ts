@@ -3,6 +3,7 @@ import * as schema from "@/drizzle/schema";
 import { and, eq, like, or, sql } from "drizzle-orm";
 import { User } from "lucia";
 import { UTApi } from "uploadthing/server";
+import { type UploadFileResult } from "uploadthing/types";
 import { z } from "zod";
 import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
@@ -78,14 +79,18 @@ export async function updateDefaultVisibility(
 // MARK: App
 export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
   const utapi = new UTApi();
-  const coverImage = dto.cover ? dto.cover : undefined;
+
+  let coverImage: UploadFileResult | undefined = undefined;
+  if (dto.cover.update && dto.cover.image) {
+    coverImage = await utapi.uploadFiles(dto.cover.image);
+  }
 
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
       .insert(schema.recipes)
       .values({
         name: dto.name,
-        coverSrc: coverImage?.update ? coverImage.image : undefined,
+        coverSrc: coverImage?.data?.url,
         description: dto.description,
         publicId: nanoid(),
         recommendedServingSize: dto.servings,
