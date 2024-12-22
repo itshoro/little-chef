@@ -16,7 +16,7 @@ const Avatar = ({
     <span
       {...props}
       className={[
-        "after:contents-[''] relative inline-block shrink-0 rounded-full after:absolute after:inset-0 after:rounded-full after:ring-1 after:ring-white/30 after:ring-inset",
+        "after:contents-[''] relative inline-block shrink-0 rounded-full after:absolute after:inset-0 after:rounded-full after:ring-1 after:ring-black/30 after:ring-inset dark:after:ring-white/30",
         className,
       ]
         .filter(Boolean)
