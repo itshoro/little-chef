@@ -17,7 +17,7 @@ const BaseButton = (
     return (
       <button
         {...props}
-        className={`flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black ${props.className}`}
+        className={`flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black disabled:cursor-auto disabled:bg-lime-950 disabled:text-lime-200/30 ${props.className}`}
       />
     );
   }
