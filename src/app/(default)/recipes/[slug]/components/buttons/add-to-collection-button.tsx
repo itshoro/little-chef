@@ -6,11 +6,13 @@ import { addRecipe } from "@/lib/dal/collections";
 import { authorizeFromSession, getMaintainedCollections } from "@/lib/dal/user";
 
 type AddToCollectionButtonProps = {
+  className?: string;
   recipePublicId: string;
   disabled?: boolean;
 };
 
 const AddToCollectionButton = async ({
+  className,
   disabled,
   recipePublicId,
 }: AddToCollectionButtonProps) => {
@@ -18,13 +20,15 @@ const AddToCollectionButton = async ({
   const { user, session } = await validateRequest();
   if (!user || !session) return null;
 
-  const collections = (
-    await getMaintainedCollections(user, recipePublicId)
-  ).filter(({ recipeOccurrences }) => recipeOccurrences === 0);
+  const collections = user
+    ? (await getMaintainedCollections(user, recipePublicId)).filter(
+        ({ recipeOccurrences }) => recipeOccurrences === 0,
+      )
+    : [];
 
   const boundAddToCollectionsAction = addToCollections.bind(
     null,
-    session.id,
+    session?.id,
     recipePublicId,
   );
 
@@ -81,7 +85,7 @@ const AddToCollectionButton = async ({
           </Form.Root>
         </WithConfirmation.Modal>
         <WithConfirmation.TriggerButton
-          className="col-span-2 bg-white dark:bg-black"
+          className={className}
           disabled={disabled}
         >
           <svg
