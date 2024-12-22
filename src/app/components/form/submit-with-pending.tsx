@@ -11,10 +11,15 @@ const SubmitWithPending = ({
 }: ComponentProps<"button">) => {
   const { pending } = useFormStatus();
   return (
-    <BaseButton disabled={disabled || pending} {...props} type="submit">
-      <div className="relative isolate flex items-center gap-2">
+    <BaseButton
+      className="group"
+      disabled={disabled || pending}
+      {...props}
+      type="submit"
+    >
+      <div className="relative isolate flex items-center gap-2 bg-inherit">
         {pending && (
-          <span className="absolute inset-0 z-10 grid size-full place-items-center bg-lime-300">
+          <span className="absolute inset-0 z-10 grid size-full place-items-center bg-inherit">
             <svg
               viewBox="0 0 20 20"
               className="size-4 animate-spin overflow-visible"
