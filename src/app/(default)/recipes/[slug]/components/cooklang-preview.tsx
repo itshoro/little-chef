@@ -31,9 +31,9 @@ const CooklangPreview = ({
                 return (
                   <span
                     key={i}
-                    className="my-0.5 inline-flex rounded-full bg-neutral-100 px-2 whitespace-pre-line dark:bg-stone-900"
+                    className="my-0.5 inline-flex rounded-full border border-stone-300 px-2 whitespace-pre-line dark:border-stone-700"
                   >
-                    <span className="border-r p-1 dark:border-stone-700">
+                    <span className="border-r border-stone-300 p-1 dark:border-stone-700">
                       <span>
                         {typeof segment.quantity === "number"
                           ? segment.quantity * ingredientScaleFactor

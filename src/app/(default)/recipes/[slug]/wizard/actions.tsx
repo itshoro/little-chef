@@ -1,5 +1,6 @@
 "use client";
 
+import { BaseButton } from "@/app/components/base-button";
 import { useRouter } from "next/navigation";
 
 const Actions = ({
@@ -37,10 +38,7 @@ const Actions = ({
 
   return (
     <>
-      <button
-        className="inline-flex select-none items-center rounded-full border bg-stone-50 px-3 py-2 font-medium text-stone-800 transition ease-out hover:shadow-inner disabled:pointer-events-none disabled:text-gray-400"
-        onClick={previous}
-      >
+      <BaseButton onClick={previous}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
@@ -53,13 +51,9 @@ const Actions = ({
             clipRule="evenodd"
           />
         </svg>
-      </button>
+      </BaseButton>
 
-      <button
-        className="inline-flex select-none items-center rounded-full border bg-stone-50 px-3 py-2 font-medium text-stone-800 transition ease-out hover:shadow-inner disabled:pointer-events-none disabled:text-gray-400"
-        disabled={step + 1 >= stepCount}
-        onClick={next}
-      >
+      <BaseButton disabled={step + 1 >= stepCount} onClick={next}>
         <div className="inline-flex items-center gap-6">
           Next
           <svg
@@ -75,7 +69,7 @@ const Actions = ({
             />
           </svg>
         </div>
-      </button>
+      </BaseButton>
     </>
   );
 };

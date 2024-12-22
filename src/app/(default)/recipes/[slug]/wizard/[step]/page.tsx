@@ -30,8 +30,8 @@ const Page = async (props: PageProps) => {
     Number(searchParams.servings) / recipe.recommendedServingSize;
 
   return (
-    <>
-      <div className="mt-auto flex flex-col items-center justify-center px-4 py-8">
+    <div>
+      <div className="mt-auto flex flex-col items-center justify-center py-8">
         <WizardStep
           description={displayedStep.description}
           ingredientScaleFactor={ingredientScaleFactor}
@@ -40,10 +40,7 @@ const Page = async (props: PageProps) => {
           Step {step + 1} of {steps.length}
         </div>
       </div>
-      <section
-        className="flex justify-between border-t p-4 dark:border-stone-800"
-        style={{ gridArea: "action", gridColumn: 1 }}
-      >
+      <section className="flex justify-between border-t border-stone-100 py-4 dark:border-stone-800">
         <Actions
           slug={recipe.slug}
           publicId={recipe.publicId}
@@ -52,7 +49,7 @@ const Page = async (props: PageProps) => {
           servings={searchParams.servings}
         />
       </section>
-    </>
+    </div>
   );
 };
 
