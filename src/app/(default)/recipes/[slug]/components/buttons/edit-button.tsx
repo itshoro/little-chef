@@ -3,7 +3,7 @@ import { BaseButton } from "../../../../../components/base-button";
 
 const EditButton = ({ href }: { href: Route }) => {
   return (
-    <BaseButton href={href} className="bg-white dark:bg-black">
+    <BaseButton href={href}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"

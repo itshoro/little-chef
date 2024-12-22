@@ -1,10 +1,15 @@
-import Link from "next/link";
 import { Avatar } from "./avatar";
 
 const AvatarStack = ({
   users,
+  size = "size-8",
 }: {
-  users: { username: string; publicId: string; avatar: string | null }[];
+  users: {
+    username: string;
+    publicId: string;
+    avatar: string | null;
+  }[];
+  size?: `size-${number}`;
 }) => {
   const slice = users.slice(0, 5);
 
@@ -12,7 +17,7 @@ const AvatarStack = ({
     <div className="isolate flex shrink-0 -space-x-3">
       {slice.map((user, i) => (
         <Avatar
-          size="size-8"
+          size={size}
           key={user.publicId}
           alt={user.username}
           src={user.avatar!}

@@ -2,11 +2,14 @@
 
 import { BaseButton } from "../../../../../components/base-button";
 
-const ShareCurrentPageButton = () => {
+const ShareCurrentPageButton = (props: React.ComponentProps<"button">) => {
   return (
     <BaseButton
-      onClick={() => {
+      {...props}
+      type="button"
+      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
         navigator.share({ title: document.title, url: window.location.href });
+        if (typeof props.onClick === "function") props.onClick(e);
       }}
     >
       <svg

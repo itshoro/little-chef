@@ -8,7 +8,9 @@ export const LikeButton = async ({
   recipe,
   publicUserId,
   disabled,
+  className,
 }: {
+  className?: string;
   recipe: Recipe;
   publicUserId: string | undefined;
   disabled?: boolean;
@@ -19,6 +21,7 @@ export const LikeButton = async ({
 
   return (
     <OptimisticLikeButton
+      className={className}
       count={recipe.likes}
       isLiked={isLiked}
       disabled={disabled}
@@ -43,12 +46,15 @@ export const LikeButton = async ({
 export const AddToCollection = async ({
   recipe,
   publicUserId,
+  className,
 }: {
+  className?: string;
   recipe: Recipe;
   publicUserId: string | undefined;
 }) => {
   return (
     <AddToCollectionButton
+      className={className}
       recipePublicId={recipe.publicId}
       disabled={publicUserId === undefined}
     />

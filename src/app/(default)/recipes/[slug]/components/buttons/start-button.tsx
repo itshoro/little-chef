@@ -3,11 +3,18 @@
 import { useSearchParams } from "next/navigation";
 import { BaseButton } from "../../../../../components/base-button";
 
-const StartButton = ({ slug }: { slug: string }) => {
+const StartButton = ({
+  slug,
+  className,
+}: {
+  slug: string;
+  className?: string;
+}) => {
   const params = useSearchParams();
 
   return (
     <BaseButton
+      className={className}
       href={`/recipes/${slug}/wizard/0?servings=${params.get("servings")}`}
     >
       <div className="flex items-center gap-6">

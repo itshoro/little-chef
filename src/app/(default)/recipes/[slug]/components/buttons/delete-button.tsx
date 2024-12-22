@@ -36,7 +36,7 @@ const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
           </div>
         </form>
       </WithConfirmation.Modal>
-      <WithConfirmation.TriggerButton className="bg-white dark:bg-black">
+      <WithConfirmation.TriggerButton>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 16 16"
