@@ -5,13 +5,17 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 
 const CoverImageInput = ({ defaultValue = "" }: { defaultValue?: string }) => {
-  const ref = useRef<HTMLInputElement>(null);
+  const [priorSrc, setPriorSrc] = useState(defaultValue);
+
+  const newCoverRef = useRef<HTMLInputElement>(null);
+  const currentCoverRef = useRef<HTMLInputElement>(null);
   const [src, setSrc] = useState(defaultValue);
 
   function setCover(e: React.ChangeEvent<HTMLInputElement>) {
     const coverImage = e.currentTarget.files?.[0];
     if (coverImage === undefined) return; // retain image on cancel - users should utilize the delete button
 
+    setPriorSrc("");
     setSrc((src) => {
       if (src) URL.revokeObjectURL(src);
 
@@ -30,7 +34,7 @@ const CoverImageInput = ({ defaultValue = "" }: { defaultValue?: string }) => {
                   <BaseButton
                     type="button"
                     onClick={() => {
-                      ref.current?.click();
+                      newCoverRef.current?.click();
                     }}
                     className="pointer-events-auto flex items-center gap-2"
                   >
@@ -49,7 +53,8 @@ const CoverImageInput = ({ defaultValue = "" }: { defaultValue?: string }) => {
                     className="pointer-events-auto rounded-full bg-lime-300 text-black"
                     type="button"
                     onClick={() => {
-                      ref.current!.value = "";
+                      newCoverRef.current!.value = "";
+                      setPriorSrc("");
                       setSrc("");
                     }}
                   >
@@ -104,12 +109,18 @@ const CoverImageInput = ({ defaultValue = "" }: { defaultValue?: string }) => {
             </div>
           )}
           <input
-            ref={ref}
+            ref={newCoverRef}
             type="file"
             name="cover"
             accept="image/*"
             onChange={setCover}
             className="hidden"
+          />
+          <input
+            ref={currentCoverRef}
+            type="hidden"
+            name="prior-cover"
+            value={priorSrc}
           />
         </label>
       </div>

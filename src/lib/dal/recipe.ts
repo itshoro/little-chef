@@ -85,7 +85,7 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
       .insert(schema.recipes)
       .values({
         name: dto.name,
-        coverSrc: coverImage?.data?.url,
+        coverSrc: coverImage?.update ? coverImage.image : undefined,
         description: dto.description,
         publicId: nanoid(),
         recommendedServingSize: dto.servings,
@@ -264,21 +264,13 @@ export async function updateRecipe(
       cause: { target: "user" },
     });
 
-  const utapi = new UTApi();
-  const fileKey = result[0].coverSrc
-    ? result[0].coverSrc.split("/").at(-1)
-    : undefined;
-
-  const [coverImage] = await Promise.all([
-    dto.cover ? await utapi.uploadFiles(dto.cover) : undefined,
-    fileKey ? utapi.deleteFiles(fileKey) : undefined,
-  ]);
+  const coverUpdate = await updateRecipeCover(dto.cover, result[0].coverSrc);
 
   return await db.transaction(async (tx) => {
     const recipeQuery = await tx
       .update(schema.recipes)
       .set({
-        coverSrc: coverImage?.data?.url ?? null,
+        coverSrc: coverUpdate,
         cookingTime: dto.cookingTime,
         description: dto.description,
         name: dto.name,
@@ -311,6 +303,58 @@ export async function updateRecipe(
   });
 }
 
+type CoverUpdate =
+  | {
+      update: false;
+    }
+  | {
+      update: true;
+      image: File | null;
+    };
+
+/**
+ * @returns `null` or `string` if `currentCoverSrc` should be overriden - `undefined` if `currentCoverSrc` should be retained.
+ */
+async function updateRecipeCover(
+  coverUpdate: CoverUpdate,
+  currentCoverSrc: string | undefined | null,
+) {
+  if (!coverUpdate.update) return undefined;
+  // TODO handle partial states, such as delete failing but update working.
+
+  try {
+    const utapi = new UTApi();
+
+    const currentFileKey = currentCoverSrc?.split("/").pop();
+    const deleteCurrentCover = currentFileKey
+      ? utapi.deleteFiles(currentFileKey)
+      : Promise.resolve(undefined);
+
+    const uploadCover = coverUpdate.image
+      ? utapi.uploadFiles(coverUpdate.image)
+      : Promise.resolve(undefined);
+
+    const [uploadedCover, deletionStatus] = await Promise.allSettled([
+      uploadCover,
+      deleteCurrentCover,
+    ]);
+
+    if (
+      uploadedCover.status === "fulfilled" &&
+      uploadedCover.value?.data?.url
+    ) {
+      return uploadedCover.value.data.url;
+    } else if (
+      deletionStatus.status === "fulfilled" &&
+      deletionStatus.value?.success
+    ) {
+      return null;
+    }
+  } catch {
+    return undefined;
+  }
+}
+
 // MARK: Actions
 
 export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
@@ -323,15 +367,21 @@ export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
     description: formData.get(`step.${uuid}`) as string,
   }));
 
-  // for some reason not supplying a file to the input can lead to a file of size 0 being appended.
+  // for some reason not supplying a file to the input *can* lead to a file of size 0 being appended.
   let coverImage = formData.get("cover");
   if (coverImage instanceof File && coverImage.size === 0) {
-    coverImage = undefined;
+    coverImage = null;
   }
+
+  const priorCover = formData.get("prior-cover");
+  const shouldUpdateCoverImage = priorCover === "" || coverImage !== null;
+  const cover = shouldUpdateCoverImage
+    ? ({ update: true, image: coverImage } as const)
+    : ({ update: false } as const);
 
   const dto = {
     publicId: formData.get("publicId") ?? undefined,
-    cover: coverImage ?? undefined,
+    cover,
     name: formData.get("name"),
     description: formData.get("description"),
     servings: formData.get("servings"),
