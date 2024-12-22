@@ -12,8 +12,9 @@ const Label = ({
   return (
     <label
       htmlFor={htmlFor}
+      data-slot="label"
       className={[
-        "block pb-1 font-medium text-stone-600 group-data-[parent=true]:text-sm dark:text-stone-400",
+        "text-sm font-medium text-stone-600 transition-colors has-[+[data-slot=control]_:required]:after:ml-0.5 has-[+[data-slot=control]_:required]:after:text-lime-500 has-[+[data-slot=control]_:required]:after:content-['*'] has-[+[data-slot=control]:focus-within]:text-lime-700",
         props.className,
       ]
         .filter(Boolean)

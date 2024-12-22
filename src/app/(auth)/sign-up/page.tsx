@@ -1,6 +1,6 @@
 import * as Form from "@/app/components/form";
 import * as Input from "@/app/components/input";
-import { Submit } from "@/app/recipes/components/recipe-form";
+import { Submit } from "@/app/(default)/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import { passwordRange, usernameRange } from "@/lib/dal/user";
 import { redirect } from "next/navigation";

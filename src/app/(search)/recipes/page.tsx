@@ -5,7 +5,7 @@ import { RecipeCard } from "../components/recipe-card";
 import { findPublicRecipeIds } from "@/lib/dal/recipe";
 import { getSubcribedRecipes } from "@/lib/dal/user";
 import type { Metadata } from "next";
-import { Section } from "@/app/recipes/[slug]/components/section";
+import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 
 export const metadata: Metadata = {
   title: "Recipes",
@@ -14,13 +14,15 @@ export const metadata: Metadata = {
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   const { user } = await validateRequest();
 
-  return (<>
-    <main className="flex-1">
-      <YourCookbook user={user} query={(await props.searchParams).q} />
-      <SearchResults query={(await props.searchParams).q} />
-    </main>
-    <AddButton href="/recipes/add" />
-  </>);
+  return (
+    <>
+      <main className="flex-1">
+        <YourCookbook user={user} query={(await props.searchParams).q} />
+        <SearchResults query={(await props.searchParams).q} />
+      </main>
+      <AddButton href="/recipes/add" />
+    </>
+  );
 };
 
 const YourCookbook = async ({

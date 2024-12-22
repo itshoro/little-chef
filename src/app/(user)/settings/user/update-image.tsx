@@ -5,6 +5,7 @@ import { Avatar } from "@/app/components/header/avatar";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Fieldset } from "../components/primitives/fieldset";
+import { BaseButton } from "@/app/components/base-button";
 
 const UpdateAvatar = ({
   defaultValue,
@@ -33,8 +34,11 @@ const UpdateAvatar = ({
         <div className="mb-4 flex items-center gap-4">
           <Avatar src={avatarSrc} alt="Uploaded image" size="size-24" />
           <div className="flex flex-wrap items-center gap-2">
-            <label htmlFor="file" className="flex-1 cursor-pointer">
-              <div className="w-full whitespace-nowrap rounded-full bg-lime-300 px-5 py-3 text-center font-medium dark:text-black">
+            <label
+              htmlFor="file"
+              className="flex-1 cursor-pointer whitespace-nowrap"
+            >
+              <div className="flex items-center justify-center gap-2 rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
                 Choose Image
               </div>
             </label>
@@ -54,17 +58,17 @@ const UpdateAvatar = ({
               className="hidden"
               accept="image/jpeg, image/png, image/webp"
             />
-            <button
-              className="flex-1 whitespace-nowrap rounded-full bg-black px-5 py-3 text-center font-medium text-white dark:bg-white dark:text-black"
+            <BaseButton
               type="button"
+              className="flex-1 whitespace-nowrap"
               onClick={onDeleteImage}
             >
               Delete Image
-            </button>
+            </BaseButton>
           </div>
         </div>
         <SubmitWithPending
-          className="rounded-full bg-lime-300 px-5 py-3 font-medium dark:text-black"
+          className="rounded-2xl bg-lime-300 px-4 py-3 font-medium dark:text-black"
           type="submit"
         >
           Save

@@ -7,6 +7,7 @@ type OptimisticLikeButtonProps = {
   count: number;
   isLiked: boolean;
   disabled?: boolean;
+  className?: string;
   action: (
     type: "add" | "remove",
   ) => Promise<{ count: number; isLiked: boolean }>;
@@ -25,7 +26,7 @@ const OptimisticLikeButton = (props: OptimisticLikeButtonProps) => {
       disabled={props.disabled || pending}
       onClick={dispatchToggleLike}
       data-liked={optimisticLikes.isLiked}
-      className="relative px-4 data-[liked=true]:border-rose-100 data-[liked=true]:bg-rose-50 data-[liked=true]:text-rose-400 data-[liked=true]:shadow-none dark:data-[liked=true]:border-rose-800 dark:data-[liked=true]:bg-rose-950 dark:data-[liked=true]:text-rose-300"
+      className={`relative px-4 tabular-nums data-[liked=true]:border-rose-100 data-[liked=true]:bg-rose-50 data-[liked=true]:text-rose-400 data-[liked=true]:shadow-none dark:data-[liked=true]:border-rose-800 dark:data-[liked=true]:bg-rose-950 dark:data-[liked=true]:text-rose-300 ${props.className}`}
     >
       <div className="flex items-center gap-1">
         {pending ? (

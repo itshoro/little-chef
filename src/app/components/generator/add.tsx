@@ -2,20 +2,15 @@
 
 import { useGeneratorContext } from "./context";
 
-type AddProps = {
-  children: React.ReactNode;
-};
-
-const Add = ({ children }: AddProps) => {
+const Add = ({ className, ...props }: React.ComponentProps<"button">) => {
   const { addItem } = useGeneratorContext(Add.name);
   return (
     <button
       type="button"
-      className="ml-auto flex items-center rounded-xl p-2 text-stone-600 transition-all hover:bg-stone-100 disabled:hover:bg-none dark:hover:bg-stone-900"
+      className={`text-sm underline ${className}`}
       onClick={() => addItem()}
-    >
-      {children}
-    </button>
+      {...props}
+    />
   );
 };
 

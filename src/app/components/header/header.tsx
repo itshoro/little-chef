@@ -3,29 +3,28 @@ import { Avatar } from "./avatar";
 import NextLink from "next/link";
 import { BaseButton } from "../base-button";
 
-const Header = async ({ children }: { children?: React.ReactNode }) => {
+const Header = async ({
+  children,
+  className,
+}: {
+  children?: React.ReactNode;
+  className?: string;
+}) => {
   const { user } = await validateRequest();
 
   return (
-    <header
-      className="border-b border-stone-200 dark:border-stone-800"
-      style={{ gridArea: "header", gridColumn: 1 }}
-    >
-      <div className="px-6 py-3">
-        <div className="flex justify-between">
-          {children}
-          <div className="ml-auto">
-            {user ? (
-              <NextLink href="/settings/user">
-                <Avatar src={user.avatar ?? undefined} alt={user.username} />
-              </NextLink>
-            ) : (
-              <BaseButton href="/login">
-                <span>Login</span>
-              </BaseButton>
-            )}
-          </div>
-        </div>
+    <header className={`flex ${className}`}>
+      {children}
+      <div className="ml-auto inline-flex items-center">
+        {user ? (
+          <NextLink href="/settings/user" className="contents">
+            <Avatar src={user.avatar ?? undefined} alt={user.username} />
+          </NextLink>
+        ) : (
+          <BaseButton href="/login">
+            <span>Login</span>
+          </BaseButton>
+        )}
       </div>
     </header>
   );

@@ -2,7 +2,7 @@ import NextLink from "next/link";
 import { loginAction } from "./action";
 import * as Input from "@/app/components/input";
 import * as Form from "@/app/components/form";
-import { Submit } from "@/app/recipes/components/recipe-form";
+import { Submit } from "@/app/(default)/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import { redirect } from "next/navigation";
 import { passwordRange, usernameRange } from "@/lib/dal/user";
@@ -15,7 +15,7 @@ const LoginPage = async () => {
   return (
     <>
       <h1 className="font-medium">Login</h1>
-      <div className="py-4">
+      <div className="max-w-(--breakpoint-sm) py-4">
         <Form.Root action={loginAction}>
           <div>
             <Input.Root name="username">
@@ -29,7 +29,7 @@ const LoginPage = async () => {
               </Input.Group>
             </Input.Root>
           </div>
-          <div className="mb-6 mt-2">
+          <div className="mt-2 mb-6">
             <Input.Root name="password">
               <Input.Label>Password</Input.Label>
               <Input.Group>
@@ -42,10 +42,14 @@ const LoginPage = async () => {
             </Input.Root>
           </div>
           <Form.ErrorDisplay />
-          <Submit>Continue</Submit>
+          <div className="flex items-baseline justify-between">
+            <NextLink className="text-lime-300 underline" href="/sign-up">
+              Create an account
+            </NextLink>
+            <Submit>Continue</Submit>
+          </div>
         </Form.Root>
       </div>
-      <NextLink href="/sign-up">Create an account</NextLink>
     </>
   );
 };

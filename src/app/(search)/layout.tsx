@@ -6,22 +6,25 @@ import { Suspense } from "react";
 const Layout = async (props: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-      <section className="p-4">
-        <Suspense fallback={<SearchFallback />}>
-          <Search />
-        </Suspense>
-      </section>
-      <div className="@container">
-        <section className="border-y border-stone-200 px-4 py-3 dark:border-stone-800">
-          <Suspense>
-            <TabNavigation.Root keepSearchParams={true} replace={true}>
-              <TabNavigation.Link href="/collections">
-                Collections
-              </TabNavigation.Link>
-              <TabNavigation.Link href="/recipes">Recipes</TabNavigation.Link>
-            </TabNavigation.Root>
+      <Header className="mx-auto w-full max-w-(--breakpoint-xl) items-center gap-3 p-4">
+        <div className="w-full">
+          <Suspense fallback={<SearchFallback />}>
+            <Search />
           </Suspense>
+        </div>
+      </Header>
+      <div className="@container">
+        <section className="border-b border-stone-200 pb-2 dark:border-stone-800">
+          <div className="mx-auto max-w-(--breakpoint-xl) px-4">
+            <Suspense>
+              <TabNavigation.Root keepSearchParams={true} replace={true}>
+                <TabNavigation.Link href="/collections">
+                  Collections
+                </TabNavigation.Link>
+                <TabNavigation.Link href="/recipes">Recipes</TabNavigation.Link>
+              </TabNavigation.Root>
+            </Suspense>
+          </div>
         </section>
       </div>
       {props.children}

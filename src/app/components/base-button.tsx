@@ -2,26 +2,22 @@ import { Route } from "next";
 import Link, { type LinkProps } from "next/link";
 
 const BaseButton = (
-  props: React.ComponentProps<"button"> | LinkProps<Route>,
+  props:
+    | React.ComponentProps<"button">
+    | (LinkProps<Route> & { className?: string }),
 ) => {
   if (isAnchor(props)) {
     return (
       <Link
         {...props}
-        className={
-          "inline-flex items-center justify-center gap-2 rounded-full border p-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700 " +
-          props.className
-        }
+        className={`flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black ${props.className}`}
       />
     );
   } else {
     return (
       <button
         {...props}
-        className={
-          "inline-flex items-center justify-center gap-2 rounded-full border p-4 text-sm font-medium shadow active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700 " +
-          props.className
-        }
+        className={`flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black disabled:cursor-auto disabled:bg-lime-950 disabled:text-lime-200/30 ${props.className}`}
       />
     );
   }

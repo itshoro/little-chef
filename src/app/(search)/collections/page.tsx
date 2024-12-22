@@ -4,7 +4,7 @@ import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
 import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
 import type { Metadata } from "next";
-import { Section } from "@/app/recipes/[slug]/components/section";
+import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -13,16 +13,24 @@ export const metadata: Metadata = {
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   const { user } = await validateRequest();
 
-  return (<>
-    <main className="flex-1">
-      <CollectionList user={user} query={(await props.searchParams).q} />
-      <CollectionSearchResults user={user} query={(await props.searchParams).q} />
-    </main>
-    {user && <AddButton href="/collections/add" />}
-  </>);
+  return (
+    <>
+      <main className="flex-1">
+        <CurrentUserCollections
+          user={user}
+          query={(await props.searchParams).q}
+        />
+        <CollectionSearchResults
+          user={user}
+          query={(await props.searchParams).q}
+        />
+      </main>
+      {user && <AddButton href="/collections/add" />}
+    </>
+  );
 };
 
-const CollectionList = async ({
+const CurrentUserCollections = async ({
   user,
   query,
 }: {
