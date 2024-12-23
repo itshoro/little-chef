@@ -5,7 +5,7 @@ const Alert = () => {
   const formState = useFormStateContext(Alert.name);
 
   const errorCount = formState.success
-    ? undefined
+    ? 0
     : Object.keys(formState.errors ?? {}).length;
 
   return (
@@ -28,7 +28,7 @@ const Alert = () => {
             />
           </svg>
           <div>{formState.message}</div>
-          {errorCount && <div>{errorCount} error(s) are present.</div>}
+          {errorCount > 0 && <div>{errorCount} error(s) are present.</div>}
         </div>
       )}
     </div>
