@@ -12,7 +12,10 @@ import { getRecipe } from "./recipe";
 import type { Password, Username } from "./user/types";
 
 // MARK: Auth
-export async function validateUser(username: Username, password: Password) {
+export async function findUserByCredentials(
+  username: Username,
+  password: Password,
+) {
   const result = await db
     .select()
     .from(schema.users)

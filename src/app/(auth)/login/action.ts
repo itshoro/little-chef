@@ -1,7 +1,7 @@
 import type { FormState } from "@/app/components/form/root";
 import { lucia } from "@/lib/auth/lucia";
-import { validateUser } from "@/lib/dal/user";
-import { authSchema, type Password, type Username } from "@/lib/dal/user/types";
+import { findUserByCredentials } from "@/lib/dal/user";
+import { authSchema } from "@/lib/dal/user/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -10,29 +10,21 @@ export type LoginFormData = {
   password?: string;
 };
 
-function validateAuthSchema(details: {
-  username: FormDataEntryValue | null;
-  password: FormDataEntryValue | null;
-}) {
-  const dto = authSchema.safeParse(details);
-
-  if (!dto.success) {
-    throw new Error("Couldn't safely parse authSchema", {
-      cause: dto.error.flatten().fieldErrors,
-    });
-  }
-
-  return dto.data as { username: Username; password: Password };
-}
-
 async function login(formData: FormData): Promise<FormState<LoginFormData>> {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
   try {
-    const dto = validateAuthSchema({ username, password });
+    const parseResult = authSchema.safeParse({ username, password });
 
-    const user = await validateUser(dto.username, dto.password);
+    if (!parseResult.success) {
+      throw new Error(undefined, {
+        cause: parseResult.error.flatten().fieldErrors,
+      });
+    }
+
+    const dto = parseResult.data;
+    const user = await findUserByCredentials(dto.username, dto.password);
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     (await cookies()).set(
@@ -40,22 +32,23 @@ async function login(formData: FormData): Promise<FormState<LoginFormData>> {
       sessionCookie.value,
       sessionCookie.attributes,
     );
+
+    return {
+      success: true,
+      message: "",
+    };
   } catch (e) {
     if (!(e instanceof Error)) throw e;
 
     return {
       success: false,
       message:
+        e.message ||
         "Please review the form and correct the errors to proceed with your login.",
       errors: e.cause as Record<string, unknown>,
       controls: { username }, // Do not pass password back.
-    } as FormState<LoginFormData>;
+    } satisfies FormState<LoginFormData>;
   }
-
-  return {
-    success: true,
-    message: "",
-  };
 }
 
 async function loginAction(

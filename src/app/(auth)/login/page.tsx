@@ -16,7 +16,7 @@ const LoginPage = async () => {
       <h1 className="font-medium">Login</h1>
       <div className="max-w-(--breakpoint-sm) py-4">
         <Form.Root action={loginAction}>
-          <div>
+          <div className="mb-4">
             <Input.Root name="username">
               <Input.Label className="pb-2">Username</Input.Label>
               <Input.Group>
@@ -30,7 +30,7 @@ const LoginPage = async () => {
               <Input.InlineError />
             </Input.Root>
           </div>
-          <div className="mt-2 mb-6">
+          <div className="mb-4">
             <Input.Root name="password">
               <Input.Label className="pb-2">Password</Input.Label>
               <Input.Group>
@@ -47,11 +47,14 @@ const LoginPage = async () => {
 
           <Form.Alert />
 
-          <div className="flex items-baseline justify-between">
-            <Link className="text-lime-300 underline" href="/sign-up">
-              Create an account
-            </Link>
-            <SubmitWithPending>Continue</SubmitWithPending>
+          <div className="mt-2 flex items-baseline justify-between">
+            <span>
+              Don't have an account?{" "}
+              <Link className="text-lime-300 underline" href="/sign-up">
+                Sign up
+              </Link>
+            </span>
+            <SubmitWithPending>Login</SubmitWithPending>
           </div>
         </Form.Root>
       </div>
