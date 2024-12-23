@@ -1,6 +1,6 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
 import * as Form from "@/app/components/form";
-import { FormContext } from "@/app/components/form/root";
+import { FormState } from "@/app/components/form/root";
 import { validateRequest } from "@/lib/auth/lucia";
 import { addRecipe } from "@/lib/dal/collections";
 import { authorizeFromSession, getMaintainedCollections } from "@/lib/dal/user";
@@ -110,7 +110,7 @@ const AddToCollectionButton = async ({
 async function addToCollections(
   sessionId: string,
   recipePublicId: string,
-  _: FormContext,
+  _: FormState,
   formData: FormData,
 ) {
   "use server";
@@ -118,7 +118,7 @@ async function addToCollections(
   const collection = formData.get("collection");
 
   await addRecipe(collection as string, recipePublicId, user);
-  return { success: true } satisfies FormContext;
+  return { success: true } satisfies FormState;
 }
 
 export { AddToCollectionButton };

@@ -1,9 +1,14 @@
+import type { FormState } from "@/app/components/form/root";
 import { lucia } from "@/lib/auth/lucia";
 import { validateUser } from "@/lib/dal/user";
 import { authSchema, type Password, type Username } from "@/lib/dal/user/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { LoginFormState } from "./form";
+
+export type LoginFormData = {
+  username: string;
+  password?: string;
+};
 
 function validateAuthSchema(details: {
   username: FormDataEntryValue | null;
@@ -20,7 +25,7 @@ function validateAuthSchema(details: {
   return dto.data as { username: Username; password: Password };
 }
 
-async function login(formData: FormData): Promise<LoginFormState> {
+async function login(formData: FormData): Promise<FormState<LoginFormData>> {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
@@ -41,9 +46,9 @@ async function login(formData: FormData): Promise<LoginFormState> {
     return {
       success: false,
       message: "Please fix the marked issues in the form",
-      errors: e.cause as LoginFormState["errors"],
-      data: { username }, // Do not pass password back.
-    };
+      errors: e.cause as Record<string, unknown>,
+      controls: { username }, // Do not pass password back.
+    } as FormState<LoginFormData>;
   }
 
   return {
@@ -53,9 +58,9 @@ async function login(formData: FormData): Promise<LoginFormState> {
 }
 
 async function loginAction(
-  _: LoginFormState | null,
+  _: FormState<LoginFormData> | null,
   formData: FormData,
-): Promise<LoginFormState> {
+): Promise<FormState<LoginFormData>> {
   "use server";
   const response = await login(formData);
 

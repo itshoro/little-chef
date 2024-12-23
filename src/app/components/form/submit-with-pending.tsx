@@ -12,9 +12,9 @@ const SubmitWithPending = ({
   const { pending } = useFormStatus();
   return (
     <BaseButton
+      {...props}
       className="group"
       disabled={disabled || pending}
-      {...props}
       type="submit"
     >
       <div className="relative isolate flex items-center gap-2 bg-inherit">

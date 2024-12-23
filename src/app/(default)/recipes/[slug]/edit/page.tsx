@@ -1,4 +1,4 @@
-import type { FormContext } from "@/app/components/form/root";
+import type { FormState } from "@/app/components/form/root";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import * as Form from "@/app/(default)/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
@@ -69,7 +69,7 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   }
 };
 
-async function update(_: FormContext, formData: FormData) {
+async function update(_: FormState, formData: FormData) {
   "use server";
 
   let user: User;
@@ -80,7 +80,7 @@ async function update(_: FormContext, formData: FormData) {
     return {
       success: false,
       error: "You're currently not signed in, recipe update is disabled.",
-    } satisfies FormContext;
+    } satisfies FormState;
   }
 
   const dto = recipeDtoFromFormData(formData, UpdateRecipeValidator);
@@ -91,7 +91,7 @@ async function update(_: FormContext, formData: FormData) {
       error: Object.entries(
         dto.error.flatten((issue) => issue.message).fieldErrors,
       ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
-    } satisfies FormContext;
+    } satisfies FormState;
   }
   const recipe = await updateRecipe(dto.data, user);
 

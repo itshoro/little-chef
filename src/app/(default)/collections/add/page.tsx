@@ -1,5 +1,5 @@
 import { BackLink } from "@/app/components/back-link";
-import type { FormContext } from "@/app/components/form/root";
+import type { FormState } from "@/app/components/form/root";
 import { Header } from "@/app/components/header/header";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
@@ -55,7 +55,7 @@ const Page = async () => {
   );
 };
 
-async function create(_: FormContext, formData: FormData) {
+async function create(_: FormState, formData: FormData) {
   "use server";
 
   let user: User;
@@ -66,7 +66,7 @@ async function create(_: FormContext, formData: FormData) {
     return {
       success: false,
       error: "You're currently not signed in, collection creation is disabled.",
-    } satisfies FormContext;
+    } satisfies FormState;
   }
 
   const dto = collectionDtoFromFormData(formData, AddCollectionValidator);
@@ -77,7 +77,7 @@ async function create(_: FormContext, formData: FormData) {
       error: Object.entries(
         dto.error.flatten((issue) => issue.message).fieldErrors,
       ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
-    } satisfies FormContext;
+    } satisfies FormState;
   }
   const collection = await createCollection(dto.data);
   await subscribeToCollection(user.publicId, collection, "creator");

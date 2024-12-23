@@ -1,8 +1,12 @@
 "use server";
 
-import type { FormContext } from "@/app/components/form/root";
+import type { FormState } from "@/app/components/form/root";
 import { lucia } from "@/lib/auth/lucia";
-import { createUser, validatePassword, validateUsername } from "@/lib/dal/user";
+import {
+  createUser,
+  assertValidPassword,
+  assertValidUsername,
+} from "@/lib/dal/user";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id } from "oslo/password";
@@ -16,8 +20,8 @@ async function signup(formData: FormData) {
   if (inviteCode !== process.env.INVITE_CODE)
     throw new Error("Invalid invite code.");
 
-  if (!validateUsername(username)) return;
-  if (!validatePassword(password)) return;
+  if (!assertValidUsername(username)) return;
+  if (!assertValidPassword(password)) return;
 
   const hashedPassword = await new Argon2id().hash(password);
   const user = await createUser(username, hashedPassword);
@@ -31,7 +35,7 @@ async function signup(formData: FormData) {
   );
 }
 
-async function signupAction(_: FormContext, formData: FormData) {
+async function signupAction(_: FormState, formData: FormData) {
   try {
     await signup(formData);
   } catch (e) {
@@ -42,7 +46,7 @@ async function signupAction(_: FormContext, formData: FormData) {
     return {
       success: false,
       error: e.message,
-    } satisfies FormContext;
+    } satisfies FormState;
   }
 
   return redirect("/recipes");

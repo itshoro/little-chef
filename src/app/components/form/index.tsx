@@ -1,4 +1,4 @@
 import { Form } from "./root";
-import { FormErrorDisplay } from "./error-display";
+import { Alert } from "./alert";
 
-export { Form as Root, FormErrorDisplay as ErrorDisplay };
+export { Form as Root, Alert };

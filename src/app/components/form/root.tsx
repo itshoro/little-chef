@@ -1,62 +1,72 @@
 "use client";
 
 import { useContext } from "@/hooks/useContext";
-import { createContext, useRef, useActionState, useTransition } from "react";
+import { createContext, useActionState, useEffect, useRef } from "react";
 
-type FormContext =
+type FormState<
+  TFormControls extends Record<string, unknown> = Record<string, unknown>,
+> =
   | {
       success: false;
-      error?: string | string[];
+      message: string;
+      errors?: { [K in keyof TFormControls]?: string[] };
+      controls?: TFormControls;
     }
   | {
       success: true;
+      message: string;
     };
 
-const FormErrorContext = createContext<FormContext | null>(null);
-const useFormErrorContext = (calleeName: string) =>
-  useContext(calleeName, FormErrorContext);
+const FormStateContext = createContext<FormState | null>(null);
+const useFormStateContext = (calleeName: string) =>
+  useContext(calleeName, FormStateContext);
 
-type FormProps = {
+type FormProps<TFormControls extends Record<string, unknown>> = {
   action: (
-    previousState: FormContext,
+    previousState: FormState<TFormControls>,
     formData: FormData,
-  ) => FormContext | Promise<FormContext>;
+  ) => FormState<TFormControls> | Promise<FormState<TFormControls>>;
   children: React.ReactNode;
-  initialState?: FormContext;
-  retainFormDataOnFailure?: boolean;
+  initialState?: FormState<TFormControls>;
 };
 
-const Form = ({
+function useFocusFirstErroneousControl(state: FormState) {
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (!formRef.current || state.success || !state.errors) return;
+
+    // Select first erroneous control in form so that keyboard users tab through the form in order, when correcting issues.
+    const erroneousControlNames = Object.keys(state.errors);
+    for (const element of formRef.current.elements) {
+      if (erroneousControlNames.includes((element as HTMLInputElement).name)) {
+        // queuing a regular callback or microtask (or a combination of the two) wasn't sufficient to make certain that the alert area is announced before the control error.
+        setTimeout(() => {
+          (element as HTMLElement).focus();
+        }, 0);
+        return;
+      }
+    }
+  }, [state]);
+
+  return formRef;
+}
+
+const Form = <TFormControls extends Record<string, unknown>>({
   action,
   children,
-  retainFormDataOnFailure,
-  initialState = { success: false },
-}: FormProps) => {
-  const ref = useRef<HTMLFormElement>(null);
+  initialState = { success: false, message: "" },
+}: FormProps<TFormControls>) => {
   const [state, formAction] = useActionState(action, initialState);
-  const [_, startTransition] = useTransition();
-
-  if (state.success) {
-    ref.current?.reset();
-  }
+  const ref = useFocusFirstErroneousControl(state);
 
   return (
-    <FormErrorContext.Provider value={state}>
-      <form
-        ref={ref}
-        action={formAction}
-        onSubmit={(e) => {
-          if (retainFormDataOnFailure) {
-            e.preventDefault();
-
-            startTransition(() => formAction(new FormData(e.currentTarget)));
-          }
-        }}
-      >
+    <FormStateContext value={state}>
+      <form ref={ref} action={formAction}>
         {children}
       </form>
-    </FormErrorContext.Provider>
+    </FormStateContext>
   );
 };
 
-export { Form, useFormErrorContext, type FormContext };
+export { Form, useFormStateContext, type FormState };

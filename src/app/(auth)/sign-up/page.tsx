@@ -61,7 +61,7 @@ const SignUpPage = async () => {
             </Input.Group>
           </Input.Root>
         </div>
-        <Form.ErrorDisplay />
+        <Form.Alert />
         <Submit>Continue</Submit>
       </Form.Root>
     </>

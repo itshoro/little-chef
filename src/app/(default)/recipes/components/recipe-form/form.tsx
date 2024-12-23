@@ -10,7 +10,7 @@ const Form = ({ action, children }: FormProps) => {
     <RootForm.Root action={action}>
       {children}
       <div className="my-4">
-        <RootForm.ErrorDisplay />
+        <RootForm.Alert />
       </div>
     </RootForm.Root>
   );

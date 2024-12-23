@@ -1,4 +1,4 @@
-import { FormContext } from "@/app/components/form/root";
+import { FormState } from "@/app/components/form/root";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   collectionDtoFromFormData,
@@ -44,7 +44,7 @@ const Page = async (props: PageProps) => {
   }
 };
 
-async function update(_: FormContext, formData: FormData) {
+async function update(_: FormState, formData: FormData) {
   "use server";
   const sessionId = formData.get("sessionId");
   const user = await authorizeFromSession(sessionId);
