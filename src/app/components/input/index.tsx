@@ -1,7 +1,8 @@
-import { Root } from "./root";
 import { Element } from "./element";
-import { Label } from "./label";
+import { Error } from "./error";
 import { Group } from "./group";
+import { Label } from "./label";
+import { Root } from "./root";
 import { Textarea } from "./textarea";
 
-export { Root, Element, Label, Group, Textarea };
+export { Element, Error, Group, Label, Root, Textarea };
