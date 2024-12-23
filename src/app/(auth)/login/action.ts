@@ -45,7 +45,8 @@ async function login(formData: FormData): Promise<FormState<LoginFormData>> {
 
     return {
       success: false,
-      message: "Please fix the marked issues in the form",
+      message:
+        "Please review the form and correct the errors to proceed with your login.",
       errors: e.cause as Record<string, unknown>,
       controls: { username }, // Do not pass password back.
     } as FormState<LoginFormData>;
