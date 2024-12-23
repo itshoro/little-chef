@@ -24,6 +24,7 @@ const LoginPage = async () => {
                   type="text"
                   minLength={usernameRange.min}
                   maxLength={usernameRange.max}
+                  autoComplete="username"
                 />
               </Input.Group>
               <Input.InlineError />
@@ -37,6 +38,7 @@ const LoginPage = async () => {
                   type="password"
                   minLength={passwordRange.min}
                   maxLength={passwordRange.max}
+                  autoComplete="current-password"
                 />
               </Input.Group>
               <Input.InlineError />
