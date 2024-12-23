@@ -1,20 +1,20 @@
+import { BaseButton } from "@/app/components/base-button";
+import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth/lucia";
+import {
+  authorizeFromSession,
+  changeAvatar,
+  changePassword,
+  changeUsername,
+} from "@/lib/dal/user";
+import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
+import type { Metadata } from "next";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
 import { Fieldset } from "../components/primitives/fieldset";
 import * as SettingsSection from "../components/settings-section";
 import { UpdateAvatar } from "./update-image";
-import { revalidatePath } from "next/cache";
-import {
-  changePassword,
-  changeAvatar,
-  changeUsername,
-  validateUsername,
-  validatePassword,
-  authorizeFromSession,
-} from "@/lib/dal/user";
-import * as Input from "@/app/components/input";
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { BaseButton } from "@/app/components/base-button";
 
 export const metadata: Metadata = {
   title: "User Preferences",
@@ -100,6 +100,17 @@ const UserPage = async () => {
   );
 };
 
+const updatePasswordSchema = z
+  .object({
+    currentPassword: z.string(),
+    newPassword: passwordSchema,
+    confirmPassword: passwordSchema,
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"],
+  });
+
 async function updatePassword(
   sessionId: string | undefined,
   formData: FormData,
@@ -107,15 +118,15 @@ async function updatePassword(
   "use server";
   const user = await authorizeFromSession(sessionId);
 
-  const currentPassword = formData.get("currentPassword");
-  const confirmPassword = formData.get("confirmPassword");
-  const newPassword = formData.get("newPassword");
-  if (typeof currentPassword !== "string" || !validatePassword(newPassword))
-    return;
+  const dto = updatePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+    newPassword: formData.get("newPassword"),
+  });
 
-  if (confirmPassword !== newPassword) return;
+  if (!dto.success) return; // TODO
 
-  await changePassword(user, currentPassword, newPassword);
+  await changePassword(user, dto.data.currentPassword, dto.data.newPassword);
 }
 
 const setProfileImage = async (
@@ -139,10 +150,10 @@ const updateUsernameAction = async (
   "use server";
   const user = await authorizeFromSession(sessionId);
 
-  const username = formData.get("username");
-  if (!validateUsername(username)) return;
+  const dto = usernameSchema.safeParse(formData.get("username"));
+  if (!dto.success) return; // TODO
 
-  await changeUsername(user, username);
+  await changeUsername(user, dto.data);
   revalidatePath("/settings/user", "page");
 };
 

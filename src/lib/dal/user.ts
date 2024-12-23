@@ -9,9 +9,9 @@ import * as schema from "@/drizzle/schema";
 import { and, count, eq, inArray, like, or, sql } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 import { getRecipe } from "./recipe";
+import type { Password, Username } from "./user/types";
 
 // MARK: Auth
-/** Use @see{validateUsername} and @see{validatePassword} to validate your parameters. */
 export async function validateUser(username: Username, password: Password) {
   const result = await db
     .select()
@@ -60,33 +60,6 @@ async function equalsPassword(hash: string, password: string) {
   return await new Argon2id().verify(hash, password);
 }
 
-export type Password = string & { __brand: "ValidPassword" };
-
-export const passwordRange = { min: 6, max: 255 } as const;
-export function validatePassword(password: any): password is Password {
-  if (typeof password !== "string") {
-    throw new TypeError("Password needs to be a string.");
-  }
-
-  if (
-    password.length < passwordRange.min ||
-    password.length > passwordRange.max
-  ) {
-    throw new RangeError(
-      `Password needs to be between ${passwordRange.min} and ${passwordRange.max} characters long.\r\n\r\n Received ${password.length} characters.`,
-      {
-        cause: {
-          ...passwordRange,
-          actual: password.length,
-          target: "password",
-        },
-      },
-    );
-  }
-
-  return true;
-}
-
 // MARK: Avatar
 export async function changeAvatar(user: User, image: File) {
   const resizedBuffer = await sharp(await image.arrayBuffer())
@@ -119,43 +92,6 @@ export async function changeUsername(user: User, newUsername: Username) {
     .update(schema.users)
     .set({ username: newUsername })
     .where(eq(schema.users.id, user.id));
-}
-
-export type Username = string & { brand: "ValidUsername" };
-
-export const usernameRange = { min: 3, max: 31 } as const;
-export function validateUsername(username: any): username is Username {
-  if (typeof username !== "string") {
-    throw new TypeError("Username needs to be a string.", {
-      cause: { target: "username" },
-    });
-  }
-
-  if (
-    username.length < usernameRange.min ||
-    username.length > usernameRange.max
-  ) {
-    throw new RangeError(
-      `Username needs to be between ${usernameRange.min} and ${usernameRange.max} characters long.\r\n\r\n Received ${username.length} characters.`,
-      {
-        cause: {
-          ...usernameRange,
-          actual: username.length,
-          target: "username",
-        },
-      },
-    );
-  }
-
-  if (!/^[a-z0-9_-]+$/.test(username))
-    throw new TypeError(
-      "Username doesn't match required pattern. Only lowercase letters, numbers, minus and underscore are allowed symbols.",
-      {
-        cause: { target: "username" },
-      },
-    );
-
-  return true;
 }
 
 // MARK: utils
