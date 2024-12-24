@@ -46,8 +46,31 @@ const UpdateAvatar = ({
               onChange={(e) => {
                 if (e.target.files?.length) {
                   const reader = new FileReader();
-                  reader.onload = () => {
-                    setAvatarSrc(reader.result as string);
+                  reader.onload = (e) => {
+                    const image = new Image();
+
+                    image.onload = () => {
+                      const canvas = document.createElement("canvas");
+                      const context = canvas.getContext("2d");
+
+                      canvas.width = image.width;
+                      canvas.height = image.height;
+
+                      context!.drawImage(image, 0, 0);
+
+                      const size = Math.min(image.width, image.height);
+                      const x = (image.width - size) / 2;
+                      const y = (image.height - size) / 2;
+
+                      const imageData = context!.getImageData(x, y, size, size);
+                      canvas.width = size;
+                      canvas.height = size;
+                      context!.putImageData(imageData, 0, 0);
+
+                      setAvatarSrc(canvas.toDataURL());
+                    };
+
+                    image.src = e.target!.result as string;
                   };
                   reader.readAsDataURL(e.target.files[0]);
                 }

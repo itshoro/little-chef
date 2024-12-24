@@ -421,13 +421,12 @@ export async function removeCollectionLike(user: User, collectionId: number) {
   });
 }
 
-export async function authorizeFromSession(sessionId: any) {
+export async function findUserBySessionId(sessionId: unknown) {
   if (typeof sessionId !== "string") {
     throw new Error("Unauthorized.");
   }
 
   const { user } = await validateRequest(sessionId);
-
   if (!user) {
     throw new Error("Unauthorized.");
   }

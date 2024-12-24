@@ -4,7 +4,10 @@ import { useContext } from "@/hooks/useContext";
 import { createContext, useActionState, useEffect, useRef } from "react";
 
 type FormState<
-  TFormControls extends Record<string, unknown> = Record<string, unknown>,
+  TFormControls extends Record<string, unknown> | undefined = Record<
+    string,
+    unknown
+  >,
 > =
   | {
       success: false;

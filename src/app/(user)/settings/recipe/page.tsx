@@ -12,7 +12,7 @@ import { revalidatePath } from "next/cache";
 import { validateVisibility } from "@/lib/dal/visibility";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { authorizeFromSession } from "@/lib/dal/user";
+import { findUserBySessionId } from "@/lib/dal/user";
 import { BaseButton } from "@/app/components/base-button";
 
 export const metadata: Metadata = {
@@ -78,7 +78,7 @@ async function changeDefaultRecipeVisibility(
   formData: FormData,
 ) {
   "use server";
-  const user = await authorizeFromSession(sessionId);
+  const user = await findUserBySessionId(sessionId);
   const visibility = formData.get("visibility");
 
   if (!validateVisibility(visibility)) return;
@@ -92,7 +92,7 @@ async function changeDefaultRecipeServingSize(
   formData: FormData,
 ) {
   "use server";
-  const user = await authorizeFromSession(sessionId);
+  const user = await findUserBySessionId(sessionId);
   const defaultServingSize = Number(formData.get("defaultServingSize"));
 
   if (isNaN(defaultServingSize)) return;

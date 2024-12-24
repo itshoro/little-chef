@@ -1,7 +1,7 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
 import { validateRequest } from "@/lib/auth/lucia";
 import { deleteRecipe } from "@/lib/dal/recipe";
-import { authorizeFromSession } from "@/lib/dal/user";
+import { findUserBySessionId } from "@/lib/dal/user";
 import { redirect } from "next/navigation";
 
 type DeleteButtonProps = {
@@ -57,7 +57,7 @@ const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
 
 async function deleteAction(recipeId: number, sessionId: string) {
   "use server";
-  const user = await authorizeFromSession(sessionId);
+  const user = await findUserBySessionId(sessionId);
   if (!user) throw new Error("Unauthorized");
 
   // TODO: check if user is allowed to delete recipe

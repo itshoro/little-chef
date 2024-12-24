@@ -1,6 +1,6 @@
+import * as Form from "@/app/(default)/recipes/components/recipe-form";
 import type { FormState } from "@/app/components/form/root";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import * as Form from "@/app/(default)/recipes/components/recipe-form";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   getRecipe,
@@ -8,7 +8,7 @@ import {
   recipeDtoFromFormData,
   updateRecipe,
 } from "@/lib/dal/recipe";
-import { authorizeFromSession } from "@/lib/dal/user";
+import { findUserBySessionId } from "@/lib/dal/user";
 import { UpdateRecipeValidator } from "@/lib/dal/validators";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import type { User } from "lucia";
@@ -75,7 +75,7 @@ async function update(_: FormState, formData: FormData) {
   let user: User;
   try {
     const sessionId = formData.get("sessionId");
-    user = await authorizeFromSession(sessionId);
+    user = await findUserBySessionId(sessionId);
   } catch {
     return {
       success: false,

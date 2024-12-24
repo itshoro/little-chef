@@ -1,11 +1,9 @@
+import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 import { RecipeCard } from "@/app/(search)/components/recipe-card";
-import { BackLink } from "@/app/components/back-link";
 import { BaseButton } from "@/app/components/base-button";
 import { OptimisticLikeButton } from "@/app/components/button/optimistic-like-button";
 import { NoRecipesStored } from "@/app/components/fallbacks/collections/no-recipe-stored";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
-import { Header } from "@/app/components/header/header";
-import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
   getCollection,
@@ -16,7 +14,7 @@ import {
 } from "@/lib/dal/collections";
 import {
   addCollectionLike,
-  authorizeFromSession,
+  findUserBySessionId,
   removeCollectionLike,
 } from "@/lib/dal/user";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
@@ -174,7 +172,7 @@ async function removeRecipeFromCollection(
   recipePublicId: string,
 ) {
   "use server";
-  const user = await authorizeFromSession(sessionId);
+  const user = await findUserBySessionId(sessionId);
 
   await removeRecipe(collectionPublicId, recipePublicId, user);
 }

@@ -68,7 +68,6 @@ async function signup(formData: FormData): Promise<FormState<SignUpData>> {
       message: "",
     };
   } catch (e) {
-    console.log(e);
     if (!(e instanceof Error)) throw e;
 
     return {

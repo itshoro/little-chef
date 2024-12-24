@@ -3,7 +3,7 @@ import * as Form from "@/app/components/form";
 import { FormState } from "@/app/components/form/root";
 import { validateRequest } from "@/lib/auth/lucia";
 import { addRecipe } from "@/lib/dal/collections";
-import { authorizeFromSession, getMaintainedCollections } from "@/lib/dal/user";
+import { findUserBySessionId, getMaintainedCollections } from "@/lib/dal/user";
 
 type AddToCollectionButtonProps = {
   className?: string;
@@ -114,7 +114,7 @@ async function addToCollections(
   formData: FormData,
 ) {
   "use server";
-  const user = await authorizeFromSession(sessionId);
+  const user = await findUserBySessionId(sessionId);
   const collection = formData.get("collection");
 
   await addRecipe(collection as string, recipePublicId, user);

@@ -9,7 +9,7 @@ import {
 import { validateVisibility } from "@/lib/dal/visibility";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { authorizeFromSession } from "@/lib/dal/user";
+import { findUserBySessionId } from "@/lib/dal/user";
 
 export const metadata: Metadata = {
   title: "Collection Preferences",
@@ -52,7 +52,7 @@ async function changeDefaultCollectionVisibility(
   formData: FormData,
 ) {
   "use server";
-  const user = await authorizeFromSession(sessionId);
+  const user = await findUserBySessionId(sessionId);
 
   const visibility = formData.get("visibility");
   if (!validateVisibility(visibility)) return;

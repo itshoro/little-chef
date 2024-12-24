@@ -6,6 +6,7 @@ import { BaseButton } from "../base-button";
 
 const SubmitWithPending = ({
   children,
+  className,
   disabled,
   ...props
 }: ComponentProps<"button">) => {
@@ -13,7 +14,7 @@ const SubmitWithPending = ({
   return (
     <BaseButton
       {...props}
-      className="group"
+      className={`group ${className}`}
       disabled={disabled || pending}
       type="submit"
     >

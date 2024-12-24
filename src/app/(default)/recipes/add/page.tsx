@@ -6,7 +6,7 @@ import {
   getRecipePreferences,
   recipeDtoFromFormData,
 } from "@/lib/dal/recipe";
-import { authorizeFromSession, subscribeToRecipe } from "@/lib/dal/user";
+import { findUserBySessionId, subscribeToRecipe } from "@/lib/dal/user";
 import { AddRecipeValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
 import type { User } from "lucia";
@@ -68,7 +68,7 @@ async function create(_: FormState, formData: FormData) {
   let user: User;
   try {
     const sessionId = formData.get("sessionId");
-    user = await authorizeFromSession(sessionId);
+    user = await findUserBySessionId(sessionId);
   } catch {
     return {
       success: false,

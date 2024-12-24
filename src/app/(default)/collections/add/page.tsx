@@ -7,7 +7,7 @@ import {
   createCollection,
   getCollectionPreferences,
 } from "@/lib/dal/collections";
-import { authorizeFromSession, subscribeToCollection } from "@/lib/dal/user";
+import { findUserBySessionId, subscribeToCollection } from "@/lib/dal/user";
 import { AddCollectionValidator } from "@/lib/dal/validators";
 import { generateSlugPathSegment } from "@/lib/slug";
 import type { User } from "lucia";
@@ -61,7 +61,7 @@ async function create(_: FormState, formData: FormData) {
   let user: User;
   try {
     const sessionId = formData.get("sessionId");
-    user = await authorizeFromSession(sessionId);
+    user = await findUserBySessionId(sessionId);
   } catch {
     return {
       success: false,
