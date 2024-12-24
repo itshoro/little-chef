@@ -1,5 +1,5 @@
-import { BaseButton } from "@/app/components/base-button";
 import * as Form from "@/app/components/form";
+import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth/lucia";
 import { getRecipePreferences } from "@/lib/dal/recipe";
@@ -8,6 +8,8 @@ import { redirect } from "next/navigation";
 import { Fieldset } from "../components/primitives/fieldset";
 import * as SettingsSection from "../components/settings-section";
 import { VisibilitySwitcher } from "../components/visibility-switcher";
+import { changeDefaultServingSizeAction } from "./actions/default-serving-size";
+import { changeDefaultVisibility } from "./actions/default-visibility";
 
 export const metadata: Metadata = {
   title: "Recipe Preferences",
@@ -21,12 +23,11 @@ const RecipeSettingsPage = async () => {
   }
 
   const preferences = await getRecipePreferences(user.publicId);
-
   const changeServingSizeWithSession = changeDefaultServingSizeAction.bind(
     null,
     session.id,
   );
-  const changeVisibilityWithSession = changeDefaultRecipeVisibility.bind(
+  const changeVisibilityWithSession = changeDefaultVisibility.bind(
     null,
     session.id,
   );
@@ -38,27 +39,39 @@ const RecipeSettingsPage = async () => {
         <SettingsSection.Grid>
           <Form.Root action={changeServingSizeWithSession}>
             <Fieldset label="Servings">
-              <Input.Root name="defaultServingSize">
-                <Input.Label>Default Serving Size</Input.Label>
-                <Input.Group>
-                  <Input.Element
-                    type="number"
-                    defaultValue={preferences.defaultServingSize}
-                  />
-                </Input.Group>
-              </Input.Root>
-              <BaseButton className="mt-6" type="submit">
-                Update Servings
-              </BaseButton>
+              <div className="mb-4">
+                <Input.Root name="defaultServingSize">
+                  <Input.Label className="pb-2">
+                    Default Serving Size
+                  </Input.Label>
+                  <Input.Group>
+                    <Input.Element
+                      type="number"
+                      defaultValue={preferences.defaultServingSize}
+                    />
+                  </Input.Group>
+                  <Input.InlineError />
+                </Input.Root>
+              </div>
+              <Form.Alert />
+              <SubmitWithPending className="mt-2" type="submit">
+                Change default serving size
+              </SubmitWithPending>
             </Fieldset>
           </Form.Root>
           <Form.Root action={changeVisibilityWithSession}>
             <Fieldset label="Default Visibility">
-              <VisibilitySwitcher
-                name="visibility"
-                defaultValue={preferences.defaultVisibility}
-                triggerSubmitOnChange
-              />
+              <div className="mb-4">
+                <VisibilitySwitcher
+                  name="visibility"
+                  defaultValue={preferences.defaultVisibility}
+                  triggerSubmitOnChange
+                />
+              </div>
+              <Form.Alert />
+              <SubmitWithPending className="mt-2" type="submit">
+                Change default visibility
+              </SubmitWithPending>
             </Fieldset>
           </Form.Root>
         </SettingsSection.Grid>
