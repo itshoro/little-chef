@@ -1,14 +1,13 @@
-import { Fieldset } from "../components/primitives/fieldset";
-import { VisibilitySwitcher } from "../components/visibility-switcher";
-import * as SettingsSection from "../components/settings-section";
+import * as Form from "@/app/components/form";
+import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth/lucia";
-import {
-  getCollectionPreferences,
-  updateDefaultVisibility,
-} from "@/lib/dal/collections";
+import { getCollectionPreferences } from "@/lib/dal/collections";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { findUserBySessionId } from "@/lib/dal/user";
+import { Fieldset } from "../components/primitives/fieldset";
+import * as SettingsSection from "../components/settings-section";
+import { VisibilitySwitcher } from "../components/visibility-switcher";
+import { changeDefaultVisibility } from "./actions/change-default-visibility";
 
 export const metadata: Metadata = {
   title: "Collection Preferences",
@@ -23,40 +22,35 @@ const CollectionSettingsPage = async () => {
 
   const preferences = await getCollectionPreferences(user.publicId);
 
-  const changeCollectionVisibilityWithUser =
-    changeDefaultCollectionVisibility.bind(null, session.id);
+  const changeVisibilityWithSession = changeDefaultVisibility.bind(
+    null,
+    session.id,
+  );
 
   return (
     <>
       <SettingsSection.Root>
         <SettingsSection.Label>Collection Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
-          <form action={changeCollectionVisibilityWithUser}>
+          <Form.Root action={changeVisibilityWithSession}>
             <Fieldset label="Default Visibility">
-              <VisibilitySwitcher
-                name="visibility"
-                defaultValue={preferences.defaultVisibility}
-                triggerSubmitOnChange
-              />
+              <div className="mb-4">
+                <VisibilitySwitcher
+                  name="visibility"
+                  defaultValue={preferences.defaultVisibility}
+                  triggerSubmitOnChange
+                />
+              </div>
+              <Form.Alert />
+              <SubmitWithPending className="mt-2" type="submit">
+                Change default visibility
+              </SubmitWithPending>
             </Fieldset>
-          </form>
+          </Form.Root>
         </SettingsSection.Grid>
       </SettingsSection.Root>
     </>
   );
 };
-
-async function changeDefaultCollectionVisibility(
-  sessionId: string,
-  formData: FormData,
-) {
-  "use server";
-  const user = await findUserBySessionId(sessionId);
-
-  const visibility = formData.get("visibility");
-  // if (!validateVisibility(visibility)) return;
-
-  await updateDefaultVisibility(user, visibility);
-}
 
 export default CollectionSettingsPage;
