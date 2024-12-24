@@ -36,3 +36,7 @@ export const authSchema = z.object({
   username: usernameSchema,
   password: passwordSchema,
 });
+
+export type Visibility = z.infer<typeof visibilitySchema>;
+export const supportedVisibilites = ["public", "unlisted", "private"] as const;
+export const visibilitySchema = z.enum(supportedVisibilites);

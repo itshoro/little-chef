@@ -6,7 +6,6 @@ import {
   getCollectionPreferences,
   updateDefaultVisibility,
 } from "@/lib/dal/collections";
-import { validateVisibility } from "@/lib/dal/visibility";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { findUserBySessionId } from "@/lib/dal/user";
@@ -55,7 +54,7 @@ async function changeDefaultCollectionVisibility(
   const user = await findUserBySessionId(sessionId);
 
   const visibility = formData.get("visibility");
-  if (!validateVisibility(visibility)) return;
+  // if (!validateVisibility(visibility)) return;
 
   await updateDefaultVisibility(user, visibility);
 }

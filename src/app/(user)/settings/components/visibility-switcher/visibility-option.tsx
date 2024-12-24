@@ -1,8 +1,8 @@
 import * as Input from "@/app/components/input";
-import { PublicVisibility } from "./icon/public-visibility";
+import type { Visibility } from "@/lib/dal/user/types";
 import { PrivateVisibility } from "./icon/private-visibility";
+import { PublicVisibility } from "./icon/public-visibility";
 import { UnlistedVisibility } from "./icon/unlisted-visibility";
-import type { Visibility } from "@/lib/dal/visibility";
 
 const visibilityMap = {
   public: { label: "Public", icon: <PublicVisibility /> },

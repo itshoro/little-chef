@@ -7,11 +7,11 @@ import type { z } from "zod";
 import { nanoid } from "../nanoid";
 import { generateSlug, generateSlugPathSegment } from "../slug";
 import { getUser } from "./user";
+import type { Visibility } from "./user/types";
 import {
   AddCollectionValidator,
   UpdateCollectionValidator,
 } from "./validators";
-import type { Visibility } from "./visibility";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);

@@ -1,7 +1,7 @@
 import { VisibilitySwitcher } from "@/app/(user)/settings/components/visibility-switcher";
 import * as Fieldset from "@/app/components/fieldset";
 import * as Input from "@/app/components/input";
-import type { Visibility } from "@/lib/dal/visibility";
+import type { Visibility } from "@/lib/dal/user/types";
 import { CoverImageInput } from "./cover-image";
 import { ServingsInput } from "./elements/servings-input";
 import { StepsGenerator } from "./elements/step/generator";

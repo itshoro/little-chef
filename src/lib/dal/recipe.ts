@@ -1,15 +1,15 @@
 import { db } from "@/drizzle/db";
 import * as schema from "@/drizzle/schema";
 import { and, eq, like, or, sql } from "drizzle-orm";
-import { User } from "lucia";
+import type { User } from "lucia";
 import { UTApi } from "uploadthing/server";
-import { type UploadFileResult } from "uploadthing/types";
+import type { UploadFileResult } from "uploadthing/types";
 import { z } from "zod";
 import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
 import { getUser } from "./user";
+import { type Visibility } from "./user/types";
 import { AddRecipeValidator, UpdateRecipeValidator } from "./validators";
-import { type Visibility } from "./visibility";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);

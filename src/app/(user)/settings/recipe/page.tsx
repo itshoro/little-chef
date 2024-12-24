@@ -1,19 +1,13 @@
-import { Fieldset } from "../components/primitives/fieldset";
-import { VisibilitySwitcher } from "../components/visibility-switcher";
-import * as SettingsSection from "../components/settings-section";
+import { BaseButton } from "@/app/components/base-button";
+import * as Form from "@/app/components/form";
 import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth/lucia";
-import {
-  getRecipePreferences,
-  updateDefaultServingSize,
-  updateDefaultVisibility,
-} from "@/lib/dal/recipe";
-import { revalidatePath } from "next/cache";
-import { validateVisibility } from "@/lib/dal/visibility";
+import { getRecipePreferences } from "@/lib/dal/recipe";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { findUserBySessionId } from "@/lib/dal/user";
-import { BaseButton } from "@/app/components/base-button";
+import { Fieldset } from "../components/primitives/fieldset";
+import * as SettingsSection from "../components/settings-section";
+import { VisibilitySwitcher } from "../components/visibility-switcher";
 
 export const metadata: Metadata = {
   title: "Recipe Preferences",
@@ -28,11 +22,11 @@ const RecipeSettingsPage = async () => {
 
   const preferences = await getRecipePreferences(user.publicId);
 
-  const changeServingSizeWithUserId = changeDefaultRecipeServingSize.bind(
+  const changeServingSizeWithSession = changeDefaultServingSizeAction.bind(
     null,
     session.id,
   );
-  const changeVisibilityWithUserId = changeDefaultRecipeVisibility.bind(
+  const changeVisibilityWithSession = changeDefaultRecipeVisibility.bind(
     null,
     session.id,
   );
@@ -42,7 +36,7 @@ const RecipeSettingsPage = async () => {
       <SettingsSection.Root>
         <SettingsSection.Label>Recipe Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
-          <form action={changeServingSizeWithUserId}>
+          <Form.Root action={changeServingSizeWithSession}>
             <Fieldset label="Servings">
               <Input.Root name="defaultServingSize">
                 <Input.Label>Default Serving Size</Input.Label>
@@ -57,8 +51,8 @@ const RecipeSettingsPage = async () => {
                 Update Servings
               </BaseButton>
             </Fieldset>
-          </form>
-          <form action={changeVisibilityWithUserId}>
+          </Form.Root>
+          <Form.Root action={changeVisibilityWithSession}>
             <Fieldset label="Default Visibility">
               <VisibilitySwitcher
                 name="visibility"
@@ -66,39 +60,11 @@ const RecipeSettingsPage = async () => {
                 triggerSubmitOnChange
               />
             </Fieldset>
-          </form>
+          </Form.Root>
         </SettingsSection.Grid>
       </SettingsSection.Root>
     </>
   );
 };
-
-async function changeDefaultRecipeVisibility(
-  sessionId: string | undefined,
-  formData: FormData,
-) {
-  "use server";
-  const user = await findUserBySessionId(sessionId);
-  const visibility = formData.get("visibility");
-
-  if (!validateVisibility(visibility)) return;
-  await updateDefaultVisibility(user, visibility);
-
-  revalidatePath("/settings/recipe");
-}
-
-async function changeDefaultRecipeServingSize(
-  sessionId: string | undefined,
-  formData: FormData,
-) {
-  "use server";
-  const user = await findUserBySessionId(sessionId);
-  const defaultServingSize = Number(formData.get("defaultServingSize"));
-
-  if (isNaN(defaultServingSize)) return;
-  await updateDefaultServingSize(user, defaultServingSize);
-
-  revalidatePath("/settings/recipe");
-}
 
 export default RecipeSettingsPage;

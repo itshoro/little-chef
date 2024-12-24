@@ -1,4 +1,4 @@
-import type { Visibility } from "@/lib/dal/visibility";
+import type { Visibility } from "@/lib/dal/user/types";
 import { RadioGroup } from "../primitives/radio-group/group";
 import { VisibilityOption } from "./visibility-option";
 

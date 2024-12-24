@@ -1,7 +1,7 @@
 import { VisibilitySwitcher } from "@/app/(user)/settings/components/visibility-switcher";
 import * as Input from "@/app/components/input";
 import * as Fieldset from "@/app/components/fieldset";
-import type { Visibility } from "@/lib/dal/visibility";
+import type { Visibility } from "@/lib/dal/user/types";
 
 type InputsProps = {
   defaultValue?: {
