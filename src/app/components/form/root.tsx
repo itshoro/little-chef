@@ -3,12 +3,8 @@
 import { useContext } from "@/hooks/useContext";
 import { createContext, useActionState, useEffect, useRef } from "react";
 
-type FormState<
-  TFormControls extends Record<string, unknown> | undefined = Record<
-    string,
-    unknown
-  >,
-> =
+type Controls = Record<string, unknown>;
+type FormState<TFormControls extends Controls | undefined = Controls> =
   | {
       success: false;
       message: string;
@@ -24,7 +20,7 @@ const FormStateContext = createContext<FormState | null>(null);
 const useFormStateContext = (calleeName: string) =>
   useContext(calleeName, FormStateContext);
 
-type FormProps<TFormControls extends Record<string, unknown>> = {
+type FormProps<TFormControls extends Controls> = {
   action: (
     previousState: FormState<TFormControls>,
     formData: FormData,
@@ -55,7 +51,7 @@ function useFocusFirstErroneousControl(state: FormState) {
   return formRef;
 }
 
-const Form = <TFormControls extends Record<string, unknown>>({
+const Form = <TFormControls extends Controls>({
   action,
   children,
   initialState = { success: false, message: "" },
@@ -72,4 +68,10 @@ const Form = <TFormControls extends Record<string, unknown>>({
   );
 };
 
-export { Form, useFormStateContext, type FormState };
+export {
+  Form,
+  useFormStateContext,
+  type FormState,
+  type Controls,
+  type FormProps,
+};

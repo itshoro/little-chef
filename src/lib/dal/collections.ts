@@ -3,15 +3,10 @@ import * as schema from "@/drizzle/schema";
 import { and, eq, like, or, sql } from "drizzle-orm";
 import type { User } from "lucia";
 import { revalidatePath } from "next/cache";
-import type { z } from "zod";
 import { nanoid } from "../nanoid";
 import { generateSlug, generateSlugPathSegment } from "../slug";
 import { getUser } from "./user";
 import type { Visibility } from "./user/types";
-import {
-  AddCollectionValidator,
-  UpdateCollectionValidator,
-} from "./validators";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);
@@ -46,15 +41,19 @@ export async function getCollectionPreferences(publicUserId: string) {
   return preferences;
 }
 
-export async function createCollection(
-  dto: z.infer<typeof AddCollectionValidator>,
-) {
+export async function createCollection({
+  title,
+  visibility,
+}: {
+  title: string;
+  visibility: Visibility;
+}) {
   const collectionQuery = await db
     .insert(schema.collections)
     .values({
-      name: dto.title,
-      slug: generateSlug(dto.title),
-      visibility: dto.visibility,
+      name: title,
+      slug: generateSlug(title),
+      visibility: visibility,
       publicId: nanoid(),
       isCustom: true,
       itemCount: 0,
@@ -62,14 +61,14 @@ export async function createCollection(
     .returning();
 
   if (collectionQuery.length !== 1) {
-    throw new Error("Couldn't create collection.", { cause: dto });
+    throw new Error("Couldn't create collection.");
   }
 
-  return collectionQuery.pop() as (typeof collectionQuery)[number];
+  return collectionQuery[0];
 }
 
 export async function updateCollection(
-  dto: z.infer<typeof UpdateCollectionValidator>,
+  dto: { title: string; visibility: Visibility; publicId: string },
   user: User,
 ) {
   const result = await db
@@ -77,16 +76,14 @@ export async function updateCollection(
     .from(schema.collections)
     .where(eq(schema.collections.publicId, dto.publicId));
 
-  if (result.length !== 1)
-    throw new Error("Couldn't find collection.", {
-      cause: { target: "general", publicId: dto.publicId },
-    });
+  if (result.length !== 1) {
+    throw new Error("Couldn't find collection.");
+  }
 
   const maintainers = await getCreatorsAndMaintainers(result[0].recipeId);
-  if (maintainers.find((maintainer) => maintainer.publicId !== user.publicId))
-    throw new Error("You aren't authorized to update this collection.", {
-      cause: { target: "user" },
-    });
+  if (maintainers.find((maintainer) => maintainer.publicId !== user.publicId)) {
+    throw new Error("Unauthorized to edit this collection.");
+  }
 
   const collectionQuery = await db
     .update(schema.collections)
@@ -98,9 +95,7 @@ export async function updateCollection(
     .returning();
 
   if (collectionQuery.length !== 1) {
-    throw new Error("Couldn't update collection.", {
-      cause: { target: "general", dto },
-    });
+    throw new Error("Couldn't update collection.");
   }
   return collectionQuery[0];
 }
@@ -368,19 +363,6 @@ export async function getRecipeIds(collectionId: number) {
       schema.recipes,
       eq(schema.recipes.id, schema.collectionRecipes.recipeId),
     );
-}
-
-export function collectionDtoFromFormData<TValidator extends z.AnyZodObject>(
-  formData: FormData,
-  validator: TValidator,
-) {
-  const dto = {
-    publicId: formData.get("publicId") ?? undefined,
-    title: formData.get("title"),
-    visibility: formData.get("visibility"),
-  };
-
-  return validator.safeParse(dto) as ReturnType<TValidator["safeParse"]>;
 }
 
 export async function deleteCollection(collectionId: number, user: User) {

@@ -1,15 +1,11 @@
-import type { FormState } from "@/app/components/form/root";
+import * as Form from "@/app/components/form";
+import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth/lucia";
-import {
-  collectionDtoFromFormData,
-  getCollection,
-  updateCollection,
-} from "@/lib/dal/collections";
-import { findUserBySessionId } from "@/lib/dal/user";
-import { UpdateCollectionValidator } from "@/lib/dal/validators";
-import { extractParts, generateSlugPathSegment } from "@/lib/slug";
+import { getCollection } from "@/lib/dal/collections";
+import { extractParts } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
-import * as Form from "../../components/collection-form";
+import { Inputs } from "../../components/collection-form/inputs";
+import { editAction } from "./action";
 
 type PageProps = {
   params: Promise<{
@@ -29,12 +25,13 @@ const Page = async (props: PageProps) => {
 
     return (
       <>
-        <Form.Root action={update}>
+        <Form.Root action={editAction}>
           <input type="hidden" name="sessionId" value={session?.id} />
           <input type="hidden" name="publicId" value={collection.publicId} />
           <div className="grid gap-4">
-            <Form.Inputs defaultValue={collection} />
-            <Form.Submit>Update Collection</Form.Submit>
+            <Inputs defaultValue={collection} />
+            <Form.Alert />
+            <SubmitWithPending>Update Collection</SubmitWithPending>
           </div>
         </Form.Root>
       </>
@@ -43,27 +40,5 @@ const Page = async (props: PageProps) => {
     notFound();
   }
 };
-
-async function update(_: FormState, formData: FormData) {
-  "use server";
-  const sessionId = formData.get("sessionId");
-  const user = await findUserBySessionId(sessionId);
-  const dto = collectionDtoFromFormData(formData, UpdateCollectionValidator);
-
-  if (!dto.success) {
-    return {
-      success: false,
-      error: Object.entries(
-        dto.error.flatten((issue) => issue.message).fieldErrors,
-      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
-    };
-  }
-
-  const collection = await updateCollection(dto.data, user);
-
-  redirect(
-    `/collections/${generateSlugPathSegment(collection.slug, collection.publicId)}`,
-  );
-}
 
 export default Page;

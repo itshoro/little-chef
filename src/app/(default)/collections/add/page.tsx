@@ -1,20 +1,11 @@
-import { BackLink } from "@/app/components/back-link";
-import type { FormState } from "@/app/components/form/root";
-import { Header } from "@/app/components/header/header";
+import * as Form from "@/app/components/form";
+import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth/lucia";
-import {
-  collectionDtoFromFormData,
-  createCollection,
-  getCollectionPreferences,
-} from "@/lib/dal/collections";
-import { findUserBySessionId, subscribeToCollection } from "@/lib/dal/user";
-import { AddCollectionValidator } from "@/lib/dal/validators";
-import { generateSlugPathSegment } from "@/lib/slug";
-import type { User } from "lucia";
+import { getCollectionPreferences } from "@/lib/dal/collections";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import * as Form from "../components/collection-form";
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
+import { createAction } from "./action";
+import { Inputs } from "../components/collection-form/inputs";
 
 export const metadata: Metadata = {
   title: "Add Collection",
@@ -28,12 +19,13 @@ const Page = async () => {
 
   return (
     <>
-      <Form.Root action={create}>
+      <Form.Root action={createAction}>
         <div className="grid gap-4">
           <input type="hidden" name="sessionId" value={session?.id} />
-          <Form.Inputs
+          <Inputs
             defaultValue={{ visibility: preferences.defaultVisibility }}
           />
+          <Form.Alert />
           <div className="flex justify-end py-4">
             <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
               <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
@@ -54,37 +46,5 @@ const Page = async () => {
     </>
   );
 };
-
-async function create(_: FormState, formData: FormData) {
-  "use server";
-
-  let user: User;
-  try {
-    const sessionId = formData.get("sessionId");
-    user = await findUserBySessionId(sessionId);
-  } catch {
-    return {
-      success: false,
-      error: "You're currently not signed in, collection creation is disabled.",
-    } satisfies FormState;
-  }
-
-  const dto = collectionDtoFromFormData(formData, AddCollectionValidator);
-
-  if (!dto.success) {
-    return {
-      success: false,
-      error: Object.entries(
-        dto.error.flatten((issue) => issue.message).fieldErrors,
-      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
-    } satisfies FormState;
-  }
-  const collection = await createCollection(dto.data);
-  await subscribeToCollection(user.publicId, collection, "creator");
-
-  redirect(
-    `/collections/${generateSlugPathSegment(collection.slug, collection.publicId)}`,
-  );
-}
 
 export default Page;

@@ -78,6 +78,7 @@ export const collections = sqliteTable("collections", {
   slug: text("slug").notNull(),
   likes: integer("likes").notNull().default(0),
 });
+export type Collection = typeof collections.$inferSelect;
 
 export const collectionRecipes = sqliteTable("collectionRecipes", {
   collectionId: integer("collectionId")

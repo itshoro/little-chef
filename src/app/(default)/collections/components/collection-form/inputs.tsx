@@ -1,6 +1,6 @@
 import { VisibilitySwitcher } from "@/app/(user)/settings/components/visibility-switcher";
-import * as Input from "@/app/components/input";
 import * as Fieldset from "@/app/components/fieldset";
+import * as Input from "@/app/components/input";
 import type { Visibility } from "@/lib/dal/user/types";
 
 type InputsProps = {
@@ -25,6 +25,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
               defaultValue={defaultValue?.name}
             />
           </Input.Group>
+          <Input.InlineError />
         </Input.Root>
       </div>
       <div>
