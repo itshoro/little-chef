@@ -15,7 +15,7 @@ const Root: React.FC<RootProps> = ({ children, name }) => {
     name = `${parentContext.name}.${name}`;
 
   return (
-    <fieldset data-parent="true" className="group py-4">
+    <fieldset className="py-4">
       <InputContext.Provider value={{ name }}>{children}</InputContext.Provider>
     </fieldset>
   );
