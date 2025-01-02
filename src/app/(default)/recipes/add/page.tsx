@@ -1,18 +1,10 @@
-import type { FormState } from "@/app/components/form/root";
+import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth/lucia";
-import {
-  createRecipe,
-  getRecipePreferences,
-  recipeDtoFromFormData,
-} from "@/lib/dal/recipe";
-import { findUserBySessionId, subscribeToRecipe } from "@/lib/dal/user";
-import { AddRecipeValidator } from "@/lib/dal/validators";
-import { generateSlugPathSegment } from "@/lib/slug";
-import type { User } from "lucia";
+import { getRecipePreferences } from "@/lib/dal/recipe";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import * as Form from "../components/recipe-form";
+import { Inputs } from "../components/recipe-form/inputs";
+import { createAction } from "./action";
 
 export const metadata: Metadata = {
   title: "Add Recipe",
@@ -33,9 +25,9 @@ const AddRecipePage = async () => {
           <div className="text-sm">You will be unable to create a form.</div>
         </div>
       )}
-      <Form.Root action={create}>
+      <Form.Root action={createAction}>
         <input type="hidden" name="sessionId" value={session?.id} />
-        <Form.Inputs
+        <Inputs
           defaultValue={{
             recipe: {
               recommendedServingSize: preferences?.defaultServingSize ?? 1,
@@ -43,6 +35,7 @@ const AddRecipePage = async () => {
             },
           }}
         />
+        <Form.Alert />
         <div className="flex justify-end py-4">
           <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
             <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
@@ -62,41 +55,5 @@ const AddRecipePage = async () => {
     </>
   );
 };
-
-async function create(_: FormState, formData: FormData) {
-  "use server";
-  let user: User;
-  try {
-    const sessionId = formData.get("sessionId");
-    user = await findUserBySessionId(sessionId);
-  } catch {
-    return {
-      success: false,
-      error: "You're currently not signed in, recipe creation is disabled.",
-    } satisfies FormState;
-  }
-
-  if (!user) {
-    return {
-      success: false,
-      error: "You're currently not signed in, recipe creation is disabled.",
-    } satisfies FormState;
-  }
-
-  const dto = recipeDtoFromFormData(formData, AddRecipeValidator);
-
-  if (!dto.success) {
-    return {
-      success: false,
-      error: Object.entries(
-        dto.error.flatten((issue) => issue.message).fieldErrors,
-      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
-    } satisfies FormState;
-  }
-  const recipe = await createRecipe(dto.data);
-  await subscribeToRecipe(user.publicId, recipe, "creator");
-
-  redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
-}
 
 export default AddRecipePage;

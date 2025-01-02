@@ -164,9 +164,11 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             </Section>
           )}
 
-          <div className="flex flex-1 items-baseline gap-4">
+          {/* TODO: Input shouldn't automatically use the Form Context, so I should create a separate component that does.
+           */}
+          {/* <div className="flex flex-1 items-baseline gap-4">
             <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
-          </div>
+          </div> */}
 
           {user && (
             <div className="grid grid-cols-2 gap-6">

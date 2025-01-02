@@ -3,16 +3,30 @@
 import * as Generator from "@/app/components/generator";
 import { Plus } from "@/app/components/icon/plus";
 import { StepGeneratorItem } from "./item";
+import { useFormStateContext } from "@/app/components/form/root";
+import { useInputContext } from "@/app/components/input/context";
 
 type StepsInputProps = {
   defaultValue?: { publicId: string; description: string; order: number }[];
 };
 
 const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
+  const formState = useFormStateContext(StepsGenerator.name);
+  const inputContext = useInputContext(StepsGenerator.name);
+
+  // When submission fails, we want to reset the form to the previous state
+  const _defaultValue = !formState.success
+    ? (formState.controls?.["step.uuid"] as string[] | undefined)?.map(
+        (uuid) => ({
+          publicId: uuid,
+        }),
+      )
+    : defaultValue;
+
   return (
     <Generator.Root
       options={{
-        initialKeys: defaultValue?.map((step) => step.publicId),
+        initialKeys: _defaultValue?.map((step) => step.publicId),
         generator: () => crypto.randomUUID(),
         openFirstWhenEmpty: true,
       }}

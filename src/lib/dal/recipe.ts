@@ -77,7 +77,15 @@ export async function updateDefaultVisibility(
 }
 
 // MARK: App
-export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
+export async function createRecipe(dto: {
+  name: string;
+  cover: { update: false } | { update: true; image: File | null };
+  description: string;
+  servings: number;
+  preparationTime: number;
+  cookingTime: number;
+  visibility: Visibility;
+}) {
   const utapi = new UTApi();
 
   let coverImage: UploadFileResult | undefined = undefined;
@@ -110,7 +118,7 @@ export async function createRecipe(dto: z.infer<typeof AddRecipeValidator>) {
         return {
           description: step.description,
           order: i,
-          publicId: step.uuid,
+          publicId: step.publicId,
           recipeId: recipe.id,
         };
       }),

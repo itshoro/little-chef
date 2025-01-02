@@ -2,7 +2,7 @@ import { VisibilitySwitcher } from "@/app/(user)/settings/components/visibility-
 import * as Fieldset from "@/app/components/fieldset";
 import * as Input from "@/app/components/input";
 import type { Visibility } from "@/lib/dal/user/types";
-import { CoverImageInput } from "./cover-image";
+import { CoverImageInput } from "./elements/cover-image";
 import { ServingsInput } from "./elements/servings-input";
 import { StepsGenerator } from "./elements/step/generator";
 
@@ -49,6 +49,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
                   required
                 />
               </Input.Group>
+              <Input.InlineError />
             </Input.Root>
           </div>
 
@@ -62,6 +63,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
                   required
                 />
               </Input.Group>
+              <Input.InlineError />
             </Input.Root>
           </div>
 
@@ -77,6 +79,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
                     required
                   />
                 </Input.Group>
+                <Input.InlineError />
               </Input.Root>
             </div>
             <div className="flex-1">
@@ -90,6 +93,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
                     required
                   />
                 </Input.Group>
+                <Input.InlineError />
               </Input.Root>
             </div>
           </div>

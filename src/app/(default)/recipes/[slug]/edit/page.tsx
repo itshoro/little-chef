@@ -1,19 +1,12 @@
-import * as Form from "@/app/(default)/recipes/components/recipe-form";
-import type { FormState } from "@/app/components/form/root";
+import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth/lucia";
-import {
-  getRecipe,
-  getRecipeSteps,
-  recipeDtoFromFormData,
-  updateRecipe,
-} from "@/lib/dal/recipe";
-import { findUserBySessionId } from "@/lib/dal/user";
-import { UpdateRecipeValidator } from "@/lib/dal/validators";
-import { extractParts, generateSlugPathSegment } from "@/lib/slug";
-import type { User } from "lucia";
+import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
+import { extractParts } from "@/lib/slug";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { Inputs } from "../../components/recipe-form/inputs";
+import { updateAction } from "./action";
 
 type EditRecipePageProps = {
   params: Promise<{
@@ -37,11 +30,12 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
     const steps = await getRecipeSteps(recipe.id);
 
     return (
-      <Form.Root action={update}>
+      <Form.Root action={updateAction}>
         <div className="mx-auto max-w-(--breakpoint-xl) p-4">
           <input type="hidden" name="sessionId" value={session.id} />
           <input type="hidden" name="publicId" value={recipe.publicId} />
-          <Form.Inputs defaultValue={{ recipe, steps }} />
+          <Inputs defaultValue={{ recipe, steps }} />
+          <Form.Alert />
           <div>
             <div className="flex justify-end px-4">
               <SubmitWithPending className="group inline-flex items-center justify-center gap-2 rounded-full border p-4 text-sm font-medium shadow-sm active:bg-neutral-100 active:shadow-inner disabled:pointer-events-none disabled:text-neutral-200 disabled:shadow-none dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:active:bg-stone-700">
@@ -68,34 +62,5 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
     }
   }
 };
-
-async function update(_: FormState, formData: FormData) {
-  "use server";
-
-  let user: User;
-  try {
-    const sessionId = formData.get("sessionId");
-    user = await findUserBySessionId(sessionId);
-  } catch {
-    return {
-      success: false,
-      error: "You're currently not signed in, recipe update is disabled.",
-    } satisfies FormState;
-  }
-
-  const dto = recipeDtoFromFormData(formData, UpdateRecipeValidator);
-
-  if (!dto.success) {
-    return {
-      success: false,
-      error: Object.entries(
-        dto.error.flatten((issue) => issue.message).fieldErrors,
-      ).flatMap((kvp) => [`${kvp[0]}: ${kvp[1]}`]),
-    } satisfies FormState;
-  }
-  const recipe = await updateRecipe(dto.data, user);
-
-  redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
-}
 
 export default EditRecipePage;

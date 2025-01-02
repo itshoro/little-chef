@@ -49,11 +49,11 @@ type InputMaskProps = {
   uuid: StepGeneratorItemProps["uuid"];
   order: StepGeneratorItemProps["order"];
   value: string | undefined;
-  onChange: React.ChangeEventHandler<React.ElementRef<"textarea">>;
+  onChange: React.ChangeEventHandler<React.ComponentRef<"textarea">>;
 };
 
 const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
-  const textRef = useRef<React.ElementRef<"textarea">>(null);
+  const textRef = useRef<React.ComponentRef<"textarea">>(null);
 
   return (
     <>
@@ -64,7 +64,7 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
         <Input.Root name={uuid}>
           <StepCounterLabel>{order}</StepCounterLabel>
           <Input.Textarea
-            className="w-full flex-1"
+            className="w-full flex-1 has-[~[data-slot=error]]:ring-red-500"
             ref={textRef}
             value={value}
             onChange={onChange}
@@ -72,6 +72,7 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
             maxLength={140}
             required
           />
+          <Input.InlineError />
         </Input.Root>
         <div className="group mb-auto ml-4 grid place-items-center">
           <Generator.Remove
