@@ -2,46 +2,18 @@
 
 import * as Generator from "@/app/components/generator";
 import { Plus } from "@/app/components/icon/plus";
-import { StepGeneratorItem } from "./item";
-import {
-  useFormStateContext,
-  type FormState,
-} from "@/app/components/form/root";
-import { useInputContext } from "@/app/components/input/context";
 import * as Input from "@/app/components/input";
-import type { CreateRecipeControls } from "@/app/(default)/recipes/add/action";
+import { StepGeneratorItem } from "./item";
 
 type StepsInputProps = {
   defaultValue?: { publicId: string; description: string; order: number }[];
 };
 
 const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
-  const formState = useFormStateContext(
-    StepsGenerator.name,
-  ) as FormState<CreateRecipeControls>;
-  const inputContext = useInputContext(StepsGenerator.name);
-
-  // When submission fails, we want to reset the form to the previous state
-  const _defaultValue = !formState.success
-    ? formState.controls?.["step.uuid"].map((uuid) => ({
-        publicId: uuid,
-      }))
-    : defaultValue;
-
-  const errors =
-    (formState.success === false &&
-      Object.fromEntries(
-        formState.controls?.["step.uuid"].map((uuid) => [
-          uuid,
-          formState.errors?.[`step.${uuid}`],
-        ]) ?? [],
-      )) ||
-    {};
-
   return (
     <Generator.Root
       options={{
-        initialKeys: _defaultValue?.map((step) => step.publicId),
+        initialKeys: defaultValue?.map((step) => step.publicId),
         generator: () => crypto.randomUUID(),
         openFirstWhenEmpty: true,
       }}
@@ -54,9 +26,11 @@ const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
                 <StepGeneratorItem
                   uuid={uuid}
                   order={i + 1}
-                  defaultValue={defaultValue?.[i]?.description}
+                  defaultValue={
+                    defaultValue?.find((item) => item.publicId === uuid)
+                      ?.description
+                  }
                 />
-                {errors[uuid] && <Input.Error>{errors[uuid]}</Input.Error>}
               </Input.Root>
             );
           }}

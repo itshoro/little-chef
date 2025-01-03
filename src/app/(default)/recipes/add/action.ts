@@ -7,46 +7,27 @@ import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-const stepSchema = z.string().trim().min(2);
+export const createRecipeSchema = z.object({
+  name: z.string().trim().min(2),
+  description: z.string().trim().min(2),
+  servings: z.coerce.number().min(1),
+  preparationTime: z.coerce.number().min(0),
+  cookingTime: z.coerce.number().min(0),
+  visibility: visibilitySchema,
+  cover: z
+    .object({
+      update: z.literal(false),
+    })
+    .or(
+      z.object({
+        update: z.literal(true),
+        image: z.instanceof(File).nullable(),
+      }),
+    ),
+  step: z.record(z.string().trim().min(2)),
+});
 
-export const createRecipeSchema = z
-  .object({
-    name: z.string().trim().min(2),
-    description: z.string().trim().min(2),
-    servings: z.coerce.number().min(1),
-    preparationTime: z.coerce.number().min(0),
-    cookingTime: z.coerce.number().min(0),
-    visibility: visibilitySchema,
-    cover: z
-      .object({
-        update: z.literal(false),
-      })
-      .or(
-        z.object({
-          update: z.literal(true),
-          image: z.instanceof(File).nullable(),
-        }),
-      ),
-    "step.uuid": z.array(z.string().uuid()),
-  })
-  .passthrough()
-  .superRefine((data, ctx) => {
-    for (const uuid of data["step.uuid"]) {
-      const step = data[`step.${uuid}`];
-      const result = stepSchema.safeParse(step);
-      if (!result.success) {
-        result.error.errors.forEach((error) => {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: error.message,
-            path: [`step.${uuid}`],
-          });
-        });
-      }
-    }
-  });
-
-export type CreateRecipeControls<TStepUuids extends string = string> = {
+export type CreateRecipeControls = {
   sessionId?: string;
   name: string;
   cover: File;
@@ -56,12 +37,7 @@ export type CreateRecipeControls<TStepUuids extends string = string> = {
   cookingTime: number;
   visibility: string;
   servings: number;
-} & StepControls<TStepUuids>;
-
-type StepControls<TStepUuids extends string> = {
-  "step.uuid": TStepUuids[];
-} & {
-  [K in NoInfer<TStepUuids> as `step.${K}`]: string;
+  step: Record<string, string>;
 };
 
 function determineCover(
@@ -92,12 +68,10 @@ async function createAction(
   const stepUuids = formData.getAll("step.uuid") as string[];
   const servings = Number(formData.get("servings") as string);
 
-  console.log(stepUuids);
-
   const steps = Object.fromEntries(
-    stepUuids.map((uuid) => [
-      `step.${uuid}`,
-      formData.get(`step.${uuid}`) as string,
+    Array.from(stepUuids).map((uuid) => [
+      uuid,
+      (formData.get(`step.${uuid}`) as string) || "",
     ]),
   );
 
@@ -114,39 +88,50 @@ async function createAction(
       cookingTime,
       visibility,
       servings,
-      "step.uuid": stepUuids,
-      ...steps,
+      step: steps,
     };
 
-    const parseResult = createRecipeSchema.safeParse(payload);
+    const parseResult = createRecipeSchema.parse(payload);
 
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
-
-    recipe = await createRecipe(parseResult.data);
+    recipe = await createRecipe(parseResult);
     await subscribeToRecipe(user.publicId, recipe, "creator");
   } catch (e) {
     if (!(e instanceof Error)) throw e;
+
+    const controls = {
+      name,
+      description,
+      cover: coverImage,
+      priorCover,
+      servings,
+      cookingTime: Number(cookingTime),
+      preparationTime: Number(preparationTime),
+      visibility,
+      step: steps,
+    };
+
+    if (e instanceof z.ZodError) {
+      return {
+        success: false,
+        message: "Validation failed.",
+        errors: e.errors.reduce(
+          (acc, error) => {
+            const path = error.path.join(".");
+            if (!acc[path]) acc[path] = [];
+            acc[path].push(error.message);
+            return acc;
+          },
+          {} as Record<string, string[]>,
+        ),
+        controls,
+      };
+    }
 
     return {
       success: false,
       message: e.message,
       errors: e.cause as Record<string, any>,
-      controls: {
-        name,
-        description,
-        cover: coverImage,
-        priorCover,
-        servings,
-        cookingTime: Number(cookingTime),
-        preparationTime: Number(preparationTime),
-        visibility,
-        "step.uuid": stepUuids,
-        ...steps,
-      },
+      controls,
     } satisfies FormState<CreateRecipeControls>;
   }
 

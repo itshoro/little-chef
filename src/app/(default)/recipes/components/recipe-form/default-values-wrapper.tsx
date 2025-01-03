@@ -21,8 +21,6 @@ const DefaultValuesWrapper = ({
 
   let defaultValue: React.ComponentProps<typeof Inputs>["defaultValue"];
   if (formStateContext.success === false) {
-    const stepUuids = formStateContext.controls?.["step.uuid"];
-
     defaultValue = {
       recipe: {
         name: formStateContext.controls?.name,
@@ -35,11 +33,10 @@ const DefaultValuesWrapper = ({
         coverSrc: formStateContext.controls?.cover,
         description: formStateContext.controls?.description,
       },
-      // @ts-expect-error: type level bug
-      steps: stepUuids
-        ?.map((uuid, i) => ({
+      steps: Object.entries(formStateContext.controls.step)
+        .map(([uuid, description], i) => ({
           publicId: uuid,
-          description: formStateContext.controls?.[`step.${uuid}`],
+          description: description,
           order: i,
         }))
         .filter((item) => typeof item.description === "string"),

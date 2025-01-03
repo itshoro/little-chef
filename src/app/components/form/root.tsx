@@ -8,8 +8,8 @@ type FormState<TFormControls extends Controls | undefined = Controls> =
   | {
       success: false;
       message: string;
-      errors?: { [K in keyof TFormControls]?: string[] };
-      controls?: TFormControls;
+      errors: { [K in keyof TFormControls]?: string[] };
+      controls: TFormControls;
     }
   | {
       success: true;

@@ -85,6 +85,7 @@ export async function createRecipe(dto: {
   preparationTime: number;
   cookingTime: number;
   visibility: Visibility;
+  step: Record<string, string>;
 }) {
   const utapi = new UTApi();
 
@@ -114,11 +115,11 @@ export async function createRecipe(dto: {
     const recipe = recipeQuery.pop() as (typeof recipeQuery)[number];
 
     await tx.insert(schema.steps).values(
-      dto.steps.map((step, i) => {
+      Object.entries(dto.step).map(([uuid, step], i) => {
         return {
-          description: step.description,
+          description: step,
           order: i,
-          publicId: step.publicId,
+          publicId: uuid,
           recipeId: recipe.id,
         };
       }),

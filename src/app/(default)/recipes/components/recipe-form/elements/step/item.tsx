@@ -1,11 +1,11 @@
 "use client";
 
+import { CooklangPreview } from "@/app/(default)/recipes/[slug]/components/cooklang-preview";
 import * as Generator from "@/app/components/generator";
-import * as Input from "@/app/components/input";
 import { Trash } from "@/app/components/icon/trash";
+import * as Input from "@/app/components/input";
 import { useInputContext } from "@/app/components/input/context";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
-import { CooklangPreview } from "@/app/(default)/recipes/[slug]/components/cooklang-preview";
 
 type StepGeneratorItemProps = {
   uuid: string;
@@ -62,15 +62,18 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
       </Input.Root>
       <Input.Root name={uuid}>
         <StepCounterLabel>{order}</StepCounterLabel>
-        <Input.Textarea
-          className="w-full flex-1 has-[~[data-slot=error]]:ring-red-500"
-          ref={textRef}
-          value={value}
-          onChange={onChange}
-          autoFocus={order > 1}
-          maxLength={140}
-          required
-        />
+        <div className="w-full flex-1">
+          <Input.Textarea
+            className="h-full w-full has-[~[data-slot=error]]:ring-red-500"
+            ref={textRef}
+            value={value}
+            onChange={onChange}
+            autoFocus={order > 1}
+            maxLength={140}
+            required
+          />
+          <Input.InlineError />
+        </div>
       </Input.Root>
       <div className="group mb-auto ml-4 grid place-items-center">
         <Generator.Remove
