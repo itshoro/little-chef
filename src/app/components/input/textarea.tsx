@@ -1,38 +1,18 @@
 "use client";
 
 import { forwardRef } from "react";
-import { useFormStateContext } from "../form/root";
 import { useInputContext } from "./context";
 
 type TextareaProps = React.ComponentPropsWithoutRef<"textarea">;
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (props, ref) => {
-    const formStateContext = useFormStateContext(Textarea.name);
     const { name } = useInputContext(Textarea.name);
     const _name = props.name ? `${name}.${props.name}` : name;
-
-    const submissionFailedDefaultValue = !formStateContext.success
-      ? ((formStateContext.controls?.[
-          name as keyof typeof formStateContext.controls
-        ] as string) ?? null)
-      : undefined;
-
-    const defaultValue =
-      submissionFailedDefaultValue !== undefined
-        ? submissionFailedDefaultValue
-        : props.defaultValue;
-
-    const defaultChecked =
-      submissionFailedDefaultValue !== undefined
-        ? submissionFailedDefaultValue === props.value
-        : props.defaultChecked;
 
     return (
       <textarea
         {...props}
-        defaultChecked={defaultChecked}
-        defaultValue={defaultValue}
         data-slot="control"
         ref={ref}
         name={_name}

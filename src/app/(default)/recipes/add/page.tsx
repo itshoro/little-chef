@@ -3,7 +3,7 @@ import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth/lucia";
 import { getRecipePreferences } from "@/lib/dal/recipe";
 import type { Metadata } from "next";
-import { Inputs } from "../components/recipe-form/inputs";
+import { DefaultValuesWrapper } from "../components/recipe-form/default-values-wrapper";
 import { createAction } from "./action";
 
 export const metadata: Metadata = {
@@ -27,14 +27,7 @@ const AddRecipePage = async () => {
       )}
       <Form.Root action={createAction}>
         <input type="hidden" name="sessionId" value={session?.id} />
-        <Inputs
-          defaultValue={{
-            recipe: {
-              recommendedServingSize: preferences?.defaultServingSize ?? 1,
-              visibility: preferences?.defaultVisibility ?? "private",
-            },
-          }}
-        />
+        <DefaultValuesWrapper userPreferences={preferences} />
         <Form.Alert />
         <div className="flex justify-end py-4">
           <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">

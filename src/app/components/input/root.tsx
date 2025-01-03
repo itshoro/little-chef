@@ -15,9 +15,7 @@ const Root = ({ children, name }: RootProps) => {
     name = `${parentContext.name}.${name}`;
 
   return (
-    <div>
-      <InputContext.Provider value={{ name }}>{children}</InputContext.Provider>
-    </div>
+    <InputContext.Provider value={{ name }}>{children}</InputContext.Provider>
   );
 };
 

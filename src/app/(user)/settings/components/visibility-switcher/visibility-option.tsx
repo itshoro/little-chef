@@ -14,20 +14,18 @@ type ThemeOptionProps = {
   name: string;
   visibility: Visibility;
   defaultValue?: Visibility;
-  triggerSubmitOnChange?: boolean;
 };
 
 const VisibilityOption = ({
   name,
   visibility,
   defaultValue,
-  triggerSubmitOnChange,
 }: ThemeOptionProps) => {
   const { label, icon } = visibilityMap[visibility];
 
   return (
     <Input.Root name={name}>
-      <Input.Group className="relative flex-1">
+      <Input.Group className="relative w-full flex-1">
         <Input.Element
           type="radio"
           className="peer checked:text-bg-300 absolute top-2 right-2 appearance-none rounded-full border-0 !bg-transparent before:absolute before:inset-1 before:rounded-full checked:ring-2 checked:ring-lime-500/60 checked:outline-none checked:before:bg-lime-500"

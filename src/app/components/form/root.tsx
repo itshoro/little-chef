@@ -14,6 +14,12 @@ type FormState<TFormControls extends Controls | undefined = Controls> =
   | {
       success: true;
       message: string;
+    }
+  | {
+      success: undefined;
+      controls?: undefined;
+      message?: undefined;
+      errors?: undefined;
     };
 
 const FormStateContext = createContext<FormState | null>(null);
@@ -54,7 +60,7 @@ function useFocusFirstErroneousControl(state: FormState) {
 const Form = <TFormControls extends Controls>({
   action,
   children,
-  initialState = { success: false, message: "" },
+  initialState = { success: undefined },
 }: FormProps<TFormControls>) => {
   const [state, formAction] = useActionState(action, initialState);
   const ref = useFocusFirstErroneousControl(state);

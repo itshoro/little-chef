@@ -4,7 +4,7 @@ import { BaseButton } from "@/app/components/base-button";
 import Image from "next/image";
 import { useRef, useState } from "react";
 
-const CoverImageInput = ({ defaultValue = "" }: { defaultValue?: string }) => {
+const CoverImageInput = ({ defaultValue }: { defaultValue?: string }) => {
   const [priorSrc, setPriorSrc] = useState(defaultValue);
 
   const newCoverRef = useRef<HTMLInputElement>(null);
