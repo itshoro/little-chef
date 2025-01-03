@@ -3,25 +3,40 @@
 import * as Generator from "@/app/components/generator";
 import { Plus } from "@/app/components/icon/plus";
 import { StepGeneratorItem } from "./item";
-import { useFormStateContext } from "@/app/components/form/root";
+import {
+  useFormStateContext,
+  type FormState,
+} from "@/app/components/form/root";
 import { useInputContext } from "@/app/components/input/context";
+import * as Input from "@/app/components/input";
+import type { CreateRecipeControls } from "@/app/(default)/recipes/add/action";
 
 type StepsInputProps = {
   defaultValue?: { publicId: string; description: string; order: number }[];
 };
 
 const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
-  const formState = useFormStateContext(StepsGenerator.name);
+  const formState = useFormStateContext(
+    StepsGenerator.name,
+  ) as FormState<CreateRecipeControls>;
   const inputContext = useInputContext(StepsGenerator.name);
 
   // When submission fails, we want to reset the form to the previous state
   const _defaultValue = !formState.success
-    ? (formState.controls?.["step.uuid"] as string[] | undefined)?.map(
-        (uuid) => ({
-          publicId: uuid,
-        }),
-      )
+    ? formState.controls?.["step.uuid"].map((uuid) => ({
+        publicId: uuid,
+      }))
     : defaultValue;
+
+  const errors =
+    (formState.success === false &&
+      Object.fromEntries(
+        formState.controls?.["step.uuid"].map((uuid) => [
+          uuid,
+          formState.errors?.[`step.${uuid}`],
+        ]) ?? [],
+      )) ||
+    {};
 
   return (
     <Generator.Root
@@ -35,12 +50,14 @@ const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
         <Generator.Items>
           {(uuid, i) => {
             return (
-              <StepGeneratorItem
-                key={uuid}
-                uuid={uuid}
-                order={i + 1}
-                defaultValue={defaultValue?.[i]?.description}
-              />
+              <Input.Root key={uuid} name="step">
+                <StepGeneratorItem
+                  uuid={uuid}
+                  order={i + 1}
+                  defaultValue={defaultValue?.[i]?.description}
+                />
+                {errors[uuid] && <Input.Error>{errors[uuid]}</Input.Error>}
+              </Input.Root>
             );
           }}
         </Generator.Items>

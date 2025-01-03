@@ -1,9 +1,11 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
+import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth/lucia";
 import { getRecipePreferences } from "@/lib/dal/recipe";
 import type { Metadata } from "next";
 import { DefaultValuesWrapper } from "../components/recipe-form/default-values-wrapper";
+import { ServingsInputWithFormFallback } from "../components/recipe-form/elements/servings/input-with-form-fallback";
 import { createAction } from "./action";
 
 export const metadata: Metadata = {
@@ -29,7 +31,14 @@ const AddRecipePage = async () => {
         <input type="hidden" name="sessionId" value={session?.id} />
         <DefaultValuesWrapper userPreferences={preferences} />
         <Form.Alert />
-        <div className="flex justify-end py-4">
+        <div className="flex justify-end gap-6 py-4">
+          <Input.Root name="servings">
+            <div>
+              <ServingsInputWithFormFallback
+                defaultValue={preferences?.defaultServingSize || 1}
+              />
+            </div>
+          </Input.Root>
           <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
             <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
               <svg

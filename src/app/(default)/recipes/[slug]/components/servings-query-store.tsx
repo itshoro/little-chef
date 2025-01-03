@@ -3,7 +3,7 @@
 import {
   ServingsInput,
   type ServingsInputProps,
-} from "@/app/(default)/recipes/components/recipe-form/elements/servings-input";
+} from "@/app/(default)/recipes/components/recipe-form/elements/servings/input";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import * as Input from "@/app/components/input";

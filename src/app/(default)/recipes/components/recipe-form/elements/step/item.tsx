@@ -22,7 +22,7 @@ const StepGeneratorItem = ({
   const deferredInput = useDeferredValue(input);
 
   return (
-    <li key={uuid} className="relative my-2">
+    <li className="relative my-2">
       <div>
         <div className="flex">
           <InputMask
@@ -57,37 +57,34 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
 
   return (
     <>
-      <Input.Root name="step">
-        <Input.Root name="uuid">
-          <Input.Element type="hidden" value={uuid} />
-        </Input.Root>
-        <Input.Root name={uuid}>
-          <StepCounterLabel>{order}</StepCounterLabel>
-          <Input.Textarea
-            className="w-full flex-1 has-[~[data-slot=error]]:ring-red-500"
-            ref={textRef}
-            value={value}
-            onChange={onChange}
-            autoFocus={order > 1}
-            maxLength={140}
-            required
-          />
-          <Input.InlineError />
-        </Input.Root>
-        <div className="group mb-auto ml-4 grid place-items-center">
-          <Generator.Remove
-            className="grid place-items-center rounded-sm p-2.5 text-stone-500 transition-colors disabled:bg-stone-200 dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:not-disabled:bg-stone-700 dark:disabled:bg-stone-900 dark:disabled:text-stone-700"
-            uid={uuid}
-          >
-            <div title="Remove">
-              <Trash />
-            </div>
-          </Generator.Remove>
-          <div className="mt-2 text-stone-400 dark:text-stone-800">
-            <CharacterCount textRef={textRef} />
-          </div>
-        </div>
+      <Input.Root name="uuid">
+        <Input.Element type="hidden" value={uuid} />
       </Input.Root>
+      <Input.Root name={uuid}>
+        <StepCounterLabel>{order}</StepCounterLabel>
+        <Input.Textarea
+          className="w-full flex-1 has-[~[data-slot=error]]:ring-red-500"
+          ref={textRef}
+          value={value}
+          onChange={onChange}
+          autoFocus={order > 1}
+          maxLength={140}
+          required
+        />
+      </Input.Root>
+      <div className="group mb-auto ml-4 grid place-items-center">
+        <Generator.Remove
+          className="grid place-items-center rounded-sm p-2.5 text-stone-500 transition-colors disabled:bg-stone-200 dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:not-disabled:bg-stone-700 dark:disabled:bg-stone-900 dark:disabled:text-stone-700"
+          uid={uuid}
+        >
+          <div title="Remove">
+            <Trash />
+          </div>
+        </Generator.Remove>
+        <div className="mt-2 text-stone-400 dark:text-stone-800">
+          <CharacterCount textRef={textRef} />
+        </div>
+      </div>
     </>
   );
 };

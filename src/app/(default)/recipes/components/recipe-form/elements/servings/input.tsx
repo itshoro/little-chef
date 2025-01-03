@@ -17,7 +17,7 @@ const ServingsInput = ({
   const ref = useRef<React.ComponentRef<"input">>(null);
 
   return (
-    <Input.Group className="w-full min-w-0 rounded-full sm:w-auto">
+    <Input.Group className="w-full min-w-0 rounded-full">
       <span data-slot="icon" className="p-1">
         <button
           className="grid size-10 place-items-center rounded-lg border-stone-200 bg-white font-semibold text-stone-500 shadow-sm select-none active:border active:shadow-inner active:*:translate-y-px dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:bg-stone-700"
