@@ -46,19 +46,23 @@ export const createRecipeSchema = z
     }
   });
 
-type CreateRecipeControls = {
+export type CreateRecipeControls<TStepUuids extends string = string> = {
   sessionId?: string;
   name: string;
   cover: File;
   priorCover: string;
   description: string;
-  preparationTime: string;
-  cookingTime: string;
+  preparationTime: number;
+  cookingTime: number;
   visibility: string;
   servings: number;
-  "step.uuid": string[];
+} & StepControls<TStepUuids>;
+
+type StepControls<TStepUuids extends string> = {
+  "step.uuid": TStepUuids[];
+} & {
+  [K in NoInfer<TStepUuids> as `step.${K}`]: string;
 };
-//  & Record<`step.${string}`, string>;
 
 function determineCover(
   priorCover: FormDataEntryValue,
@@ -87,9 +91,8 @@ async function createAction(
   const visibility = formData.get("visibility") as string;
   const stepUuids = formData.getAll("step.uuid") as string[];
   const servings = Number(formData.get("servings") as string);
-  // const steps = Object.fromEntries(
-  //   stepUuids.map((uuid) => [`step.${uuid}`, formData.get(`step.${uuid}`)]),
-  // );
+
+  console.log(stepUuids);
 
   const steps = Object.fromEntries(
     stepUuids.map((uuid) => [
@@ -118,8 +121,6 @@ async function createAction(
     const parseResult = createRecipeSchema.safeParse(payload);
 
     if (!parseResult.success) {
-      console.log(payload);
-
       throw new Error(undefined, {
         cause: parseResult.error.flatten().fieldErrors,
       });
@@ -140,8 +141,8 @@ async function createAction(
         cover: coverImage,
         priorCover,
         servings,
-        cookingTime,
-        preparationTime,
+        cookingTime: Number(cookingTime),
+        preparationTime: Number(preparationTime),
         visibility,
         "step.uuid": stepUuids,
         ...steps,

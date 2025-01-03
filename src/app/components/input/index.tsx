@@ -1,8 +1,9 @@
 import { Element } from "./element";
-import { InlineError } from "./error";
+import { Error } from "./error";
 import { Group } from "./group";
+import { InlineError } from "./inline-error";
 import { Label } from "./label";
 import { Root } from "./root";
 import { Textarea } from "./textarea";
 
-export { Element, InlineError, Group, Label, Root, Textarea };
+export { Element, Error, Group, InlineError, Label, Root, Textarea };
