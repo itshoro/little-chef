@@ -54,11 +54,6 @@ const DefaultValuesWrapper = ({
           description: "",
           order: 1,
         },
-        {
-          publicId: crypto.randomUUID(),
-          description: "",
-          order: 2,
-        },
       ],
     };
   }

@@ -30,13 +30,23 @@ const Generator = ({ children, options }: GeneratorProps) => {
 };
 
 function useIdGenerator(options: GeneratorOptions) {
-  const [uids, setUids] = useState(determineInitialKeys(options));
+  const [uids, setUids] = useState<string[]>([]);
 
   useEffect(() => {
-    if (options.openFirstWhenEmpty && uids.length === 0) {
-      setUids([options.generator()]);
-    }
-  }, [options.openFirstWhenEmpty, options.generator, uids.length]);
+    setUids((uids) => {
+      if (uids.length > 0) return uids;
+
+      if (
+        Array.isArray(options.initialKeys) &&
+        options.initialKeys.length > 0
+      ) {
+        return options.initialKeys;
+      } else if (options.openFirstWhenEmpty) {
+        return [options.generator()];
+      }
+      return [];
+    });
+  }, [options]);
 
   const addItem = () => {
     setUids((uids) => [...uids, options.generator()]);
@@ -45,22 +55,12 @@ function useIdGenerator(options: GeneratorOptions) {
   const removeItem = (uid: string) => {
     setUids((_uids) => {
       if (options.openFirstWhenEmpty && _uids.length === 1) return _uids;
+
       return _uids.filter((_uid) => _uid !== uid);
     });
   };
 
   return [uids, addItem, removeItem] as const;
-}
-
-function determineInitialKeys(options: GeneratorOptions) {
-  if (Array.isArray(options.initialKeys) && options.initialKeys.length > 0) {
-    return options.initialKeys;
-  }
-  // Using uuid as an id generator causes a hydration error. React doesn't gurantee that the client side will be properly hydrated in such a case.
-  //  else if (options.openFirstWhenEmpty) {
-  //   return [options.generator()];
-  // }
-  return [];
 }
 
 export { Generator };
