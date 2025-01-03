@@ -27,6 +27,15 @@ async function getPreferencesId(publicUserId: string) {
   return user.collectionPreferencesId;
 }
 
+async function hasMaintainerAccess(
+  collectionId: { id: number } | { publicId: string },
+  userId: number,
+): Promise<boolean> {
+  const collection = await getCollection(collectionId, null);
+  const maintainers = await getCreatorsAndMaintainers(collection.id);
+  return maintainers.some((maintainer) => maintainer.id === userId);
+}
+
 export async function getCollectionPreferences(publicUserId: string) {
   const id = await getPreferencesId(publicUserId);
 
@@ -71,6 +80,10 @@ export async function updateCollection(
   dto: { title: string; visibility: Visibility; publicId: string },
   user: User,
 ) {
+  if (!hasMaintainerAccess({ publicId: dto.publicId }, user.id)) {
+    throw new Error("Unauthorized to edit this collection.");
+  }
+
   const result = await db
     .select({ recipeId: schema.collections.id })
     .from(schema.collections)
@@ -78,11 +91,6 @@ export async function updateCollection(
 
   if (result.length !== 1) {
     throw new Error("Couldn't find collection.");
-  }
-
-  const maintainers = await getCreatorsAndMaintainers(result[0].recipeId);
-  if (maintainers.find((maintainer) => maintainer.publicId !== user.publicId)) {
-    throw new Error("Unauthorized to edit this collection.");
   }
 
   const collectionQuery = await db
@@ -105,6 +113,10 @@ export async function addRecipe(
   recipePublicId: string,
   user: User,
 ) {
+  if (!hasMaintainerAccess({ publicId: collectionPublicId }, user.id)) {
+    throw new Error("Unauthorized to add recipes to this collection.");
+  }
+
   const [collectionIdResult, recipeResult] = await Promise.all([
     db
       .select({ id: schema.collections.id })
@@ -169,6 +181,10 @@ export async function removeRecipe(
   recipePublicId: string,
   user: User,
 ) {
+  if (!hasMaintainerAccess({ publicId: collectionPublicId }, user.id)) {
+    throw new Error("Unauthorized to remove recipes from this collection.");
+  }
+
   const [collectionResult, recipeResult] = await Promise.all([
     db
       .select({ id: schema.collections.id, slug: schema.collections.slug })
@@ -196,21 +212,16 @@ export async function removeRecipe(
   ]);
 
   if (collectionResult.length < 1) {
-    throw new Error("Collection couldn't be found", {
-      cause: collectionPublicId,
-    });
+    throw new Error("Collection couldn't be found.");
   }
 
   if (recipePublicId.length < 1) {
-    throw new Error("Recipe couldn't be found", {
-      cause: recipePublicId,
-    });
+    throw new Error("Recipe couldn't be found.");
   }
 
   const recipeId = recipeResult[0].id;
   const collectionId = collectionResult[0].id;
 
-  // TODO: Validate whether user has sufficient access rights to add recipe to collection.
   await db.transaction(async (tx) => {
     await tx
       .delete(schema.collectionRecipes)
@@ -246,6 +257,7 @@ export async function updateDefaultVisibility(
 export async function getCreatorsAndMaintainers(collectionId: number) {
   return await db
     .select({
+      id: schema.users.id,
       username: schema.users.username,
       publicId: schema.users.publicId,
       avatar: schema.users.avatar,
