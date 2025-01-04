@@ -62,8 +62,6 @@ async function editAction(
     } satisfies FormState<EditCollectionControls>;
   }
 
-  console.log("Test");
-
   redirect(
     `/collections/${generateSlugPathSegment(collection.slug, collection.publicId)}`,
   );

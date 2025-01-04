@@ -9,21 +9,15 @@ import { z } from "zod";
 
 export const createRecipeSchema = z.object({
   name: z.string().trim().min(2),
-  description: z.string().trim().min(2),
+  description: z.string(),
   servings: z.coerce.number().min(1),
   preparationTime: z.coerce.number().min(0),
   cookingTime: z.coerce.number().min(0),
   visibility: visibilitySchema,
-  cover: z
-    .object({
-      update: z.literal(false),
-    })
-    .or(
-      z.object({
-        update: z.literal(true),
-        image: z.instanceof(File).nullable(),
-      }),
-    ),
+  cover: z.object({
+    update: z.literal(true),
+    image: z.instanceof(File).nullable(),
+  }),
   step: z.record(z.string().trim().min(2)),
 });
 
@@ -40,18 +34,6 @@ export type CreateRecipeControls = {
   step: Record<string, string>;
 };
 
-function determineCover(
-  priorCover: FormDataEntryValue,
-  coverImage: FormDataEntryValue,
-) {
-  const shouldUpdateCoverImage = priorCover === "" || coverImage !== null;
-  const cover = shouldUpdateCoverImage
-    ? ({ update: true, image: coverImage } as const)
-    : ({ update: false } as const);
-
-  return cover;
-}
-
 async function createAction(
   _: FormState<CreateRecipeControls>,
   formData: FormData,
@@ -59,7 +41,6 @@ async function createAction(
   "use server";
   const sessionId = formData.get("sessionId") as string;
   const name = formData.get("name") as string;
-  const priorCover = formData.get("priorCover") as string;
   const coverImage = formData.get("cover") as File;
   const description = formData.get("description") as string;
   const preparationTime = formData.get("preparationTime") as string;
@@ -75,14 +56,16 @@ async function createAction(
     ]),
   );
 
+  const image =
+    coverImage instanceof File && coverImage.size > 0 ? coverImage : null;
+
   let recipe: Recipe;
   try {
     const user = await findUserBySessionId(sessionId);
-    const cover = determineCover(priorCover, coverImage);
 
     const payload = {
       name,
-      cover,
+      cover: { update: true, image },
       description,
       preparationTime,
       cookingTime,
@@ -102,7 +85,6 @@ async function createAction(
       name,
       description,
       cover: coverImage,
-      priorCover,
       servings,
       cookingTime: Number(cookingTime),
       preparationTime: Number(preparationTime),

@@ -1,26 +1,20 @@
 import type { FormState } from "@/app/components/form/root";
 import type { Recipe } from "@/drizzle/schema";
 import { updateRecipe } from "@/lib/dal/recipe";
-import { findUserBySessionId, subscribeToRecipe } from "@/lib/dal/user";
+import { findUserBySessionId } from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-export const updateRecipeSchema = z.object({
+export const editRecipeSchema = z.object({
   publicId: z.string(),
   name: z.string().trim().min(2),
-  description: z.string().trim().min(2),
+  description: z.string(),
   servings: z.coerce.number().min(1),
   preparationTime: z.coerce.number().min(0),
   cookingTime: z.coerce.number().min(0),
   visibility: visibilitySchema,
-  steps: z.array(
-    z.object({
-      uuid: z.string(),
-      description: z.string().max(255),
-    }),
-  ),
   cover: z
     .object({
       update: z.literal(false),
@@ -31,26 +25,31 @@ export const updateRecipeSchema = z.object({
         image: z.instanceof(File).nullable(),
       }),
     ),
+  step: z.record(z.string().trim().min(2)),
 });
 
-type UpdateRecipeControls = {
+export type EditRecipeControls = {
   sessionId?: string;
-  publicId?: string;
   name: string;
   cover: File;
   priorCover: string;
   description: string;
-  preparationTime: string;
-  cookingTime: string;
+  preparationTime: number;
+  cookingTime: number;
   visibility: string;
   servings: number;
-  steps: { uuid: string; description: string }[];
+  step: Record<string, string>;
 };
 
 function determineCover(
-  priorCover: FormDataEntryValue,
-  coverImage: FormDataEntryValue,
+  priorCover: string,
+  coverImage: FormDataEntryValue | null,
 ) {
+  // FormData always returns a file object, even if the file input is empty.
+  if (coverImage instanceof File && coverImage.size === 0) {
+    coverImage = null;
+  }
+
   const shouldUpdateCoverImage = priorCover === "" || coverImage !== null;
   const cover = shouldUpdateCoverImage
     ? ({ update: true, image: coverImage } as const)
@@ -59,10 +58,10 @@ function determineCover(
   return cover;
 }
 
-async function updateAction(
-  _: FormState<UpdateRecipeControls>,
+async function editAction(
+  _: FormState<EditRecipeControls>,
   formData: FormData,
-): Promise<FormState<UpdateRecipeControls>> {
+): Promise<FormState<EditRecipeControls>> {
   "use server";
   const sessionId = formData.get("sessionId") as string;
   const publicId = formData.get("publicId") as string;
@@ -75,17 +74,20 @@ async function updateAction(
   const visibility = formData.get("visibility") as string;
   const stepUuids = formData.getAll("step.uuid") as string[];
   const servings = Number(formData.get("servings") as string);
-  const steps = stepUuids.map((uuid) => ({
-    uuid,
-    description: formData.get(`step.${uuid}`) as string,
-  }));
+
+  const steps = Object.fromEntries(
+    Array.from(stepUuids).map((uuid) => [
+      uuid,
+      (formData.get(`step.${uuid}`) as string) || "",
+    ]),
+  );
 
   let recipe: Recipe;
   try {
     const user = await findUserBySessionId(sessionId);
     const cover = determineCover(priorCover, coverImage);
 
-    const parseResult = updateRecipeSchema.safeParse({
+    const payload = {
       name,
       cover,
       description,
@@ -93,39 +95,54 @@ async function updateAction(
       cookingTime,
       visibility,
       servings,
-      steps,
+      step: steps,
       publicId,
-    });
+    };
 
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
+    const parseResult = editRecipeSchema.parse(payload);
 
-    recipe = await updateRecipe(parseResult.data, user);
+    recipe = await updateRecipe(parseResult, user);
   } catch (e) {
     if (!(e instanceof Error)) throw e;
+
+    const controls = {
+      name,
+      description,
+      cover: coverImage,
+      priorCover,
+      servings,
+      cookingTime: Number(cookingTime),
+      preparationTime: Number(preparationTime),
+      visibility,
+      step: steps,
+    };
+
+    if (e instanceof z.ZodError) {
+      return {
+        success: false,
+        message: "Validation failed.",
+        errors: e.errors.reduce(
+          (acc, error) => {
+            const path = error.path.join(".");
+            if (!acc[path]) acc[path] = [];
+            acc[path].push(error.message);
+            return acc;
+          },
+          {} as Record<string, string[]>,
+        ),
+        controls,
+      };
+    }
 
     return {
       success: false,
       message: e.message,
       errors: e.cause as Record<string, any>,
-      controls: {
-        name,
-        description,
-        cover: coverImage,
-        priorCover,
-        servings,
-        cookingTime,
-        preparationTime,
-        visibility,
-        steps,
-      },
-    } satisfies FormState<UpdateRecipeControls>;
+      controls,
+    } satisfies FormState<EditRecipeControls>;
   }
 
   redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
 }
 
-export { updateAction };
+export { editAction };

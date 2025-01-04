@@ -9,7 +9,6 @@ import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
 import { getUser } from "./user";
 import { type Visibility } from "./user/types";
-import { AddRecipeValidator, UpdateRecipeValidator } from "./validators";
 
 async function getPreferencesId(publicUserId: string) {
   const user = await getUser(publicUserId);
@@ -256,7 +255,17 @@ export async function getRecipeSteps(recipeId: number) {
 }
 
 export async function updateRecipe(
-  dto: z.infer<typeof UpdateRecipeValidator>,
+  dto: {
+    publicId: string;
+    cover: { update: false } | { update: true; image: File | null };
+    name: string;
+    description: string;
+    servings: number;
+    preparationTime: number;
+    cookingTime: number;
+    visibility: Visibility;
+    step: Record<string, string>;
+  },
   user: User,
 ) {
   const result = await db
@@ -305,9 +314,9 @@ export async function updateRecipe(
 
     await tx.delete(schema.steps).where(eq(schema.steps.recipeId, recipe.id));
     await tx.insert(schema.steps).values(
-      dto.steps.map((step, i) => ({
-        description: step.description,
-        publicId: step.uuid,
+      Object.entries(dto.step).map(([uuid, step], i) => ({
+        description: step,
+        publicId: uuid,
         order: i,
         recipeId: recipe.id,
       })),
@@ -367,43 +376,4 @@ async function updateRecipeCover(
   } catch {
     return undefined;
   }
-}
-
-// MARK: Actions
-
-export function recipeDtoFromFormData<TValidator extends z.AnyZodObject>(
-  formData: FormData,
-  validator: TValidator,
-) {
-  const stepUuids = formData.getAll("step.uuid");
-  const steps = stepUuids.map((uuid) => ({
-    uuid,
-    description: formData.get(`step.${uuid}`) as string,
-  }));
-
-  // for some reason not supplying a file to the input *can* lead to a file of size 0 being appended.
-  let coverImage = formData.get("cover");
-  if (coverImage instanceof File && coverImage.size === 0) {
-    coverImage = null;
-  }
-
-  const priorCover = formData.get("prior-cover");
-  const shouldUpdateCoverImage = priorCover === "" || coverImage !== null;
-  const cover = shouldUpdateCoverImage
-    ? ({ update: true, image: coverImage } as const)
-    : ({ update: false } as const);
-
-  const dto = {
-    publicId: formData.get("publicId") ?? undefined,
-    cover,
-    name: formData.get("name"),
-    description: formData.get("description"),
-    servings: formData.get("servings"),
-    preparationTime: formData.get("preparationTime"),
-    cookingTime: formData.get("cookingTime"),
-    visibility: formData.get("visibility"),
-    steps,
-  };
-
-  return validator.safeParse(dto) as ReturnType<TValidator["safeParse"]>;
 }
