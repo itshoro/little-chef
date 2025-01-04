@@ -6,3 +6,4 @@ node_modules
 .next
 .contentlayer
 docker-compose.yaml
+data

@@ -7,6 +7,8 @@ services:
     env_file:
       - .env.local
     environment:
-      - DATABASE_URL=/src/dev.db
+      - DATABASE_URL=/data/dev.db
     volumes:
-      - ./src/drizzle/dev.db:/src/dev.db
+      - type: bind
+        source: ./data
+        target: /data
