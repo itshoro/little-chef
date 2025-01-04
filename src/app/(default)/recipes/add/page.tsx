@@ -32,13 +32,6 @@ const AddRecipePage = async () => {
         <DefaultValuesWrapper userPreferences={preferences} />
         <Form.Alert />
         <div className="flex justify-end gap-6 py-4">
-          <Input.Root name="servings">
-            <div>
-              <ServingsInputWithFormFallback
-                defaultValue={preferences?.defaultServingSize || 1}
-              />
-            </div>
-          </Input.Root>
           <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
             <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
               <svg

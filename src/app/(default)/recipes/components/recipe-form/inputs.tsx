@@ -3,6 +3,7 @@ import * as Fieldset from "@/app/components/fieldset";
 import * as Input from "@/app/components/input";
 import type { Visibility } from "@/lib/dal/user/types";
 import { CoverImageInput } from "./elements/cover-image";
+import { ServingsInput } from "./elements/servings/input";
 import { StepsGenerator } from "./elements/step/generator";
 
 type InputsProps = {
@@ -13,8 +14,8 @@ type InputsProps = {
       preparationTime?: number;
       cookingTime?: number;
       visibility?: Visibility;
-      coverSrc?: string;
-      description?: string;
+      coverSrc?: string | null;
+      description?: string | null;
     };
     steps?: {
       publicId: string;
@@ -56,8 +57,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
               <Input.Group>
                 <Input.Textarea
                   className="min-h-24"
-                  defaultValue={defaultValue?.recipe?.description}
-                  required
+                  defaultValue={defaultValue?.recipe?.description ?? undefined}
                 />
               </Input.Group>
               <Input.InlineError />
@@ -114,6 +114,9 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             <Input.Root name="servings">
               <Input.Label>Servings</Input.Label>
+              <ServingsInput
+                defaultValue={defaultValue?.recipe?.recommendedServingSize}
+              />
             </Input.Root>
           </div>
         </div>
