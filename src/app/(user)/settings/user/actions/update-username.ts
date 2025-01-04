@@ -1,6 +1,7 @@
 import type { FormState } from "@/app/components/form/root";
 import { changeUsername, findUserBySessionId } from "@/lib/dal/user";
 import { usernameSchema } from "@/lib/dal/user/types";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 type UpdateUsernameSchema = {
@@ -30,10 +31,10 @@ const updateUsernameAction = async (
     }
 
     await changeUsername(user, parseResult.data.username);
-
+    revalidatePath("/settings/user", "page");
     return {
       success: true,
-      message: "Successfully changed your username.",
+      message: "",
     };
   } catch (e) {
     if (!(e instanceof Error)) throw e;

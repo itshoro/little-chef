@@ -38,7 +38,6 @@ const CollectionSettingsPage = async () => {
                 <VisibilitySwitcher
                   name="visibility"
                   defaultValue={preferences.defaultVisibility}
-                  triggerSubmitOnChange
                 />
               </div>
               <Form.Alert />

@@ -2,6 +2,7 @@ import type { FormState } from "@/app/components/form/root";
 import { updateDefaultVisibility } from "@/lib/dal/recipe";
 import { findUserBySessionId } from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 type ChangeDefaultVisibilityControls = {
@@ -34,6 +35,7 @@ async function changeDefaultVisibility(
     }
     await updateDefaultVisibility(user, parseResult.data.visibility);
 
+    revalidatePath("/settings/recipe", "page");
     return {
       success: true,
       message: "",

@@ -1,6 +1,7 @@
 import type { FormState } from "@/app/components/form/root";
 import { updateDefaultServingSize } from "@/lib/dal/recipe";
 import { findUserBySessionId } from "@/lib/dal/user";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 type ChangeDefaultServingSizeControls = {
@@ -32,7 +33,7 @@ async function changeDefaultServingSizeAction(
     }
 
     await updateDefaultServingSize(user, parseResult.data.defaultServingSize);
-
+    revalidatePath("/settings/recipe", "page");
     return {
       success: true,
       message: "",
