@@ -25,7 +25,6 @@ export type CreateRecipeControls = {
   sessionId?: string;
   name: string;
   cover: File;
-  priorCover: string;
   description: string;
   preparationTime: number;
   cookingTime: number;
