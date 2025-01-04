@@ -1,3 +1,4 @@
+import { BaseButton } from "@/app/components/base-button";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { validateRequest } from "@/lib/auth/lucia";
 import {
@@ -9,9 +10,9 @@ import { extractParts } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils";
 import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
+import Form from "next/form";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { StartButton } from "./components/buttons/start-button";
 import { CookwareList } from "./components/cookware-list";
 import { IngredientList } from "./components/ingredient-list";
 import { MaintainerActions } from "./components/maintainer-actions";
@@ -164,12 +165,6 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             </Section>
           )}
 
-          {/* TODO: Input shouldn't automatically use the Form Context, so I should create a separate component that does.
-           */}
-          {/* <div className="flex flex-1 items-baseline gap-4">
-            <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
-          </div> */}
-
           {user && (
             <div className="grid grid-cols-2 gap-6">
               <AddToCollection
@@ -206,12 +201,31 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             }}
           />
           <div className="relative z-10">
-            <div className="flex max-w-full flex-1 flex-wrap items-end justify-between gap-8 sm:justify-between">
-              <StartButton
-                className="pointer-events-auto ml-auto"
-                slug={params.slug}
-              />
-            </div>
+            <Form
+              action={`/recipes/${params.slug}/wizard/0`}
+              className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-8"
+            >
+              <div className="pointer-events-auto flex items-baseline gap-4">
+                <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
+              </div>
+              <BaseButton type="submit" className="pointer-events-auto">
+                <div className="flex items-center gap-6">
+                  Start
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </BaseButton>
+            </Form>
           </div>
         </footer>
       </>

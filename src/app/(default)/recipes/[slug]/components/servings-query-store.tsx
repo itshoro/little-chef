@@ -8,15 +8,18 @@ import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import * as Input from "@/app/components/input";
 
-type ServingsQueryStoreProps = Omit<ServingsInputProps, "onChange">;
+type ServingsQueryStoreProps = Omit<ServingsInputProps, "onChange"> & {
+  name?: string;
+};
 
 const ServingsQueryStore = ({
   defaultValue = 1,
+  name = "servings",
   ...props
 }: ServingsQueryStoreProps) => {
   const params = useSearchParams();
 
-  const sizingParam = parseInt(params.get("servings") ?? "");
+  const sizingParam = parseFloat(params.get("servings") ?? "");
   const servings = isNaN(sizingParam) ? defaultValue : sizingParam;
 
   useEffect(() => {
@@ -28,7 +31,7 @@ const ServingsQueryStore = ({
   }, [servings, sizingParam]);
 
   return (
-    <Input.Root>
+    <Input.Root name={name}>
       <Input.Label className="mb-2">Servings</Input.Label>
       <ServingsInput
         {...props}
