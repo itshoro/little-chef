@@ -52,7 +52,7 @@ const AddToCollectionButton = async ({
             </WithConfirmation.CancelButton>
           </div>
           <Form.Root action={boundAddToCollectionsAction}>
-            <div className="relative flex max-h-[50vh] flex-col overflow-auto">
+            <div className="relative isolate flex max-h-[50vh] flex-col overflow-auto">
               <div className="pointer-events-none sticky top-0 z-10 h-8 w-full shrink-0 bg-linear-to-b from-white dark:from-black" />
               <ul className="grid w-full flex-1 gap-2 px-6">
                 {collections.map(({ collection }) => (

@@ -70,7 +70,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
       <>
         <div className="grid gap-6">
           {recipe.coverSrc && (
-            <div className="relative w-full">
+            <div className="relative isolate w-full">
               <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/30 ring-inset dark:ring-white/30" />
               <Image
                 alt=""
@@ -200,7 +200,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               mask: "linear-gradient(to bottom, transparent 0%, currentColor 25%)",
             }}
           />
-          <div className="relative z-10">
+          <div className="relative isolate z-10">
             <Form
               action={`/recipes/${params.slug}/wizard/0`}
               className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-8"
