@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
 import {
-  sqliteTable,
   integer,
-  text,
   primaryKey,
+  sqliteTable,
+  text,
 } from "drizzle-orm/sqlite-core";
 
 // MARK: recipes
@@ -45,14 +45,12 @@ export const recipeSubscriptions = sqliteTable(
       enum: ["creator", "maintainer", "subscriber"],
     }).notNull(),
   },
-  (table) => {
-    return {
-      recipeSubscriptionsPkey: primaryKey({
-        columns: [table.recipeId, table.userId, table.role],
-        name: "recipeSubscriptionsPkey",
-      }),
-    };
-  },
+  (table) => [
+    primaryKey({
+      columns: [table.recipeId, table.userId, table.role],
+      name: "recipeSubscriptionsPkey",
+    }),
+  ],
 );
 
 export const steps = sqliteTable("steps", {
