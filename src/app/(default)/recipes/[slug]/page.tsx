@@ -205,7 +205,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               action={`/recipes/${params.slug}/wizard/0`}
               className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-8"
             >
-              <div className="pointer-events-auto flex items-baseline gap-4">
+              <div className="pointer-events-auto flex w-full flex-1 items-baseline gap-4 sm:w-auto sm:flex-initial">
                 <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
               </div>
               <BaseButton type="submit" className="pointer-events-auto">

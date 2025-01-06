@@ -39,7 +39,7 @@ const ServingsInput = ({
         min={min}
         step={0.5}
         ref={ref}
-        className="w-full flex-1 rounded-xl sm:max-w-[20ch] sm:min-w-[13ch]"
+        className="w-full flex-1 rounded-xl"
         onChange={onChange}
         style={{ paddingInline: "calc(var(--spacing) * 14)" }}
       />
