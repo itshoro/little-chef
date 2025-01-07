@@ -52,6 +52,8 @@ type InputMaskProps = {
   onChange: React.ChangeEventHandler<React.ComponentRef<"textarea">>;
 };
 
+const maxLength = 280;
+
 const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
   const textRef = useRef<React.ComponentRef<"textarea">>(null);
 
@@ -62,16 +64,21 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
       </Input.Root>
       <Input.Root name={uuid}>
         <StepCounterLabel>{order}</StepCounterLabel>
-        <div className="w-full flex-1">
+        <div className="relative w-full flex-1">
           <Input.Textarea
-            className="h-full w-full has-[~[data-slot=error]]:ring-red-500"
+            className="relative h-full w-full text-transparent caret-black has-[~[data-slot=error]]:ring-red-500 dark:caret-white"
             ref={textRef}
             value={value}
             onChange={onChange}
             autoFocus={order > 1}
-            maxLength={140}
             required
           />
+          {value && (
+            <div className="pointer-events-none absolute inset-2 z-10 break-words whitespace-pre-wrap">
+              {value.slice(0, maxLength)}
+              <span className="bg-red-500/50">{value.slice(280)}</span>
+            </div>
+          )}
           <Input.InlineError />
         </div>
       </Input.Root>
@@ -85,7 +92,7 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
           </div>
         </Generator.Remove>
         <div className="mt-2 text-stone-400 dark:text-stone-800">
-          <CharacterCount textRef={textRef} />
+          <CharacterCount textRef={textRef} availableCharacters={280} />
         </div>
       </div>
     </>
@@ -99,28 +106,32 @@ const characterCountColorMap: Record<CharacterCountRegions, string> = {
 };
 const characterCountUpperBounds: Record<CharacterCountRegions, number> = {
   safe: Number.MAX_SAFE_INTEGER,
-  warning: 50,
-  critical: 20,
+  warning: 120,
+  critical: 50,
 };
 
 type CharacterCountRegions = "safe" | "warning" | "critical";
 
 const CharacterCount = ({
   textRef,
+  availableCharacters,
 }: {
-  textRef: React.RefObject<React.ElementRef<"textarea">>;
+  textRef: React.RefObject<React.ComponentRef<"textarea"> | null>;
+  availableCharacters: number;
 }) => {
   const [remainingCharacters, setRemainingCharaters] = useState<number>(
     Number.MAX_SAFE_INTEGER,
   );
-  const maxLength = useRef(Number.MAX_SAFE_INTEGER);
 
   useEffect(() => {
-    textRef.current?.addEventListener("input", (e) => {
-      const target = e.target as React.ElementRef<"textarea">;
-      setRemainingCharaters(target.maxLength - target.value.length);
-      maxLength.current = target.maxLength;
-    });
+    function handleInput(e: Event) {
+      const target = e.target as React.ComponentRef<"textarea">;
+      console.log(target.value.length);
+      setRemainingCharaters(availableCharacters - target.value.length);
+    }
+
+    textRef.current?.addEventListener("input", handleInput);
+    return () => textRef.current?.removeEventListener("input", handleInput);
   }, []);
 
   let notificationLevel: CharacterCountRegions = "safe";
@@ -130,9 +141,7 @@ const CharacterCount = ({
     notificationLevel = "critical";
 
   return (
-    <div
-      className={`invisible in-[.group]:peer-focus-within:visible ${characterCountColorMap[notificationLevel]}`}
-    >
+    <div className={`${characterCountColorMap[notificationLevel]}`}>
       <div className="relative flex items-center justify-center">
         <svg viewBox="0 0 20 20" className="size-7 -rotate-90 overflow-visible">
           <circle
@@ -143,7 +152,7 @@ const CharacterCount = ({
             stroke="currentColor"
             strokeDasharray="63"
             strokeDashoffset={
-              63 - (63 * remainingCharacters) / maxLength.current
+              63 - (63 * Math.max(remainingCharacters, 0)) / availableCharacters
             }
             strokeLinecap="round"
             strokeWidth="2"

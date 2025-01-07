@@ -18,7 +18,7 @@ export const createRecipeSchema = z.object({
     update: z.literal(true),
     image: z.instanceof(File).nullable(),
   }),
-  step: z.record(z.string().trim().min(2)),
+  step: z.record(z.string().trim().min(2).max(280)),
 });
 
 export type CreateRecipeControls = {
