@@ -43,5 +43,8 @@
     "tailwindcss": "4.0.0-beta.2",
     "typescript": "^5.7.2"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@10.0.0",
+  "pnpm": {
+    "onlyBuiltDependencies": ["better-sqlite3"]
+  }
 }
