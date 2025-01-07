@@ -48,8 +48,16 @@ function useIdGenerator(options: GeneratorOptions) {
     });
   }, [options]);
 
-  const addItem = () => {
-    setUids((uids) => [...uids, options.generator()]);
+  const addItem = (after?: number) => {
+    setUids((uids) =>
+      after === undefined
+        ? [...uids, options.generator()]
+        : [
+            ...uids.slice(0, after + 1),
+            options.generator(),
+            ...uids.slice(after + 1),
+          ],
+    );
   };
 
   const removeItem = (uid: string) => {

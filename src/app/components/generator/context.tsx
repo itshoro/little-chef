@@ -4,7 +4,7 @@ import { createContext, useContext } from "react";
 
 type GeneratorContextProps = {
   uids: readonly string[];
-  addItem: () => void;
+  addItem: (after?: number) => void;
   removeItem: (key: string) => void;
   removeDisabled: boolean;
 };

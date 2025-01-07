@@ -2,13 +2,17 @@
 
 import { useGeneratorContext } from "./context";
 
-const Add = ({ className, ...props }: React.ComponentProps<"button">) => {
+const Add = ({
+  className,
+  after,
+  ...props
+}: React.ComponentProps<"button"> & { after?: number }) => {
   const { addItem } = useGeneratorContext(Add.name);
   return (
     <button
       type="button"
       className={`text-sm underline ${className}`}
-      onClick={() => addItem()}
+      onClick={() => addItem(after)}
       {...props}
     />
   );
