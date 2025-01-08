@@ -1,0 +1,4 @@
+{
+    "typescript.preferences.preferTypeOnlyAutoImports": true,
+    "prettier.configPath": "./.prettierrc"
+}
