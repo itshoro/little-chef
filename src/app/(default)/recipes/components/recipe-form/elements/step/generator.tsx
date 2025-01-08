@@ -22,23 +22,25 @@ const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
         <Generator.Items>
           {(uuid, i) => {
             return (
-              <Input.Root key={uuid} name="step">
-                <StepGeneratorItem
-                  uuid={uuid}
-                  order={i + 1}
-                  defaultValue={
-                    defaultValue?.find((item) => item.publicId === uuid)
-                      ?.description
-                  }
-                />
-                <Generator.Add
-                  after={i}
-                  className="ml-auto flex cursor-pointer font-medium text-stone-600"
-                >
-                  <Plus />
-                  <span className="pr-2">Add More</span>
-                </Generator.Add>
-              </Input.Root>
+              <li className="relative my-2" key={uuid}>
+                <Input.Root name="step">
+                  <StepGeneratorItem
+                    uuid={uuid}
+                    order={i + 1}
+                    defaultValue={
+                      defaultValue?.find((item) => item.publicId === uuid)
+                        ?.description
+                    }
+                  />
+                  <Generator.Add
+                    after={i}
+                    className="mx-auto my-4 flex cursor-pointer p-2 font-medium text-stone-600"
+                  >
+                    <Plus />
+                    <span className="pr-2">Add More</span>
+                  </Generator.Add>
+                </Input.Root>
+              </li>
             );
           }}
         </Generator.Items>

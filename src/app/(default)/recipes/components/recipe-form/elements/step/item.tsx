@@ -22,7 +22,7 @@ const StepGeneratorItem = ({
   const deferredInput = useDeferredValue(input);
 
   return (
-    <li className="relative my-2">
+    <>
       <div>
         <div className="flex">
           <InputMask
@@ -41,7 +41,7 @@ const StepGeneratorItem = ({
         style={{ height: "calc(100% - 3rem)" }}
         className="absolute top-12 left-6 w-px bg-stone-100 dark:bg-stone-800"
       />
-    </li>
+    </>
   );
 };
 
@@ -190,3 +190,4 @@ const StepCounterLabel = ({
 };
 
 export { StepGeneratorItem };
+
