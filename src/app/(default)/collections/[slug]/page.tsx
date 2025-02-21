@@ -60,7 +60,7 @@ const CollectionPage = async (props: CollectionPageProps) => {
 
     const isMaintainer = maintainers
       .map((maintainer) => maintainer.publicId)
-      .includes(user?.publicId);
+      .includes(user?.publicId ?? "");
 
     const isLiked = user
       ? await isCollectionLiked(user?.publicId, collection.id)

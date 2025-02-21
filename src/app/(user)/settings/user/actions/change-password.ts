@@ -61,7 +61,7 @@ async function changePasswordAction(
         e.message ||
         "Please review the form and correct the errors to proceed with changing your password.",
       errors: e.cause as Record<string, unknown>,
-      // do not pass any passwords back to the client
+      controls: {}, // do not pass any passwords back to the client
     };
   }
 }

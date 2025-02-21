@@ -3,7 +3,7 @@ import { User } from "@/drizzle/schema";
 import { AddButton } from "../components/AddButton";
 import { RecipeCard } from "../components/recipe-card";
 import { findPublicRecipeIds } from "@/lib/dal/recipe";
-import { getSubcribedRecipes } from "@/lib/dal/user";
+import { getSubscribedRecipes } from "@/lib/dal/user";
 import type { Metadata } from "next";
 import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 
@@ -34,7 +34,7 @@ const YourCookbook = async ({
 }) => {
   if (!user) return null;
 
-  const subscriptions = await getSubcribedRecipes(user.id, query ?? "");
+  const subscriptions = await getSubscribedRecipes(user.id, query ?? "");
 
   return <SectionWithRecipes title="Your Cookbook" recipes={subscriptions} />;
 };

@@ -148,7 +148,7 @@ export async function createUser(username: string, hashedPassword: string) {
       if (e instanceof Error) {
         console.error(e);
       } else {
-        console.error("Unknown error occured during user cration.");
+        console.error("Unknown error occurred during user creation.");
       }
 
       return tx.rollback();
@@ -181,7 +181,7 @@ export async function subscribeToRecipe(
   });
 }
 
-export async function getSubcribedRecipes(userId: number, query: string) {
+export async function getSubscribedRecipes(userId: number, query: string) {
   return await db
     .selectDistinct({
       id: schema.recipes.id,

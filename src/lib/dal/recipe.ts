@@ -335,7 +335,7 @@ type CoverUpdate =
     };
 
 /**
- * @returns `null` or `string` if `currentCoverSrc` should be overriden - `undefined` if `currentCoverSrc` should be retained.
+ * @returns `null` or `string` if `currentCoverSrc` should be overridden - `undefined` if `currentCoverSrc` should be retained.
  */
 async function updateRecipeCover(
   coverUpdate: CoverUpdate,

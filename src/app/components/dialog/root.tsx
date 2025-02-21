@@ -4,7 +4,7 @@ import { createContext, forwardRef, useRef } from "react";
 import { useContext } from "@/hooks/useContext";
 
 type DialogContextProps = {
-  ref: React.RefObject<React.ElementRef<"dialog">>;
+  ref: React.RefObject<React.ComponentRef<"dialog"> | null>;
   closeDialog: () => void;
   openDialog: () => void;
 };
@@ -34,7 +34,7 @@ const Root = forwardRef<React.ElementRef<"dialog">, RootProps>(
 );
 
 function useDialog() {
-  const ref = useRef<React.ElementRef<"dialog">>(null);
+  const ref = useRef<React.ComponentRef<"dialog">>(null);
 
   function openDialog() {
     ref.current?.showModal();

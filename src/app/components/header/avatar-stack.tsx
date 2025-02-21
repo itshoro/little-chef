@@ -21,8 +21,10 @@ const AvatarStack = ({
           key={user.publicId}
           alt={user.username}
           src={user.avatar!}
-          className="z-[var(--stack-positon)] transition-transform hover:z-50 hover:scale-110 focus:z-50 focus:scale-110"
-          style={{ "--stack-positon": slice.length - i } as React.CSSProperties}
+          className="z-[var(--stack-position)] transition-transform hover:z-50 hover:scale-110 focus:z-50 focus:scale-110"
+          style={
+            { "--stack-position": slice.length - i } as React.CSSProperties
+          }
         />
       ))}
     </div>

@@ -91,6 +91,24 @@ export async function validateRequest(): Promise<SessionValidationResult> {
   return validateSessionToken(token.value);
 }
 
+export async function assertAuthorizedForServerAction() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(sessionCookieName);
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const { session, user } = await validateSessionToken(token.value);
+
+  if (!session) {
+    cookieStore.delete(sessionCookieName);
+    throw new Error("Unauthorized");
+  }
+
+  return { session, user };
+}
+
 export type SessionValidationResult =
   | { session: Session; user: User }
   | { session: null; user: null };

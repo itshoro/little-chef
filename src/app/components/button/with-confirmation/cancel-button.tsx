@@ -18,7 +18,7 @@ const CancelButton = ({
     <BaseButton
       {...props}
       type={type}
-      onClick={(e) => {
+      onClick={(e: React.MouseEvent<React.ComponentRef<"button">>) => {
         if (props.onClick) props.onClick(e);
         closeDialog();
       }}

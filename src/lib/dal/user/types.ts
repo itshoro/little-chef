@@ -6,7 +6,7 @@ export const usernameSchema = z
   .string()
   .min(
     usernameRange.min,
-    `Username must be atleast ${usernameRange.min} characters.`,
+    `Username must be at least ${usernameRange.min} characters.`,
   )
   .max(
     usernameRange.max,
@@ -24,7 +24,7 @@ export const passwordSchema = z
   .string()
   .min(
     passwordRange.min,
-    `Password must be atleast ${passwordRange.min} characters.`,
+    `Password must be at least ${passwordRange.min} characters.`,
   )
   .max(
     passwordRange.max,
@@ -38,5 +38,5 @@ export const authSchema = z.object({
 });
 
 export type Visibility = z.infer<typeof visibilitySchema>;
-export const supportedVisibilites = ["public", "unlisted", "private"] as const;
-export const visibilitySchema = z.enum(supportedVisibilites);
+export const supportedVisibilities = ["public", "unlisted", "private"] as const;
+export const visibilitySchema = z.enum(supportedVisibilities);

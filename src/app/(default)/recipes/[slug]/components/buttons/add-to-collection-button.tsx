@@ -1,9 +1,9 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
 import * as Form from "@/app/components/form";
 import { FormState } from "@/app/components/form/root";
-import { validateRequest } from "@/lib/auth";
+import { assertAuthorizedForServerAction, validateRequest } from "@/lib/auth";
 import { addRecipe } from "@/lib/dal/collections";
-import { findUserBySessionId, getMaintainedCollections } from "@/lib/dal/user";
+import { getMaintainedCollections } from "@/lib/dal/user";
 
 type AddToCollectionButtonProps = {
   className?: string;
@@ -17,8 +17,8 @@ const AddToCollectionButton = async ({
   recipePublicId,
 }: AddToCollectionButtonProps) => {
   // TODO: Remove from collections if already added.
-  const { user, session } = await validateRequest();
-  if (!user || !session) return null;
+  const { user } = await validateRequest();
+  if (!user) return null;
 
   const collections = user
     ? (await getMaintainedCollections(user, recipePublicId)).filter(
@@ -28,7 +28,6 @@ const AddToCollectionButton = async ({
 
   const boundAddToCollectionsAction = addToCollections.bind(
     null,
-    session?.id,
     recipePublicId,
   );
 
@@ -108,17 +107,16 @@ const AddToCollectionButton = async ({
 };
 
 async function addToCollections(
-  sessionId: string,
   recipePublicId: string,
   _: FormState,
   formData: FormData,
 ) {
   "use server";
-  const user = await findUserBySessionId(sessionId);
+  const { user } = await assertAuthorizedForServerAction();
   const collection = formData.get("collection");
 
   await addRecipe(collection as string, recipePublicId, user);
-  return { success: true } satisfies FormState;
+  return { success: true, message: "" } satisfies FormState;
 }
 
 export { AddToCollectionButton };

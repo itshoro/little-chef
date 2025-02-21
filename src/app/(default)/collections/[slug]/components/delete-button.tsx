@@ -1,5 +1,10 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
-import { validateRequest } from "@/lib/auth";
+import {
+  assertAuthorizedForServerAction,
+  setSessionTokenCookie,
+  validateRequest,
+  validateSessionToken,
+} from "@/lib/auth";
 import { deleteCollection } from "@/lib/dal/collections";
 import { redirect } from "next/navigation";
 
@@ -11,7 +16,7 @@ const DeleteButton = async ({ collectionId }: DeleteButtonProps) => {
   const { session } = await validateRequest();
   if (!session) return null;
 
-  const boundDeleteAction = deleteAction.bind(null, collectionId, session.id);
+  const boundDeleteAction = deleteAction.bind(null, collectionId);
 
   return (
     <WithConfirmation.Root>
@@ -54,10 +59,9 @@ const DeleteButton = async ({ collectionId }: DeleteButtonProps) => {
   );
 };
 
-async function deleteAction(collectionId: number, sessionId: string) {
+async function deleteAction(collectionId: number) {
   "use server";
-  const { user } = await validateRequest(sessionId);
-  if (!user) throw new Error("Unauthorized");
+  const { user } = await assertAuthorizedForServerAction();
 
   await deleteCollection(collectionId, user);
   redirect("/collections");
