@@ -1,5 +1,5 @@
 import type { User } from "@/drizzle/schema";
-import { Argon2id } from "oslo/password";
+import { hash, verify } from "@node-rs/argon2";
 import sharp from "sharp";
 import { nanoid } from "../nanoid";
 
@@ -27,10 +27,7 @@ export async function findUserByCredentials(
 
   const [existingUser] = result;
 
-  const validPassword = await new Argon2id().verify(
-    existingUser.hashedPassword,
-    password,
-  );
+  const validPassword = await verify(existingUser.hashedPassword, password);
 
   if (!validPassword) {
     throw new Error("Username or password incorrect.");
@@ -46,16 +43,12 @@ export async function changePassword(
   newPassword: Password,
 ) {
   const hashedPassword = await getHashedPassword(user.id);
-  if (!(await equalsPassword(hashedPassword, currentPassword))) return;
+  if (!(await verify(hashedPassword, currentPassword))) return;
 
   await db
     .update(schema.users)
-    .set({ hashedPassword: await new Argon2id().hash(newPassword) })
+    .set({ hashedPassword: await hash(newPassword) })
     .where(eq(schema.users.id, user.id));
-}
-
-async function equalsPassword(hash: string, password: string) {
-  return await new Argon2id().verify(hash, password);
 }
 
 // MARK: Avatar

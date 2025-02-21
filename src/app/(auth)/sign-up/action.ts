@@ -7,7 +7,7 @@ import {
 import { createUser } from "@/lib/dal/user";
 import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
 import { redirect } from "next/navigation";
-import { Argon2id } from "oslo/password";
+import { hash } from "@node-rs/argon2";
 import { z } from "zod";
 
 type SignUpData = {
@@ -56,7 +56,7 @@ async function signup(formData: FormData): Promise<FormState<SignUpData>> {
     }
 
     // TODO: if usernames are unique, check if username is already taken.
-    const hashedPassword = await new Argon2id().hash(dto.password);
+    const hashedPassword = await hash(dto.password);
     const user = await createUser(username, hashedPassword);
 
     const sessionToken = generateSessionToken();
