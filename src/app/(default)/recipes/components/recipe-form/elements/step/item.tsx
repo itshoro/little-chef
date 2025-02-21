@@ -190,4 +190,3 @@ const StepCounterLabel = ({
 };
 
 export { StepGeneratorItem };
-
