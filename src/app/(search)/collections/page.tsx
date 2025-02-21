@@ -1,10 +1,10 @@
+import { Section } from "@/app/(default)/recipes/[slug]/components/section";
+import type { User } from "@/drizzle/schema";
 import { validateRequest } from "@/lib/auth";
-import type { User } from "lucia";
-import { AddButton } from "../components/AddButton";
-import { CollectionSubscriptionCard } from "../components/collection-card";
 import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
 import type { Metadata } from "next";
-import { Section } from "@/app/(default)/recipes/[slug]/components/section";
+import { AddButton } from "../components/AddButton";
+import { CollectionSubscriptionCard } from "../components/collection-card";
 
 export const metadata: Metadata = {
   title: "Collections",

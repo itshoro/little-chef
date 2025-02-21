@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { sql, type InferSelectModel } from "drizzle-orm";
 import {
   integer,
   primaryKey,
@@ -165,3 +165,6 @@ export const sessions = sqliteTable("sessions", {
     .references(() => users.id),
   expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
 });
+
+export type User = InferSelectModel<typeof users>;
+export type Session = InferSelectModel<typeof sessions>;

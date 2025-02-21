@@ -1,8 +1,11 @@
 import type { FormState } from "@/app/components/form/root";
-import { lucia } from "@/lib/auth";
+import {
+  createSession,
+  generateSessionToken,
+  setSessionTokenCookie,
+} from "@/lib/auth";
 import { findUserByCredentials } from "@/lib/dal/user";
 import { authSchema } from "@/lib/dal/user/types";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export type LoginFormData = {
@@ -25,13 +28,10 @@ async function login(formData: FormData): Promise<FormState<LoginFormData>> {
 
     const dto = parseResult.data;
     const user = await findUserByCredentials(dto.username, dto.password);
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    (await cookies()).set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+
+    const token = generateSessionToken();
+    const session = await createSession(token, user.id);
+    await setSessionTokenCookie(token, session.expiresAt);
 
     return {
       success: true,

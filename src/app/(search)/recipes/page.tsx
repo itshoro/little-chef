@@ -1,5 +1,5 @@
 import { validateRequest } from "@/lib/auth";
-import { User } from "lucia";
+import { User } from "@/drizzle/schema";
 import { AddButton } from "../components/AddButton";
 import { RecipeCard } from "../components/recipe-card";
 import { findPublicRecipeIds } from "@/lib/dal/recipe";

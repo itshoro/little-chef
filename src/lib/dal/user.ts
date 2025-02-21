@@ -1,7 +1,6 @@
-import type { Session, User } from "lucia";
+import type { User } from "@/drizzle/schema";
 import { Argon2id } from "oslo/password";
 import sharp from "sharp";
-import { lucia, validateRequest } from "../auth";
 import { nanoid } from "../nanoid";
 
 import { db } from "@/drizzle/db";
@@ -38,10 +37,6 @@ export async function findUserByCredentials(
   }
 
   return existingUser;
-}
-
-export async function invalidateSession(sessionId: Session["id"]) {
-  await lucia.invalidateSession(sessionId);
 }
 
 // MARK: Password
@@ -426,11 +421,24 @@ export async function findUserBySessionId(sessionId: unknown) {
     throw new Error("Unauthorized.");
   }
 
-  const { user } = await validateRequest(sessionId);
-  if (!user) {
+  const session = await db
+    .select()
+    .from(schema.sessions)
+    .where(eq(schema.sessions.id, sessionId));
+
+  if (session.length < 1 || Date.now() >= session[0].expiresAt.getTime()) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.id, session[0].userId));
+
+  if (user.length < 1) {
     throw new Error("Unauthorized.");
   }
-  return user;
+  return user[0];
 }
 
 export async function getHashedPassword(userId: number) {

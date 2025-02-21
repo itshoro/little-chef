@@ -1,8 +1,11 @@
 import type { FormState } from "@/app/components/form/root";
-import { lucia } from "@/lib/auth";
+import {
+  createSession,
+  generateSessionToken,
+  setSessionTokenCookie,
+} from "@/lib/auth";
 import { createUser } from "@/lib/dal/user";
 import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id } from "oslo/password";
 import { z } from "zod";
@@ -55,13 +58,10 @@ async function signup(formData: FormData): Promise<FormState<SignUpData>> {
     // TODO: if usernames are unique, check if username is already taken.
     const hashedPassword = await new Argon2id().hash(dto.password);
     const user = await createUser(username, hashedPassword);
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    (await cookies()).set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+
+    const sessionToken = generateSessionToken();
+    const session = await createSession(sessionToken, user.id);
+    await setSessionTokenCookie(sessionToken, session.expiresAt);
 
     return {
       success: true,

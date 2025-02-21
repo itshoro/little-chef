@@ -1,10 +1,9 @@
 import { db } from "@/drizzle/db";
+import type { User } from "@/drizzle/schema";
 import * as schema from "@/drizzle/schema";
 import { and, eq, like, or, sql } from "drizzle-orm";
-import type { User } from "lucia";
 import { UTApi } from "uploadthing/server";
 import type { UploadFileResult } from "uploadthing/types";
-import { z } from "zod";
 import { nanoid } from "../nanoid";
 import { generateSlug } from "../slug";
 import { getUser } from "./user";
