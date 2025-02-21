@@ -1,7 +1,7 @@
 import type { Session, User } from "lucia";
 import { Argon2id } from "oslo/password";
 import sharp from "sharp";
-import { lucia, validateRequest } from "../auth/lucia";
+import { lucia, validateRequest } from "../auth";
 import { nanoid } from "../nanoid";
 
 import { db } from "@/drizzle/db";

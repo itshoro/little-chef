@@ -1,5 +1,5 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { deleteCollection } from "@/lib/dal/collections";
 import { redirect } from "next/navigation";
 

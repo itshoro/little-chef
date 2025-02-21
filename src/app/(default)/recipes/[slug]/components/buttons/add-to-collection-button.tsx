@@ -1,7 +1,7 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
 import * as Form from "@/app/components/form";
 import { FormState } from "@/app/components/form/root";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { addRecipe } from "@/lib/dal/collections";
 import { findUserBySessionId, getMaintainedCollections } from "@/lib/dal/user";
 

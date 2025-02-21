@@ -1,7 +1,7 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import * as Input from "@/app/components/input";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { getRecipePreferences } from "@/lib/dal/recipe";
 import type { Metadata } from "next";
 import { DefaultValuesWrapper } from "../components/recipe-form/default-values-wrapper";

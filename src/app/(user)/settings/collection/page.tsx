@@ -1,6 +1,6 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { getCollectionPreferences } from "@/lib/dal/collections";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";

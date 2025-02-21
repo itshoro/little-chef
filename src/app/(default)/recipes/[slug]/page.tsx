@@ -1,6 +1,6 @@
 import { BaseButton } from "@/app/components/base-button";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import {
   getCreatorsAndMaintainers,
   getRecipe,

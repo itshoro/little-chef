@@ -1,5 +1,5 @@
 import { Header } from "@/app/components/header/header";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import * as TabNavigation from "./components/tab-navigation";
 import { invalidateSession } from "@/lib/dal/user";

@@ -1,4 +1,4 @@
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { User } from "lucia";
 import { AddButton } from "../components/AddButton";
 import { RecipeCard } from "../components/recipe-card";

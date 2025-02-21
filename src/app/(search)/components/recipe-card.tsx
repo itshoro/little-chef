@@ -2,7 +2,7 @@ import { getCreatorsAndMaintainers, getRecipe } from "@/lib/dal/recipe";
 import * as Card from "./link-card";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { generateSlugPathSegment } from "@/lib/slug";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 
 type RecipeCardProps = {
   id: number;

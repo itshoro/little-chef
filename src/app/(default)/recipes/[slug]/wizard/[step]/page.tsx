@@ -2,7 +2,7 @@ import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
 import { extractParts } from "@/lib/slug";
 import { WizardStep } from "../step";
 import { Actions } from "../actions";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 
 type PageProps = {
   params: Promise<{

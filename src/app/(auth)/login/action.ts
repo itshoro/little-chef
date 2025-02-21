@@ -1,5 +1,5 @@
 import type { FormState } from "@/app/components/form/root";
-import { lucia } from "@/lib/auth/lucia";
+import { lucia } from "@/lib/auth";
 import { findUserByCredentials } from "@/lib/dal/user";
 import { authSchema } from "@/lib/dal/user/types";
 import { cookies } from "next/headers";

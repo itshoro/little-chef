@@ -1,4 +1,4 @@
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { Avatar } from "./avatar";
 import NextLink from "next/link";
 import { BaseButton } from "../base-button";

@@ -4,7 +4,7 @@ import { BaseButton } from "@/app/components/base-button";
 import { OptimisticLikeButton } from "@/app/components/button/optimistic-like-button";
 import { NoRecipesStored } from "@/app/components/fallbacks/collections/no-recipe-stored";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import {
   getCollection,
   getCreatorsAndMaintainers,

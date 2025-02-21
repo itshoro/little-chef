@@ -1,7 +1,7 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import * as Input from "@/app/components/input";
-import { validateRequest } from "@/lib/auth/lucia";
+import { validateRequest } from "@/lib/auth";
 import { passwordRange, usernameRange } from "@/lib/dal/user/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
