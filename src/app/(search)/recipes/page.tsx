@@ -1,17 +1,19 @@
-import { validateRequest } from "@/lib/auth";
+import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 import { User } from "@/drizzle/schema";
-import { AddButton } from "../components/AddButton";
-import { RecipeCard } from "../components/recipe-card";
+import { validateRequest } from "@/lib/auth";
 import { findPublicRecipeIds } from "@/lib/dal/recipe";
 import { getSubscribedRecipes } from "@/lib/dal/user";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import type { Metadata } from "next";
-import { Section } from "@/app/(default)/recipes/[slug]/components/section";
+import { AddButton } from "../components/AddButton";
+import { RecipeCard } from "../components/recipe-card";
 
 export const metadata: Metadata = {
   title: "Recipes",
 };
 
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
   const { user } = await validateRequest();
 
   return (

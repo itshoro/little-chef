@@ -2,6 +2,7 @@ import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
 import { getCollection } from "@/lib/dal/collections";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import { extractParts } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
 import { Inputs } from "../../components/collection-form/inputs";
@@ -14,6 +15,8 @@ type PageProps = {
 };
 
 const Page = async (props: PageProps) => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const params = await props.params;
   const { publicId } = extractParts(params.slug);
   const { user, session } = await validateRequest();

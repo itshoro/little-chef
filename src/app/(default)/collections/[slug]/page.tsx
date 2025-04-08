@@ -17,6 +17,7 @@ import {
   findUserBySessionId,
   removeCollectionLike,
 } from "@/lib/dal/user";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils";
 import type { Metadata, ResolvedMetadata } from "next";
@@ -43,6 +44,8 @@ export async function generateMetadata(
 }
 
 const CollectionPage = async (props: CollectionPageProps) => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const params = await props.params;
   const { slug, publicId } = extractParts(params.slug);
   const { user } = await validateRequest();

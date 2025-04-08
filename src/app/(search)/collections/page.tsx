@@ -2,6 +2,7 @@ import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 import type { User } from "@/drizzle/schema";
 import { validateRequest } from "@/lib/auth";
 import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 };
 
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const { user } = await validateRequest();
 
   return (

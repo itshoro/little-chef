@@ -2,16 +2,19 @@ import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
 import { getCollectionPreferences } from "@/lib/dal/collections";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createAction } from "./action";
 import { Inputs } from "../components/collection-form/inputs";
+import { createAction } from "./action";
 
 export const metadata: Metadata = {
   title: "Add Collection",
 };
 
 const Page = async () => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const { user, session } = await validateRequest();
 
   if (!user) redirect("/login");

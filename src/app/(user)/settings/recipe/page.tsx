@@ -3,6 +3,7 @@ import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth";
 import { getRecipePreferences } from "@/lib/dal/recipe";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Fieldset } from "../components/primitives/fieldset";
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 const RecipeSettingsPage = async () => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
   const { user, session } = await validateRequest();
 
   if (!user) {

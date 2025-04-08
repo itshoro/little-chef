@@ -1,11 +1,10 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth";
 import { getRecipePreferences } from "@/lib/dal/recipe";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import type { Metadata } from "next";
 import { DefaultValuesWrapper } from "../components/recipe-form/default-values-wrapper";
-import { ServingsInputWithFormFallback } from "../components/recipe-form/elements/servings/input-with-form-fallback";
 import { createAction } from "./action";
 
 export const metadata: Metadata = {
@@ -13,6 +12,8 @@ export const metadata: Metadata = {
 };
 
 const AddRecipePage = async () => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const { user, session } = await validateRequest();
 
   const preferences = user

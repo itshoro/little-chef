@@ -3,11 +3,14 @@ import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth";
 import { passwordRange, usernameRange } from "@/lib/dal/user/types";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signupAction } from "./action";
-import Link from "next/link";
 
 const SignUpPage = async () => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const { user } = await validateRequest();
   if (user) redirect("/recipes");
 

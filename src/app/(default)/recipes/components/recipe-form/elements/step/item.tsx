@@ -126,7 +126,6 @@ const CharacterCount = ({
   useEffect(() => {
     function handleInput(e: Event) {
       const target = e.target as React.ComponentRef<"textarea">;
-      console.log(target.value.length);
       setRemainingCharacters(availableCharacters - target.value.length);
     }
 

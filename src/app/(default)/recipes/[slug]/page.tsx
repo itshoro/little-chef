@@ -6,6 +6,7 @@ import {
   getRecipe,
   getRecipeSteps,
 } from "@/lib/dal/recipe";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import { extractParts } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils";
 import { Parser } from "@cooklang/cooklang-ts";
@@ -46,6 +47,8 @@ export async function generateMetadata(
 }
 
 const ShowRecipePage = async (props: ShowRecipePageProps) => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const searchParams = await props.searchParams;
   const params = await props.params;
   try {

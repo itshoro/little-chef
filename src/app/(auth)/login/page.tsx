@@ -6,8 +6,11 @@ import { passwordRange, usernameRange } from "@/lib/dal/user/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { loginAction } from "./action";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 
 const LoginPage = async () => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const { user } = await validateRequest();
   if (user) redirect("/recipes");
 

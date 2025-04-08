@@ -1,8 +1,9 @@
-import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
-import { extractParts } from "@/lib/slug";
-import { WizardStep } from "../step";
-import { Actions } from "../actions";
 import { validateRequest } from "@/lib/auth";
+import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { extractParts } from "@/lib/slug";
+import { Actions } from "../actions";
+import { WizardStep } from "../step";
 
 type PageProps = {
   params: Promise<{
@@ -15,6 +16,8 @@ type PageProps = {
 };
 
 const Page = async (props: PageProps) => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { user } = await validateRequest();

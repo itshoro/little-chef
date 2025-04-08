@@ -1,10 +1,12 @@
 import { validateRequest } from "@/lib/auth";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const Page = async () => {
-  const { user } = await validateRequest();
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
 
+  const { user } = await validateRequest();
   if (user) redirect("/recipes");
 
   return (

@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Inputs } from "../../components/recipe-form/inputs";
 import { editAction } from "./action";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
 
 type EditRecipePageProps = {
   params: Promise<{
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
 };
 
 const EditRecipePage = async (props: EditRecipePageProps) => {
+  if (await isRateLimitedGlobally("read")) return "Too many requests";
+
   const params = await props.params;
   const { publicId } = extractParts(params.slug);
   const { user, session } = await validateRequest();
