@@ -2,7 +2,7 @@ import { Section } from "@/app/(default)/recipes/[slug]/components/section";
 import type { User } from "@/drizzle/schema";
 import { validateRequest } from "@/lib/auth";
 import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";

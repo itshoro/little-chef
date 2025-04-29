@@ -1,5 +1,5 @@
 import { validateRequest } from "@/lib/auth";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 

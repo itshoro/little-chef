@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Inputs } from "../../components/recipe-form/inputs";
 import { editAction } from "./action";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 
 type EditRecipePageProps = {
   params: Promise<{

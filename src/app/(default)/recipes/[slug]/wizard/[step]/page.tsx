@@ -1,7 +1,7 @@
 import { ForceWakeLock } from "@/app/components/wake-lock/force-wakelock";
 import { validateRequest } from "@/lib/auth";
 import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 import { extractParts } from "@/lib/slug";
 import { Actions } from "../actions";
 import { WizardStep } from "../step";

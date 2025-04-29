@@ -17,7 +17,7 @@ import {
   findUserBySessionId,
   removeCollectionLike,
 } from "@/lib/dal/user";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils";
 import type { Metadata, ResolvedMetadata } from "next";

@@ -2,7 +2,7 @@ import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
 import { getCollection } from "@/lib/dal/collections";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 import { extractParts } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
 import { Inputs } from "../../components/collection-form/inputs";

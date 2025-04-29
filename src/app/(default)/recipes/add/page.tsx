@@ -2,7 +2,7 @@ import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
 import { getRecipePreferences } from "@/lib/dal/recipe";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 import type { Metadata } from "next";
 import { DefaultValuesWrapper } from "../components/recipe-form/default-values-wrapper";
 import { createAction } from "./action";

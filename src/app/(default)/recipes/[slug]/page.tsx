@@ -6,7 +6,7 @@ import {
   getRecipe,
   getRecipeSteps,
 } from "@/lib/dal/recipe";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
+import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
 import { extractParts } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils";
 import { Parser } from "@cooklang/cooklang-ts";
