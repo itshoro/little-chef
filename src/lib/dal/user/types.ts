@@ -32,11 +32,6 @@ export const passwordSchema = z
   )
   .brand("Password");
 
-export const authSchema = z.object({
-  username: usernameSchema,
-  password: passwordSchema,
-});
-
 export type Visibility = z.infer<typeof visibilitySchema>;
 export const supportedVisibilities = ["public", "unlisted", "private"] as const;
 export const visibilitySchema = z.enum(supportedVisibilities);

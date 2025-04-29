@@ -6,8 +6,9 @@ import {
 } from "@/lib/auth";
 import { createUser } from "@/lib/dal/user";
 import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
-import { redirect } from "next/navigation";
+import { isRateLimitedSignUp } from "@/lib/rate-limit/auth";
 import { hash } from "@node-rs/argon2";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 type SignUpData = {
@@ -30,13 +31,16 @@ const signUpSchema = z
   });
 
 async function signup(formData: FormData): Promise<FormState<SignUpData>> {
-  "use server";
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
   const confirmationPassword = formData.get("confirmation-password") as string;
   const inviteCode = formData.get("invite-code") as string;
 
   try {
+    if (await isRateLimitedSignUp()) {
+      throw new Error("Too many requests.");
+    }
+
     const parseResult = signUpSchema.safeParse({
       username,
       password,

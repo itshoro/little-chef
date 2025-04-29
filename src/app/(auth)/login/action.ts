@@ -5,20 +5,31 @@ import {
   setSessionTokenCookie,
 } from "@/lib/auth";
 import { findUserByCredentials } from "@/lib/dal/user";
-import { authSchema } from "@/lib/dal/user/types";
+import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
+import { isRateLimitedLogin } from "@/lib/rate-limit/auth";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 export type LoginFormData = {
   username: string;
   password?: string;
 };
 
+const loginSchema = z.object({
+  username: usernameSchema,
+  password: passwordSchema,
+});
+
 async function login(formData: FormData): Promise<FormState<LoginFormData>> {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
   try {
-    const parseResult = authSchema.safeParse({ username, password });
+    if (await isRateLimitedLogin()) {
+      throw new Error("Too many requests.");
+    }
+
+    const parseResult = loginSchema.safeParse({ username, password });
 
     if (!parseResult.success) {
       throw new Error(undefined, {
