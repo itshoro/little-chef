@@ -14,7 +14,6 @@ export async function isRateLimitedGlobally(requestType: RequestType = "read") {
   const headerStore = await headers();
 
   const ip = headerStore.get("X-Forwarded-For");
-  console.log(ip);
   if (ip === null) return true;
 
   return !globalBucket.consume(ip, costMap[requestType]);

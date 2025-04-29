@@ -38,7 +38,6 @@ export class TokenBucketRateLimit<Key> {
     }
 
     bucket.count -= cost;
-    console.log(bucket.count);
     this.storage.set(key, bucket);
     return true;
   }
