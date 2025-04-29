@@ -1,3 +1,4 @@
+import { ForceWakeLock } from "@/app/components/wake-lock/force-wakelock";
 import { validateRequest } from "@/lib/auth";
 import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
 import { isRateLimitedGlobally } from "@/lib/rate-limit/helper";
@@ -33,26 +34,29 @@ const Page = async (props: PageProps) => {
     Number(searchParams.servings) / recipe.recommendedServingSize;
 
   return (
-    <div>
-      <div className="mt-auto flex flex-col items-center justify-center py-8">
-        <WizardStep
-          description={displayedStep.description}
-          ingredientScaleFactor={ingredientScaleFactor}
-        />
-        <div className="mt-4 text-sm">
-          Step {step + 1} of {steps.length}
+    <>
+      <ForceWakeLock />
+      <div>
+        <div className="mt-auto flex flex-col items-center justify-center py-8">
+          <WizardStep
+            description={displayedStep.description}
+            ingredientScaleFactor={ingredientScaleFactor}
+          />
+          <div className="mt-4 text-sm">
+            Step {step + 1} of {steps.length}
+          </div>
         </div>
+        <section className="flex justify-between border-t border-stone-100 py-4 dark:border-stone-800">
+          <Actions
+            slug={recipe.slug}
+            publicId={recipe.publicId}
+            stepCount={steps.length}
+            step={step}
+            servings={searchParams.servings}
+          />
+        </section>
       </div>
-      <section className="flex justify-between border-t border-stone-100 py-4 dark:border-stone-800">
-        <Actions
-          slug={recipe.slug}
-          publicId={recipe.publicId}
-          stepCount={steps.length}
-          step={step}
-          servings={searchParams.servings}
-        />
-      </section>
-    </div>
+    </>
   );
 };
 
