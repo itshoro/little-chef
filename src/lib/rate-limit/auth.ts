@@ -1,13 +1,10 @@
 import { headers } from "next/headers";
-import { TokenBucketRateLimit } from "./token-bucket";
+import { TokenBucket } from "./token-bucket";
 
-const loginBucket = new TokenBucketRateLimit<string>(5, 15);
-const signUpBucket = new TokenBucketRateLimit<string>(3, 60);
+const loginBucket = new TokenBucket<string>(5, 15);
+const signUpBucket = new TokenBucket<string>(3, 60);
 
-async function isRateLimited(
-  bucket: TokenBucketRateLimit<string>,
-  cost: number,
-) {
+async function isRateLimited(bucket: TokenBucket<string>, cost: number) {
   const headerStore = await headers();
   const ip = headerStore.get("X-Forwarded-For");
   if (ip === null) return true;

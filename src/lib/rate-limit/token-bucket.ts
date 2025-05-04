@@ -3,7 +3,7 @@ type Bucket = {
   refilledAt: number;
 };
 
-export class TokenBucketRateLimit<Key> {
+export class TokenBucket<Key> {
   public max: number;
   public refillIntervalSeconds: number;
 
@@ -18,12 +18,10 @@ export class TokenBucketRateLimit<Key> {
     const now = Date.now();
 
     if (!this.storage.has(key)) {
-      const bucket = {
+      this.storage.set(key, {
         count: this.max - cost,
         refilledAt: now,
-      };
-
-      this.storage.set(key, bucket);
+      });
       return true;
     }
 
@@ -40,5 +38,23 @@ export class TokenBucketRateLimit<Key> {
     bucket.count -= cost;
     this.storage.set(key, bucket);
     return true;
+  }
+
+  public retryAfter(key: Key, requiredTokens: number) {
+    if (requiredTokens > this.max) {
+      throw new Error("Required tokens exceed the maximum limit.");
+    }
+
+    if (!this.storage.has(key)) {
+      return 0;
+    }
+
+    const { count } = this.storage.get(key)!;
+    const missingTokens = requiredTokens - count;
+    if (missingTokens <= 0) {
+      return 0;
+    }
+
+    return Math.ceil(missingTokens * this.refillIntervalSeconds * 1000);
   }
 }

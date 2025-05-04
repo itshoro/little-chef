@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
-import { TokenBucketRateLimit } from "./token-bucket";
+import { TokenBucket } from "./token-bucket";
 
-const globalBucket = new TokenBucketRateLimit<string>(25, 2);
+const globalBucket = new TokenBucket<string>(25, 2);
 
 type RequestType = "read" | "write";
 
