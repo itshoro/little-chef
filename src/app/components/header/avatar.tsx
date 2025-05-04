@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type AvatarProps = {
   src?: string;
   alt: string;
@@ -12,6 +14,9 @@ const Avatar = ({
   size = "size-10",
   ...props
 }: AvatarProps) => {
+  if (!src) return null;
+  const sizePx = Number(size.split("-")[1]) * 4;
+
   return (
     <span
       {...props}
@@ -22,7 +27,13 @@ const Avatar = ({
         .filter(Boolean)
         .join(" ")}
     >
-      <img src={src} alt={alt} className={`rounded-full ${size}`} />
+      <Image
+        src={src}
+        width={sizePx}
+        height={sizePx}
+        alt={alt}
+        className={`rounded-full ${size}`}
+      />
     </span>
   );
 };
