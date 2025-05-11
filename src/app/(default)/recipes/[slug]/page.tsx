@@ -1,5 +1,6 @@
 import { BaseButton } from "@/app/components/base-button";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
+import { ForceWakeLock } from "@/app/components/wake-lock/force-wakelock";
 import { validateRequest } from "@/lib/auth";
 import {
   getCreatorsAndMaintainers,
@@ -71,6 +72,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
 
     return (
       <>
+        <ForceWakeLock />
         <div className="grid gap-6">
           {recipe.coverSrc && (
             <div className="relative isolate w-full">
