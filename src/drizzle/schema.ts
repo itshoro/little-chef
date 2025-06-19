@@ -129,6 +129,25 @@ export const users = sqliteTable("users", {
     .references(() => recipePreferences.id),
 });
 
+export const userScopes = sqliteTable(
+  "userScopes",
+  {
+    userId: integer("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    scope: text("scope", { enum: ["admin"] }).notNull(),
+    createdAt: integer("createdAt", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.userId, table.scope],
+      name: "userScopesPkey",
+    }),
+  ],
+);
+
 export const appPreferences = sqliteTable("appPreferences", {
   id: integer("id").primaryKey(),
   theme: text("theme", {
@@ -166,5 +185,27 @@ export const sessions = sqliteTable("sessions", {
   expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
 });
 
+export const sessionScopes = sqliteTable(
+  "sessionScopes",
+  {
+    sessionId: text("sessionId")
+      .notNull()
+      .references(() => sessions.id, { onDelete: "cascade" }),
+    scope: text("scope", { enum: ["sudo"] }).notNull(),
+    createdAt: integer("createdAt", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.sessionId, table.scope],
+      name: "sessionScopesPkey",
+    }),
+  ],
+);
+
 export type User = InferSelectModel<typeof users>;
 export type Session = InferSelectModel<typeof sessions>;
+export type UserScope = InferSelectModel<typeof userScopes>;
+export type SessionScope = InferSelectModel<typeof sessionScopes>;

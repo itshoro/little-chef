@@ -3,12 +3,21 @@ import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
 } from "@oslojs/encoding";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../drizzle/db";
-import { sessions, users, type Session, type User } from "../drizzle/schema";
+import {
+  sessions,
+  sessionScopes,
+  users,
+  type Session,
+  type SessionScope,
+  type User,
+} from "../drizzle/schema";
 import { cookies } from "next/headers";
 
 const sessionCookieName = "session";
+
+export const supportedSessionScopes = ["sudo"] as const;
 
 export function generateSessionToken(): string {
   const bytes = new Uint8Array(20);
@@ -19,13 +28,15 @@ export function generateSessionToken(): string {
 
 export async function createSession(token: string, userId: number) {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  const session: Session = {
-    id: sessionId,
-    userId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-  };
+  const [session] = await db
+    .insert(sessions)
+    .values({
+      id: sessionId,
+      userId,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    })
+    .returning();
 
-  await db.insert(sessions).values(session);
   return session;
 }
 
@@ -107,6 +118,32 @@ export async function assertAuthorizedForServerAction() {
   }
 
   return { session, user };
+}
+
+export async function addSessionScopes(
+  session: Session,
+  scopes: SessionScope["scope"][],
+): Promise<void> {
+  if (scopes.length < 1) return;
+
+  // remove requested scopes from the session inserting them again mimics an upsert
+  await db
+    .delete(sessionScopes)
+    .where(
+      and(
+        eq(sessionScopes.sessionId, session.id),
+        inArray(sessionScopes.scope, scopes),
+      ),
+    );
+
+  await db.insert(sessionScopes).values(
+    scopes.map((scope) => ({
+      sessionId: session.id,
+      scope,
+      // todo: make this configurable
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+    })),
+  );
 }
 
 export type SessionValidationResult =

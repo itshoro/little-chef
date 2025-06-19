@@ -15,7 +15,7 @@ export type LoginFormData = {
   password?: string;
 };
 
-const loginSchema = z.object({
+export const loginSchema = z.object({
   username: usernameSchema,
   password: passwordSchema,
 });

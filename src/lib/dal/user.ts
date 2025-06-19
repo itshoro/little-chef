@@ -1,11 +1,10 @@
-import type { User } from "@/drizzle/schema";
 import { hash, verify } from "@node-rs/argon2";
 import sharp from "sharp";
 import { nanoid } from "../nanoid";
 
 import { db } from "@/drizzle/db";
 import * as schema from "@/drizzle/schema";
-import { and, count, eq, inArray, like, or, sql } from "drizzle-orm";
+import { and, count, eq, inArray, like, lt, or, sql } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 import { getRecipe } from "./recipe";
 import type { Password, Username } from "./user/types";
@@ -36,9 +35,44 @@ export async function findUserByCredentials(
   return existingUser;
 }
 
+export async function getUserScopes(user: schema.User) {
+  return await db
+    .select()
+    .from(schema.userScopes)
+    .where(eq(schema.userScopes.userId, user.id));
+}
+
+export async function userHasScopes(
+  user: schema.User,
+  requiredScopes: schema.UserScope["scope"][],
+) {
+  const scopes = (await getUserScopes(user)).map((s) => s.scope);
+  return requiredScopes.every((scope) => scopes.includes(scope));
+}
+
+export async function getActiveSessionScopes(session: schema.Session) {
+  return await db
+    .select()
+    .from(schema.sessionScopes)
+    .where(
+      and(
+        eq(schema.sessionScopes.sessionId, session.id),
+        lt(schema.sessionScopes.expiresAt, sql`(current_timestamp)`),
+      ),
+    );
+}
+
+export async function sessionHasActiveScopes(
+  session: schema.Session,
+  requiredScopes: schema.SessionScope["scope"][],
+) {
+  const scopes = (await getActiveSessionScopes(session)).map((s) => s.scope);
+  return requiredScopes.every((scope) => scopes.includes(scope));
+}
+
 // MARK: Password
 export async function changePassword(
-  user: User,
+  user: schema.User,
   currentPassword: string,
   newPassword: Password,
 ) {
@@ -52,7 +86,7 @@ export async function changePassword(
 }
 
 // MARK: Avatar
-export async function changeAvatar(user: User, image: File) {
+export async function changeAvatar(user: schema.User, image: File) {
   const resizedBuffer = await sharp(await image.arrayBuffer())
     .resize(200, 200)
     .toBuffer();
@@ -76,7 +110,7 @@ export async function changeAvatar(user: User, image: File) {
 }
 
 // MARK: Username
-export async function changeUsername(user: User, newUsername: Username) {
+export async function changeUsername(user: schema.User, newUsername: Username) {
   // TODO: consider whether username should be unique, or some sort of discriminator system should be present.
 
   await db
@@ -201,7 +235,7 @@ export async function getSubscribedRecipes(userId: number, query: string) {
 }
 
 export async function getMaintainedCollections(
-  user: User,
+  user: schema.User,
   recipePublicId: string,
 ) {
   const maintainedCollectionIds = await db
@@ -359,7 +393,10 @@ export async function removeRecipeLike(
   });
 }
 
-export async function addCollectionLike(user: User, collectionId: number) {
+export async function addCollectionLike(
+  user: schema.User,
+  collectionId: number,
+) {
   return await db.transaction(async (tx) => {
     const collectionQuery = await tx
       .update(schema.collections)
@@ -382,7 +419,10 @@ export async function addCollectionLike(user: User, collectionId: number) {
   });
 }
 
-export async function removeCollectionLike(user: User, collectionId: number) {
+export async function removeCollectionLike(
+  user: schema.User,
+  collectionId: number,
+) {
   return await db.transaction(async (tx) => {
     const collectionQuery = await tx
       .update(schema.collections)
