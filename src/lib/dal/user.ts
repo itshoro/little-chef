@@ -71,14 +71,15 @@ export async function sessionHasActiveScopes(
 }
 
 // MARK: Password
-export async function changePassword(
+export async function verifyPassword(
   user: schema.User,
   currentPassword: string,
-  newPassword: Password,
 ) {
   const hashedPassword = await getHashedPassword(user.id);
-  if (!(await verify(hashedPassword, currentPassword))) return;
+  return await verify(hashedPassword, currentPassword);
+}
 
+export async function updatePassword(user: schema.User, newPassword: Password) {
   await db
     .update(schema.users)
     .set({ hashedPassword: await hash(newPassword) })
@@ -190,11 +191,11 @@ export async function createUser(username: string, hashedPassword: string) {
   });
 }
 
-export async function findUserByQuery(query: string, take: number = 5) {
+export async function findUsers(query: string, take: number = 5) {
   return await db
     .selectDistinct()
     .from(schema.users)
-    .where(or(eq(schema.users.username, query)))
+    .where(or(like(schema.users.username, query)))
     .limit(take);
 }
 

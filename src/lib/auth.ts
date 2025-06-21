@@ -6,6 +6,7 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../drizzle/db";
 import {
+  passwordResetRequests,
   sessions,
   sessionScopes,
   users,
@@ -144,6 +145,43 @@ export async function addSessionScopes(
       expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
     })),
   );
+}
+
+export async function findPasswordResetRequest(
+  token: string,
+): Promise<{ userId: User["id"]; expiresAt: Date } | null> {
+  const resetRequests = await db
+    .select()
+    .from(passwordResetRequests)
+    .where(eq(passwordResetRequests.token, token))
+    .limit(1);
+
+  if (resetRequests.length !== 1) {
+    return null;
+  }
+
+  const [resetRequest] = resetRequests;
+  if (Date.now() >= resetRequest.expiresAt.getTime()) {
+    await db
+      .delete(passwordResetRequests)
+      .where(eq(passwordResetRequests.id, resetRequest.id));
+    return null;
+  }
+
+  return resetRequest;
+}
+
+export async function requestPasswordReset(userId: User["id"]) {
+  const [resetRequest] = await db
+    .insert(passwordResetRequests)
+    .values({
+      userId,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60), // 1 hour
+      token: crypto.randomUUID(),
+    })
+    .returning();
+
+  return resetRequest.token;
 }
 
 export type SessionValidationResult =

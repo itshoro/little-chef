@@ -205,6 +205,18 @@ export const sessionScopes = sqliteTable(
   ],
 );
 
+export const passwordResetRequests = sqliteTable("passwordResetRequests", {
+  id: integer("id").primaryKey(),
+  token: text("token").notNull().unique(),
+  userId: integer("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: integer("createdAt", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(current_timestamp)`),
+  expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+});
+
 export type User = InferSelectModel<typeof users>;
 export type Session = InferSelectModel<typeof sessions>;
 export type UserScope = InferSelectModel<typeof userScopes>;

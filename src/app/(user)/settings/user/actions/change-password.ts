@@ -1,5 +1,9 @@
 import type { FormState } from "@/app/components/form/root";
-import { findUserBySessionId, changePassword } from "@/lib/dal/user";
+import {
+  findUserBySessionId,
+  updatePassword,
+  verifyPassword,
+} from "@/lib/dal/user";
 import { passwordSchema } from "@/lib/dal/user/types";
 import { z } from "zod";
 
@@ -42,11 +46,12 @@ async function changePasswordAction(
       });
     }
 
-    await changePassword(
-      user,
-      parseResult.data.currentPassword,
-      parseResult.data.newPassword,
-    );
+    if (!(await verifyPassword(user, parseResult.data.currentPassword))) {
+      throw new Error(undefined, {
+        cause: { currentPassword: "Password is invalid." },
+      });
+    }
+    await updatePassword(user, parseResult.data.newPassword);
 
     return {
       success: true,
