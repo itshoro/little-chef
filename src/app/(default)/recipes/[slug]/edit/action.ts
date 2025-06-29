@@ -1,6 +1,6 @@
 import type { FormState } from "@/app/components/form/root";
-import type { Recipe } from "@/drizzle/schema";
-import { updateRecipe } from "@/lib/dal/recipe";
+import type { DrizzleRecipe } from "@/drizzle/schema";
+import { updateRecipe } from "@/lib/dal/auth";
 import { findUserBySessionId } from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";
 import { generateSlugPathSegment } from "@/lib/slug";
@@ -82,7 +82,7 @@ async function editAction(
     ]),
   );
 
-  let recipe: Recipe;
+  let recipe: DrizzleRecipe;
   try {
     const user = await findUserBySessionId(sessionId);
     const cover = determineCover(priorCover, coverImage);

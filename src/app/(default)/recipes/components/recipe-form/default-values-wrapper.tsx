@@ -4,7 +4,7 @@ import {
   useFormStateContext,
   type FormState,
 } from "@/app/components/form/root";
-import type { getRecipePreferences } from "@/lib/dal/recipe";
+import type { getRecipePreferences } from "@/lib/dal/auth";
 import type { CreateRecipeControls } from "../../add/action";
 import { Inputs } from "./inputs";
 

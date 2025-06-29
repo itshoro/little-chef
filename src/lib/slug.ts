@@ -1,9 +1,9 @@
-export function extractParts(slugWithPublicId: string) {
-  const lastIndex = slugWithPublicId.lastIndexOf("-");
+export function parseHandle(handle: string) {
+  const lastIndex = handle.lastIndexOf("-");
 
   return {
-    slug: slugWithPublicId.substring(0, lastIndex),
-    publicId: slugWithPublicId.substring(lastIndex + 1),
+    slug: handle.substring(0, lastIndex),
+    publicId: handle.substring(lastIndex + 1),
   };
 }
 
@@ -20,6 +20,6 @@ export function generateSlug(name: string) {
     .slice(0, 50);
 }
 
-export function generateSlugPathSegment(slug: string, publicId: string) {
+export function generateHandle(slug: string, publicId: string) {
   return [slug, publicId].join("-");
 }

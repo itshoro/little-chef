@@ -1,8 +1,8 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
-import { getCollection } from "@/lib/dal/collections";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { getCollectionByIdentifier } from "@/lib/dal/collection";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { extractParts } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
 import { Inputs } from "../../components/collection-form/inputs";
@@ -24,7 +24,7 @@ const Page = async (props: PageProps) => {
   if (!user) redirect("/login");
 
   try {
-    const collection = await getCollection({ publicId }, user);
+    const collection = await getCollectionByIdentifier({ publicId }, user);
 
     return (
       <>

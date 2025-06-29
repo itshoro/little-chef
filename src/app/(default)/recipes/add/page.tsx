@@ -1,8 +1,8 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
-import { getRecipePreferences } from "@/lib/dal/recipe";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { getRecipePreferences } from "@/lib/dal/auth";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { Metadata } from "next";
 import { DefaultValuesWrapper } from "../components/recipe-form/default-values-wrapper";
 import { createAction } from "./action";
@@ -15,14 +15,13 @@ const AddRecipePage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const { user, session } = await validateRequest();
+  const isDemoMode = user === null;
 
-  const preferences = user
-    ? await getRecipePreferences(user.publicId)
-    : undefined;
+  const preferences = isDemoMode ? await getRecipePreferences(user) : undefined;
 
   return (
     <>
-      {!user && (
+      {isDemoMode && (
         <div className="mb-6 rounded-lg bg-lime-300 px-6 py-4 text-black">
           <div className="mb-2 font-medium">Demo Mode</div>
           <div className="text-sm">You will be unable to create a form.</div>

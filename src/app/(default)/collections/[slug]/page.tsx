@@ -6,20 +6,20 @@ import { NoRecipesStored } from "@/app/components/fallbacks/collections/no-recip
 import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { validateRequest } from "@/lib/auth";
 import {
-  getCollection,
+  getCollectionByIdentifier,
   getCreatorsAndMaintainers,
   getRecipeIds,
   isCollectionLiked,
   removeRecipe,
-} from "@/lib/dal/collections";
+} from "@/lib/dal/collection";
 import {
   addCollectionLike,
   findUserBySessionId,
   removeCollectionLike,
 } from "@/lib/dal/user";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { extractParts, generateSlugPathSegment } from "@/lib/slug";
-import { generateAttribution } from "@/lib/utils";
+import { generateAttribution } from "@/lib/utils/attribution";
 import type { Metadata, ResolvedMetadata } from "next";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
@@ -35,7 +35,7 @@ export async function generateMetadata(
   const params = await props.params;
   try {
     const { publicId } = extractParts(params.slug);
-    const collection = await getCollection({ publicId }, null);
+    const collection = await getCollectionByIdentifier({ publicId }, null);
 
     return { title: collection.name };
   } catch {
@@ -51,7 +51,7 @@ const CollectionPage = async (props: CollectionPageProps) => {
   const { user } = await validateRequest();
 
   try {
-    const collection = await getCollection({ publicId }, user);
+    const collection = await getCollectionByIdentifier({ publicId }, user);
     if (slug !== collection.slug) {
       redirect(
         `/collections/${generateSlugPathSegment(collection.slug, publicId)}`,

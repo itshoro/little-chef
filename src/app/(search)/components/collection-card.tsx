@@ -1,9 +1,9 @@
 import * as Card from "./link-card";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
 import {
-  getCollection,
+  getCollectionByIdentifier,
   getCreatorsAndMaintainers,
-} from "@/lib/dal/collections";
+} from "@/lib/dal/collection";
 
 type CollectionSubscriptionCardProps = {
   id: number;
@@ -15,7 +15,7 @@ const CollectionSubscriptionCard = async ({
   id,
 }: CollectionSubscriptionCardProps) => {
   const [collectionResult, collaboratorsResult] = await Promise.allSettled([
-    getCollection({ id }, null),
+    getCollectionByIdentifier({ id }, null),
     getCreatorsAndMaintainers(id),
   ]);
 

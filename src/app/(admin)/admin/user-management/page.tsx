@@ -7,7 +7,7 @@ import {
   sessionHasActiveScopes,
   userHasScopes,
 } from "@/lib/dal/user";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { forbidden, redirect } from "next/navigation";
 import { RequestPasswordResetActionForm } from "./actions/request-password-reset/form";
 

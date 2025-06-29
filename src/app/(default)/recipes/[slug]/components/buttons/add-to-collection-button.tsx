@@ -2,8 +2,8 @@ import * as WithConfirmation from "@/app/components/button/with-confirmation";
 import * as Form from "@/app/components/form";
 import { FormState } from "@/app/components/form/root";
 import { assertAuthorizedForServerAction, validateRequest } from "@/lib/auth";
-import { addRecipe } from "@/lib/dal/collections";
-import { getMaintainedCollections } from "@/lib/dal/user";
+import { unsafeAddRecipe } from "@/lib/dal/collection";
+import { getCollectionsForUser } from "@/lib/dal/user";
 
 type AddToCollectionButtonProps = {
   className?: string;
@@ -21,7 +21,7 @@ const AddToCollectionButton = async ({
   if (!user) return null;
 
   const collections = user
-    ? (await getMaintainedCollections(user, recipePublicId)).filter(
+    ? (await getCollectionsForUser(user, recipePublicId)).filter(
         ({ recipeOccurrences }) => recipeOccurrences === 0,
       )
     : [];
@@ -115,7 +115,7 @@ async function addToCollections(
   const { user } = await assertAuthorizedForServerAction();
   const collection = formData.get("collection");
 
-  await addRecipe(collection as string, recipePublicId, user);
+  await unsafeAddRecipe(collection as string, recipePublicId, user);
   return { success: true, message: "" } satisfies FormState;
 }
 

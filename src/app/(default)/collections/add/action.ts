@@ -1,7 +1,10 @@
 import type { FormState } from "@/app/components/form/root";
-import type { Collection } from "@/drizzle/schema";
-import { createCollection } from "@/lib/dal/collections";
-import { findUserBySessionId, subscribeToCollection } from "@/lib/dal/user";
+import type { DrizzleCollection } from "@/drizzle/schema";
+import { unsafeCreateCollection } from "@/lib/dal/collection";
+import {
+  findUserBySessionId,
+  unsafeGetSubscribedCollections,
+} from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
@@ -26,7 +29,7 @@ async function createAction(
   const title = formData.get("title") as string;
   const visibility = formData.get("visibility") as string;
 
-  let collection: Collection;
+  let collection: DrizzleCollection;
   try {
     const user = await findUserBySessionId(sessionId);
 
@@ -37,8 +40,8 @@ async function createAction(
       });
     }
 
-    collection = await createCollection(parseResult.data);
-    await subscribeToCollection(user.publicId, collection, "creator");
+    collection = await unsafeCreateCollection(parseResult.data);
+    await unsafeGetSubscribedCollections(user.publicId, collection, "creator");
   } catch (e) {
     if (!(e instanceof Error)) throw e;
 

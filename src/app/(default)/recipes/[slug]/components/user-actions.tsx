@@ -1,4 +1,4 @@
-import type { Recipe } from "@/drizzle/schema";
+import type { DrizzleRecipe } from "@/drizzle/schema";
 import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
 import { revalidatePath } from "next/cache";
 import { OptimisticLikeButton } from "../../../../components/button/optimistic-like-button";
@@ -11,7 +11,7 @@ export const LikeButton = async ({
   className,
 }: {
   className?: string;
-  recipe: Recipe;
+  recipe: DrizzleRecipe;
   publicUserId: string | undefined;
   disabled?: boolean;
 }) => {
@@ -49,7 +49,7 @@ export const AddToCollection = async ({
   className,
 }: {
   className?: string;
-  recipe: Recipe;
+  recipe: DrizzleRecipe;
   publicUserId: string | undefined;
 }) => {
   return (

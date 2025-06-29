@@ -1,7 +1,7 @@
 import type { FormState } from "@/app/components/form/root";
-import type { Recipe } from "@/drizzle/schema";
-import { createRecipe } from "@/lib/dal/recipe";
-import { findUserBySessionId, subscribeToRecipe } from "@/lib/dal/user";
+import type { DrizzleRecipe } from "@/drizzle/schema";
+import { unsafeCreateRecipe } from "@/lib/dal/auth";
+import { findUserBySessionId, unsafeSubscribeToRecipe } from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
@@ -58,7 +58,7 @@ async function createAction(
   const image =
     coverImage instanceof File && coverImage.size > 0 ? coverImage : null;
 
-  let recipe: Recipe;
+  let recipe: DrizzleRecipe;
   try {
     const user = await findUserBySessionId(sessionId);
 
@@ -75,8 +75,8 @@ async function createAction(
 
     const parseResult = createRecipeSchema.parse(payload);
 
-    recipe = await createRecipe(parseResult);
-    await subscribeToRecipe(user.publicId, recipe, "creator");
+    recipe = await unsafeCreateRecipe(parseResult);
+    await unsafeSubscribeToRecipe(user, recipe, "creator");
   } catch (e) {
     if (!(e instanceof Error)) throw e;
 

@@ -3,7 +3,7 @@ import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import * as Input from "@/app/components/input";
 import { validateRequest } from "@/lib/auth";
 import { passwordRange, usernameRange } from "@/lib/dal/user/types";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { redirect } from "next/navigation";
 import { verifyAction, verifySchema } from "./action";
 

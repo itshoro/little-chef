@@ -6,7 +6,7 @@ import { passwordRange, usernameRange } from "@/lib/dal/user/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { loginAction } from "./action";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 
 const LoginPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";

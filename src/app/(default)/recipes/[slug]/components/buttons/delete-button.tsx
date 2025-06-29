@@ -1,18 +1,23 @@
 import * as WithConfirmation from "@/app/components/button/with-confirmation";
+import type { RecipeIdentifier } from "@/drizzle/schema";
 import { validateRequest } from "@/lib/auth";
-import { deleteRecipe } from "@/lib/dal/recipe";
+import { deleteRecipe } from "@/lib/dal/auth";
 import { findUserBySessionId } from "@/lib/dal/user";
 import { redirect } from "next/navigation";
 
 type DeleteButtonProps = {
-  recipeId: number;
+  recipeIdentifier: RecipeIdentifier;
 };
 
-const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
+const DeleteButton = async ({ recipeIdentifier }: DeleteButtonProps) => {
   const { session } = await validateRequest();
   if (!session) return null;
 
-  const boundDeleteAction = deleteAction.bind(null, recipeId, session.id);
+  const boundDeleteAction = deleteAction.bind(
+    null,
+    recipeIdentifier,
+    session.id,
+  );
 
   return (
     <WithConfirmation.Root>
@@ -55,13 +60,16 @@ const DeleteButton = async ({ recipeId }: DeleteButtonProps) => {
   );
 };
 
-async function deleteAction(recipeId: number, sessionId: string) {
+async function deleteAction(
+  recipeIdentifier: RecipeIdentifier,
+  sessionId: string,
+) {
   "use server";
   const user = await findUserBySessionId(sessionId);
   if (!user) throw new Error("Unauthorized");
 
   // TODO: check if user is allowed to delete recipe
-  await deleteRecipe(recipeId);
+  await deleteRecipe(recipeIdentifier);
   redirect("/recipes");
 }
 

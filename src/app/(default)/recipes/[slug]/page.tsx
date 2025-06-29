@@ -5,11 +5,11 @@ import { validateRequest } from "@/lib/auth";
 import {
   getCreatorsAndMaintainers,
   getRecipe,
-  getRecipeSteps,
-} from "@/lib/dal/recipe";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+  unsafeGetRecipeSteps,
+} from "@/lib/dal/auth";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { extractParts } from "@/lib/slug";
-import { generateAttribution } from "@/lib/utils";
+import { generateAttribution } from "@/lib/utils/attribution";
 import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
 import Form from "next/form";
@@ -55,9 +55,9 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
   try {
     const { user } = await validateRequest();
     const { publicId } = extractParts(params.slug);
-    const recipe = await getRecipe({ publicId }, user?.publicId);
+    const recipe = await getRecipe({ publicId }, user);
 
-    const rawSteps = await getRecipeSteps(recipe.id);
+    const rawSteps = await unsafeGetRecipeSteps(recipe.id);
     const parser = new Parser();
     const steps = rawSteps.map((step) => step.description);
     const parsedSteps = parser.parse(steps.join());

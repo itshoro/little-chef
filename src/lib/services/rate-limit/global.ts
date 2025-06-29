@@ -1,9 +1,10 @@
+import "server-only";
+
 import { headers } from "next/headers";
 import { TokenBucket } from "./token-bucket";
+import type { RequestType } from "./types";
 
 const globalBucket = new TokenBucket<string>(25, 2);
-
-type RequestType = "read" | "write";
 
 const costMap: Record<RequestType, number> = {
   read: 1,

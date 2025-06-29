@@ -5,7 +5,7 @@ import {
   validateRequest,
   validateSessionToken,
 } from "@/lib/auth";
-import { deleteCollection } from "@/lib/dal/collections";
+import { deleteCollection } from "@/lib/dal/collection";
 import { redirect } from "next/navigation";
 
 type DeleteButtonProps = {

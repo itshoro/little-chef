@@ -1,7 +1,7 @@
 import { ForceWakeLock } from "@/app/components/wake-lock/force-wakelock";
 import { validateRequest } from "@/lib/auth";
-import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { getRecipe, unsafeGetRecipeSteps } from "@/lib/dal/auth";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { extractParts } from "@/lib/slug";
 import { Actions } from "../actions";
 import { WizardStep } from "../step";
@@ -25,7 +25,7 @@ const Page = async (props: PageProps) => {
   const { publicId } = extractParts(params.slug);
 
   const recipe = await getRecipe({ publicId }, user?.publicId);
-  const steps = await getRecipeSteps(recipe.id);
+  const steps = await unsafeGetRecipeSteps(recipe.id);
 
   const step = Math.min(Number(params.step) || 0, steps.length);
   const displayedStep = steps[step];

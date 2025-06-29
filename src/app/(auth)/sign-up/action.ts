@@ -6,7 +6,7 @@ import {
 } from "@/lib/auth";
 import { createUser } from "@/lib/dal/user";
 import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
-import { isRateLimitedSignUp } from "@/lib/rate-limit/auth";
+import { isRateLimitedSignUp } from "@/lib/services/rate-limit/auth";
 import { hash } from "@node-rs/argon2";
 import { redirect } from "next/navigation";
 import { z } from "zod";

@@ -8,7 +8,7 @@ import {
 } from "@/lib/auth";
 import { updatePassword } from "@/lib/dal/user";
 import { passwordSchema } from "@/lib/dal/user/types";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 

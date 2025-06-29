@@ -1,13 +1,13 @@
 import * as Form from "@/app/components/form";
 import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
-import { getRecipe, getRecipeSteps } from "@/lib/dal/recipe";
+import { getRecipe, unsafeGetRecipeSteps } from "@/lib/dal/auth";
 import { extractParts } from "@/lib/slug";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Inputs } from "../../components/recipe-form/inputs";
 import { editAction } from "./action";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 
 type EditRecipePageProps = {
   params: Promise<{
@@ -29,8 +29,8 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   if (!user) redirect("/login");
 
   try {
-    const recipe = await getRecipe({ publicId }, user.publicId);
-    const steps = await getRecipeSteps(recipe.id);
+    const recipe = await getRecipe({ publicId }, user);
+    const steps = await unsafeGetRecipeSteps(recipe.id);
 
     return (
       <Form.Root action={editAction}>

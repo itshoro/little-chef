@@ -6,7 +6,7 @@ import {
 } from "@/lib/auth";
 import { findUserByCredentials } from "@/lib/dal/user";
 import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
-import { isRateLimitedLogin } from "@/lib/rate-limit/auth";
+import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 

@@ -1,9 +1,9 @@
 import { Section } from "@/app/(default)/recipes/[slug]/components/section";
-import { User } from "@/drizzle/schema";
+import { DrizzleUser } from "@/drizzle/schema";
 import { validateRequest } from "@/lib/auth";
-import { findPublicRecipeIds } from "@/lib/dal/recipe";
-import { getSubscribedRecipes } from "@/lib/dal/user";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { findPublicRecipeIds } from "@/lib/dal/auth";
+import { unsafeGetSubscribedRecipesForUser } from "@/lib/dal/user";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 import { RecipeCard } from "../components/recipe-card";
@@ -31,12 +31,15 @@ const YourCookbook = async ({
   user,
   query,
 }: {
-  user: User | null;
+  user: DrizzleUser | null;
   query?: string;
 }) => {
   if (!user) return null;
 
-  const subscriptions = await getSubscribedRecipes(user.id, query ?? "");
+  const subscriptions = await unsafeGetSubscribedRecipesForUser(
+    user,
+    query ?? "",
+  );
 
   return <SectionWithRecipes title="Your Cookbook" recipes={subscriptions} />;
 };

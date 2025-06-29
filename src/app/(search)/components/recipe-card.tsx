@@ -1,4 +1,4 @@
-import { getCreatorsAndMaintainers, getRecipe } from "@/lib/dal/recipe";
+import { getCreatorsAndMaintainers, getRecipe } from "@/lib/dal/auth";
 import * as Card from "./link-card";
 import { AvatarStack } from "@/app/components/header/avatar-stack";
 import { generateSlugPathSegment } from "@/lib/slug";
@@ -13,7 +13,7 @@ type RecipeCardProps = {
 const RecipeCard = async ({ id, publicId }: RecipeCardProps) => {
   const { user } = await validateRequest();
   const [recipeResult, collaboratorsResult] = await Promise.allSettled([
-    getRecipe({ id }, user?.publicId),
+    getRecipe({ publicId }, user),
     getCreatorsAndMaintainers(id),
   ]);
 

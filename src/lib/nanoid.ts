@@ -1,3 +1,5 @@
+import "server-only";
+
 import { customAlphabet } from "nanoid";
 
 const alphabet =

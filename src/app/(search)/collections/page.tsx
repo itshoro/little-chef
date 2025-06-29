@@ -1,8 +1,8 @@
 import { Section } from "@/app/(default)/recipes/[slug]/components/section";
-import type { User } from "@/drizzle/schema";
+import type { DrizzleUser } from "@/drizzle/schema";
 import { validateRequest } from "@/lib/auth";
-import { findPublicCollections, getSubscriptions } from "@/lib/dal/collections";
-import { isRateLimitedGlobally } from "@/lib/rate-limit/global";
+import { findPublicCollections, getSubscriptions } from "@/lib/dal/collection";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 import { CollectionSubscriptionCard } from "../components/collection-card";
@@ -37,7 +37,7 @@ const CurrentUserCollections = async ({
   user,
   query,
 }: {
-  user: User | null;
+  user: DrizzleUser | null;
   query?: string;
 }) => {
   if (!user) return null;
@@ -56,7 +56,7 @@ const CollectionSearchResults = async ({
   user,
 }: {
   query?: string;
-  user: User | null;
+  user: DrizzleUser | null;
 }) => {
   if (!user) return null;
   const collections = await findPublicCollections(query ?? "");

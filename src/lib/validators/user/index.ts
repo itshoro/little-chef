@@ -1,3 +1,4 @@
+import { VISIBILITIES } from "@/lib/constants";
 import { z } from "zod";
 
 export type Username = z.infer<typeof usernameSchema>;
@@ -31,7 +32,3 @@ export const passwordSchema = z
     `Password must be at most ${passwordRange.max} characters.`,
   )
   .brand("Password");
-
-export type Visibility = z.infer<typeof visibilitySchema>;
-export const supportedVisibilities = ["public", "unlisted", "private"] as const;
-export const visibilitySchema = z.enum(supportedVisibilities);

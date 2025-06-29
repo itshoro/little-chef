@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "utfs.io",
       },
+      {
+        hostname: "*.ufs.sh",
+      },
     ],
   },
   typescript: {

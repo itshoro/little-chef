@@ -1,5 +1,5 @@
 import type { FormState } from "@/app/components/form/root";
-import { isRateLimitedLogin } from "@/lib/rate-limit/auth";
+import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
 import { loginSchema, type LoginFormData } from "../login/action";
 import { findUserByCredentials } from "@/lib/dal/user";
 import { redirect } from "next/navigation";
@@ -9,7 +9,7 @@ import {
   supportedSessionScopes,
 } from "@/lib/auth";
 import { z } from "zod";
-import type { SessionScope } from "@/drizzle/schema";
+import type { DrizzleSessionScope } from "@/drizzle/schema";
 
 type VerifyFormData = LoginFormData;
 
@@ -41,7 +41,7 @@ const schema = loginSchema.merge(verifySchema);
 
 async function verifyAction(
   redirectUrl: string,
-  scopes: SessionScope["scope"][],
+  scopes: DrizzleSessionScope["scope"][],
   _: FormState<VerifyFormData> | null,
   formData: FormData,
 ): Promise<FormState<VerifyFormData>> {

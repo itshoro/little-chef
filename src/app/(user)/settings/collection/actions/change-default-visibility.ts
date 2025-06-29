@@ -1,5 +1,5 @@
 import type { FormState } from "@/app/components/form/root";
-import { updateDefaultVisibility } from "@/lib/dal/collections";
+import { updateDefaultVisibility } from "@/lib/dal/collection";
 import { findUserBySessionId } from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";
 import { revalidatePath } from "next/cache";

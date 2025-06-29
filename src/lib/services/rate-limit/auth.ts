@@ -1,3 +1,5 @@
+import "server-only";
+
 import { headers } from "next/headers";
 import { TokenBucket } from "./token-bucket";
 
@@ -12,12 +14,10 @@ async function isRateLimited(bucket: TokenBucket<string>, cost: number) {
   return !bucket.consume(ip, cost);
 }
 
-async function isRateLimitedLogin() {
+export async function isRateLimitedLogin() {
   return isRateLimited(loginBucket, 1);
 }
 
-async function isRateLimitedSignUp() {
+export async function isRateLimitedSignUp() {
   return isRateLimited(signUpBucket, 1);
 }
-
-export { isRateLimitedLogin, isRateLimitedSignUp };

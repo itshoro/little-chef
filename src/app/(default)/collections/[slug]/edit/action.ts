@@ -1,11 +1,11 @@
 import type { FormState } from "@/app/components/form/root";
-import { updateCollection } from "@/lib/dal/collections";
+import { unsafeUpdateCollection } from "@/lib/dal/collection";
 import { findUserBySessionId } from "@/lib/dal/user";
 import { generateSlugPathSegment } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createCollectionSchema } from "../../add/action";
-import type { Collection } from "@/drizzle/schema";
+import type { DrizzleCollection } from "@/drizzle/schema";
 
 const editCollectionSchema = createCollectionSchema.merge(
   z.object({
@@ -30,7 +30,7 @@ async function editAction(
   const title = formData.get("title") as string;
   const visibility = formData.get("visibility") as string;
 
-  let collection: Collection;
+  let collection: DrizzleCollection;
   try {
     const user = await findUserBySessionId(sessionId);
 
@@ -45,7 +45,7 @@ async function editAction(
         cause: parseResult.error.flatten().fieldErrors,
       });
     }
-    collection = await updateCollection(parseResult.data, user);
+    collection = await unsafeUpdateCollection(parseResult.data, user);
   } catch (e) {
     if (!(e instanceof Error)) throw e;
 
