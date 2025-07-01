@@ -1,4 +1,4 @@
-import type { FormState } from "@/app/components/form/root";
+import type { FormState } from "@/components/forms/form/root";
 import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
 import { loginSchema, type LoginFormData } from "../login/action";
 import { findUserByCredentials } from "@/lib/dal/user";

@@ -1,13 +1,13 @@
-import * as Form from "@/app/components/form";
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import * as Input from "@/app/components/input";
+import * as Form from "@/components/forms/form";
+import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
+import * as Input from "@/components/forms/input";
 import { validateRequest } from "@/lib/auth";
 import { changeAvatar, findUserBySessionId } from "@/lib/dal/user";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Fieldset } from "../components/primitives/fieldset";
-import * as SettingsSection from "../components/settings-section";
+import { Fieldset } from "../../../../components/forms/fieldset";
+import * as SettingsSection from "../../../../components/layout/settings-section";
 import { changePasswordAction } from "./actions/change-password";
 import { updateUsernameAction } from "./actions/update-username";
 import { UpdateAvatar } from "./update-image";

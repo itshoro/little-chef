@@ -1,26 +1,20 @@
-import { BaseButton } from "@/app/components/base-button";
-import { AvatarStack } from "@/app/components/header/avatar-stack";
-import { ForceWakeLock } from "@/app/components/wake-lock/force-wakelock";
-import { validateRequest } from "@/lib/auth";
-import {
-  getCreatorsAndMaintainers,
-  getRecipe,
-  unsafeGetRecipeSteps,
-} from "@/lib/dal/auth";
+import { CookwareList } from "@/components/recipes/details/cookware-list";
+import { IngredientList } from "@/components/recipes/details/ingredient-list";
+import { ServingsQueryStore } from "@/components/recipes/details/servings-query-store";
+import { BaseButton } from "@/components/ui/buttons/button";
+import { Section } from "@/components/ui/section";
+import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
+import { AvatarStack } from "@/components/users/avatar-stack";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { extractParts } from "@/lib/slug";
+import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
+import { parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
 import Form from "next/form";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { CookwareList } from "./components/cookware-list";
-import { IngredientList } from "./components/ingredient-list";
-import { MaintainerActions } from "./components/maintainer-actions";
-import { Section } from "./components/section";
-import { ServingsQueryStore } from "./components/servings-query-store";
-import { AddToCollection, LikeButton } from "./components/user-actions";
 
 type ShowRecipePageProps = {
   params: Promise<{ slug: string }>;
@@ -33,10 +27,12 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const params = await props.params;
-  const { publicId } = extractParts(params.slug);
+  const { publicId } = parseHandle(params.slug);
   try {
-    const recipe = await getRecipe({ publicId });
-    const maintainers = await getCreatorsAndMaintainers(recipe.id);
+    const { recipe, maintainers } = await getRecipeDetailByIdentifier(
+      { publicId },
+      null,
+    );
 
     return {
       title: `${recipe.name} by ${generateAttribution(maintainers)}`,
@@ -53,11 +49,14 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
   const searchParams = await props.searchParams;
   const params = await props.params;
   try {
-    const { user } = await validateRequest();
-    const { publicId } = extractParts(params.slug);
-    const recipe = await getRecipe({ publicId }, user);
+    const { user } = await getAuthenticatedUserFromRequest();
+    const { publicId } = parseHandle(params.slug);
+    const {
+      recipe,
+      maintainers,
+      steps: rawSteps,
+    } = await getRecipeDetailByIdentifier({ publicId }, user);
 
-    const rawSteps = await unsafeGetRecipeSteps(recipe.id);
     const parser = new Parser();
     const steps = rawSteps.map((step) => step.description);
     const parsedSteps = parser.parse(steps.join());
@@ -66,9 +65,6 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     const defaultServingSize = isNaN(servingsFromSearchParams)
       ? recipe.recommendedServingSize
       : servingsFromSearchParams;
-
-    const maintainers = await getCreatorsAndMaintainers(recipe.id);
-    const attribution = generateAttribution(maintainers);
 
     return (
       <>
@@ -92,16 +88,16 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               <h1 className="mb-2 text-2xl font-semibold text-pretty">
                 {recipe.name}
               </h1>
-              <LikeButton
+              {/* <LikeButton
                 className="h-12"
                 disabled={!user}
                 publicUserId={user?.publicId}
                 recipe={recipe}
-              />
+              /> */}
             </div>
             <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
               <AvatarStack size="size-6" users={maintainers} />
-              <span>{attribution}</span>
+              <span>{generateAttribution(maintainers)}</span>
             </div>
           </div>
 
@@ -172,7 +168,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
 
           {user && (
             <div className="grid grid-cols-2 gap-6">
-              <AddToCollection
+              {/* <AddToCollection
                 publicUserId={user.publicId}
                 recipe={recipe}
                 className="col-span-2"
@@ -182,7 +178,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 maintainers={maintainers}
                 recipe={recipe}
                 slug={params.slug}
-              />
+              /> */}
             </div>
           )}
         </div>

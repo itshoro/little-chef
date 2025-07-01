@@ -1,5 +1,5 @@
-import { Header } from "../components/header/header";
-import { BackLink } from "../components/back-link";
+import { Header } from "../../components/layout/header/header";
+import { BackLink } from "../../components/ui/back-link";
 
 const Layout = async (props: { children: React.ReactNode }) => {
   return (

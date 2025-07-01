@@ -1,11 +1,11 @@
-import { Section } from "@/app/(default)/recipes/[slug]/components/section";
-import type { DrizzleUser } from "@/drizzle/schema";
-import { validateRequest } from "@/lib/auth";
-import { findPublicCollections, getSubscriptions } from "@/lib/dal/collection";
+import { CollectionList } from "@/components/collections/collection-list-container";
+import type { ListQueryOptions } from "@/lib/dal/utils";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import type { AuthenticatedUser } from "@/lib/services/auth/types";
+import { findCollections } from "@/lib/services/collection";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
-import { CollectionSubscriptionCard } from "../components/collection-card";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -13,84 +13,36 @@ export const metadata: Metadata = {
 
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-
-  const { user } = await validateRequest();
+  const { user } = await getAuthenticatedUserFromRequest();
+  const searchParams = await props.searchParams;
+  const searchQuery = searchParams.q;
 
   return (
     <>
       <main className="flex-1">
-        <CurrentUserCollections
-          user={user}
-          query={(await props.searchParams).q}
-        />
-        <CollectionSearchResults
-          user={user}
-          query={(await props.searchParams).q}
-        />
+        <div className="my-12 px-4">
+          <SearchResults user={user} query={searchQuery} />
+        </div>
       </main>
       {user && <AddButton href="/collections/add" />}
     </>
   );
 };
 
-const CurrentUserCollections = async ({
-  user,
-  query,
-}: {
-  user: DrizzleUser | null;
-  query?: string;
-}) => {
-  if (!user) return null;
-  const subscriptions = await getSubscriptions(user.id, query ?? "");
-
-  return (
-    <SectionWithCollections
-      title="Your Saved Collections"
-      collections={subscriptions}
-    />
-  );
-};
-
-const CollectionSearchResults = async ({
+const SearchResults = async ({
   query,
   user,
 }: {
   query?: string;
-  user: DrizzleUser | null;
+  user: AuthenticatedUser | null;
 }) => {
-  if (!user) return null;
-  const collections = await findPublicCollections(query ?? "");
+  const queryOptions: ListQueryOptions = {
+    search: query ? { query } : undefined,
+  };
 
-  return (
-    <SectionWithCollections
-      title="Public Collections"
-      collections={collections}
-    />
-  );
-};
+  const collections = await findCollections(queryOptions, user);
 
-const SectionWithCollections = ({
-  title,
-  collections,
-}: {
-  title: string;
-  collections: { id: number; publicId: string }[];
-}) => {
-  return (
-    <div className="my-12 px-4">
-      <Section title={title}>
-        <ul className="grid gap-3">
-          {collections.map((collection) => {
-            return (
-              <li key={collection.id}>
-                <CollectionSubscriptionCard {...collection} />
-              </li>
-            );
-          })}
-        </ul>
-      </Section>
-    </div>
-  );
+  return <CollectionList title="Search Results" collections={collections} />;
 };
 
 export default Page;

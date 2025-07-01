@@ -1,25 +1,12 @@
-import type { FormState } from "@/app/components/form/root";
+import type { FormState } from "@/components/forms/form/root";
 import type { DrizzleRecipe } from "@/drizzle/schema";
-import { unsafeCreateRecipe } from "@/lib/dal/auth";
-import { findUserBySessionId, unsafeSubscribeToRecipe } from "@/lib/dal/user";
-import { visibilitySchema } from "@/lib/dal/user/types";
-import { generateSlugPathSegment } from "@/lib/slug";
+import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
+import { createRecipe } from "@/lib/services/recipe";
+import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
+import { generateHandle } from "@/lib/slug";
+import { createRecipeSchema } from "@/lib/validators/recipe";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-
-export const createRecipeSchema = z.object({
-  name: z.string().trim().min(2),
-  description: z.string(),
-  servings: z.coerce.number().min(1),
-  preparationTime: z.coerce.number().min(0),
-  cookingTime: z.coerce.number().min(0),
-  visibility: visibilitySchema,
-  cover: z.object({
-    update: z.literal(true),
-    image: z.instanceof(File).nullable(),
-  }),
-  step: z.record(z.string().trim().min(2).max(280)),
-});
 
 export type CreateRecipeControls = {
   sessionId?: string;
@@ -29,7 +16,7 @@ export type CreateRecipeControls = {
   preparationTime: number;
   cookingTime: number;
   visibility: string;
-  servings: number;
+  recommendedServingSize: number;
   step: Record<string, string>;
 };
 
@@ -38,7 +25,6 @@ async function createAction(
   formData: FormData,
 ): Promise<FormState<CreateRecipeControls>> {
   "use server";
-  const sessionId = formData.get("sessionId") as string;
   const name = formData.get("name") as string;
   const coverImage = formData.get("cover") as File;
   const description = formData.get("description") as string;
@@ -46,37 +32,33 @@ async function createAction(
   const cookingTime = formData.get("cookingTime") as string;
   const visibility = formData.get("visibility") as string;
   const stepUuids = formData.getAll("step.uuid") as string[];
-  const servings = Number(formData.get("servings") as string);
+  const recommendedServingSize = Number(formData.get("servings") as string);
 
-  const steps = Object.fromEntries(
-    Array.from(stepUuids).map((uuid) => [
-      uuid,
-      (formData.get(`step.${uuid}`) as string) || "",
-    ]),
+  const steps = Array.from(stepUuids).map(
+    (uuid) => formData.get(`step.${uuid}`) as string,
   );
 
-  const image =
+  const file =
     coverImage instanceof File && coverImage.size > 0 ? coverImage : null;
 
-  let recipe: DrizzleRecipe;
+  let recipe: RecipeOutputPublicDTO;
   try {
-    const user = await findUserBySessionId(sessionId);
+    const { user } = await assertAuthenticatedForServerAction();
 
     const payload = {
       name,
-      cover: { update: true, image },
+      cover: { update: true, file },
       description,
       preparationTime,
       cookingTime,
       visibility,
-      servings,
-      step: steps,
+      recommendedServingSize,
+      steps,
     };
 
     const parseResult = createRecipeSchema.parse(payload);
-
-    recipe = await unsafeCreateRecipe(parseResult);
-    await unsafeSubscribeToRecipe(user, recipe, "creator");
+    parseResult.steps;
+    recipe = await createRecipe(parseResult, user);
   } catch (e) {
     if (!(e instanceof Error)) throw e;
 
@@ -84,7 +66,7 @@ async function createAction(
       name,
       description,
       cover: coverImage,
-      servings,
+      recommendedServingSize,
       cookingTime: Number(cookingTime),
       preparationTime: Number(preparationTime),
       visibility,
@@ -116,7 +98,7 @@ async function createAction(
     } satisfies FormState<CreateRecipeControls>;
   }
 
-  redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
+  redirect(`/recipes/${generateHandle(recipe.slug, recipe.publicId)}`);
 }
 
 export { createAction };

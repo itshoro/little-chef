@@ -1,13 +1,13 @@
-import * as Form from "@/app/components/form";
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import * as Input from "@/app/components/input";
+import * as Form from "@/components/forms/form";
+import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
+import * as Input from "@/components/forms/input";
 import { validateRequest } from "@/lib/auth";
 import { getRecipePreferences } from "@/lib/dal/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Fieldset } from "../components/primitives/fieldset";
-import * as SettingsSection from "../components/settings-section";
+import { Fieldset } from "../../../../components/forms/fieldset";
+import * as SettingsSection from "../../../../components/layout/settings-section";
 import { VisibilitySwitcher } from "../components/visibility-switcher";
 import { changeDefaultServingSizeAction } from "./actions/default-serving-size";
 import { changeDefaultVisibility } from "./actions/default-visibility";

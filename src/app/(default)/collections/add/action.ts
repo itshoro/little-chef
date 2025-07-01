@@ -1,22 +1,16 @@
-import type { FormState } from "@/app/components/form/root";
-import type { DrizzleCollection } from "@/drizzle/schema";
-import { unsafeCreateCollection } from "@/lib/dal/collection";
+import type { FormState } from "@/components/forms/form/root";
 import {
-  findUserBySessionId,
-  unsafeGetSubscribedCollections,
-} from "@/lib/dal/user";
-import { visibilitySchema } from "@/lib/dal/user/types";
-import { generateSlugPathSegment } from "@/lib/slug";
+  assertAuthenticatedForServerAction,
+  getAuthenticatedUserFromRequest,
+} from "@/lib/services/auth";
+import { createCollection } from "@/lib/services/collection";
+import type { CollectionOutputPublicDTO } from "@/lib/services/collection/types";
+import { generateHandle } from "@/lib/slug";
+import { createCollectionSchema } from "@/lib/validators/collection";
 import { redirect } from "next/navigation";
-import { z } from "zod";
-
-export const createCollectionSchema = z.object({
-  title: z.string().trim().min(2),
-  visibility: visibilitySchema,
-});
 
 type CreateCollectionControls = {
-  title: string;
+  name: string;
   visibility: string;
 };
 
@@ -25,39 +19,37 @@ async function createAction(
   formData: FormData,
 ): Promise<FormState<CreateCollectionControls>> {
   "use server";
-  const sessionId = formData.get("sessionId") as string;
-  const title = formData.get("title") as string;
+  const name = formData.get("name") as string;
   const visibility = formData.get("visibility") as string;
 
-  let collection: DrizzleCollection;
+  let collection: CollectionOutputPublicDTO;
   try {
-    const user = await findUserBySessionId(sessionId);
+    const { user } = await assertAuthenticatedForServerAction();
 
-    const parseResult = createCollectionSchema.safeParse({ title, visibility });
+    const parseResult = createCollectionSchema.safeParse({ name, visibility });
     if (!parseResult.success) {
       throw new Error(undefined, {
         cause: parseResult.error.flatten().fieldErrors,
       });
     }
-
-    collection = await unsafeCreateCollection(parseResult.data);
-    await unsafeGetSubscribedCollections(user.publicId, collection, "creator");
+    collection = await createCollection(parseResult.data, user);
   } catch (e) {
     if (!(e instanceof Error)) throw e;
+    console.error(e);
 
     return {
       success: false,
       message: e.message,
       errors: e.cause as Record<string, any>,
       controls: {
-        title,
+        name,
         visibility,
       },
     } satisfies FormState<CreateCollectionControls>;
   }
 
   redirect(
-    `/collections/${generateSlugPathSegment(collection.slug, collection.publicId)}`,
+    `/collections/${generateHandle(collection.slug, collection.publicId)}`,
   );
 }
 

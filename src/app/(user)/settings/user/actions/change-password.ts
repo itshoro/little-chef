@@ -1,4 +1,4 @@
-import type { FormState } from "@/app/components/form/root";
+import type { FormState } from "@/components/forms/form/root";
 import {
   findUserBySessionId,
   updatePassword,

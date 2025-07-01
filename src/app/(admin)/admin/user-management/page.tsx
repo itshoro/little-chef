@@ -1,4 +1,4 @@
-import { Avatar } from "@/app/components/header/avatar";
+import { Avatar } from "@/components/users/avatar";
 import { db } from "@/drizzle/db";
 import { users } from "@/drizzle/schema";
 import { validateRequest } from "@/lib/auth";

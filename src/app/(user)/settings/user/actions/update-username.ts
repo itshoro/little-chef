@@ -1,4 +1,4 @@
-import type { FormState } from "@/app/components/form/root";
+import type { FormState } from "@/components/forms/form/root";
 import { changeUsername, findUserBySessionId } from "@/lib/dal/user";
 import { usernameSchema } from "@/lib/dal/user/types";
 import { revalidatePath } from "next/cache";

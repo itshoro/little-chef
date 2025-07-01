@@ -1,5 +1,10 @@
-import "server-only";
-
+import {
+  PERMISSION_ROLES,
+  SESSION_SCOPES,
+  THEMES,
+  USER_ROLES,
+  VISIBILITIES,
+} from "@/lib/constants";
 import { sql, type InferInsertModel, type InferSelectModel } from "drizzle-orm";
 import {
   integer,
@@ -7,8 +12,6 @@ import {
   sqliteTable,
   text,
 } from "drizzle-orm/sqlite-core";
-
-const subscriberRoles = ["creator", "maintainer", "subscriber"] as const;
 
 // MARK: recipes
 export const recipes = sqliteTable("recipes", {
@@ -19,7 +22,7 @@ export const recipes = sqliteTable("recipes", {
   cookingTime: integer("cookingTime").notNull().default(0),
   preparationTime: integer("preparationTime").notNull().default(0),
   visibility: text("visibility", {
-    enum: ["public", "unlisted", "private"],
+    enum: VISIBILITIES,
   }).notNull(),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
@@ -37,7 +40,7 @@ export const recipeUserPermissions = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     role: text({
-      enum: ["owner", "maintainer", "editor", "viewer"],
+      enum: PERMISSION_ROLES,
     }).notNull(),
     createdAt: integer({ mode: "timestamp" })
       .notNull()
@@ -79,7 +82,7 @@ export const collections = sqliteTable("collections", {
   publicId: text("publicId").notNull().unique(),
   isCustom: integer("isCustom", { mode: "boolean" }),
   visibility: text("visibility", {
-    enum: ["public", "unlisted", "private"],
+    enum: VISIBILITIES,
   }).notNull(),
   itemCount: integer("itemCount").notNull().default(0),
   name: text("name").notNull(),
@@ -106,7 +109,7 @@ export const collectionUserPermissions = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     role: text({
-      enum: ["owner", "maintainer", "editor", "viewer"],
+      enum: PERMISSION_ROLES,
     }).notNull(),
     createdAt: integer({ mode: "timestamp" })
       .notNull()
@@ -150,21 +153,21 @@ export const users = sqliteTable("users", {
     .references(() => recipePreferences.id),
 });
 
-export const userScopes = sqliteTable(
-  "userScopes",
+export const userRoles = sqliteTable(
+  "user_roles",
   {
-    userId: integer("userId")
+    userId: integer()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    scope: text("scope", { enum: ["admin"] }).notNull(),
-    createdAt: integer("createdAt", { mode: "timestamp" })
+    role: text({ enum: USER_ROLES }).notNull(),
+    createdAt: integer({ mode: "timestamp" })
       .notNull()
       .default(sql`(current_timestamp)`),
   },
   (table) => [
     primaryKey({
-      columns: [table.userId, table.scope],
-      name: "userScopesPkey",
+      columns: [table.userId, table.role],
+      name: "user_roles_pkey",
     }),
   ],
 );
@@ -172,7 +175,7 @@ export const userScopes = sqliteTable(
 export const appPreferences = sqliteTable("appPreferences", {
   id: integer("id").primaryKey(),
   theme: text("theme", {
-    enum: ["light", "dark", "system"],
+    enum: THEMES,
   })
     .default("system")
     .notNull(),
@@ -181,7 +184,7 @@ export const appPreferences = sqliteTable("appPreferences", {
 export const collectionPreferences = sqliteTable("collectionPreferences", {
   id: integer("id").primaryKey(),
   defaultVisibility: text("defaultVisibility", {
-    enum: ["public", "unlisted", "private"],
+    enum: VISIBILITIES,
   })
     .default("public")
     .notNull(),
@@ -190,7 +193,7 @@ export const collectionPreferences = sqliteTable("collectionPreferences", {
 export const recipePreferences = sqliteTable("recipePreferences", {
   id: integer("id").primaryKey(),
   defaultVisibility: text("defaultVisibility", {
-    enum: ["public", "unlisted", "private"],
+    enum: VISIBILITIES,
   })
     .default("public")
     .notNull(),
@@ -207,35 +210,35 @@ export const sessions = sqliteTable("sessions", {
 });
 
 export const sessionScopes = sqliteTable(
-  "sessionScopes",
+  "session_scopes",
   {
-    sessionId: text("sessionId")
+    sessionId: text()
       .notNull()
       .references(() => sessions.id, { onDelete: "cascade" }),
-    scope: text("scope", { enum: ["sudo"] }).notNull(),
-    createdAt: integer("createdAt", { mode: "timestamp" })
+    scope: text({ enum: SESSION_SCOPES }).notNull(),
+    createdAt: integer({ mode: "timestamp" })
       .notNull()
       .default(sql`(current_timestamp)`),
-    expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+    expiresAt: integer({ mode: "timestamp" }).notNull(),
   },
   (table) => [
     primaryKey({
       columns: [table.sessionId, table.scope],
-      name: "sessionScopesPkey",
+      name: "session_scopes_pkey",
     }),
   ],
 );
 
 export const passwordResetRequests = sqliteTable("passwordResetRequests", {
-  id: integer("id").primaryKey(),
-  token: text("token").notNull().unique(),
-  userId: integer("userId")
+  id: integer().primaryKey(),
+  token: text().notNull().unique(),
+  userId: integer()
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  createdAt: integer("createdAt", { mode: "timestamp" })
+  createdAt: integer({ mode: "timestamp" })
     .notNull()
     .default(sql`(current_timestamp)`),
-  expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+  expiresAt: integer({ mode: "timestamp" }).notNull(),
 });
 
 // MARK: type helpers
@@ -255,8 +258,8 @@ export type DrizzleSession = InferSelectModel<typeof sessions>;
 export type DrizzleSessionInsert = InferInsertModel<typeof sessions>;
 export type SessionIdentifier = IdentifiedById<DrizzleSession>;
 
-export type DrizzleUserScope = InferSelectModel<typeof userScopes>;
-export type DrizzleUserScopeInsert = InferInsertModel<typeof userScopes>;
+export type DrizzleUserRole = InferSelectModel<typeof userRoles>;
+export type DrizzleUserRoleInsert = InferInsertModel<typeof userRoles>;
 
 export type DrizzleSessionScope = InferSelectModel<typeof sessionScopes>;
 export type DrizzleSessionScopeInsert = InferInsertModel<typeof sessionScopes>;
@@ -296,8 +299,6 @@ export type RecipeStepsIdentifier = IdentifiedByIdOrPublicId<DrizzleRecipeStep>;
 export type DrizzleCollection = InferSelectModel<typeof collections>;
 export type DrizzleCollectionInsert = InferInsertModel<typeof collections>;
 export type CollectionIdentifier = IdentifiedByIdOrPublicId<DrizzleCollection>;
-
-export type SubscriptionRole = (typeof subscriberRoles)[number];
 
 export type DrizzleRecipeUserPermission = InferSelectModel<
   typeof recipeUserPermissions

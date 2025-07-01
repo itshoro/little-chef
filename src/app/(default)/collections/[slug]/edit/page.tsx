@@ -1,12 +1,12 @@
-import * as Form from "@/app/components/form";
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import { validateRequest } from "@/lib/auth";
-import { getCollectionByIdentifier } from "@/lib/dal/collection";
+import * as Form from "@/components/forms/form";
+import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { extractParts } from "@/lib/slug";
+import { parseHandle } from "@/lib/slug";
 import { notFound, redirect } from "next/navigation";
-import { Inputs } from "../../components/collection-form/inputs";
+import { Inputs } from "../../../../(user)/settings/collection/collection-form/inputs";
 import { editAction } from "./action";
+import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
+import { getCollectionDetailByIdentifier } from "@/lib/services/collection";
 
 type PageProps = {
   params: Promise<{
@@ -18,18 +18,19 @@ const Page = async (props: PageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const params = await props.params;
-  const { publicId } = extractParts(params.slug);
-  const { user, session } = await validateRequest();
-
-  if (!user) redirect("/login");
+  const { publicId } = parseHandle(params.slug);
+  console.error({ publicId });
+  const { user } = await getAuthenticatedUserOrRedirect();
 
   try {
-    const collection = await getCollectionByIdentifier({ publicId }, user);
+    const { collection } = await getCollectionDetailByIdentifier(
+      { publicId },
+      user,
+    );
 
     return (
       <>
         <Form.Root action={editAction}>
-          <input type="hidden" name="sessionId" value={session?.id} />
           <input type="hidden" name="publicId" value={collection.publicId} />
           <div className="grid gap-4">
             <Inputs defaultValue={collection} />

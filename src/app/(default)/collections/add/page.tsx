@@ -1,12 +1,12 @@
-import * as Form from "@/app/components/form";
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import { validateRequest } from "@/lib/auth";
-import { getCollectionPreferences } from "@/lib/dal/collection";
+import * as Form from "@/components/forms/form";
+import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { getCollectionPreferences } from "@/lib/services/user";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Inputs } from "../components/collection-form/inputs";
+import { Inputs } from "../../../(user)/settings/collection/collection-form/inputs";
 import { createAction } from "./action";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 
 export const metadata: Metadata = {
   title: "Add Collection",
@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 const Page = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
-  const { user, session } = await validateRequest();
+  const { user, session } = await getAuthenticatedUserFromRequest();
 
   if (!user) redirect("/login");
-  const preferences = await getCollectionPreferences(user.publicId);
+  const preferences = await getCollectionPreferences(user);
 
   return (
     <>

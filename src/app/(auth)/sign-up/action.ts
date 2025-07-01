@@ -1,15 +1,8 @@
-import type { FormState } from "@/app/components/form/root";
-import {
-  createSession,
-  generateSessionToken,
-  setSessionTokenCookie,
-} from "@/lib/auth";
-import { createUser } from "@/lib/dal/user";
-import { passwordSchema, usernameSchema } from "@/lib/dal/user/types";
+import type { FormState } from "@/components/forms/form/root";
+import { signUp } from "@/lib/services/auth";
 import { isRateLimitedSignUp } from "@/lib/services/rate-limit/auth";
-import { hash } from "@node-rs/argon2";
+import { signUpSchema } from "@/lib/validators/auth";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
 type SignUpData = {
   username: string;
@@ -17,18 +10,6 @@ type SignUpData = {
   confirmPassword?: string;
   inviteCode?: string;
 };
-
-const signUpSchema = z
-  .object({
-    username: usernameSchema,
-    password: passwordSchema,
-    confirmationPassword: passwordSchema,
-    inviteCode: z.string(),
-  })
-  .refine((data) => data.password === data.confirmationPassword, {
-    message: "Passwords must match.",
-    path: ["confirmation-password"],
-  });
 
 async function signup(formData: FormData): Promise<FormState<SignUpData>> {
   const username = formData.get("username") as string;
@@ -47,7 +28,6 @@ async function signup(formData: FormData): Promise<FormState<SignUpData>> {
       confirmationPassword,
       inviteCode,
     });
-
     if (!parseResult.success) {
       throw new Error(undefined, {
         cause: parseResult.error.flatten().fieldErrors,
@@ -59,13 +39,7 @@ async function signup(formData: FormData): Promise<FormState<SignUpData>> {
       throw new Error("The entered invite code is invalid.");
     }
 
-    // TODO: if usernames are unique, check if username is already taken.
-    const hashedPassword = await hash(dto.password);
-    const user = await createUser(username, hashedPassword);
-
-    const sessionToken = generateSessionToken();
-    const session = await createSession(sessionToken, user.id);
-    await setSessionTokenCookie(sessionToken, session.expiresAt);
+    await signUp(dto);
 
     return {
       success: true,

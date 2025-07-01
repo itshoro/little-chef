@@ -1,17 +1,10 @@
-import type { FormState } from "@/app/components/form/root";
-import { unsafeUpdateCollection } from "@/lib/dal/collection";
-import { findUserBySessionId } from "@/lib/dal/user";
-import { generateSlugPathSegment } from "@/lib/slug";
-import { redirect } from "next/navigation";
-import { z } from "zod";
-import { createCollectionSchema } from "../../add/action";
+import type { FormState } from "@/components/forms/form/root";
 import type { DrizzleCollection } from "@/drizzle/schema";
-
-const editCollectionSchema = createCollectionSchema.merge(
-  z.object({
-    publicId: z.string(),
-  }),
-);
+import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
+import { updateCollection } from "@/lib/services/collection";
+import { generateHandle } from "@/lib/slug";
+import { editCollectionSchema } from "@/lib/validators/collection";
+import { redirect } from "next/navigation";
 
 type EditCollectionControls = {
   title: string;
@@ -25,17 +18,16 @@ async function editAction(
   formData: FormData,
 ): Promise<FormState<EditCollectionControls>> {
   "use server";
-  const sessionId = formData.get("sessionId") as string;
   const publicId = formData.get("publicId") as string;
-  const title = formData.get("title") as string;
+  const name = formData.get("name") as string;
   const visibility = formData.get("visibility") as string;
 
   let collection: DrizzleCollection;
   try {
-    const user = await findUserBySessionId(sessionId);
+    const { user } = await assertAuthenticatedForServerAction();
 
     const parseResult = editCollectionSchema.safeParse({
-      title,
+      name,
       visibility,
       publicId,
     });
@@ -45,8 +37,9 @@ async function editAction(
         cause: parseResult.error.flatten().fieldErrors,
       });
     }
-    collection = await unsafeUpdateCollection(parseResult.data, user);
+    collection = await updateCollection(parseResult.data, user);
   } catch (e) {
+    console.error(e);
     if (!(e instanceof Error)) throw e;
 
     return {
@@ -56,14 +49,14 @@ async function editAction(
         "Please review the form and correct the errors to proceed with editing the collection details.",
       errors: e.cause as Record<string, any>,
       controls: {
-        title,
+        name,
         visibility,
       },
     } satisfies FormState<EditCollectionControls>;
   }
 
   redirect(
-    `/collections/${generateSlugPathSegment(collection.slug, collection.publicId)}`,
+    `/collections/${generateHandle(collection.slug, collection.publicId)}`,
   );
 }
 

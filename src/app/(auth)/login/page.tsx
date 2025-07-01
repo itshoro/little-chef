@@ -1,17 +1,17 @@
-import * as Form from "@/app/components/form";
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import * as Input from "@/app/components/input";
-import { validateRequest } from "@/lib/auth";
-import { passwordRange, usernameRange } from "@/lib/dal/user/types";
+import * as Form from "@/components/forms/form";
+import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
+import * as Input from "@/components/forms/input";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { passwordRange, usernameRange } from "@/lib/validators/user";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { loginAction } from "./action";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 
 const LoginPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
-  const { user } = await validateRequest();
+  const { user } = await getAuthenticatedUserFromRequest();
   if (user) redirect("/recipes");
 
   return (

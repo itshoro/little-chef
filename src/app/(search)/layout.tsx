@@ -1,6 +1,6 @@
-import { Search, SearchFallback } from "../components/search/input";
-import { Header } from "../components/header/header";
-import * as TabNavigation from "../(user)/settings/components/tab-navigation";
+import { Search, SearchFallback } from "../../components/ui/search-input";
+import { Header } from "../../components/layout/header/header";
+import * as TabNavigation from "../../components/layout/tab-navigation";
 import { Suspense } from "react";
 
 const Layout = async (props: { children: React.ReactNode }) => {

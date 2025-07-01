@@ -1,9 +1,9 @@
-import { Header } from "@/app/components/header/header";
+import { Header } from "@/components/layout/header/header";
 import { validateRequest, invalidateSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import * as TabNavigation from "./components/tab-navigation";
-import { Avatar } from "@/app/components/header/avatar";
-import { BackLink } from "@/app/components/back-link";
+import * as TabNavigation from "../../../components/layout/tab-navigation";
+import { Avatar } from "@/components/users/avatar";
+import { BackLink } from "@/components/ui/back-link";
 import { Suspense } from "react";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {

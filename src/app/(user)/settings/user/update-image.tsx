@@ -1,11 +1,11 @@
 "use client";
 
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
-import { Avatar } from "@/app/components/header/avatar";
+import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
+import { Avatar } from "@/components/users/avatar";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Fieldset } from "../components/primitives/fieldset";
-import { BaseButton } from "@/app/components/base-button";
+import { Fieldset } from "../../../../components/forms/fieldset";
+import { BaseButton } from "@/components/ui/buttons/button";
 
 const UpdateAvatar = ({
   defaultValue,

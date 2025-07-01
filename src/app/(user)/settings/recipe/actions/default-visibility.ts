@@ -1,4 +1,4 @@
-import type { FormState } from "@/app/components/form/root";
+import type { FormState } from "@/components/forms/form/root";
 import { updateDefaultVisibility } from "@/lib/dal/auth";
 import { findUserBySessionId } from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";

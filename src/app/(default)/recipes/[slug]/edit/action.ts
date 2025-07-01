@@ -1,9 +1,9 @@
-import type { FormState } from "@/app/components/form/root";
+import type { FormState } from "@/components/forms/form/root";
 import type { DrizzleRecipe } from "@/drizzle/schema";
 import { updateRecipe } from "@/lib/dal/auth";
 import { findUserBySessionId } from "@/lib/dal/user";
 import { visibilitySchema } from "@/lib/dal/user/types";
-import { generateSlugPathSegment } from "@/lib/slug";
+import { generateHandle } from "@/lib/slug";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -142,7 +142,7 @@ async function editAction(
     } satisfies FormState<EditRecipeControls>;
   }
 
-  redirect(`/recipes/${generateSlugPathSegment(recipe.slug, recipe.publicId)}`);
+  redirect(`/recipes/${generateHandle(recipe.slug, recipe.publicId)}`);
 }
 
 export { editAction };

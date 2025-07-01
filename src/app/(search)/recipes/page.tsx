@@ -1,12 +1,11 @@
-import { Section } from "@/app/(default)/recipes/[slug]/components/section";
-import { DrizzleUser } from "@/drizzle/schema";
-import { validateRequest } from "@/lib/auth";
-import { findPublicRecipeIds } from "@/lib/dal/auth";
-import { unsafeGetSubscribedRecipesForUser } from "@/lib/dal/user";
+import { RecipeList } from "@/components/recipes/recipe-list-container";
+import type { ListQueryOptions } from "@/lib/dal/utils";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import type { AuthenticatedUser } from "@/lib/services/auth/types";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { findRecipes } from "@/lib/services/recipe";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
-import { RecipeCard } from "../components/recipe-card";
 
 export const metadata: Metadata = {
   title: "Recipes",
@@ -14,64 +13,33 @@ export const metadata: Metadata = {
 
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await validateRequest();
+  const { user } = await getAuthenticatedUserFromRequest();
 
   return (
     <>
       <main className="flex-1">
-        <YourCookbook user={user} query={(await props.searchParams).q} />
-        <SearchResults query={(await props.searchParams).q} />
+        <div className="my-12 px-4">
+          <SearchResults user={user} query={(await props.searchParams).q} />
+        </div>
       </main>
       <AddButton href="/recipes/add" />
     </>
   );
 };
 
-const YourCookbook = async ({
-  user,
+const SearchResults = async ({
   query,
+  user,
 }: {
-  user: DrizzleUser | null;
   query?: string;
+  user: AuthenticatedUser | null;
 }) => {
-  if (!user) return null;
+  const queryOptions: ListQueryOptions = {
+    search: query ? { query } : undefined,
+  };
 
-  const subscriptions = await unsafeGetSubscribedRecipesForUser(
-    user,
-    query ?? "",
-  );
-
-  return <SectionWithRecipes title="Your Cookbook" recipes={subscriptions} />;
-};
-
-const SearchResults = async ({ query }: { query?: string }) => {
-  const recipes = await findPublicRecipeIds(query ?? "");
-
-  return <SectionWithRecipes title="Public Recipes" recipes={recipes} />;
-};
-
-const SectionWithRecipes = ({
-  title,
-  recipes,
-}: {
-  title: string;
-  recipes: { id: number; publicId: string }[];
-}) => {
-  return (
-    <div className="my-12 px-4">
-      <Section title={title}>
-        <ul className="grid gap-3">
-          {recipes.map((recipe) => {
-            return (
-              <li key={recipe.id} className="">
-                <RecipeCard {...recipe} />
-              </li>
-            );
-          })}
-        </ul>
-      </Section>
-    </div>
-  );
+  const recipes = await findRecipes(queryOptions, user);
+  return <RecipeList recipes={recipes} title="Search Results" />;
 };
 
 export default Page;

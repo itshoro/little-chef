@@ -1,6 +1,6 @@
 "use client";
 
-import { BaseButton } from "@/app/components/base-button";
+import { BaseButton } from "@/components/ui/buttons/button";
 import { useRouter } from "next/navigation";
 
 const Actions = ({

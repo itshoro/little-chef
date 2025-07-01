@@ -1,10 +1,10 @@
-import { ForceWakeLock } from "@/app/components/wake-lock/force-wakelock";
-import { validateRequest } from "@/lib/auth";
-import { getRecipe, unsafeGetRecipeSteps } from "@/lib/dal/auth";
+import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { extractParts } from "@/lib/slug";
+import { parseHandle } from "@/lib/slug";
 import { Actions } from "../actions";
 import { WizardStep } from "../step";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
 
 type PageProps = {
   params: Promise<{
@@ -21,11 +21,13 @@ const Page = async (props: PageProps) => {
 
   const searchParams = await props.searchParams;
   const params = await props.params;
-  const { user } = await validateRequest();
-  const { publicId } = extractParts(params.slug);
+  const { user } = await getAuthenticatedUserFromRequest();
+  const { publicId } = parseHandle(params.slug);
 
-  const recipe = await getRecipe({ publicId }, user?.publicId);
-  const steps = await unsafeGetRecipeSteps(recipe.id);
+  const { recipe, steps } = await getRecipeDetailByIdentifier(
+    { publicId },
+    user,
+  );
 
   const step = Math.min(Number(params.step) || 0, steps.length);
   const displayedStep = steps[step];

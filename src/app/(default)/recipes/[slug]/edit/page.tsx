@@ -1,11 +1,11 @@
-import * as Form from "@/app/components/form";
-import { SubmitWithPending } from "@/app/components/form/submit-with-pending";
+import * as Form from "@/components/forms/form";
+import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
 import { validateRequest } from "@/lib/auth";
 import { getRecipe, unsafeGetRecipeSteps } from "@/lib/dal/auth";
-import { extractParts } from "@/lib/slug";
+import { parseHandle } from "@/lib/slug";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { Inputs } from "../../components/recipe-form/inputs";
+import { Inputs } from "../../../../../components/recipes/recipe-form/inputs";
 import { editAction } from "./action";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 
@@ -23,7 +23,7 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const params = await props.params;
-  const { publicId } = extractParts(params.slug);
+  const { publicId } = parseHandle(params.slug);
   const { user, session } = await validateRequest();
 
   if (!user) redirect("/login");
