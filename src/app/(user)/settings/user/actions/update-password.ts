@@ -1,10 +1,8 @@
 import type { FormState } from "@/components/forms/form/root";
-import {
-  findUserBySessionId,
-  updatePassword,
-  verifyPassword,
-} from "@/lib/dal/user";
-import { passwordSchema } from "@/lib/dal/user/types";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { updateUser } from "@/lib/services/user";
+import { passwordSchema } from "@/lib/validators/user";
 import { z } from "zod";
 
 type UpdatePasswordSchema = {
@@ -25,15 +23,14 @@ const changePasswordSchema = z
   });
 
 async function changePasswordAction(
-  sessionId: string | undefined,
   _: FormState<UpdatePasswordSchema>,
   formData: FormData,
 ): Promise<FormState<UpdatePasswordSchema>> {
   "use server";
 
+  const { user } = await getAuthenticatedUserFromRequest();
+  if (!user) throw new UnauthenticatedError();
   try {
-    const user = await findUserBySessionId(sessionId);
-
     const parseResult = changePasswordSchema.safeParse({
       currentPassword: formData.get("current-password"),
       confirmationPassword: formData.get("confirmation-password"),
@@ -46,13 +43,7 @@ async function changePasswordAction(
       });
     }
 
-    if (!(await verifyPassword(user, parseResult.data.currentPassword))) {
-      throw new Error(undefined, {
-        cause: { currentPassword: "Password is invalid." },
-      });
-    }
-    await updatePassword(user, parseResult.data.newPassword);
-
+    updateUser({ password: parseResult.data.newPassword }, user);
     return {
       success: true,
       message: "Successfully changed your password.",

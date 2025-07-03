@@ -1,14 +1,13 @@
 import * as Form from "@/components/forms/form";
 import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
 import * as Input from "@/components/forms/input";
-import { validateRequest } from "@/lib/auth";
-import { getRecipePreferences } from "@/lib/dal/auth";
+import { VisibilitySwitcher } from "@/components/forms/visibility-switcher";
+import { Fieldset } from "@/components/ui/fieldset";
+import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { getRecipePreferences } from "@/lib/services/user";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { Fieldset } from "../../../../components/forms/fieldset";
 import * as SettingsSection from "../../../../components/layout/settings-section";
-import { VisibilitySwitcher } from "../components/visibility-switcher";
 import { changeDefaultServingSizeAction } from "./actions/default-serving-size";
 import { changeDefaultVisibility } from "./actions/default-visibility";
 
@@ -18,28 +17,15 @@ export const metadata: Metadata = {
 
 const RecipeSettingsPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user, session } = await validateRequest();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const preferences = await getRecipePreferences(user.publicId);
-  const changeServingSizeWithSession = changeDefaultServingSizeAction.bind(
-    null,
-    session.id,
-  );
-  const changeVisibilityWithSession = changeDefaultVisibility.bind(
-    null,
-    session.id,
-  );
+  const { user } = await getAuthenticatedUserOrRedirect();
+  const preferences = await getRecipePreferences(user);
 
   return (
     <>
       <SettingsSection.Root>
         <SettingsSection.Label>Recipe Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
-          <Form.Root action={changeServingSizeWithSession}>
+          <Form.Root action={changeDefaultServingSizeAction}>
             <Fieldset label="Servings">
               <div className="mb-4">
                 <Input.Root name="defaultServingSize">
@@ -61,7 +47,7 @@ const RecipeSettingsPage = async () => {
               </SubmitWithPending>
             </Fieldset>
           </Form.Root>
-          <Form.Root action={changeVisibilityWithSession}>
+          <Form.Root action={changeDefaultVisibility}>
             <Fieldset label="Default Visibility">
               <div className="mb-4">
                 <VisibilitySwitcher

@@ -1,7 +1,8 @@
 import type { FormState } from "@/components/forms/form/root";
-import { updateDefaultVisibility } from "@/lib/dal/auth";
-import { findUserBySessionId } from "@/lib/dal/user";
-import { visibilitySchema } from "@/lib/dal/user/types";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { updateRecipePreferences } from "@/lib/services/user";
+import { visibilitySchema } from "@/lib/validators/visibility";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -14,16 +15,15 @@ const changeDefaultVisibilitySchema = z.object({
 });
 
 async function changeDefaultVisibility(
-  sessionId: string | undefined,
   _: FormState<ChangeDefaultVisibilityControls>,
   formData: FormData,
 ): Promise<FormState<ChangeDefaultVisibilityControls>> {
   "use server";
-
   const visibility = formData.get("visibility") as string;
+  const { user } = await getAuthenticatedUserFromRequest();
+  if (!user) throw new UnauthenticatedError();
 
   try {
-    const user = await findUserBySessionId(sessionId);
     const parseResult = changeDefaultVisibilitySchema.safeParse({
       visibility,
     });
@@ -33,7 +33,10 @@ async function changeDefaultVisibility(
         cause: parseResult.error.flatten().fieldErrors,
       });
     }
-    await updateDefaultVisibility(user, parseResult.data.visibility);
+    await updateRecipePreferences(
+      { defaultVisibility: parseResult.data.visibility },
+      user,
+    );
 
     revalidatePath("/settings/recipe", "page");
     return {

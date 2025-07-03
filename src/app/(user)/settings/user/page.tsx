@@ -1,14 +1,14 @@
 import * as Form from "@/components/forms/form";
 import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
 import * as Input from "@/components/forms/input";
-import { validateRequest } from "@/lib/auth";
-import { changeAvatar, findUserBySessionId } from "@/lib/dal/user";
+import { Fieldset } from "@/components/ui/fieldset";
+import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Fieldset } from "../../../../components/forms/fieldset";
 import * as SettingsSection from "../../../../components/layout/settings-section";
-import { changePasswordAction } from "./actions/change-password";
+import { changeAvatarAction } from "./actions/update-avatar";
+import { changePasswordAction } from "./actions/update-password";
 import { updateUsernameAction } from "./actions/update-username";
 import { UpdateAvatar } from "./update-image";
 
@@ -18,15 +18,7 @@ export const metadata: Metadata = {
 
 const UserPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user, session } = await validateRequest();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const setProfileImageWithSession = changeAvatarAction.bind(null, session.id);
-  const updatePasswordWithSession = changePasswordAction.bind(null, session.id);
-  const updateUsernameWithSession = updateUsernameAction.bind(null, session.id);
+  const { user } = await getAuthenticatedUserOrRedirect();
 
   return (
     <>
@@ -35,11 +27,11 @@ const UserPage = async () => {
 
         <SettingsSection.Grid>
           <UpdateAvatar
-            action={setProfileImageWithSession}
+            action={changeAvatarAction}
             defaultValue={user?.avatar ?? undefined}
           />
 
-          <Form.Root action={updatePasswordWithSession}>
+          <Form.Root action={changePasswordAction}>
             <Fieldset label="Password">
               <div className="mb-4">
                 <Input.Root name="current-password">
@@ -77,7 +69,7 @@ const UserPage = async () => {
             </Fieldset>
           </Form.Root>
 
-          <Form.Root action={updateUsernameWithSession}>
+          <Form.Root action={updateUsernameAction}>
             <Fieldset label="Username">
               <div className="mb-4">
                 <Input.Root name="username">
@@ -100,20 +92,6 @@ const UserPage = async () => {
       </SettingsSection.Root>
     </>
   );
-};
-
-const changeAvatarAction = async (
-  sessionId: string | undefined,
-  formData: FormData,
-) => {
-  "use server";
-
-  const user = await findUserBySessionId(sessionId);
-
-  const image = formData.get("image");
-  if (!(image instanceof File)) return;
-
-  await changeAvatar(user, image);
 };
 
 export default UserPage;

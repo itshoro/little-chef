@@ -1,10 +1,10 @@
 import { Header } from "@/components/layout/header/header";
-import { validateRequest, invalidateSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import * as TabNavigation from "../../../components/layout/tab-navigation";
-import { Avatar } from "@/components/users/avatar";
 import { BackLink } from "@/components/ui/back-link";
+import { Avatar } from "@/components/users/avatar";
+import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import * as TabNavigation from "../../../components/layout/tab-navigation";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
@@ -48,7 +48,7 @@ const SettingsLayout = async (props: { children: React.ReactNode }) => {
 };
 
 const UserCard = async () => {
-  const { user, session } = await validateRequest();
+  const { user, session } = await getAuthenticatedUserOrRedirect();
 
   if (!user) return null;
   const signoutWithSessionId = signout.bind(null, session.id);

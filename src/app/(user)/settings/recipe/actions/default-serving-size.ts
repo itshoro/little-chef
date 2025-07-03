@@ -1,6 +1,7 @@
 import type { FormState } from "@/components/forms/form/root";
-import { updateDefaultServingSize } from "@/lib/dal/auth";
-import { findUserBySessionId } from "@/lib/dal/user";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { updateRecipePreferences } from "@/lib/services/user";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -13,16 +14,16 @@ const changeDefaultServingSizeSchema = z.object({
 });
 
 async function changeDefaultServingSizeAction(
-  sessionId: string | undefined,
   _: FormState<ChangeDefaultServingSizeControls>,
   formData: FormData,
 ): Promise<FormState<ChangeDefaultServingSizeControls>> {
   "use server";
+  const { user } = await getAuthenticatedUserFromRequest();
+  if (!user) throw new UnauthenticatedError();
+
   const defaultServingSize = Number(formData.get("defaultServingSize"));
 
   try {
-    const user = await findUserBySessionId(sessionId);
-
     const parseResult = changeDefaultServingSizeSchema.safeParse({
       defaultServingSize,
     });
@@ -32,7 +33,10 @@ async function changeDefaultServingSizeAction(
       });
     }
 
-    await updateDefaultServingSize(user, parseResult.data.defaultServingSize);
+    await updateRecipePreferences(
+      { defaultServingSize: parseResult.data.defaultServingSize },
+      user,
+    );
     revalidatePath("/settings/recipe", "page");
     return {
       success: true,

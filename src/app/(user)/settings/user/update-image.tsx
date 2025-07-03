@@ -1,11 +1,11 @@
 "use client";
 
 import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
+import { BaseButton } from "@/components/ui/buttons/button";
+import { Fieldset } from "@/components/ui/fieldset";
 import { Avatar } from "@/components/users/avatar";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Fieldset } from "../../../../components/forms/fieldset";
-import { BaseButton } from "@/components/ui/buttons/button";
 
 const UpdateAvatar = ({
   defaultValue,
@@ -15,12 +15,12 @@ const UpdateAvatar = ({
   action: (formData: FormData) => Promise<void>;
 }) => {
   const router = useRouter();
-  const inputRef = useRef<React.ElementRef<"input">>(null!);
+  const inputRef = useRef<React.ComponentRef<"input">>(null!);
   const [avatarSrc, setAvatarSrc] = useState(defaultValue);
 
   function onDeleteImage() {
     inputRef.current.value = "";
-    setAvatarSrc(defaultValue);
+    setAvatarSrc("");
   }
 
   return (
@@ -79,6 +79,7 @@ const UpdateAvatar = ({
               id="file"
               name="image"
               className="hidden"
+              ref={inputRef}
               accept="image/jpeg, image/png, image/webp"
             />
             <BaseButton

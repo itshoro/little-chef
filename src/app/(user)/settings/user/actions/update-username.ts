@@ -1,6 +1,8 @@
 import type { FormState } from "@/components/forms/form/root";
-import { changeUsername, findUserBySessionId } from "@/lib/dal/user";
-import { usernameSchema } from "@/lib/dal/user/types";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { updateUser } from "@/lib/services/user";
+import { usernameSchema } from "@/lib/validators/user";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -13,16 +15,15 @@ const updateUsernameSchema = z.object({
 });
 
 const updateUsernameAction = async (
-  sessionId: string | undefined,
   _: FormState<UpdateUsernameSchema>,
   formData: FormData,
 ): Promise<FormState<UpdateUsernameSchema>> => {
   "use server";
   const username = formData.get("username") as string;
+  const { user } = await getAuthenticatedUserFromRequest();
+  if (!user) throw new UnauthenticatedError();
 
   try {
-    const user = await findUserBySessionId(sessionId);
-
     const parseResult = updateUsernameSchema.safeParse({ username });
     if (!parseResult.success) {
       throw new Error(undefined, {
@@ -30,7 +31,7 @@ const updateUsernameAction = async (
       });
     }
 
-    await changeUsername(user, parseResult.data.username);
+    await updateUser({ username: parseResult.data.username }, user);
     revalidatePath("/settings/user", "page");
     return {
       success: true,

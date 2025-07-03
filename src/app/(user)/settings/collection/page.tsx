@@ -1,13 +1,12 @@
 import * as Form from "@/components/forms/form";
 import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
-import { validateRequest } from "@/lib/auth";
-import { getCollectionPreferences } from "@/lib/dal/collection";
+import { VisibilitySwitcher } from "@/components/forms/visibility-switcher";
+import { Fieldset } from "@/components/ui/fieldset";
+import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { getCollectionPreferences } from "@/lib/services/user";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { Fieldset } from "../../../../components/forms/fieldset";
 import * as SettingsSection from "../../../../components/layout/settings-section";
-import { VisibilitySwitcher } from "../components/visibility-switcher";
 import { changeDefaultVisibility } from "./actions/change-default-visibility";
 
 export const metadata: Metadata = {
@@ -16,25 +15,15 @@ export const metadata: Metadata = {
 
 const CollectionSettingsPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user, session } = await validateRequest();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const preferences = await getCollectionPreferences(user.publicId);
-
-  const changeVisibilityWithSession = changeDefaultVisibility.bind(
-    null,
-    session.id,
-  );
+  const { user } = await getAuthenticatedUserOrRedirect();
+  const preferences = await getCollectionPreferences(user);
 
   return (
     <>
       <SettingsSection.Root>
         <SettingsSection.Label>Collection Preferences</SettingsSection.Label>
         <SettingsSection.Grid>
-          <Form.Root action={changeVisibilityWithSession}>
+          <Form.Root action={changeDefaultVisibility}>
             <Fieldset label="Default Visibility">
               <div className="mb-4">
                 <VisibilitySwitcher
