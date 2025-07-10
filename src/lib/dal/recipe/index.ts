@@ -2,6 +2,7 @@ import "server-only";
 
 import { db, type Connection } from "@/drizzle/db";
 import {
+  recipeLikes,
   recipes,
   recipeSteps,
   recipeUserPermissions,
@@ -58,7 +59,8 @@ export async function unsafeUpdateRecipe(
   return await connection
     .update(recipes)
     .set(dto)
-    .where(eq(recipes.id, identifier.id));
+    .where(eq(recipes.id, identifier.id))
+    .returning();
 }
 
 export async function unsafeGetRecipeByIdentifier(
@@ -218,4 +220,49 @@ export async function unsafeResolveRecipeId(
 
   if (!result) throw new RecipeNotFoundError(identifier);
   return result.id;
+}
+
+// MARK: Recipe Likes
+
+export async function unsafeAddRecipeLike(
+  connection: Connection,
+  recipeIdentifier: IdentifiedById<DrizzleRecipe>,
+  userIdentifier: IdentifiedById<DrizzleUser>,
+) {
+  return await connection
+    .insert(recipeLikes)
+    .values({ userId: userIdentifier.id, recipeId: recipeIdentifier.id });
+}
+
+export async function unsafeRemoveRecipeLike(
+  connection: Connection,
+  recipeIdentifier: IdentifiedById<DrizzleRecipe>,
+  userIdentifier: IdentifiedById<DrizzleUser>,
+) {
+  return await connection
+    .delete(recipeLikes)
+    .where(
+      and(
+        eq(recipeLikes.userId, userIdentifier.id),
+        eq(recipeLikes.recipeId, recipeIdentifier.id),
+      ),
+    );
+}
+
+export async function unsafeIsRecipeLiked(
+  recipeIdentifier: IdentifiedById<DrizzleRecipe>,
+  userIdentifier: IdentifiedById<DrizzleUser>,
+) {
+  const recipeId = await unsafeResolveRecipeId(recipeIdentifier);
+  const [like] = await db
+    .select()
+    .from(recipeLikes)
+    .where(
+      and(
+        eq(recipeLikes.userId, userIdentifier.id),
+        eq(recipeLikes.recipeId, recipeId),
+      ),
+    );
+
+  return !!like;
 }

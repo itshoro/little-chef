@@ -1,3 +1,5 @@
+"use server";
+
 import type { FormState } from "@/components/forms/form/root";
 import { signUp } from "@/lib/services/auth";
 import { isRateLimitedSignUp } from "@/lib/services/rate-limit/auth";
@@ -60,10 +62,8 @@ async function signup(formData: FormData): Promise<FormState<SignUpData>> {
 }
 
 async function signupAction(
-  _: FormState<SignUpData>,
   formData: FormData,
 ): Promise<FormState<SignUpData>> {
-  "use server";
   const response = await signup(formData);
 
   if (response.success) redirect("/recipes");

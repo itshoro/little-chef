@@ -20,7 +20,7 @@ const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   return (
     <>
       <main className="flex-1">
-        <div className="my-12 px-4">
+        <div className="mx-auto my-12 max-w-(--breakpoint-xl) px-4">
           <SearchResults user={user} query={searchQuery} />
         </div>
       </main>

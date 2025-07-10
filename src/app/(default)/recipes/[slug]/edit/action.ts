@@ -1,45 +1,36 @@
-import type { FormState } from "@/components/forms/form/root";
+"use server";
+
 import type { DrizzleRecipe } from "@/drizzle/schema";
-import { updateRecipe } from "@/lib/dal/auth";
-import { findUserBySessionId } from "@/lib/dal/user";
-import { visibilitySchema } from "@/lib/dal/user/types";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { updateRecipe } from "@/lib/services/recipe";
+import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
 import { generateHandle } from "@/lib/slug";
+import { editRecipeSchema } from "@/lib/validators/recipe";
+import type { Recipe } from "@cooklang/cooklang-ts";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-export const editRecipeSchema = z.object({
-  publicId: z.string(),
-  name: z.string().trim().min(2),
-  description: z.string(),
-  servings: z.coerce.number().min(1),
-  preparationTime: z.coerce.number().min(0),
-  cookingTime: z.coerce.number().min(0),
-  visibility: visibilitySchema,
-  cover: z
-    .object({
-      update: z.literal(false),
-    })
-    .or(
-      z.object({
-        update: z.literal(true),
-        image: z.instanceof(File).nullable(),
-      }),
-    ),
-  step: z.record(z.string().trim().min(2)),
-});
-
-export type EditRecipeControls = {
-  sessionId?: string;
-  name: string;
-  cover: File;
-  priorCover: string;
-  description: string;
-  preparationTime: number;
-  cookingTime: number;
-  visibility: string;
-  servings: number;
-  step: Record<string, string>;
-};
+// export const editRecipeSchema = z.object({
+//   publicId: z.string(),
+//   name: z.string().trim().min(2),
+//   description: z.string(),
+//   servings: z.coerce.number().min(1),
+//   preparationTime: z.coerce.number().min(0),
+//   cookingTime: z.coerce.number().min(0),
+//   visibility: visibilitySchema,
+//   cover: z
+//     .object({
+//       update: z.literal(false),
+//     })
+//     .or(
+//       z.object({
+//         update: z.literal(true),
+//         image: z.instanceof(File).nullable(),
+//       }),
+//     ),
+//   step: z.record(z.string().trim().min(2)),
+// });
 
 function determineCover(
   priorCover: string,
@@ -58,12 +49,7 @@ function determineCover(
   return cover;
 }
 
-async function editAction(
-  _: FormState<EditRecipeControls>,
-  formData: FormData,
-): Promise<FormState<EditRecipeControls>> {
-  "use server";
-  const sessionId = formData.get("sessionId") as string;
+async function editAction(formData: FormData) {
   const publicId = formData.get("publicId") as string;
   const name = formData.get("name") as string;
   const priorCover = formData.get("priorCover") as string;
@@ -82,9 +68,10 @@ async function editAction(
     ]),
   );
 
-  let recipe: DrizzleRecipe;
+  let recipe: RecipeOutputPublicDTO;
   try {
-    const user = await findUserBySessionId(sessionId);
+    const { user } = await getAuthenticatedUserFromRequest();
+    if (!user) throw new UnauthenticatedError();
     const cover = determineCover(priorCover, coverImage);
 
     const payload = {
@@ -94,52 +81,17 @@ async function editAction(
       preparationTime,
       cookingTime,
       visibility,
-      servings,
-      step: steps,
+      recommendedServingSize: servings,
+      steps,
       publicId,
     };
 
     const parseResult = editRecipeSchema.parse(payload);
-
     recipe = await updateRecipe(parseResult, user);
   } catch (e) {
     if (!(e instanceof Error)) throw e;
-
-    const controls = {
-      name,
-      description,
-      cover: coverImage,
-      priorCover,
-      servings,
-      cookingTime: Number(cookingTime),
-      preparationTime: Number(preparationTime),
-      visibility,
-      step: steps,
-    };
-
-    if (e instanceof z.ZodError) {
-      return {
-        success: false,
-        message: "Validation failed.",
-        errors: e.errors.reduce(
-          (acc, error) => {
-            const path = error.path.join(".");
-            if (!acc[path]) acc[path] = [];
-            acc[path].push(error.message);
-            return acc;
-          },
-          {} as Record<string, string[]>,
-        ),
-        controls,
-      };
-    }
-
-    return {
-      success: false,
-      message: e.message,
-      errors: e.cause as Record<string, any>,
-      controls,
-    } satisfies FormState<EditRecipeControls>;
+    console.error(e);
+    return;
   }
 
   redirect(`/recipes/${generateHandle(recipe.slug, recipe.publicId)}`);

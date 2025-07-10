@@ -2,6 +2,7 @@ import "server-only";
 
 import { db } from "@/drizzle/db";
 import {
+  recipes,
   type DrizzleRecipe,
   type DrizzleRecipeInsert,
   type DrizzleRecipeStepsInsert,
@@ -19,6 +20,7 @@ import {
   unsafeUpdateCollectionRecipeItemCount,
 } from "../../dal/collection";
 import {
+  unsafeAddRecipeLike,
   unsafeCreateRecipe,
   unsafeCreateRecipeSteps,
   unsafeCreateUserPermissionForRecipe,
@@ -30,6 +32,8 @@ import {
   unsafeGetMaintainersForRecipes,
   unsafeGetRecipeByIdentifier,
   unsafeGetRecipeSteps,
+  unsafeIsRecipeLiked,
+  unsafeRemoveRecipeLike,
   unsafeResolveRecipeId,
   unsafeUpdateRecipe,
 } from "../../dal/recipe";
@@ -55,6 +59,7 @@ import type {
   RecipeStepsUpdateDTO,
   RecipeUpdateDTO,
 } from "./types";
+import { eq, sql } from "drizzle-orm";
 
 // MARK: CRUD
 
@@ -152,7 +157,7 @@ export async function getRecipeDetailByIdentifier(
   if (recipe === null) {
     throw new RecipeNotFoundError(identifier);
   }
-  assertCanViewRecipe(recipe, user);
+  await assertCanViewRecipe(recipe, user);
 
   const [maintainers, steps] = await Promise.all([
     unsafeGetMaintainersForRecipe(recipe),
@@ -185,7 +190,7 @@ export async function updateRecipe(
   assertCanEditRecipe(recipe, user);
 
   const utapi = new UTApi();
-  await db.transaction(async (tx) => {
+  const [updatedRecipe] = await db.transaction(async (tx) => {
     await using uploadResult = await createRevertibleUpload(
       dto.cover.update ? dto.cover.file : null,
       utapi,
@@ -205,7 +210,7 @@ export async function updateRecipe(
 
     const updateRecipeResult = await unsafeUpdateRecipe(tx, recipe, recipeDto);
     recipeInvariant(
-      updateRecipeResult.rowsAffected === 1,
+      updateRecipeResult.length === 1,
       "Failed to update recipe.",
       {
         cause: {
@@ -214,7 +219,7 @@ export async function updateRecipe(
             user: toIdentifier(user),
             recipe: toIdentifier(recipe),
           },
-          rowsAffected: updateRecipeResult.rowsAffected,
+          rowsAffected: updateRecipeResult.length,
         },
       },
     );
@@ -267,7 +272,10 @@ export async function updateRecipe(
     }
 
     if (uploadResult) uploadResult.keep();
+    return updateRecipeResult;
   });
+
+  return toRecipeOutputPublicDTO(updatedRecipe);
 }
 
 export async function deleteRecipe(
@@ -316,6 +324,96 @@ export async function findEditableRecipes(
 ): Promise<RecipePreviewDTO[]> {
   const recipes = await unsafeFindEditableRecipes(user, options);
   return await mapRecipesWithMaintainers(recipes);
+}
+
+// MARK: Likes
+
+export async function likeRecipe(
+  recipeIdentifier: RecipeIdentifier,
+  user: AuthenticatedUser,
+) {
+  const recipeId = await unsafeResolveRecipeId(recipeIdentifier);
+  recipeIdentifier = { id: recipeId };
+
+  await assertCanViewRecipe(recipeIdentifier, user);
+
+  const [recipe] = await db.transaction(async (tx) => {
+    const { rowsAffected } = await unsafeAddRecipeLike(
+      tx,
+      recipeIdentifier,
+      user,
+    );
+    recipeInvariant(rowsAffected > 0, "Failed to like recipe.", {
+      cause: { recipeId, user },
+    });
+
+    const updatedRecipes = await tx
+      .update(recipes)
+      .set({ likes: sql`${recipes.likes} + 1` })
+      .where(eq(recipes.id, recipeId))
+      .returning();
+
+    recipeInvariant(
+      updatedRecipes.length === 1,
+      "Failed to update recipe likes.",
+      {
+        cause: { recipeId, user, updatedRecipesCount: updatedRecipes.length },
+      },
+    );
+
+    return updatedRecipes;
+    recipeInvariant(
+      updatedRecipes.length === 1,
+      "Failed to update recipe likes.",
+      {
+        cause: { recipeId, user },
+      },
+    );
+
+    return updatedRecipes;
+  });
+
+  return recipe.likes;
+}
+export async function unlikeRecipe(
+  recipeIdentifier: RecipeIdentifier,
+  user: AuthenticatedUser,
+) {
+  const recipeId = await unsafeResolveRecipeId(recipeIdentifier);
+  recipeIdentifier = { id: recipeId };
+
+  await assertCanViewRecipe(recipeIdentifier, user);
+
+  const [recipe] = await db.transaction(async (tx) => {
+    const { rowsAffected } = await unsafeRemoveRecipeLike(
+      tx,
+      recipeIdentifier,
+      user,
+    );
+    recipeInvariant(rowsAffected > 0, "Failed to unlike recipe.", {
+      cause: { recipeIdentifier, user },
+    });
+
+    return await tx
+      .update(recipes)
+      .set({ likes: sql`${recipes.likes} - 1` })
+      .where(eq(recipes.id, recipeId))
+      .returning();
+    // todo: invariant
+  });
+
+  return recipe.likes;
+}
+
+export async function isRecipeLiked(
+  recipeIdentifier: RecipeIdentifier,
+  user: AuthenticatedUser,
+) {
+  const recipeId = await unsafeResolveRecipeId(recipeIdentifier);
+  recipeIdentifier = { id: recipeId };
+
+  await assertCanViewRecipe(recipeIdentifier, user);
+  return await unsafeIsRecipeLiked(recipeIdentifier, user);
 }
 
 // MARK: Misc.

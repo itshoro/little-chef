@@ -1,6 +1,6 @@
 import "server-only";
 
-import { db } from "@/drizzle/db";
+import { db, type Connection } from "@/drizzle/db";
 import type {
   DrizzleUserInsert,
   DrizzleUserRole,
@@ -67,13 +67,17 @@ export async function getUser(identifier: UserIdentifier) {
   return user;
 }
 
-export async function updateUser(dto: UserUpdateDTO, user: AuthenticatedUser) {
+export async function updateUser(
+  connection: Connection,
+  dto: UserUpdateDTO,
+  user: AuthenticatedUser,
+) {
   const userDto: Partial<DrizzleUserInsert> = {
     avatar: dto.avatar,
     username: dto.username,
     hashedPassword: dto.password ? await hash(dto.password) : undefined,
   };
-  await unsafeUpdateUser(db, user, userDto);
+  await unsafeUpdateUser(connection, user, userDto);
 }
 
 export async function deleteUser(user: AuthenticatedUser) {

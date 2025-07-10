@@ -7,7 +7,6 @@ import type {
   DrizzleUser,
   DrizzleUserInsert,
   SessionIdentifier,
-  UserIdentifier,
 } from "@/drizzle/schema";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import {
@@ -40,6 +39,7 @@ import {
 } from "@oslojs/encoding";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { updateUser } from "../user";
 import { toUserOutputPublicDTO } from "../user/transformer";
 import type {
   AuthenticatedUser,
@@ -64,10 +64,7 @@ export async function signUp(dto: SignUpDTO) {
     };
     const user = await unsafeCreateUser(tx, userDto);
 
-    const sessionToken = generateSessionToken();
-    const session = await createSession(tx, sessionToken, user.id);
-    await setSessionTokenCookie(sessionToken, session.expiresAt);
-
+    await newSession(tx, user as AuthenticatedUser);
     return toUserOutputPublicDTO(user);
   });
 }
@@ -79,10 +76,7 @@ export async function logIn(dto: LoginDTO) {
   await assertValidCredentials(user as AuthenticatedUser, dto.password);
 
   return db.transaction(async (tx) => {
-    const sessionToken = generateSessionToken();
-    const session = await createSession(tx, sessionToken, user.id);
-    await setSessionTokenCookie(sessionToken, session.expiresAt);
-
+    await newSession(tx, user as AuthenticatedUser);
     return toUserOutputPublicDTO(user);
   });
 }
@@ -92,10 +86,28 @@ export async function logOutSession(identifier: SessionIdentifier) {
   await deleteSessionTokenCookie();
 }
 
-export async function logOutAllUserSessions(identifier: UserIdentifier) {
-  const userId = await unsafeResolveUserId(identifier);
+export async function changePassword(
+  user: AuthenticatedUser,
+  newPassword: Password,
+) {
+  await db.transaction(async (tx) => {
+    await updateUser(tx, { password: newPassword }, user);
+    await logOutAllUserSessions(tx, user);
+    await newSession(tx, user);
+  });
+}
 
-  await unsafeDeleteAllSessionsForUser(db, { id: userId });
+async function newSession(connection: Connection, user: AuthenticatedUser) {
+  const sessionToken = generateSessionToken();
+  const session = await createSession(connection, sessionToken, user.id);
+  await setSessionTokenCookie(sessionToken, session.expiresAt);
+}
+
+export async function logOutAllUserSessions(
+  connection: Connection,
+  identifier: AuthenticatedUser,
+) {
+  await unsafeDeleteAllSessionsForUser(connection, { id: identifier.id });
   await deleteSessionTokenCookie();
 }
 

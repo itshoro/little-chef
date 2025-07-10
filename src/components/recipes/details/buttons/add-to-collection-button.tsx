@@ -1,9 +1,7 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
-import * as Form from "@/components/forms/form";
-import { FormState } from "@/components/forms/form/root";
-import { assertAuthorizedForServerAction, validateRequest } from "@/lib/auth";
 import { unsafeAddRecipe } from "@/lib/dal/collection";
-import { getCollectionsForUser } from "@/lib/dal/user";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { findCollections } from "@/lib/services/collection";
 
 type AddToCollectionButtonProps = {
   className?: string;
@@ -17,14 +15,10 @@ const AddToCollectionButton = async ({
   recipePublicId,
 }: AddToCollectionButtonProps) => {
   // TODO: Remove from collections if already added.
-  const { user } = await validateRequest();
+  const { user } = await getAuthenticatedUserFromRequest();
   if (!user) return null;
 
-  const collections = user
-    ? (await getCollectionsForUser(user, recipePublicId)).filter(
-        ({ recipeOccurrences }) => recipeOccurrences === 0,
-      )
-    : [];
+  const collections = user ? await findCollections({}, user) : [];
 
   const boundAddToCollectionsAction = addToCollections.bind(
     null,

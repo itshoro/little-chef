@@ -27,7 +27,7 @@ const Page = async () => {
                 href="/sign-up"
                 className="min-w-64 flex-1 rounded-lg border-2 border-lime-200 bg-lime-100 px-4 py-2 text-center font-medium text-lime-700 dark:border-lime-700 dark:bg-lime-900 dark:text-lime-200"
               >
-                I've got an invite code
+                I&apos;ve got an invite code
               </Link>
               <Link
                 href="/recipes"

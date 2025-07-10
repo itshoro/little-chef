@@ -1,21 +1,13 @@
 "use client";
 
-import { BaseButton } from "../button";
+import { Button, type ButtonProps } from "../button";
 import { useDialogContext } from "../../../recipes/dialog/root";
 
-type CancelButtonProps = {
-  children: React.ReactNode;
-} & React.ComponentProps<"button">;
-
-const CancelButton = ({
-  children,
-  type = "button",
-  ...props
-}: CancelButtonProps) => {
+const CancelButton = ({ children, type = "button", ...props }: ButtonProps) => {
   const { closeDialog } = useDialogContext(CancelButton.name);
 
   return (
-    <BaseButton
+    <Button
       {...props}
       type={type}
       onClick={(e: React.MouseEvent<React.ComponentRef<"button">>) => {
@@ -24,7 +16,7 @@ const CancelButton = ({
       }}
     >
       {children}
-    </BaseButton>
+    </Button>
   );
 };
 

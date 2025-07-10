@@ -1,8 +1,9 @@
 import { NoRecipesStored } from "@/components/collections/fallbacks/no-recipe-stored";
 import { RecipeCard } from "@/components/recipes/recipe-card";
-import { BaseButton } from "@/components/ui/buttons/button";
+import { Button } from "@/components/ui/buttons/button";
 import { AvatarStack } from "@/components/users/avatar-stack";
 
+import { LinkButton } from "@/components/ui/buttons/link-button";
 import { Section } from "@/components/ui/section";
 import type { CollectionIdentifier } from "@/drizzle/schema";
 import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
@@ -10,15 +11,18 @@ import {
   getCollectionDetailByIdentifier,
   getCollectionPreviewByIdentifier,
 } from "@/lib/services/collection";
-import type { CollectionDetailsDTO } from "@/lib/services/collection/types";
+import type {
+  CollectionDetailsDTO,
+  CollectionOutputPublicDTO,
+} from "@/lib/services/collection/types";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import type { RecipePreviewDTO } from "@/lib/services/recipe/types";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import type { Metadata, ResolvedMetadata } from "next";
 import { notFound, redirect, RedirectType } from "next/navigation";
-import { EditButton } from "../../../../components/collections/details/buttons/edit-button";
 import { removeRecipeFromCollectionAction } from "./remove-recipe-action";
+import { DeleteCollectionButton } from "./_components/delete-button";
 
 type CollectionPageProps = { params: Promise<{ slug: string }> };
 
@@ -114,8 +118,25 @@ const CollectionPage = async (props: CollectionPageProps) => {
         <div className="my-12">
           <Section title="Maintainer Actions">
             <div className="flex items-center gap-4">
-              <EditButton slug={params.slug} />
-              {/* <DeleteButton collectionId={collection.id} /> */}
+              <LinkButton
+                href={`/collections/${generateHandle(collection.slug, collection.publicId)}/edit`}
+                variant="outline"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="size-4 text-stone-600"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-white">Edit</span>
+              </LinkButton>
+              <DeleteCollectionButton collectionIdentifier={collection} />
             </div>
           </Section>
         </div>
@@ -140,7 +161,7 @@ const RecipeList = async ({
   recipes,
   isMaintainer,
 }: {
-  collection: CollectionIdentifier;
+  collection: CollectionOutputPublicDTO;
   recipes: RecipePreviewDTO[];
   isMaintainer: boolean;
 }) => {
@@ -166,7 +187,7 @@ const RecipeList = async ({
                     recipe,
                   )}
                 >
-                  <BaseButton type="submit">Remove</BaseButton>
+                  <Button type="submit">Remove</Button>
                 </form>
               </div>
             )}

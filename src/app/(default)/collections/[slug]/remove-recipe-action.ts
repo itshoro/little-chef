@@ -1,10 +1,11 @@
 import type { CollectionIdentifier, RecipeIdentifier } from "@/drizzle/schema";
 import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
 import { removeRecipeFromCollection } from "@/lib/services/collection";
+import { revalidatePath } from "next/cache";
 
 async function removeRecipeFromCollectionAction(
-  collectionIdentifier: CollectionIdentifier,
-  recipeIdentifier: RecipeIdentifier,
+  collectionIdentifier: { publicId: string },
+  recipeIdentifier: { publicId: string },
 ) {
   "use server";
 
@@ -14,6 +15,8 @@ async function removeRecipeFromCollectionAction(
     recipeIdentifier,
     user,
   );
+
+  revalidatePath(`/collections/${collectionIdentifier.publicId}`);
 }
 
 export { removeRecipeFromCollectionAction };

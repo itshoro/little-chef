@@ -20,7 +20,7 @@ const Contents = ({ collections }: { collections: CollectionPreviewDTO[] }) => {
   if (collections.length === 0) return <NoMoreCollections />;
 
   return (
-    <ul>
+    <ul className="grid gap-4">
       {collections.map((dto) => (
         <li key={dto.collection.publicId}>
           <CollectionCard

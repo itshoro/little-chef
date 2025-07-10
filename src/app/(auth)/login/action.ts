@@ -1,3 +1,5 @@
+"use server";
+
 import type { FormState } from "@/components/forms/form/root";
 import { logIn } from "@/lib/services/auth";
 import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
@@ -46,10 +48,8 @@ async function login(formData: FormData): Promise<FormState<LoginFormData>> {
 }
 
 async function loginAction(
-  _: FormState<LoginFormData> | null,
   formData: FormData,
 ): Promise<FormState<LoginFormData>> {
-  "use server";
   const response = await login(formData);
 
   if (response.success) {

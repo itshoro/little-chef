@@ -1,19 +1,15 @@
 "use client";
 
-import { BaseButton } from "../button";
+import { Button, type ButtonProps } from "../button";
 import { useDialogContext } from "../../../recipes/dialog/root";
 
-type TriggerButtonProps = {
-  children: React.ReactNode;
-} & React.ComponentProps<"button">;
-
-const TriggerButton = ({ children, ...props }: TriggerButtonProps) => {
+const TriggerButton = ({ children, ...props }: ButtonProps) => {
   const { openDialog } = useDialogContext(TriggerButton.name);
 
   return (
-    <BaseButton {...props} onClick={openDialog}>
+    <Button {...props} onClick={openDialog}>
       {children}
-    </BaseButton>
+    </Button>
   );
 };
 

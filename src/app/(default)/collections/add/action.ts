@@ -1,24 +1,13 @@
-import type { FormState } from "@/components/forms/form/root";
-import {
-  assertAuthenticatedForServerAction,
-  getAuthenticatedUserFromRequest,
-} from "@/lib/services/auth";
+"use server";
+
+import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
 import { createCollection } from "@/lib/services/collection";
 import type { CollectionOutputPublicDTO } from "@/lib/services/collection/types";
 import { generateHandle } from "@/lib/slug";
 import { createCollectionSchema } from "@/lib/validators/collection";
 import { redirect } from "next/navigation";
 
-type CreateCollectionControls = {
-  name: string;
-  visibility: string;
-};
-
-async function createAction(
-  _: FormState<CreateCollectionControls>,
-  formData: FormData,
-): Promise<FormState<CreateCollectionControls>> {
-  "use server";
+async function createAction(formData: FormData) {
   const name = formData.get("name") as string;
   const visibility = formData.get("visibility") as string;
 
@@ -37,15 +26,7 @@ async function createAction(
     if (!(e instanceof Error)) throw e;
     console.error(e);
 
-    return {
-      success: false,
-      message: e.message,
-      errors: e.cause as Record<string, any>,
-      controls: {
-        name,
-        visibility,
-      },
-    } satisfies FormState<CreateCollectionControls>;
+    return;
   }
 
   redirect(

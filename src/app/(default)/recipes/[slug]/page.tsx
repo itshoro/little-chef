@@ -1,20 +1,26 @@
+import { ShareCurrentPageButton } from "@/components/recipes/details/buttons/share-button";
 import { CookwareList } from "@/components/recipes/details/cookware-list";
 import { IngredientList } from "@/components/recipes/details/ingredient-list";
-import { ServingsQueryStore } from "@/components/recipes/details/servings-query-store";
-import { BaseButton } from "@/components/ui/buttons/button";
-import { Section } from "@/components/ui/section";
+import { ServingsQueryStore } from "@/app/(default)/recipes/[slug]/_components/servings-query-store";
+import { LikeButton } from "@/components/recipes/details/user-actions";
+import { Button } from "@/components/ui/buttons/button";
+import { LinkButton } from "@/components/ui/buttons/link-button";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
-import { AvatarStack } from "@/components/users/avatar-stack";
+import { Avatar } from "@/components/users/avatar";
 import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
-import { parseHandle } from "@/lib/slug";
+import type { UserOutputPublicDTO } from "@/lib/services/user/types";
+import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
-import Form from "next/form";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { ToWizardForm } from "./_components/to-wizard-form";
+import { DeleteRecipe } from "@/components/recipes/dialog/contents/delete-recipe";
+import { DeleteRecipeButton } from "./_components/delete-button";
+import { AddToCollectionButton } from "./_components/add-to-collection-button";
 
 type ShowRecipePageProps = {
   params: Promise<{ slug: string }>;
@@ -69,171 +75,210 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     return (
       <>
         <ForceWakeLock />
-        <div className="grid gap-6">
-          {recipe.coverSrc && (
-            <div className="relative isolate w-full">
-              <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/30 ring-inset dark:ring-white/30" />
-              <Image
-                alt=""
-                src={recipe.coverSrc}
-                height={400}
-                width={600}
-                className="col-span-2 aspect-video w-full rounded-3xl object-cover"
-              />
-            </div>
-          )}
+        <article>
+          <header className="border-b border-white/5 pb-6">
+            {recipe.coverSrc && (
+              <div className="mb-4 px-4">
+                <div className="relative isolate w-full">
+                  <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/5 ring-inset dark:ring-white/5" />
+                  <Image
+                    alt=""
+                    src={recipe.coverSrc}
+                    height={400}
+                    width={320}
+                    className="aspect-[5/4] w-full rounded-3xl object-cover"
+                    priority={true}
+                    quality={85}
+                  />
+                </div>
+              </div>
+            )}
 
-          <div className="mb-4">
-            <div className="flex flex-row items-start justify-between gap-2">
-              <h1 className="mb-2 text-2xl font-semibold text-pretty">
-                {recipe.name}
-              </h1>
-              {/* <LikeButton
-                className="h-12"
-                disabled={!user}
-                publicUserId={user?.publicId}
-                recipe={recipe}
-              /> */}
+            <section
+              className="isolate my-1 grid grid-cols-[auto_minmax(min-content,1fr)_auto] overflow-x-auto py-1"
+              style={{
+                scrollbarColor: "var(--color-stone-500) var(--color-stone-900)",
+              }}
+            >
+              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-gradient-to-l to-stone-900" />
+              <div className="flex items-center gap-4">
+                <Attributions maintainers={maintainers} />
+              </div>
+              <div className="pointer-events-none sticky right-0 z-10 flex">
+                <div className="h-full w-8 bg-gradient-to-r to-stone-900" />
+                <div className="pointer-events-auto relative flex">
+                  <section className="relative z-10 ml-auto flex gap-2 pr-4">
+                    <ShareCurrentPageButton />
+                    <LikeButton
+                      user={user}
+                      recipeIdentifier={recipe}
+                      initialLikes={recipe.likes}
+                    />
+                  </section>
+                  <div className="absolute top-0 h-full w-full bg-stone-900" />
+                </div>
+              </div>
+            </section>
+
+            <div className="mt-4 px-4">
+              <div className="mb-12">
+                <h1 className="mb-3 text-2xl leading-snug font-medium text-balance">
+                  {recipe.name}
+                </h1>
+                <p className="leading-relaxed text-pretty text-stone-400">
+                  {recipe.description}
+                </p>
+              </div>
+
+              <section className="-mx-4 whitespace-nowrap">
+                <div
+                  className="flex items-baseline gap-3 overflow-x-auto px-4 py-1"
+                  style={{
+                    scrollbarColor:
+                      "var(--color-stone-500) var(--color-stone-900)",
+                  }}
+                >
+                  <AddToCollectionButton recipeIdentifier={recipe} />
+                  <LinkButton
+                    href={`/recipes/${generateHandle(recipe.slug, recipe.publicId)}/edit`}
+                    variant="outline"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      className="size-4 text-stone-600"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-white">Edit</span>
+                  </LinkButton>
+                  <DeleteRecipeButton recipeIdentifier={recipe} />
+                </div>
+              </section>
             </div>
-            <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-              <AvatarStack size="size-6" users={maintainers} />
-              <span>{generateAttribution(maintainers)}</span>
-            </div>
+          </header>
+
+          <div className="my-8">
+            <section
+              className="isolate my-1 grid grid-cols-[auto_minmax(min-content,1fr)_auto] overflow-x-auto py-1"
+              style={{
+                scrollbarColor: "var(--color-stone-500) var(--color-stone-900)",
+              }}
+            >
+              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-gradient-to-l to-stone-900" />
+              <div className="flex items-center gap-8 whitespace-nowrap">
+                <article>
+                  <h3 className="text-stone-400">Prep Time</h3>
+                  <span className="font-medium">
+                    {recipe.preparationTime} min
+                  </span>
+                </article>
+                <article>
+                  <h3 className="text-stone-400">Cooking Time</h3>
+                  <span className="font-medium">{recipe.cookingTime} min</span>
+                </article>
+                <article>
+                  <h3 className="text-stone-400">Total Time</h3>
+                  <span className="font-medium">
+                    {recipe.preparationTime + recipe.cookingTime} min
+                  </span>
+                </article>
+              </div>
+              <div className="pointer-events-none sticky right-0 z-10 flex items-end justify-end">
+                <div className="h-full w-8 bg-gradient-to-r to-stone-900" />
+                <div className="pointer-events-auto relative">
+                  <section className="relative z-10 ml-auto flex gap-2 pr-4"></section>
+                  <div className="absolute top-0 h-full w-full bg-stone-900" />
+                </div>
+              </div>
+            </section>
           </div>
 
-          <div className="grid auto-rows-[minmax(48px,_auto)] grid-cols-4 gap-6">
-            <div className="col-span-2 grid flex-1 grid-cols-[auto_1fr] grid-rows-2 items-center gap-x-1.5 rounded-xl bg-stone-100 px-4 py-3 dark:bg-stone-900">
-              <div className="col-span-2 grid grid-cols-subgrid items-center text-nowrap text-ellipsis text-stone-600 dark:text-stone-400">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="col-start-1 size-4 opacity-40"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 4a.75.75 0 0 1 .738.616l.252 1.388A1.25 1.25 0 0 0 6.996 7.01l1.388.252a.75.75 0 0 1 0 1.476l-1.388.252A1.25 1.25 0 0 0 5.99 9.996l-.252 1.388a.75.75 0 0 1-1.476 0L4.01 9.996A1.25 1.25 0 0 0 3.004 8.99l-1.388-.252a.75.75 0 0 1 0-1.476l1.388-.252A1.25 1.25 0 0 0 4.01 6.004l.252-1.388A.75.75 0 0 1 5 4ZM12 1a.75.75 0 0 1 .721.544l.195.682c.118.415.443.74.858.858l.682.195a.75.75 0 0 1 0 1.442l-.682.195a1.25 1.25 0 0 0-.858.858l-.195.682a.75.75 0 0 1-1.442 0l-.195-.682a1.25 1.25 0 0 0-.858-.858l-.682-.195a.75.75 0 0 1 0-1.442l.682-.195a1.25 1.25 0 0 0 .858-.858l.195-.682A.75.75 0 0 1 12 1ZM10 11a.75.75 0 0 1 .728.568.968.968 0 0 0 .704.704.75.75 0 0 1 0 1.456.968.968 0 0 0-.704.704.75.75 0 0 1-1.456 0 .968.968 0 0 0-.704-.704.75.75 0 0 1 0-1.456.968.968 0 0 0 .704-.704A.75.75 0 0 1 10 11Z"
-                    clipRule="evenodd"
+          <section className="my-12 px-4">
+            <div className="mb-6">
+              <div className="flex w-full flex-wrap items-baseline justify-between gap-6">
+                <h2 className="shrink text-xl font-medium">Ingredients</h2>
+                <div className="pointer-events-auto">
+                  <ServingsQueryStore
+                    min={0}
+                    defaultValue={defaultServingSize}
                   />
-                </svg>
-
-                <span className="col-start-2 overflow-hidden text-sm font-medium text-ellipsis">
-                  Prep time
-                </span>
+                </div>
               </div>
-              <span className="col-start-2 row-start-2 text-lg font-semibold">
-                {recipe.preparationTime} min
-              </span>
             </div>
-
-            <div className="col-span-2 grid flex-1 grid-cols-[auto_1fr] grid-rows-2 items-center gap-x-1.5 rounded-xl bg-stone-100 px-4 py-3 dark:bg-stone-900">
-              <div className="col-span-2 grid grid-cols-subgrid grid-rows-subgrid items-center text-nowrap text-ellipsis text-stone-600 dark:text-stone-400">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="col-start-1 row-start-2 size-4 opacity-40"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7.75-4.25a.75.75 0 0 0-1.5 0V8c0 .414.336.75.75.75h3.25a.75.75 0 0 0 0-1.5h-2.5v-3.5Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-
-                <span className="col-start-2 overflow-hidden text-sm font-medium text-ellipsis">
-                  Cooking time
-                </span>
-              </div>
-              <span className="col-start-2 row-start-2 text-lg font-semibold">
-                {recipe.cookingTime} min
-              </span>
-            </div>
-          </div>
-
-          {parsedSteps.cookwares.length > 0 && (
-            <Section title="Cookware">
+            {parsedSteps.cookwares.length > 0 && (
               <CookwareList cookwares={parsedSteps.cookwares} />
-            </Section>
-          )}
+            )}
 
-          {parsedSteps.ingredients.length > 0 && (
-            <Section title="Ingredients">
+            {parsedSteps.ingredients.length > 0 && (
               <IngredientList
                 ingredients={parsedSteps.ingredients}
                 recommendedServingSize={recipe.recommendedServingSize}
               />
-            </Section>
-          )}
+            )}
+          </section>
 
-          {user && (
-            <div className="grid grid-cols-2 gap-6">
-              {/* <AddToCollection
-                publicUserId={user.publicId}
-                recipe={recipe}
-                className="col-span-2"
+          <footer className="pointer-events-none sticky bottom-0 isolate px-4 py-8">
+            <span
+              className="absolute inset-0 fill-black backdrop-blur"
+              style={{
+                mask: "linear-gradient(to bottom, transparent 50%, currentColor 75%)",
+              }}
+            />
+            <span
+              className="absolute inset-0 fill-black backdrop-blur-sm"
+              style={{
+                mask: "linear-gradient(to bottom, transparent 25%, currentColor 50%)",
+              }}
+            />
+            <span
+              className="absolute inset-0 fill-black backdrop-blur-xs"
+              style={{
+                mask: "linear-gradient(to bottom, transparent 0%, currentColor 25%)",
+              }}
+            />
+            <div className="relative isolate z-10">
+              <ToWizardForm
+                handle={generateHandle(recipe.slug, recipe.publicId)}
               />
-              <MaintainerActions
-                user={user}
-                maintainers={maintainers}
-                recipe={recipe}
-                slug={params.slug}
-              /> */}
             </div>
-          )}
-        </div>
-        <footer className="pointer-events-none sticky bottom-0 isolate -mx-4 px-4 py-8">
-          <span
-            className="absolute inset-0 fill-black backdrop-blur"
-            style={{
-              mask: "linear-gradient(to bottom, transparent 50%, currentColor 75%)",
-            }}
-          />
-          <span
-            className="absolute inset-0 fill-black backdrop-blur-sm"
-            style={{
-              mask: "linear-gradient(to bottom, transparent 25%, currentColor 50%)",
-            }}
-          />
-          <span
-            className="absolute inset-0 fill-black backdrop-blur-xs"
-            style={{
-              mask: "linear-gradient(to bottom, transparent 0%, currentColor 25%)",
-            }}
-          />
-          <div className="relative isolate z-10">
-            <Form
-              action={`/recipes/${params.slug}/wizard/0`}
-              className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-8"
-            >
-              <div className="pointer-events-auto flex w-full flex-1 items-baseline gap-4 sm:w-auto sm:flex-initial">
-                <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
-              </div>
-              <BaseButton type="submit" className="pointer-events-auto">
-                <div className="flex items-center gap-6">
-                  Start
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="h-5 w-5"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </BaseButton>
-            </Form>
-          </div>
-        </footer>
+          </footer>
+        </article>
       </>
     );
   } catch {
     notFound();
   }
+};
+
+const Attributions = ({
+  maintainers,
+}: {
+  maintainers: UserOutputPublicDTO[];
+}) => {
+  return (
+    <>
+      {maintainers.map((maintainer) => (
+        <article
+          key={maintainer.publicId}
+          className="inline-flex w-max shrink-0 items-center gap-2"
+        >
+          {maintainer.avatar && (
+            <Avatar src={maintainer.avatar} alt="" size="size-8" />
+          )}
+
+          <span className="text-sm text-stone-400 capitalize">
+            {maintainer.username}
+          </span>
+        </article>
+      ))}
+    </>
+  );
 };
 
 const InfoCard = ({ children }: { children: React.ReactNode }) => (

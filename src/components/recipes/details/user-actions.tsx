@@ -1,40 +1,41 @@
-import type { DrizzleRecipe } from "@/drizzle/schema";
-import { addRecipeLike, isRecipeLiked, removeRecipeLike } from "@/lib/dal/user";
+import { OptimisticLikeButton } from "@/components/ui/buttons/optimistic-like-button";
+import type { DrizzleRecipe, RecipeIdentifier } from "@/drizzle/schema";
+import type { AuthenticatedUser } from "@/lib/services/auth/types";
+import { isRecipeLiked, likeRecipe, unlikeRecipe } from "@/lib/services/recipe";
 import { revalidatePath } from "next/cache";
-import { OptimisticLikeButton } from "../../../../../components/ui/buttons/optimistic-like-button";
-import { AddToCollectionButton } from "../../../../../components/recipes/details/buttons/add-to-collection-button";
+import { AddToCollectionButton } from "./buttons/add-to-collection-button";
 
 export const LikeButton = async ({
-  recipe,
-  publicUserId,
+  recipeIdentifier,
+  user,
   disabled,
   className,
+  initialLikes,
 }: {
   className?: string;
-  recipe: DrizzleRecipe;
-  publicUserId: string | undefined;
+  recipeIdentifier: RecipeIdentifier;
+  initialLikes: number;
+  user: AuthenticatedUser | null;
   disabled?: boolean;
 }) => {
-  const isLiked = publicUserId
-    ? await isRecipeLiked(publicUserId, recipe.id)
-    : false;
+  const isLiked = user ? await isRecipeLiked(recipeIdentifier, user) : false;
 
   return (
     <OptimisticLikeButton
       className={className}
-      count={recipe.likes}
+      count={initialLikes}
       isLiked={isLiked}
       disabled={disabled}
       action={async (type) => {
         "use server";
-        if (!publicUserId) throw new Error("No session available");
+        if (!user) throw new Error("No session available");
 
         if (type === "add") {
-          const count = await addRecipeLike(publicUserId, recipe.publicId);
+          const count = await likeRecipe(recipeIdentifier, user);
           revalidatePath("/recipes", "page");
           return { count, isLiked: true };
         } else {
-          const count = await removeRecipeLike(publicUserId, recipe.publicId);
+          const count = await unlikeRecipe(recipeIdentifier, user);
           revalidatePath("/recipes", "page");
           return { count, isLiked: false };
         }

@@ -1,7 +1,7 @@
+import "@oddbird/popover-polyfill";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import "@oddbird/popover-polyfill";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" className="min-h-[100dvh]">
-      <body className={`${inter.className} dark:bg-black dark:text-white`}>
+      <body className={`${inter.className} dark:bg-stone-900 dark:text-white`}>
         <div>
           <div className="mx-auto min-h-[100dvh]">
             <div className="min-h-[100svh]">{props.children}</div>

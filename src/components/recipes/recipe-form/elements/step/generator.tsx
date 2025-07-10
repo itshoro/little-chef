@@ -2,8 +2,9 @@
 
 import * as Generator from "@/components/forms/generator";
 import { Plus } from "@/components/ui/icons/plus";
-import * as Input from "@/components/forms/input";
 import { StepGeneratorItem } from "./item";
+import { FieldRoot } from "@/components/ui/controls/field-root";
+import { Input } from "@/components/ui/controls/input";
 
 type StepsInputProps = {
   defaultValue?: { publicId: string; description: string; order: number }[];
@@ -23,7 +24,10 @@ const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
           {(uuid, i) => {
             return (
               <li className="relative my-2" key={uuid}>
-                <Input.Root name="step">
+                <FieldRoot name="step.uuid">
+                  <Input type="hidden" value={uuid} />
+                </FieldRoot>
+                <FieldRoot name={`step.${uuid}`}>
                   <StepGeneratorItem
                     uuid={uuid}
                     order={i + 1}
@@ -32,14 +36,14 @@ const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
                         ?.description
                     }
                   />
-                  <Generator.Add
-                    after={i}
-                    className="mx-auto my-4 flex cursor-pointer p-2 font-medium text-stone-600"
-                  >
-                    <Plus />
-                    <span className="pr-2">Add More</span>
-                  </Generator.Add>
-                </Input.Root>
+                </FieldRoot>
+                <Generator.Add
+                  after={i}
+                  className="mx-auto my-4 flex cursor-pointer p-2 font-medium text-stone-600"
+                >
+                  <Plus />
+                  <span className="pr-2">Add More</span>
+                </Generator.Add>
               </li>
             );
           }}

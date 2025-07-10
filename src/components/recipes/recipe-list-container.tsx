@@ -20,7 +20,7 @@ const Contents = ({ recipes }: { recipes: RecipePreviewDTO[] }) => {
   if (recipes.length === 0) return <NoMoreRecipes />;
 
   return (
-    <ul>
+    <ul className="grid gap-4">
       {recipes.map((dto) => (
         <li key={dto.recipe.publicId}>
           <RecipeCard recipe={dto.recipe} maintainers={dto.maintainers} />

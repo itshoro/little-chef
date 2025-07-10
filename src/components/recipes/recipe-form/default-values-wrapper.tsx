@@ -4,16 +4,17 @@ import {
   useFormStateContext,
   type FormState,
 } from "@/components/forms/form/root";
-import type { getRecipePreferences } from "@/lib/dal/auth";
+import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
 import type { CreateRecipeControls } from "../../../app/(default)/recipes/add/action";
 import { Inputs } from "./inputs";
+import type { DrizzleRecipePreferences } from "@/drizzle/schema";
 
 type RecipeFormContextWrapperProps = {
-  userPreferences?: Awaited<ReturnType<typeof getRecipePreferences>>;
+  preferences?: DrizzleRecipePreferences;
 };
 
 const DefaultValuesWrapper = ({
-  userPreferences,
+  preferences,
 }: RecipeFormContextWrapperProps) => {
   const formStateContext = useFormStateContext(
     "RecipeFormContextWrapper",
@@ -41,12 +42,12 @@ const DefaultValuesWrapper = ({
         }))
         .filter((item) => typeof item.description === "string"),
     };
-  } else if (userPreferences !== undefined) {
+  } else if (preferences !== undefined) {
     defaultValue = {
       recipe: {
         name: "",
-        recommendedServingSize: userPreferences.defaultServingSize,
-        visibility: userPreferences.defaultVisibility,
+        recommendedServingSize: preferences.defaultServingSize,
+        visibility: preferences.defaultVisibility,
       },
       steps: [
         {

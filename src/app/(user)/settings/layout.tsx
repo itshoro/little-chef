@@ -1,85 +1,79 @@
 import { Header } from "@/components/layout/header/header";
 import { BackLink } from "@/components/ui/back-link";
 import { Avatar } from "@/components/users/avatar";
-import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
-import { redirect } from "next/navigation";
-import { Suspense } from "react";
-import * as TabNavigation from "../../../components/layout/tab-navigation";
+import {
+  getAuthenticatedUserFromRequest,
+  getAuthenticatedUserOrRedirect,
+} from "@/lib/services/auth";
+import { Navigation } from "./_components/navigation";
+import { SettingsSidebarWrapper } from "./_components/settings-sidebar-wrapper";
+import { unsafeInvalidateSession } from "@/lib/dal/session";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
     <div className="h-[100svh]">
       <div className="flex min-h-full flex-col">
-        <div className="p-4">
+        <div className="mx-auto w-full max-w-(--breakpoint-xl) p-4">
           <Header>
             <BackLink />
           </Header>
         </div>
-        <div className="flex-1 lg:flex">
-          <div className="@container lg:w-[23rem]">
-            <aside className="flex flex-col justify-end gap-4 border-stone-200 lg:h-full lg:flex-col-reverse lg:justify-between lg:border-r dark:border-stone-700">
-              <div className="border-stone-200 px-4 pt-4 lg:border-t lg:pb-4 dark:border-stone-700">
-                <UserCard />
-              </div>
+        <section className="border-t border-stone-800">
+          <div className="mb-4 border-b border-stone-800">
+            <div className="mx-auto max-w-(--breakpoint-xl) p-4">
+              <div className="flex justify-between">
+                <div className="flex items-center gap-2">
+                  <UserCard />
+                </div>
 
-              <div className="border-y border-stone-200 p-4 lg:border-none dark:border-stone-700">
-                <Suspense>
-                  <TabNavigation.Root replace={true}>
-                    <TabNavigation.Link href="/settings/user">
-                      User
-                    </TabNavigation.Link>
-                    <TabNavigation.Link href="/settings/recipe">
-                      Recipe
-                    </TabNavigation.Link>
-                    <TabNavigation.Link href="/settings/collection">
-                      Collection
-                    </TabNavigation.Link>
-                  </TabNavigation.Root>
-                </Suspense>
+                <form action={signoutAction}>
+                  <button
+                    className="rounded-full border bg-stone-200 px-5 py-2 font-medium text-black dark:border-stone-800"
+                    type="submit"
+                  >
+                    Sign out
+                  </button>
+                </form>
               </div>
-            </aside>
+            </div>
           </div>
 
-          <main className="flex-1 lg:p-4">{props.children}</main>
-        </div>
+          <SettingsSidebarWrapper />
+
+          <div className="mx-auto flex max-w-(--breakpoint-xl) gap-6 p-4">
+            <div className="hidden w-xs shrink-0 lg:block">
+              <div className="sticky top-4 flex flex-col content-between gap-6">
+                <Navigation />
+              </div>
+            </div>
+            <main className="flex w-full flex-col gap-8">{props.children}</main>
+          </div>
+        </section>
       </div>
     </div>
   );
 };
+
+async function signoutAction() {
+  "use server";
+  const { session } = await getAuthenticatedUserFromRequest();
+  if (!session) throw new UnauthenticatedError();
+
+  await unsafeInvalidateSession(session.id);
+}
 
 const UserCard = async () => {
-  const { user, session } = await getAuthenticatedUserOrRedirect();
-
-  if (!user) return null;
-  const signoutWithSessionId = signout.bind(null, session.id);
+  const { user } = await getAuthenticatedUserOrRedirect();
 
   return (
-    <div className="rounded-2xl bg-stone-100 p-4 dark:bg-stone-900">
-      <div className="flex items-center gap-4">
-        <Avatar src={user.avatar ?? undefined} alt="" size="size-16" />
-        <div className="flex-1">
-          <div className="text-xs">Current User</div>
-          <div className="font-medium">{user.username}</div>
-        </div>
-
-        <form action={signoutWithSessionId}>
-          <button
-            className="rounded-full border bg-black px-5 py-2 font-medium text-white dark:border-stone-800"
-            type="submit"
-          >
-            Sign out
-          </button>
-        </form>
+    <div className="flex items-center gap-4">
+      <Avatar src={user.avatar ?? undefined} alt="" size="size-12" />
+      <div className="flex-1">
+        <div className="font-semibold">{user.username}</div>
       </div>
     </div>
   );
 };
-
-async function signout(sessionId: string, _: FormData) {
-  "use server";
-
-  await invalidateSession(sessionId);
-  redirect("/");
-}
 
 export default SettingsLayout;

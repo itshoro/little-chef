@@ -1,27 +1,21 @@
-import * as Fieldset from "@/components/forms/fieldset";
-import * as Input from "@/components/forms/input";
+// import * as Fieldset from "@/components/forms/fieldset";
+import { VisibilitySwitcher } from "@/components/ui/controls/visibility-switcher";
+import type {
+  RecipeOutputPublicDTO,
+  RecipeStepOutputPublicDTO,
+} from "@/lib/services/recipe/types";
 import { CoverImageInput } from "./elements/cover-image";
-import { ServingsInput } from "./elements/servings/input";
 import { StepsGenerator } from "./elements/step/generator";
-import type { VISIBILITIES } from "@/lib/constants";
-import { VisibilitySwitcher } from "@/components/forms/visibility-switcher";
+import { FieldRoot } from "@/components/ui/controls/field-root";
+import { Input } from "@/components/ui/controls/input";
+import { Label } from "@/components/ui/controls/label";
+import { Textarea } from "@/components/ui/controls/textarea";
+import { ServingsInput } from "@/components/ui/controls/servings-input";
 
 type InputsProps = {
   defaultValue?: {
-    recipe?: {
-      name?: string;
-      recommendedServingSize?: number;
-      preparationTime?: number;
-      cookingTime?: number;
-      visibility?: (typeof VISIBILITIES)[number];
-      coverSrc?: string | null;
-      description?: string | null;
-    };
-    steps?: {
-      publicId: string;
-      description: string;
-      order: number;
-    }[];
+    recipe?: Partial<RecipeOutputPublicDTO>;
+    steps?: RecipeStepOutputPublicDTO[];
   };
 };
 
@@ -29,100 +23,79 @@ const Inputs = ({ defaultValue }: InputsProps) => {
   return (
     <>
       <div className="mb-8">
-        <Fieldset.Root>
-          <Fieldset.Label>Overview</Fieldset.Label>
+        <FieldRoot name="publicId">
+          <Input type="hidden" value={defaultValue?.recipe?.publicId} />
+        </FieldRoot>
+        <div className="mb-4 rounded-2xl bg-stone-50 dark:bg-stone-950">
+          <CoverImageInput defaultValue={defaultValue?.recipe?.coverSrc} />
+        </div>
+        <div className="mb-4">
+          <FieldRoot name="name">
+            <Label>Name</Label>
+            <Input
+              autoFocus
+              type="text"
+              defaultValue={defaultValue?.recipe?.name}
+              required
+            />
+          </FieldRoot>
+        </div>
+        <div className="mb-4">
+          <FieldRoot name="description">
+            <Label>Description</Label>
+            <Textarea
+              className="min-h-24"
+              defaultValue={defaultValue?.recipe?.description ?? undefined}
+            />
+          </FieldRoot>
+        </div>
 
-          <div className="mb-4 rounded-2xl bg-stone-50 dark:bg-stone-950">
-            <CoverImageInput defaultValue={defaultValue?.recipe?.coverSrc} />
-          </div>
-
-          <div className="mb-4">
-            <Input.Root name="name">
-              <Input.Label>Name</Input.Label>
-              <Input.Group>
-                <Input.Element
-                  autoFocus
-                  type="text"
-                  defaultValue={defaultValue?.recipe?.name}
-                  required
-                />
-              </Input.Group>
-              <Input.InlineError />
-            </Input.Root>
-          </div>
-
-          <div className="mb-4">
-            <Input.Root name="description">
-              <Input.Label>Description</Input.Label>
-              <Input.Group>
-                <Input.Textarea
-                  className="min-h-24"
-                  defaultValue={defaultValue?.recipe?.description ?? undefined}
-                />
-              </Input.Group>
-              <Input.InlineError />
-            </Input.Root>
-          </div>
-
-          <div className="mb-4 flex gap-4">
-            <div className="flex-1">
-              <Input.Root name="preparationTime">
-                <Input.Label>Prep time (in mins)</Input.Label>
-                <Input.Group>
-                  <Input.Element
-                    type="text"
-                    defaultValue={defaultValue?.recipe?.preparationTime}
-                    pattern="\d+"
-                    required
-                  />
-                </Input.Group>
-                <Input.InlineError />
-              </Input.Root>
-            </div>
-            <div className="flex-1">
-              <Input.Root name="cookingTime">
-                <Input.Label>Cooking time (in mins)</Input.Label>
-                <Input.Group>
-                  <Input.Element
-                    type="text"
-                    defaultValue={defaultValue?.recipe?.cookingTime}
-                    pattern="\d+"
-                    required
-                  />
-                </Input.Group>
-                <Input.InlineError />
-              </Input.Root>
-            </div>
-          </div>
-        </Fieldset.Root>
-      </div>
-
-      <div className="mb-8">
-        <Fieldset.Root>
-          <Fieldset.Label>Visibility</Fieldset.Label>
-          <VisibilitySwitcher
-            name={"visibility"}
-            defaultValue={defaultValue?.recipe?.visibility}
-          />
-        </Fieldset.Root>
-      </div>
-
-      <Fieldset.Root>
-        <div className="mb-3 flex flex-col items-baseline justify-between gap-4 sm:ml-auto sm:flex-row">
-          <Fieldset.Label className="shrink-0">Steps</Fieldset.Label>
-
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <Input.Root name="servings">
-              <Input.Label>Servings</Input.Label>
-              <ServingsInput
-                defaultValue={defaultValue?.recipe?.recommendedServingSize}
+        <div className="mb-8">
+          <FieldRoot name="visibility">
+            <Label>Visibility</Label>
+            <VisibilitySwitcher
+              defaultValue={defaultValue?.recipe?.visibility}
+            />
+          </FieldRoot>
+        </div>
+        <div className="mb-4 flex gap-4">
+          <div className="flex-1">
+            <FieldRoot name="preparationTime">
+              <Label>Prep time (in mins)</Label>
+              <Input
+                type="text"
+                defaultValue={defaultValue?.recipe?.preparationTime}
+                pattern="\d+"
+                required
               />
-            </Input.Root>
+            </FieldRoot>
+          </div>
+          <div className="flex-1">
+            <FieldRoot name="cookingTime">
+              <Label>Cooking time (in mins)</Label>
+              <Input
+                type="text"
+                defaultValue={defaultValue?.recipe?.cookingTime}
+                pattern="\d+"
+                required
+              />
+            </FieldRoot>
           </div>
         </div>
-        <CooklangInfo />
-        <StepsGenerator defaultValue={defaultValue?.steps} />
-      </Fieldset.Root>
+      </div>
+
+      <div className="mb-3 flex flex-col items-baseline justify-between gap-4 sm:ml-auto sm:flex-row">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <FieldRoot name="servings">
+            <Label>Servings</Label>
+            <ServingsInput
+              defaultValue={defaultValue?.recipe?.recommendedServingSize}
+            />
+          </FieldRoot>
+        </div>
+      </div>
+      <CooklangInfo />
+      <StepsGenerator defaultValue={defaultValue?.steps} />
     </>
   );
 };

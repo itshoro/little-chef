@@ -1,12 +1,10 @@
-import * as Form from "@/components/forms/form";
-import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { parseHandle } from "@/lib/slug";
-import { notFound, redirect } from "next/navigation";
-import { Inputs } from "../../../../(user)/settings/collection/collection-form/inputs";
-import { editAction } from "./action";
 import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
 import { getCollectionDetailByIdentifier } from "@/lib/services/collection";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { parseHandle } from "@/lib/slug";
+import { notFound } from "next/navigation";
+import { CollectionForm } from "../../_components/collection-form";
+import { editAction } from "./action";
 
 type PageProps = {
   params: Promise<{
@@ -17,10 +15,10 @@ type PageProps = {
 const Page = async (props: PageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
+  const { user } = await getAuthenticatedUserOrRedirect();
+
   const params = await props.params;
   const { publicId } = parseHandle(params.slug);
-  console.error({ publicId });
-  const { user } = await getAuthenticatedUserOrRedirect();
 
   try {
     const { collection } = await getCollectionDetailByIdentifier(
@@ -30,14 +28,11 @@ const Page = async (props: PageProps) => {
 
     return (
       <>
-        <Form.Root action={editAction}>
-          <input type="hidden" name="publicId" value={collection.publicId} />
-          <div className="grid gap-4">
-            <Inputs defaultValue={collection} />
-            <Form.Alert />
-            <SubmitWithPending>Update Collection</SubmitWithPending>
-          </div>
-        </Form.Root>
+        <CollectionForm
+          defaultValue={collection}
+          action={editAction}
+          buttonLabel="Save"
+        />
       </>
     );
   } catch {

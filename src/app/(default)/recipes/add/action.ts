@@ -1,5 +1,5 @@
-import type { FormState } from "@/components/forms/form/root";
-import type { DrizzleRecipe } from "@/drizzle/schema";
+"use server";
+
 import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
 import { createRecipe } from "@/lib/services/recipe";
 import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
@@ -21,10 +21,8 @@ export type CreateRecipeControls = {
 };
 
 async function createAction(
-  _: FormState<CreateRecipeControls>,
   formData: FormData,
 ): Promise<FormState<CreateRecipeControls>> {
-  "use server";
   const name = formData.get("name") as string;
   const coverImage = formData.get("cover") as File;
   const description = formData.get("description") as string;

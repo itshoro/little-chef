@@ -1,13 +1,11 @@
-import * as Form from "@/components/forms/form";
-import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
-import { validateRequest } from "@/lib/auth";
-import { getRecipe, unsafeGetRecipeSteps } from "@/lib/dal/auth";
+import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
+import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
 import { parseHandle } from "@/lib/slug";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { Inputs } from "../../../../../components/recipes/recipe-form/inputs";
+import { RecipeForm } from "../../_components/recipe-form";
 import { editAction } from "./action";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 
 type EditRecipePageProps = {
   params: Promise<{
@@ -24,38 +22,19 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
 
   const params = await props.params;
   const { publicId } = parseHandle(params.slug);
-  const { user, session } = await validateRequest();
+  const { user } = await getAuthenticatedUserOrRedirect();
 
   if (!user) redirect("/login");
 
   try {
-    const recipe = await getRecipe({ publicId }, user);
-    const steps = await unsafeGetRecipeSteps(recipe.id);
+    const recipe = await getRecipeDetailByIdentifier({ publicId }, user);
 
     return (
-      <Form.Root action={editAction}>
-        <div className="mx-auto max-w-(--breakpoint-xl) p-4">
-          <input type="hidden" name="sessionId" value={session.id} />
-          <input type="hidden" name="publicId" value={recipe.publicId} />
-          <Inputs defaultValue={{ recipe, steps }} />
-          <Form.Alert />
-          <div className="flex justify-end gap-6 py-4">
-            <SubmitWithPending className="pointer-events-auto cursor-pointer rounded-2xl bg-lime-300 px-4 py-3 font-medium text-black">
-              <div className="inline-flex items-center gap-1 transition-transform group-active:translate-y-0.5">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="var(--color-lime-800)"
-                  className="size-4"
-                >
-                  <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
-                </svg>
-                <span>Update Recipe</span>
-              </div>
-            </SubmitWithPending>
-          </div>
-        </div>
-      </Form.Root>
+      <RecipeForm
+        action={editAction}
+        defaultValue={recipe}
+        buttonLabel="Save"
+      />
     );
   } catch (e) {
     if (e instanceof Error) {

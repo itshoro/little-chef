@@ -1,11 +1,11 @@
 "use client";
 
 import * as Generator from "@/components/forms/generator";
-import * as Input from "@/components/forms/input";
-import { useInputContext } from "@/components/forms/input/context";
 import { CooklangPreview } from "@/components/recipes/details/cooklang-preview";
 import { Trash } from "@/components/ui/icons/trash";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
+import { Textarea } from "@/components/ui/controls/textarea";
+import { Label } from "@/components/ui/controls/label";
 
 type StepGeneratorItemProps = {
   uuid: string;
@@ -59,29 +59,16 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
 
   return (
     <>
-      <Input.Root name="uuid">
-        <Input.Element type="hidden" value={uuid} />
-      </Input.Root>
-      <Input.Root name={uuid}>
-        <StepCounterLabel>{order}</StepCounterLabel>
-        <div className="relative w-full flex-1">
-          <Input.Textarea
-            className="relative h-full w-full text-transparent caret-black has-[~[data-slot=error]]:ring-red-500 dark:caret-white"
-            ref={textRef}
-            value={value}
-            onChange={onChange}
-            autoFocus={order > 1}
-            required
-          />
-          {value && (
-            <div className="pointer-events-none absolute inset-2 z-10 break-words whitespace-pre-wrap">
-              {value.slice(0, maxLength)}
-              <span className="bg-red-500/50">{value.slice(280)}</span>
-            </div>
-          )}
-          <Input.InlineError />
-        </div>
-      </Input.Root>
+      <StepCounterLabel>{order}</StepCounterLabel>
+      <div className="relative w-full flex-1">
+        <Textarea
+          ref={textRef}
+          value={value}
+          onChange={onChange}
+          autoFocus={order > 1}
+          required
+        />
+      </div>
       <div className="group mb-auto ml-4 grid place-items-center">
         <Generator.Remove
           className="grid place-items-center rounded-sm p-2.5 text-stone-500 transition-colors disabled:bg-stone-200 dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:not-disabled:bg-stone-700 dark:disabled:bg-stone-900 dark:disabled:text-stone-700"
@@ -174,17 +161,10 @@ const StepCounterLabel = ({
   htmlFor?: string;
   children?: React.ReactNode;
 }) => {
-  const { name } = useInputContext(StepCounterLabel.name);
-
-  const _name = htmlFor ? `${name}.${htmlFor}` : name;
-
   return (
-    <label
-      className="m-2 h-8 w-8 shrink-0 grow-0 rounded-full bg-neutral-100 text-sm font-bold select-none dark:bg-stone-900"
-      htmlFor={_name}
-    >
+    <Label className="m-2 h-8 w-8 shrink-0 grow-0 rounded-full bg-neutral-100 text-sm font-bold select-none dark:bg-stone-900">
       <div className="translate-y-1.5 text-center">{children}</div>
-    </label>
+    </Label>
   );
 };
 

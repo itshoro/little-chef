@@ -6,7 +6,7 @@ const AmountItem = ({
   amount: string | number;
 }) => {
   return (
-    <div className="min-w-0 rounded-lg bg-stone-100 px-6 py-4 shadow-xs dark:bg-stone-900">
+    <div className="min-w-0 rounded-lg bg-stone-100 px-6 py-4 shadow-xs dark:bg-stone-800">
       <div className="flex justify-between">
         <span className="font-medium capitalize">{label}</span>
         <span>{amount}</span>

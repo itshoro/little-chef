@@ -361,20 +361,6 @@ export async function removeRecipeFromCollection(
         },
       },
     );
-    collectionInvariant(
-      updatedCollections[0]?.itemCount === collection.itemCount - 1,
-      "Failed to update collection item count to expected value",
-      {
-        cause: {
-          identifier: {
-            collection: toIdentifier(collection),
-            recipe: recipeIdentifier,
-          },
-          expected: collection.itemCount + 1,
-          actual: updatedCollections[0]?.itemCount ?? null,
-        },
-      },
-    );
   });
 }
 

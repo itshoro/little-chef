@@ -1,11 +1,13 @@
 "use client";
 
-import { BaseButton } from "../../../ui/buttons/button";
+import { Button } from "../../../ui/buttons/button";
 
 const ShareCurrentPageButton = (props: React.ComponentProps<"button">) => {
   return (
-    <BaseButton
+    <Button
       {...props}
+      className="size-12"
+      variant="outline"
       type="button"
       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
         navigator.share({ title: document.title, url: window.location.href });
@@ -22,7 +24,7 @@ const ShareCurrentPageButton = (props: React.ComponentProps<"button">) => {
       </svg>
 
       <span className="sr-only">Share</span>
-    </BaseButton>
+    </Button>
   );
 };
 

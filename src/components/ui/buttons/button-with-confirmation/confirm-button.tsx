@@ -1,21 +1,17 @@
 "use client";
 
-import { BaseButton } from "../button";
+import { Button, type ButtonProps } from "../button";
 import { useDialogContext } from "../../../recipes/dialog/root";
-
-type ConfirmButtonProps = {
-  children: React.ReactNode;
-} & React.ComponentProps<"button">;
 
 const ConfirmButton = ({
   children,
   type = "submit",
   ...props
-}: ConfirmButtonProps) => {
+}: ButtonProps) => {
   const { closeDialog } = useDialogContext(ConfirmButton.name);
 
   return (
-    <BaseButton
+    <Button
       {...props}
       type={type}
       onClick={(e: React.MouseEvent<React.ComponentRef<"button">>) => {
@@ -24,7 +20,7 @@ const ConfirmButton = ({
       }}
     >
       {children}
-    </BaseButton>
+    </Button>
   );
 };
 

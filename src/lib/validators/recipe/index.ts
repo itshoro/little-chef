@@ -14,3 +14,11 @@ export const createRecipeSchema = z.object({
   }),
   steps: z.array(z.string().trim().min(2).max(280)),
 });
+export type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;
+
+export const editRecipeSchema = z.object({
+  ...createRecipeSchema.shape,
+  steps: z.record(z.string(), z.string().trim().min(2)),
+  publicId: z.string(),
+});
+export type EditRecipeFormData = z.infer<typeof editRecipeSchema>;

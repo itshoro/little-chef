@@ -7,9 +7,7 @@ const Layout = async (props: { children: React.ReactNode }) => {
       <Header className="mx-auto w-full max-w-(--breakpoint-xl) items-center gap-3 p-4">
         <BackLink />
       </Header>
-      <div className="mx-auto w-full max-w-(--breakpoint-xl) p-4">
-        {props.children}
-      </div>
+      <div className="mx-auto w-full max-w-prose">{props.children}</div>
     </div>
   );
 };
