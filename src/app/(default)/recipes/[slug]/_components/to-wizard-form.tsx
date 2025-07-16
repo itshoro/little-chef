@@ -3,14 +3,20 @@
 import { LinkButton } from "@/components/ui/buttons/link-button";
 import { useSearchParams } from "next/navigation";
 
-const ToWizardForm = ({ handle }: { handle: string }) => {
+const ToWizardForm = ({
+  handle,
+  defaultServings,
+}: {
+  handle: string;
+  defaultServings: number;
+}) => {
   const params = useSearchParams();
 
   return (
     <div className="flex">
       <LinkButton
         variant="primary"
-        href={`/recipes/${handle}/wizard/0?servings=${params.get("servings")}`}
+        href={`/recipes/${handle}/wizard/0?servings=${params.get("servings") || defaultServings}`}
         className="pointer-events-auto ml-auto"
       >
         <div className="flex items-center gap-6">
@@ -30,14 +36,6 @@ const ToWizardForm = ({ handle }: { handle: string }) => {
         </div>
       </LinkButton>
     </div>
-    // <Form
-    //   action={`/recipes/${handle}/wizard/0`}
-    //   className="flex max-w-full flex-1 flex-wrap items-end justify-end gap-8"
-    // >
-    //   <Button type="submit" className="pointer-events-auto">
-
-    //   </Button>
-    // </Form>
   );
 };
 

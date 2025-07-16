@@ -14,7 +14,9 @@ const IngredientList = ({
   recommendedServingSize,
 }: IngredientListProps) => {
   const searchParams = useSearchParams();
-  const preferredServingSize = Number(searchParams.get("servings"));
+  const preferredServingSize = Number(
+    searchParams.get("servings") || recommendedServingSize,
+  );
 
   return (
     <ul className="grid gap-2">

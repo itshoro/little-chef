@@ -244,6 +244,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             />
             <div className="relative isolate z-10">
               <ToWizardForm
+                defaultServings={recipe.recommendedServingSize}
                 handle={generateHandle(recipe.slug, recipe.publicId)}
               />
             </div>

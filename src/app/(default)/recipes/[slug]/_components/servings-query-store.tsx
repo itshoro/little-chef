@@ -5,7 +5,6 @@ import { ServingsInput } from "@/components/ui/controls/servings-input";
 import { useSearchParamState } from "@/hooks/use-search-params";
 
 type ServingsQueryStoreProps = {
-  name?: string;
   defaultValue?: number;
   min: number;
 };
@@ -13,7 +12,6 @@ type ServingsQueryStoreProps = {
 const ServingsQueryStore = ({
   min,
   defaultValue = 1,
-  name = "servings",
 }: ServingsQueryStoreProps) => {
   const [servingParam, setServings] = useSearchParamState("servings");
 
