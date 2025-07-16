@@ -90,7 +90,7 @@ export const collections = sqliteTable("collections", {
   likes: integer("likes").notNull().default(0),
 });
 
-export const collectionRecipes = sqliteTable("collectionRecipes", {
+export const collectionRecipes = sqliteTable("collection_recipes", {
   collectionId: integer("collectionId")
     .notNull()
     .references(() => collections.id, { onDelete: "cascade" }),
@@ -172,7 +172,7 @@ export const userRoles = sqliteTable(
   ],
 );
 
-export const appPreferences = sqliteTable("appPreferences", {
+export const appPreferences = sqliteTable("app_preferences", {
   id: integer("id").primaryKey(),
   theme: text("theme", {
     enum: THEMES,
@@ -181,7 +181,7 @@ export const appPreferences = sqliteTable("appPreferences", {
     .notNull(),
 });
 
-export const collectionPreferences = sqliteTable("collectionPreferences", {
+export const collectionPreferences = sqliteTable("collection_preferences", {
   id: integer("id").primaryKey(),
   defaultVisibility: text("defaultVisibility", {
     enum: VISIBILITIES,
@@ -190,7 +190,7 @@ export const collectionPreferences = sqliteTable("collectionPreferences", {
     .notNull(),
 });
 
-export const recipePreferences = sqliteTable("recipePreferences", {
+export const recipePreferences = sqliteTable("recipe_preferences", {
   id: integer("id").primaryKey(),
   defaultVisibility: text("defaultVisibility", {
     enum: VISIBILITIES,
@@ -229,7 +229,7 @@ export const sessionScopes = sqliteTable(
   ],
 );
 
-export const passwordResetRequests = sqliteTable("passwordResetRequests", {
+export const passwordResetRequests = sqliteTable("password_reset_requests", {
   id: integer().primaryKey(),
   token: text().notNull().unique(),
   userId: integer()

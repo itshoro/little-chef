@@ -128,10 +128,7 @@ export async function unsafeGetMaintainersForRecipe(
         inArray(recipeUserPermissions.role, ["editor", "maintainer", "owner"]),
       ),
     )
-    .innerJoin(
-      users,
-      eq(recipeUserPermissions.userId, recipeUserPermissions.userId),
-    );
+    .innerJoin(users, eq(users.id, recipeUserPermissions.userId));
 }
 
 export async function unsafeFindEditableRecipes(
@@ -174,10 +171,7 @@ export async function unsafeGetMaintainersForRecipes(
         inArray(recipeUserPermissions.role, ["editor", "maintainer", "owner"]),
       ),
     )
-    .innerJoin(
-      users,
-      eq(recipeUserPermissions.userId, recipeUserPermissions.userId),
-    );
+    .innerJoin(users, eq(users.id, recipeUserPermissions.userId));
 }
 
 // MARK: Recipe Steps
