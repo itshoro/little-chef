@@ -1,10 +1,7 @@
-import { ShareCurrentPageButton } from "@/components/recipes/details/buttons/share-button";
-import { CookwareList } from "@/components/recipes/details/cookware-list";
-import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { ServingsQueryStore } from "@/app/(default)/recipes/[slug]/_components/servings-query-store";
+import { ShareCurrentPageButton } from "@/components/recipes/details/buttons/share-button";
+import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { LikeButton } from "@/components/recipes/details/user-actions";
-import { Button } from "@/components/ui/buttons/button";
-import { LinkButton } from "@/components/ui/buttons/link-button";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { Avatar } from "@/components/users/avatar";
 import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
@@ -17,10 +14,8 @@ import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { RecipeActionButtons } from "./_components/recipe-action-buttons";
 import { ToWizardForm } from "./_components/to-wizard-form";
-import { DeleteRecipe } from "@/components/recipes/dialog/contents/delete-recipe";
-import { DeleteRecipeButton } from "./_components/delete-button";
-import { AddToCollectionButton } from "./_components/add-to-collection-button";
 
 type ShowRecipePageProps = {
   params: Promise<{ slug: string }>;
@@ -111,6 +106,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                     <ShareCurrentPageButton />
                     <LikeButton
                       user={user}
+                      disabled={user === null}
                       recipeIdentifier={recipe}
                       initialLikes={recipe.likes}
                     />
@@ -131,34 +127,9 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               </div>
 
               <section className="-mx-4 whitespace-nowrap">
-                <div
-                  className="flex items-baseline gap-3 overflow-x-auto px-4 py-1"
-                  style={{
-                    scrollbarColor:
-                      "var(--color-stone-500) var(--color-stone-900)",
-                  }}
-                >
-                  <AddToCollectionButton recipeIdentifier={recipe} />
-                  <LinkButton
-                    href={`/recipes/${generateHandle(recipe.slug, recipe.publicId)}/edit`}
-                    variant="outline"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="size-4 text-stone-600"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-white">Edit</span>
-                  </LinkButton>
-                  <DeleteRecipeButton recipeIdentifier={recipe} />
-                </div>
+                {user && (
+                  <RecipeActionButtons recipeIdentifier={recipe} user={user} />
+                )}
               </section>
             </div>
           </header>
@@ -211,9 +182,10 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 </div>
               </div>
             </div>
-            {parsedSteps.cookwares.length > 0 && (
+            {/** TODO: add Cookware list */}
+            {/* {parsedSteps.cookwares.length > 0 && (
               <CookwareList cookwares={parsedSteps.cookwares} />
-            )}
+            )} */}
 
             {parsedSteps.ingredients.length > 0 && (
               <IngredientList
