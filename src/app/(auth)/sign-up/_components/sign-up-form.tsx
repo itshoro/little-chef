@@ -1,13 +1,13 @@
 "use client";
 
-import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
+import { PendingButton } from "@/components/ui/buttons/pending-button";
 import { FieldRoot } from "@/components/ui/controls/field-root";
+import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
 import { passwordRange, usernameRange } from "@/lib/validators/user";
 import Link from "next/link";
 import { useTransition } from "react";
 import { signupAction } from "../action";
-import { Input } from "@/components/ui/controls/input";
 
 const SingUpForm = () => {
   const [pending, startTransition] = useTransition();
@@ -72,7 +72,7 @@ const SingUpForm = () => {
             Sign in
           </Link>
         </span>
-        <SubmitWithPending>Register</SubmitWithPending>
+        <PendingButton pending={pending}>Register</PendingButton>
       </div>
     </form>
   );

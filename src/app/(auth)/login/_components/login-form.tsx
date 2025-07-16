@@ -1,13 +1,13 @@
 "use client";
 
-import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
+import { PendingButton } from "@/components/ui/buttons/pending-button";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
 import { passwordRange, usernameRange } from "@/lib/validators/user";
 import Link from "next/link";
-import { loginAction } from "../action";
 import { useTransition } from "react";
+import { loginAction } from "../action";
 
 const LoginForm = () => {
   const [pending, startTransition] = useTransition();
@@ -52,7 +52,7 @@ const LoginForm = () => {
             Sign up
           </Link>
         </span>
-        <SubmitWithPending>Login</SubmitWithPending>
+        <PendingButton pending={pending}>Login</PendingButton>
       </div>
     </form>
   );
