@@ -50,13 +50,7 @@ async function login(formData: FormData): Promise<FormState<LoginFormData>> {
 async function loginAction(
   formData: FormData,
 ): Promise<FormState<LoginFormData>> {
-  const response = await login(formData);
-
-  if (response.success) {
-    redirect("/recipes");
-  }
-
-  return response;
+  return await login(formData);
 }
 
 export { loginAction };

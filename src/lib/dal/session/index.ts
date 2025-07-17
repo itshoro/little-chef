@@ -82,8 +82,11 @@ export async function unsafeInvalidateSession(sessionId: string) {
   await db.delete(sessions).where(eq(sessions.id, sessionId));
 }
 
-export async function unsafeInvalidateAllSessions(userId: number) {
-  await db.delete(sessions).where(eq(sessions.userId, userId));
+export async function unsafeInvalidateAllSessions(
+  connection: Connection,
+  userId: number,
+) {
+  await connection.delete(sessions).where(eq(sessions.userId, userId));
 }
 
 export async function unsafeAddSessionScopes(

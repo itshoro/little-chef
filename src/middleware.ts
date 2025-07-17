@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 async function middleware(request: NextRequest) {
   if (request.method === "GET") {
     // extend session life time on get because we can be certain a new session hasn't been established.
-    const response = NextResponse.next();
+    const response = NextResponse.next({
+      headers: new Headers([["x-current-path", request.nextUrl.pathname]]),
+    });
     const sessionToken = request.cookies.get("session")?.value ?? null;
 
     if (sessionToken !== null) {
@@ -40,7 +42,9 @@ async function middleware(request: NextRequest) {
     });
   }
 
-  return NextResponse.next();
+  return NextResponse.next({
+    headers: new Headers([["x-current-path", request.nextUrl.pathname]]),
+  });
 }
 
 export { middleware };

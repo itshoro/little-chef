@@ -3,11 +3,18 @@ import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { redirect } from "next/navigation";
 import { LoginForm } from "./_components/login-form";
 
-const LoginPage = async () => {
+const LoginPage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ returnTo: string }>;
+}) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
+  const targetPage = (await searchParams).returnTo;
+
+  console.log({ targetPage });
 
   const { user } = await getAuthenticatedUserFromRequest();
-  if (user) redirect("/recipes");
+  if (user) redirect(targetPage || "/recipes");
 
   return (
     <>

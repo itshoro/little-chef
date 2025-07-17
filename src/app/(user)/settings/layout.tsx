@@ -9,6 +9,7 @@ import { Navigation } from "./_components/navigation";
 import { SettingsSidebarWrapper } from "./_components/settings-sidebar-wrapper";
 import { unsafeInvalidateSession } from "@/lib/dal/session";
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { redirect } from "next/navigation";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
@@ -61,6 +62,7 @@ async function signoutAction() {
   if (!session) throw new UnauthenticatedError();
 
   await unsafeInvalidateSession(session.id);
+  redirect("/");
 }
 
 const UserCard = async () => {
