@@ -23,7 +23,6 @@ import {
   unsafeCreateRecipePreferences,
   unsafeCreateUser,
   unsafeGetUserByUsername,
-  unsafeResolveUserId,
 } from "@/lib/dal/user";
 import { ConflictError } from "@/lib/errors/conflict/error";
 import { InvalidCredentialsError } from "@/lib/errors/invalid-credentials/error";
@@ -126,11 +125,9 @@ export async function getAuthenticatedUserOrRedirect() {
   const result = await getAuthenticatedUserFromRequest();
 
   if (!result.user) {
-    await deleteSessionTokenCookie();
-
     const headersStore = await headers();
     const searchParams = new URLSearchParams();
-    searchParams.set("returnTo", headersStore.get("x-invoke-path")!);
+    searchParams.set("returnTo", headersStore.get("x-current-path")!);
     redirect(`/login?${searchParams.toString()}`);
   }
 
@@ -220,7 +217,7 @@ export async function validateSessionToken(
   };
 }
 
-async function assertValidCredentials(
+export async function assertValidCredentials(
   user: AuthenticatedUser | null,
   password: Password,
 ) {

@@ -44,7 +44,7 @@ export const recipeUserPermissions = sqliteTable(
     }).notNull(),
     createdAt: integer({ mode: "timestamp" })
       .notNull()
-      .default(sql`(current_timestamp)`),
+      .default(sql`(unixepoch())`),
   },
   (table) => [
     primaryKey({
@@ -63,7 +63,7 @@ export const recipeLikes = sqliteTable("recipe_likes", {
     .references(() => users.id),
   createdAt: integer({ mode: "timestamp" })
     .notNull()
-    .default(sql`(current_timestamp)`),
+    .default(sql`(unixepoch())`),
 });
 
 export const recipeSteps = sqliteTable("steps", {
@@ -113,7 +113,7 @@ export const collectionUserPermissions = sqliteTable(
     }).notNull(),
     createdAt: integer({ mode: "timestamp" })
       .notNull()
-      .default(sql`(current_timestamp)`),
+      .default(sql`(unixepoch())`),
   },
   (table) => [
     primaryKey({
@@ -132,7 +132,7 @@ export const collectionLikes = sqliteTable("collection_likes", {
     .references(() => users.id),
   createdAt: integer({ mode: "timestamp" })
     .notNull()
-    .default(sql`(current_timestamp)`),
+    .default(sql`(unixepoch())`),
 });
 // MARK: users
 export const users = sqliteTable("users", {
@@ -162,7 +162,7 @@ export const userRoles = sqliteTable(
     role: text({ enum: USER_ROLES }).notNull(),
     createdAt: integer({ mode: "timestamp" })
       .notNull()
-      .default(sql`(current_timestamp)`),
+      .default(sql`(unixepoch())`),
   },
   (table) => [
     primaryKey({
@@ -218,7 +218,7 @@ export const sessionScopes = sqliteTable(
     scope: text({ enum: SESSION_SCOPES }).notNull(),
     createdAt: integer({ mode: "timestamp" })
       .notNull()
-      .default(sql`(current_timestamp)`),
+      .default(sql`(unixepoch())`),
     expiresAt: integer({ mode: "timestamp" }).notNull(),
   },
   (table) => [
@@ -237,7 +237,7 @@ export const passwordResetRequests = sqliteTable("password_reset_requests", {
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: integer({ mode: "timestamp" })
     .notNull()
-    .default(sql`(current_timestamp)`),
+    .default(sql`(unixepoch())`),
   expiresAt: integer({ mode: "timestamp" }).notNull(),
 });
 

@@ -58,7 +58,7 @@ export async function unsafeGetSessionByIdentifier(
     .where(
       and(
         eq(sessions.id, identifier.id),
-        gt(sessions.expiresAt, sql`(current_timestamp)`),
+        gt(sessions.expiresAt, sql`(unixepoch())`),
       ),
     )
     .limit(1);
@@ -91,15 +91,13 @@ export async function unsafeAddSessionScopes(
   scopes: DrizzleSessionScope["scope"][],
 ): Promise<void> {
   // todo: make this configurable
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-
   await db
     .insert(sessionScopes)
     .values(
       scopes.map((scope) => ({
         sessionId: session.id,
         scope,
-        expiresAt,
+        expiresAt: sql`(unixepoch() + 3600 * 24 * 30)`, // 30 days
       })),
     )
     .onConflictDoUpdate({
@@ -107,7 +105,7 @@ export async function unsafeAddSessionScopes(
       set: {
         sessionId: session.id,
         scope: sql.raw(`excluded.${sessionScopes.scope.name}`),
-        expiresAt,
+        expiresAt: sql`(unixepoch() + 3600 * 24 * 30)`, // 30 days
       },
     });
 }
@@ -138,7 +136,7 @@ export async function unsafeCreatePasswordResetRequest(
     .insert(passwordResetRequests)
     .values({
       userId,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60), // 1 hour
+      expiresAt: sql`(unixepoch() + 3600)`, // 1 hour
       token: crypto.randomUUID(),
     })
     .returning();
@@ -153,7 +151,7 @@ export async function unsafeGetSessionScopes(session: SessionIdentifier) {
     .where(
       and(
         eq(sessionScopes.sessionId, session.id),
-        gt(sessionScopes.expiresAt, sql`(current_timestamp)`),
+        gt(sessionScopes.expiresAt, sql`(unixepoch())`),
       ),
     );
 }

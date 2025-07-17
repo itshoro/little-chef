@@ -33,6 +33,8 @@ import type {
   UserInsertDTO,
   UserUpdateDTO,
 } from "./types";
+import type { Password, Username } from "@/lib/validators/user";
+import { assertValidCredentials } from "../auth";
 
 // MARK: CRUD
 
@@ -65,6 +67,18 @@ export async function getUser(identifier: UserIdentifier) {
   }
 
   return user;
+}
+
+export async function getUserByCredentials(
+  username: Username,
+  password: Password,
+) {
+  const user = await unsafeGetUserByUsername(username);
+  if (!user) throw new UserNotFoundError({ username });
+
+  await assertValidCredentials(user as AuthenticatedUser, password);
+
+  return user as AuthenticatedUser;
 }
 
 export async function updateUser(
