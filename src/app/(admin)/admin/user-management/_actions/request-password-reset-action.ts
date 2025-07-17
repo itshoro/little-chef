@@ -1,12 +1,12 @@
 "use server";
 
 import { type DrizzleUser } from "@/drizzle/schema";
-import { requestPasswordReset } from "@/lib/auth";
+import { unsafeCreatePasswordResetRequest } from "@/lib/dal/session";
 
 async function requestPasswordResetAction(
   userId: DrizzleUser["id"],
 ): Promise<string> {
-  return requestPasswordReset(userId);
+  return unsafeCreatePasswordResetRequest(userId);
 }
 
 export { requestPasswordResetAction };

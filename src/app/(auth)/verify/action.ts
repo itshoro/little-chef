@@ -1,17 +1,12 @@
-import type { FormState } from "@/components/forms/form/root";
-import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
-import { loginSchema, type LoginFormData } from "../login/action";
-import { findUserByCredentials } from "@/lib/dal/user";
-import { redirect } from "next/navigation";
-import {
-  addSessionScopes,
-  assertAuthorizedForServerAction,
-  supportedSessionScopes,
-} from "@/lib/auth";
-import { z } from "zod";
 import type { DrizzleSessionScope } from "@/drizzle/schema";
-
-type VerifyFormData = LoginFormData;
+import { SESSION_SCOPES } from "@/lib/constants";
+import { unsafeAddSessionScopes } from "@/lib/dal/session";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
+import { getUserByCredentials } from "@/lib/services/user";
+import { loginSchema } from "@/lib/validators/auth";
+import { redirect } from "next/navigation";
+import { z } from "zod";
 
 export const verifySchema = z.object({
   redirect: z.string().refine((val) => val.startsWith("/"), {
@@ -19,8 +14,8 @@ export const verifySchema = z.object({
   }),
   scope: z
     .union([
-      z.enum(supportedSessionScopes),
-      z.array(z.enum(supportedSessionScopes)),
+      z.enum(SESSION_SCOPES),
+      z.array(z.enum(SESSION_SCOPES)),
       z.undefined(),
     ])
     .transform((val) => {
@@ -37,14 +32,13 @@ export const verifySchema = z.object({
     }),
 });
 
-const schema = loginSchema.merge(verifySchema);
+const schema = loginSchema.extend(verifySchema.shape);
 
 async function verifyAction(
   redirectUrl: string,
   scopes: DrizzleSessionScope["scope"][],
-  _: FormState<VerifyFormData> | null,
   formData: FormData,
-): Promise<FormState<VerifyFormData>> {
+) {
   "use server";
   if (await isRateLimitedLogin()) {
     throw new Error("Too many requests.");
@@ -52,30 +46,23 @@ async function verifyAction(
 
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
-  const parseResult = schema.safeParse({
+  const dto = schema.parse({
     username,
     password,
     redirect: redirectUrl,
     scope: scopes,
   });
 
-  if (!parseResult.success) {
-    throw new Error(undefined, {
-      cause: parseResult.error.flatten().fieldErrors,
-    });
-  }
-
-  const dto = parseResult.data;
   const [{ user, session }, userByCredentials] = await Promise.all([
-    assertAuthorizedForServerAction(),
-    findUserByCredentials(dto.username, dto.password),
+    getAuthenticatedUserFromRequest(),
+    getUserByCredentials(dto.username, dto.password),
   ]);
 
-  if (user.id !== userByCredentials.id) {
+  if (!user || !userByCredentials || user.id !== userByCredentials.id) {
     throw new Error("Couldn't verify session for the user.");
   }
 
-  await addSessionScopes(session, dto.scope);
+  await unsafeAddSessionScopes(session, dto.scope);
   return redirect(redirectUrl);
 }
 

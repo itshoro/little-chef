@@ -1,26 +1,29 @@
 import { Avatar } from "@/components/users/avatar";
-import { db } from "@/drizzle/db";
-import { users } from "@/drizzle/schema";
-import { validateRequest } from "@/lib/auth";
-import {
-  findUsers,
-  sessionHasActiveScopes,
-  userHasScopes,
-} from "@/lib/dal/user";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { forbidden, redirect } from "next/navigation";
-import { RequestPasswordResetActionForm } from "./actions/request-password-reset/form";
+import { RequestPasswordResetActionForm } from "./_components/request-password-reset-form";
+import {
+  getAuthenticatedUserFromRequest,
+  hasSessionScopes,
+} from "@/lib/services/auth";
+import { hasUserRoles } from "@/lib/services/user";
+import { db } from "@/drizzle/db";
+import { users } from "@/drizzle/schema";
+
+async function getUsers() {
+  return db.select().from(users);
+}
 
 const UserManagementPage = async () => {
   // todo: extract verification logic for re-use in other admin pages
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user, session } = await validateRequest();
+  const { user, session } = await getAuthenticatedUserFromRequest();
 
   if (!user) redirect("/login");
-  if (!(await userHasScopes(user, ["admin"]))) forbidden();
+  if (!(await hasUserRoles(user, ["admin"]))) forbidden();
 
   // todo: consider extending the scope lifetime if already present
-  if (!(await sessionHasActiveScopes(session, ["sudo"]))) {
+  if (!(await hasSessionScopes(session, ["sudo"]))) {
     const params = new URLSearchParams();
     params.set("redirect", "/admin");
     params.set("scope", "sudo");
@@ -28,7 +31,7 @@ const UserManagementPage = async () => {
     redirect(`/verify?${params.toString()}`);
   }
 
-  const users = await findUsers("%", 20);
+  const users = await getUsers();
 
   return (
     <>

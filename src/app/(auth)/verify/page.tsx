@@ -1,10 +1,7 @@
-import * as Form from "@/components/forms/form";
-import { SubmitWithPending } from "@/components/forms/form/submit-with-pending";
-import * as Input from "@/components/forms/input";
-import { validateRequest } from "@/lib/auth";
-import { passwordRange, usernameRange } from "@/lib/dal/user/types";
+import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { redirect } from "next/navigation";
+import { VerifyForm } from "./_components/verify-form";
 import { verifyAction, verifySchema } from "./action";
 
 type VerifyPageProps = {
@@ -16,7 +13,7 @@ type VerifyPageProps = {
 
 const VerifyPage = async (params: VerifyPageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await validateRequest();
+  const { user } = await getAuthenticatedUserFromRequest();
   if (!user) redirect("/login");
 
   const verifiedParams = verifySchema.safeParse(await params.searchParams);
@@ -52,42 +49,7 @@ const VerifyPage = async (params: VerifyPageProps) => {
             minutes.
           </p>
         </div>
-        <Form.Root action={boundVerifyAction}>
-          <div className="mb-4">
-            <Input.Root name="username">
-              <Input.Label className="pb-2">Username</Input.Label>
-              <Input.Group>
-                <Input.Element
-                  type="text"
-                  minLength={usernameRange.min}
-                  maxLength={usernameRange.max}
-                  autoComplete="username"
-                />
-              </Input.Group>
-              <Input.InlineError />
-            </Input.Root>
-          </div>
-          <div className="mb-4">
-            <Input.Root name="password">
-              <Input.Label className="pb-2">Password</Input.Label>
-              <Input.Group>
-                <Input.Element
-                  type="password"
-                  minLength={passwordRange.min}
-                  maxLength={passwordRange.max}
-                  autoComplete="current-password"
-                />
-              </Input.Group>
-              <Input.InlineError />
-            </Input.Root>
-          </div>
-
-          <Form.Alert />
-
-          <div className="mt-2 flex items-baseline justify-between">
-            <SubmitWithPending>Verify Credentials</SubmitWithPending>
-          </div>
-        </Form.Root>
+        <VerifyForm action={boundVerifyAction} />
       </div>
     </>
   );

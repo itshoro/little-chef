@@ -1,8 +1,10 @@
 "use client";
 
 import type { DrizzleUser } from "@/drizzle/schema";
-import { requestPasswordResetAction } from "./action";
+import { requestPasswordResetAction } from "../_actions/request-password-reset-action";
 import { useTransition } from "react";
+import { Button } from "@/components/ui/buttons/button";
+import { PendingButton } from "@/components/ui/buttons/pending-button";
 
 type RequestPasswordResetActionFormProps = {
   userId: DrizzleUser["id"];
@@ -11,11 +13,11 @@ type RequestPasswordResetActionFormProps = {
 const RequestPasswordResetActionForm = ({
   userId,
 }: RequestPasswordResetActionFormProps) => {
-  const [_, startTransition] = useTransition();
+  const [pending, startTransition] = useTransition();
 
-  // todo: handle errors and loading state.
   return (
-    <button
+    <PendingButton
+      pending={pending}
       onClick={() => {
         startTransition(async () => {
           const resetToken = await requestPasswordResetAction(userId);
@@ -28,7 +30,7 @@ const RequestPasswordResetActionForm = ({
       }}
     >
       Request Password Reset
-    </button>
+    </PendingButton>
   );
 };
 
