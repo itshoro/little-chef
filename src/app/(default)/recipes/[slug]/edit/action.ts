@@ -1,59 +1,51 @@
 "use server";
 
-import type { DrizzleRecipe } from "@/drizzle/schema";
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 import { updateRecipe } from "@/lib/services/recipe";
 import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
 import { generateHandle } from "@/lib/slug";
 import { editRecipeSchema } from "@/lib/validators/recipe";
-import type { Recipe } from "@cooklang/cooklang-ts";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
-// export const editRecipeSchema = z.object({
-//   publicId: z.string(),
-//   name: z.string().trim().min(2),
-//   description: z.string(),
-//   servings: z.coerce.number().min(1),
-//   preparationTime: z.coerce.number().min(0),
-//   cookingTime: z.coerce.number().min(0),
-//   visibility: visibilitySchema,
-//   cover: z
-//     .object({
-//       update: z.literal(false),
-//     })
-//     .or(
-//       z.object({
-//         update: z.literal(true),
-//         image: z.instanceof(File).nullable(),
-//       }),
-//     ),
-//   step: z.record(z.string().trim().min(2)),
-// });
+type CoverUpdate =
+  | {
+      update: true;
+      file: File | null;
+    }
+  | {
+      update: false;
+      file?: undefined;
+    };
 
 function determineCover(
-  priorCover: string,
   coverImage: FormDataEntryValue | null,
+  coverDeleted: boolean,
 ) {
+  if (coverDeleted) {
+    return { update: true, file: null } satisfies CoverUpdate;
+  }
+
+  if (!(coverImage instanceof File) && coverImage !== null) {
+    return { update: false } satisfies CoverUpdate;
+  }
+
   // FormData always returns a file object, even if the file input is empty.
   if (coverImage instanceof File && coverImage.size === 0) {
     coverImage = null;
   }
 
-  const shouldUpdateCoverImage = priorCover === "" || coverImage !== null;
-  const cover = shouldUpdateCoverImage
-    ? ({ update: true, image: coverImage } as const)
-    : ({ update: false } as const);
-
-  return cover;
+  if (coverImage === null) {
+    return { update: false } satisfies CoverUpdate;
+  }
+  return { update: true, file: coverImage } satisfies CoverUpdate;
 }
 
 async function editAction(formData: FormData) {
   const publicId = formData.get("publicId") as string;
   const name = formData.get("name") as string;
-  const priorCover = formData.get("priorCover") as string;
   const coverImage = formData.get("cover") as File;
+  const coverDeleted = formData.get("coverDeleted") === "true";
   const description = formData.get("description") as string;
   const preparationTime = formData.get("preparationTime") as string;
   const cookingTime = formData.get("cookingTime") as string;
@@ -72,7 +64,7 @@ async function editAction(formData: FormData) {
   try {
     const { user } = await getAuthenticatedUserFromRequest();
     if (!user) throw new UnauthenticatedError();
-    const cover = determineCover(priorCover, coverImage);
+    const cover = determineCover(coverImage, coverDeleted);
 
     const payload = {
       name,

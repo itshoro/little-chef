@@ -1,6 +1,18 @@
 import { z } from "zod";
 import { visibilitySchema } from "../visibility";
 
+const coverUpdateSchema = z
+  .object({
+    update: z.literal(true),
+    file: z.instanceof(File).nullable(),
+  })
+  .or(
+    z.object({
+      update: z.literal(false),
+      file: z.undefined(),
+    }),
+  );
+
 export const createRecipeSchema = z.object({
   name: z.string().trim().min(2),
   description: z.string(),
@@ -8,10 +20,7 @@ export const createRecipeSchema = z.object({
   preparationTime: z.coerce.number().min(0),
   cookingTime: z.coerce.number().min(0),
   visibility: visibilitySchema,
-  cover: z.object({
-    update: z.literal(true),
-    file: z.instanceof(File).nullable(),
-  }),
+  cover: coverUpdateSchema,
   steps: z.array(z.string().trim().min(2).max(280)),
 });
 export type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;

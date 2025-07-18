@@ -9,23 +9,25 @@ const CoverImageInput = ({
 }: {
   defaultValue?: string | null;
 }) => {
-  const [priorSrc, setPriorSrc] = useState(defaultValue ?? "");
-
   const newCoverRef = useRef<HTMLInputElement>(null);
-  const currentCoverRef = useRef<HTMLInputElement>(null);
   const [src, setSrc] = useState(defaultValue);
+  const [coverDeleted, setCoverDeleted] = useState(false);
 
   function setCover(e: React.ChangeEvent<HTMLInputElement>) {
     const coverImage = e.currentTarget.files?.[0];
-    if (coverImage === undefined) return; // retain image on cancel - users should utilize the delete button
-
-    setPriorSrc("");
+    if (coverImage === undefined) return;
+    setCoverDeleted(false);
     setSrc((src) => {
       if (src) URL.revokeObjectURL(src);
-
       return coverImage ? URL.createObjectURL(coverImage) : "";
     });
   }
+
+  const handleDelete = () => {
+    newCoverRef.current!.value = "";
+    setSrc(null);
+    setCoverDeleted(true);
+  };
 
   return (
     <>
@@ -56,11 +58,7 @@ const CoverImageInput = ({
                   <button
                     className="pointer-events-auto rounded-full bg-lime-300 text-black"
                     type="button"
-                    onClick={() => {
-                      newCoverRef.current!.value = "";
-                      setPriorSrc("");
-                      setSrc("");
-                    }}
+                    onClick={handleDelete}
                   >
                     <div className="grid size-12 cursor-pointer place-items-center">
                       <svg
@@ -121,10 +119,9 @@ const CoverImageInput = ({
             className="hidden"
           />
           <input
-            ref={currentCoverRef}
             type="hidden"
-            name="priorCover"
-            value={priorSrc}
+            name="coverDeleted"
+            value={coverDeleted ? "true" : "false"}
           />
         </label>
       </div>
