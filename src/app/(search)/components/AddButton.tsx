@@ -4,7 +4,7 @@ import NextLink from "next/link";
 const AddButton = <T extends string>({ href }: { href: Route<T> | URL }) => {
   return (
     <div className="sticky bottom-0 z-50 flex">
-      <NextLink className="m-4 ml-auto inline-block" href={href as Route}>
+      <NextLink className="my-4 ml-auto inline-block" href={href as Route}>
         <div className="rounded-full bg-lime-300 p-4 text-black shadow-sm">
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -17,10 +17,8 @@ const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
 
   return (
     <>
-      <main className="flex-1">
-        <div className="mx-auto my-12 max-w-(--breakpoint-xl) px-4">
-          <SearchResults user={user} query={(await props.searchParams).q} />
-        </div>
+      <main>
+        <SearchResults user={user} query={(await props.searchParams).q} />
       </main>
       <AddButton href="/recipes/add" />
     </>

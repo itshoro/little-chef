@@ -27,7 +27,9 @@ const Layout = async (props: { children: React.ReactNode }) => {
           </div>
         </section>
       </div>
-      {props.children}
+      <div className="mx-auto w-full max-w-(--breakpoint-xl) p-4">
+        {props.children}
+      </div>
     </div>
   );
 };
