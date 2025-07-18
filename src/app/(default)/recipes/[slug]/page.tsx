@@ -127,9 +127,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               </div>
 
               <section className="-mx-4 whitespace-nowrap">
-                {user && (
-                  <RecipeActionButtons recipeIdentifier={recipe} user={user} />
-                )}
+                {user && <RecipeActionButtons recipe={recipe} user={user} />}
               </section>
             </div>
           </header>
