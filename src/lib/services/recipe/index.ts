@@ -14,6 +14,9 @@ import { RecipeNotFoundError } from "@/lib/errors/resource-not-found/recipe";
 import { nanoid } from "@/lib/nanoid";
 import { generateSlug } from "@/lib/slug";
 import { toIdentifier } from "@/lib/utils/to-identifier";
+import { eq, sql } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { UTApi } from "uploadthing/server";
 import {
   unsafeFindCollectionIdsWithRecipe,
@@ -59,7 +62,6 @@ import type {
   RecipeStepsUpdateDTO,
   RecipeUpdateDTO,
 } from "./types";
-import { eq, sql } from "drizzle-orm";
 
 // MARK: CRUD
 
@@ -144,6 +146,9 @@ export async function createRecipe(
 
     if (uploadResult) uploadResult.keep();
 
+    revalidateTag(`recipe-detail-${recipe.id}`);
+    revalidateTag(`recipe-detail-${recipe.publicId}`);
+
     return toRecipeOutputPublicDTO(recipe);
   });
 }
@@ -152,6 +157,11 @@ export async function getRecipeDetailByIdentifier(
   identifier: RecipeIdentifier,
   user: AuthenticatedUser | null,
 ): Promise<RecipeDetailsDTO> {
+  "use cache";
+  cacheTag(
+    `recipe-detail-${"id" in identifier ? identifier.id : identifier.publicId}`,
+  );
+
   const recipe = await unsafeGetRecipeByIdentifier(identifier);
 
   if (recipe === null) {
@@ -275,6 +285,9 @@ export async function updateRecipe(
     return updateRecipeResult;
   });
 
+  revalidateTag(`recipe-detail-${updatedRecipe.id}`);
+  revalidateTag(`recipe-detail-${updatedRecipe.publicId}`);
+
   return toRecipeOutputPublicDTO(updatedRecipe);
 }
 
@@ -289,8 +302,8 @@ export async function deleteRecipe(
   const affectedCollections =
     await unsafeFindCollectionIdsWithRecipe(identifier);
   await db.transaction(async (tx) => {
-    const { rowsAffected } = await unsafeDeleteRecipe(tx, identifier);
-    recipeInvariant(rowsAffected > 0, "Failed to delete recipe.", {
+    const [deletedRecipe] = await unsafeDeleteRecipe(tx, identifier);
+    recipeInvariant(deletedRecipe, "Failed to delete recipe.", {
       cause: { identifier },
     });
 
@@ -305,6 +318,9 @@ export async function deleteRecipe(
         { cause: { collectionIdentifier, identifier, user } },
       );
     }
+
+    revalidateTag(`recipe-detail-${deletedRecipe.id}`);
+    revalidateTag(`recipe-detail-${deletedRecipe.publicId}`);
   });
 }
 
@@ -362,16 +378,10 @@ export async function likeRecipe(
     );
 
     return updatedRecipes;
-    recipeInvariant(
-      updatedRecipes.length === 1,
-      "Failed to update recipe likes.",
-      {
-        cause: { recipeId, user },
-      },
-    );
-
-    return updatedRecipes;
   });
+
+  revalidateTag(`recipe-detail-${recipe.id}`);
+  revalidateTag(`recipe-detail-${recipe.publicId}`);
 
   return recipe.likes;
 }
@@ -401,6 +411,9 @@ export async function unlikeRecipe(
       .returning();
     // todo: invariant
   });
+
+  revalidateTag(`recipe-detail-${recipe.id}`);
+  revalidateTag(`recipe-detail-${recipe.publicId}`);
 
   return recipe.likes;
 }

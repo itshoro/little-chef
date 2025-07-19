@@ -15,9 +15,9 @@ import {
   type IdentifiedById,
   type RecipeIdentifier,
 } from "@/drizzle/schema";
+import type { AuthenticatedUser } from "@/lib/services/auth/types";
 import { and, eq, inArray, or } from "drizzle-orm";
 import { RecipeNotFoundError } from "../../errors/resource-not-found/recipe";
-import type { AuthenticatedUser } from "../../services/auth";
 import { withRecipeQueryOptions, type ListQueryOptions } from "../utils";
 
 // MARK: Recipes
@@ -82,7 +82,10 @@ export async function unsafeDeleteRecipe(
   connection: Connection,
   identifier: IdentifiedById<DrizzleRecipe>,
 ) {
-  return await connection.delete(recipes).where(eq(recipes.id, identifier.id));
+  return await connection
+    .delete(recipes)
+    .where(eq(recipes.id, identifier.id))
+    .returning();
 }
 
 // MARK: Recipe User Permissions

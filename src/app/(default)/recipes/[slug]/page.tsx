@@ -47,8 +47,10 @@ export async function generateMetadata(
 const ShowRecipePage = async (props: ShowRecipePageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
-  const searchParams = await props.searchParams;
-  const params = await props.params;
+  const [params, searchParams] = await Promise.all([
+    props.params,
+    props.searchParams,
+  ]);
   try {
     const { user } = await getAuthenticatedUserFromRequest();
     const { publicId } = parseHandle(params.slug);

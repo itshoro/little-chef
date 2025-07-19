@@ -32,6 +32,8 @@ import { nanoid } from "@/lib/nanoid";
 import { generateSlug } from "@/lib/slug";
 import { toIdentifier } from "@/lib/utils/to-identifier";
 import { invariant as collectionInvariant } from "@/lib/validators/collection/invariant";
+import { revalidateTag } from "next/cache";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import type { AuthenticatedUser } from "../auth/types";
 import { mapRecipesWithMaintainers } from "../recipe";
 import { assertCanViewRecipe } from "../recipe/permissions";
@@ -95,6 +97,11 @@ export async function createCollection(
     return collection;
   });
 
+  revalidateTag(`collection-${collection.id}`);
+  revalidateTag(`collection-${collection.publicId}`);
+  revalidateTag(`collection-detail-${collection.id}`);
+  revalidateTag(`collection-detail-${collection.publicId}`);
+
   return toCollectionOutputPublicDTO(collection);
 }
 
@@ -102,6 +109,11 @@ export async function getCollectionPreviewByIdentifier(
   identifier: CollectionIdentifier,
   user: AuthenticatedUser | null,
 ): Promise<CollectionPreviewDTO> {
+  "use cache";
+  cacheTag(
+    `collection-${"id" in identifier ? identifier.id : identifier.publicId}`,
+  );
+
   const collection = await unsafeGetCollectionByIdentifier(identifier);
   if (!collection) {
     throw new CollectionNotFoundError(toIdentifier(identifier));
@@ -126,6 +138,11 @@ export async function getCollectionDetailByIdentifier(
   identifier: CollectionIdentifier,
   user: AuthenticatedUser | null,
 ): Promise<CollectionDetailsDTO> {
+  "use cache";
+  cacheTag(
+    `collection-detail-${"id" in identifier ? identifier.id : identifier.publicId}`,
+  );
+
   const collection = await unsafeGetCollectionByIdentifier(identifier);
   if (!collection) {
     throw new CollectionNotFoundError(toIdentifier(identifier));
@@ -190,6 +207,11 @@ export async function updateCollection(
       },
     );
 
+    revalidateTag(`collection-${collection.id}`);
+    revalidateTag(`collection-${collection.publicId}`);
+    revalidateTag(`collection-detail-${collection.id}`);
+    revalidateTag(`collection-detail-${collection.publicId}`);
+
     return updateResult[0];
   });
 }
@@ -202,17 +224,28 @@ export async function deleteCollection(
   identifier = { id: collectionId };
   await assertCanMaintainCollection(identifier, user);
 
-  await db.transaction(async (tx) => {
-    const { rowsAffected } = await unsafeDeleteCollection(tx, identifier);
-    collectionInvariant(rowsAffected === 1, "Failed to delete collection.", {
-      cause: {
-        identifier: {
-          collection: identifier,
+  const deletedCollection = await db.transaction(async (tx) => {
+    const deleteCollections = await unsafeDeleteCollection(tx, identifier);
+    collectionInvariant(
+      deleteCollections.length === 1,
+      "Failed to delete collection.",
+      {
+        cause: {
+          identifier: {
+            collection: identifier,
+          },
+          rowsAffected: deleteCollections.length,
         },
-        rowsAffected,
       },
-    });
+    );
+
+    return deleteCollections[0];
   });
+
+  revalidateTag(`collection-${deletedCollection.id}`);
+  revalidateTag(`collection-${deletedCollection.publicId}`);
+  revalidateTag(`collection-detail-${deletedCollection.id}`);
+  revalidateTag(`collection-detail-${deletedCollection.publicId}`);
 }
 
 // MARK: List
@@ -323,6 +356,11 @@ export async function addRecipeToCollection(
       },
     );
   });
+
+  revalidateTag(`collection-${collection.id}`);
+  revalidateTag(`collection-${collection.publicId}`);
+  revalidateTag(`collection-detail-${collection.id}`);
+  revalidateTag(`collection-detail-${collection.publicId}`);
 }
 
 export async function removeRecipeFromCollection(
@@ -362,6 +400,11 @@ export async function removeRecipeFromCollection(
       },
     );
   });
+
+  revalidateTag(`collection-${collection.id}`);
+  revalidateTag(`collection-${collection.publicId}`);
+  revalidateTag(`collection-detail-${collection.id}`);
+  revalidateTag(`collection-detail-${collection.publicId}`);
 }
 
 // MARK: Misc.

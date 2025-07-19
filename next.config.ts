@@ -17,7 +17,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   experimental: {
+    useCache: true,
     authInterrupts: true,
+    devtoolSegmentExplorer: true,
+    devtoolNewPanelUI: true,
   },
 };
 

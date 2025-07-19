@@ -69,7 +69,8 @@ export async function unsafeDeleteCollection(
 ) {
   return await tx
     .delete(collections)
-    .where(eq(collections.id, collectionIdentifier.id));
+    .where(eq(collections.id, collectionIdentifier.id))
+    .returning();
 }
 
 // MARK: User Permissions
