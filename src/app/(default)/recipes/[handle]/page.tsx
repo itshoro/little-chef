@@ -1,4 +1,4 @@
-import { ServingsQueryStore } from "@/app/(default)/recipes/[slug]/_components/servings-query-store";
+import { ServingsQueryStore } from "@/app/(default)/recipes/[handle]/_components/servings-query-store";
 import { ShareCurrentPageButton } from "@/components/recipes/details/buttons/share-button";
 import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { LikeButton } from "@/components/recipes/details/user-actions";
@@ -18,7 +18,7 @@ import { RecipeActionButtons } from "./_components/recipe-action-buttons";
 import { ToWizardForm } from "./_components/to-wizard-form";
 
 type ShowRecipePageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ handle: string }>;
   searchParams: Promise<{ servings: string }>;
 };
 
@@ -28,7 +28,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const params = await props.params;
-  const { publicId } = parseHandle(params.slug);
+  const { publicId } = parseHandle(params.handle);
   try {
     const { recipe, maintainers } = await getRecipeDetailByIdentifier(
       { publicId },
@@ -53,7 +53,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
   ]);
   try {
     const { user } = await getAuthenticatedUserFromRequest();
-    const { publicId } = parseHandle(params.slug);
+    const { publicId } = parseHandle(params.handle);
     const {
       recipe,
       maintainers,

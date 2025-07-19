@@ -9,7 +9,7 @@ import { editAction } from "./action";
 
 type EditRecipePageProps = {
   params: Promise<{
-    slug: string;
+    handle: string;
   }>;
 };
 
@@ -21,7 +21,7 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const params = await props.params;
-  const { publicId } = parseHandle(params.slug);
+  const { publicId } = parseHandle(params.handle);
   const { user } = await getAuthenticatedUserOrRedirect();
 
   if (!user) redirect("/login");

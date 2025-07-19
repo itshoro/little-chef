@@ -24,7 +24,7 @@ import { notFound, redirect, RedirectType } from "next/navigation";
 import { removeRecipeFromCollectionAction } from "./remove-recipe-action";
 import { DeleteCollectionButton } from "./_components/delete-button";
 
-type CollectionPageProps = { params: Promise<{ slug: string }> };
+type CollectionPageProps = { params: Promise<{ handle: string }> };
 
 export async function generateMetadata(
   props: CollectionPageProps,
@@ -32,7 +32,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.params;
   try {
-    const { publicId } = parseHandle(params.slug);
+    const { publicId } = parseHandle(params.handle);
     const { collection } = await getCollectionPreviewByIdentifier(
       { publicId },
       null,
@@ -48,7 +48,7 @@ const CollectionPage = async (props: CollectionPageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const params = await props.params;
-  const { slug, publicId } = parseHandle(params.slug);
+  const { slug, publicId } = parseHandle(params.handle);
   const { user } = await getAuthenticatedUserFromRequest();
 
   let collectionDetail: CollectionDetailsDTO;

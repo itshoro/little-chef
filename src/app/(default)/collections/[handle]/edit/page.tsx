@@ -8,7 +8,7 @@ import { editAction } from "./action";
 
 type PageProps = {
   params: Promise<{
-    slug: string;
+    handle: string;
   }>;
 };
 
@@ -18,7 +18,7 @@ const Page = async (props: PageProps) => {
   const { user } = await getAuthenticatedUserOrRedirect();
 
   const params = await props.params;
-  const { publicId } = parseHandle(params.slug);
+  const { publicId } = parseHandle(params.handle);
 
   try {
     const { collection } = await getCollectionDetailByIdentifier(

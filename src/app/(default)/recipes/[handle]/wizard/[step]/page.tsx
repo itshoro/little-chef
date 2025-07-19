@@ -8,7 +8,7 @@ import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
 
 type PageProps = {
   params: Promise<{
-    slug: string;
+    handle: string;
     step: string;
   }>;
   searchParams: Promise<{
@@ -22,7 +22,7 @@ const Page = async (props: PageProps) => {
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { user } = await getAuthenticatedUserFromRequest();
-  const { publicId } = parseHandle(params.slug);
+  const { publicId } = parseHandle(params.handle);
 
   const { recipe, steps } = await getRecipeDetailByIdentifier(
     { publicId },
