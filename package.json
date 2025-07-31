@@ -53,5 +53,8 @@
       "better-sqlite3",
       "sharp"
     ]
+  },
+  "optionalDependencies": {
+    "@libsql/linux-x64-musl": "^0.5.17"
   }
 }

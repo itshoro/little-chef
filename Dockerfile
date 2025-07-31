@@ -1,7 +1,6 @@
 FROM node:22-alpine AS base
 
 FROM base AS deps
-# RUN apk add --no-cache libc6-compat
 
 WORKDIR /src
 
@@ -28,6 +27,9 @@ COPY --from=builder /src/public ./public
 
 COPY --from=builder --chown=nextjs:nodejs /src/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /src/.next/static ./.next/static
+
+# manually copy `@libsql/linux-x64-musl` as it is being dropped as a dependency in the standalone build.
+COPY --from=builder --chown=nextjs:nodejs /src/node_modules/@libsql/linux-x64-musl ./node_modules/@libsql/linux-x64-musl
 
 USER nextjs
 

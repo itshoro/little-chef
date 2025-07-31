@@ -102,6 +102,10 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
+    optionalDependencies:
+      '@libsql/linux-x64-musl':
+        specifier: ^0.5.17
+        version: 0.5.17
 
 packages:
 
@@ -626,6 +630,11 @@ packages:
 
   '@libsql/linux-x64-musl@0.5.14':
     resolution: {integrity: sha512-kL9PMpe0gjGs9Pp0wwfRwhvCmTu8JlTLryfvNQGcSZs8V8xumJXEpHb8UmJjGax24+c2AHDbuelzJIkt5lhdWg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@libsql/linux-x64-musl@0.5.17':
+    resolution: {integrity: sha512-FvSpWlwc+dIeYIFYlsSv+UdQ/NiZWr+SstwVji+QZ//8NnvzwWQU9cgP+Vpps6Qiq4jyYQm9chJhTYOVT9Y3BA==}
     cpu: [x64]
     os: [linux]
 
@@ -1885,6 +1894,9 @@ snapshots:
     optional: true
 
   '@libsql/linux-x64-musl@0.5.14':
+    optional: true
+
+  '@libsql/linux-x64-musl@0.5.17':
     optional: true
 
   '@libsql/win32-x64-msvc@0.5.14':
