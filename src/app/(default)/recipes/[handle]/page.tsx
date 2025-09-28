@@ -2,6 +2,7 @@ import { ServingsQueryStore } from "@/app/(default)/recipes/[handle]/_components
 import { ShareCurrentPageButton } from "@/components/recipes/details/buttons/share-button";
 import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { LikeButton } from "@/components/recipes/details/user-actions";
+import { LinkButton } from "@/components/ui/buttons/link-button";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { Avatar } from "@/components/users/avatar";
 import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
@@ -14,8 +15,10 @@ import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { RecipeActionButtons } from "./_components/recipe-action-buttons";
+import { AddToCollectionButton } from "./_components/add-to-collection-button";
+import { DeleteRecipeButton } from "./_components/delete-button";
 import { ToWizardForm } from "./_components/to-wizard-form";
+import { CooklangPreview } from "@/components/recipes/details/cooklang-preview";
 
 type ShowRecipePageProps = {
   params: Promise<{ handle: string }>;
@@ -72,7 +75,136 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     return (
       <>
         <ForceWakeLock />
-        <article>
+        <article className="grid grid-flow-row-dense grid-rows-[repeat(3,minmax(auto,min-content))] gap-8 lg:grid-cols-3 lg:grid-rows-2">
+          <div className="row-start-1 mx-6 lg:col-span-2">
+            <header className="mb-8">
+              <h1 className="mb-2 text-2xl font-medium">{recipe.name}</h1>
+              <div className="flex items-center gap-2">
+                <span>By</span>
+                <Attributions maintainers={maintainers} />
+              </div>
+            </header>
+            {recipe.coverSrc && (
+              <div className="mb-4">
+                <div className="relative isolate w-full">
+                  <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/5 ring-inset dark:ring-white/5" />
+                  <Image
+                    alt=""
+                    src={recipe.coverSrc}
+                    height={400}
+                    width={320}
+                    className="aspect-[5/4] w-full rounded-3xl object-cover"
+                    priority={true}
+                    quality={85}
+                  />
+                </div>
+              </div>
+            )}
+
+            <section className="mb-4 flex flex-wrap gap-2">
+              <LikeButton
+                user={user}
+                disabled={user === null}
+                recipeIdentifier={recipe}
+                initialLikes={recipe.likes}
+              />
+              <AddToCollectionButton recipeIdentifier={recipe} />
+              <ShareCurrentPageButton />
+              <LinkButton
+                variant="outline"
+                href={`/recipes/${generateHandle(recipe.slug, recipe.publicId)}/edit`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="size-4 text-stone-600"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-white">Edit</span>
+              </LinkButton>
+              <DeleteRecipeButton recipeIdentifier={recipe} />
+            </section>
+
+            <div className="mb-8 flex items-center gap-8 whitespace-nowrap">
+              <article>
+                <h3 className="text-stone-400">Prep Time</h3>
+                <span className="font-medium">
+                  {recipe.preparationTime} min
+                </span>
+              </article>
+              <article>
+                <h3 className="text-stone-400">Cooking Time</h3>
+                <span className="font-medium">{recipe.cookingTime} min</span>
+              </article>
+              <article>
+                <h3 className="text-stone-400">Total Time</h3>
+                <span className="font-medium">
+                  {recipe.preparationTime + recipe.cookingTime} min
+                </span>
+              </article>
+            </div>
+          </div>
+
+          <div className="row-start-3 mx-6 lg:col-span-2 lg:col-start-1 lg:row-auto">
+            <section className="border-t border-current/10 pt-8">
+              <h2 className="text-lg font-medium">Instructions</h2>
+
+              <ol>
+                {rawSteps.map((step, index) => (
+                  <li
+                    key={index}
+                    className="mt-4 mb-6 flex items-baseline gap-4 text-stone-400"
+                  >
+                    <div className="grid size-8 shrink-0 place-items-center rounded-full bg-stone-800 text-sm font-medium text-white select-none">
+                      {index + 1}
+                    </div>
+                    <CooklangPreview value={step.description} />
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </div>
+          <div className="row-start-2 lg:col-start-3 lg:row-span-full lg:row-start-1 lg:border-l lg:border-current/10">
+            <section className="sticky top-0 flex h-screen flex-col">
+              <div className="overflow-y-auto">
+                <div className="sticky top-0">
+                  <header className="border-b border-current/10 bg-white px-8 py-4 dark:bg-stone-900">
+                    <div className="dark:bg-stone-900">
+                      <div className="flex items-baseline justify-between gap-4">
+                        <h2 className="text-lg font-medium">Ingredients</h2>
+                        <div className="flex items-baseline gap-2">
+                          <ServingsQueryStore
+                            min={0}
+                            defaultValue={defaultServingSize}
+                          />
+                          <span className="text-sm text-stone-400">
+                            servings
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </header>
+                  <div className="h-8 bg-gradient-to-b from-white dark:from-stone-900" />
+                </div>
+                <div className="px-8">
+                  <IngredientList
+                    ingredients={parsedSteps.ingredients}
+                    recommendedServingSize={defaultServingSize}
+                  />
+                </div>
+                <div className="sticky bottom-0 h-8 bg-gradient-to-t from-white dark:from-stone-900" />
+              </div>
+            </section>
+          </div>
+        </article>
+
+        {/* <article>
           <header className="border-b border-white/5 pb-6">
             {recipe.coverSrc && (
               <div className="mb-4 px-4">
@@ -182,10 +314,10 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 </div>
               </div>
             </div>
-            {/** TODO: add Cookware list */}
-            {/* {parsedSteps.cookwares.length > 0 && (
+            /** TODO: add Cookware list */
+        /* {parsedSteps.cookwares.length > 0 && (
               <CookwareList cookwares={parsedSteps.cookwares} />
-            )} */}
+            )} 
 
             {parsedSteps.ingredients.length > 0 && (
               <IngredientList
@@ -221,7 +353,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               />
             </div>
           </footer>
-        </article>
+        </article> */}
       </>
     );
   } catch {

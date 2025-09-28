@@ -34,7 +34,7 @@ const ServingsInput = (props: ServingsInputProps) => {
 
   return (
     <div className="flex items-baseline gap-2">
-      <div data-slot="icon" className="flex items-center gap-2">
+      {/* <div data-slot="icon" className="flex items-center gap-2">
         <span>
           <Button
             variant="outline"
@@ -46,7 +46,7 @@ const ServingsInput = (props: ServingsInputProps) => {
             <span className="transform">-</span>
           </Button>
         </span>
-      </div>
+      </div> */}
       <Input
         {...props}
         ref={setRefs}
@@ -54,7 +54,7 @@ const ServingsInput = (props: ServingsInputProps) => {
         className="w-full max-w-[8ch] min-w-[6ch] rounded-xl"
       />
 
-      <span data-slot="icon">
+      {/* <span data-slot="icon">
         <Button
           variant="outline"
           className="size-12"
@@ -64,7 +64,7 @@ const ServingsInput = (props: ServingsInputProps) => {
         >
           <span className="transform">+</span>
         </Button>
-      </span>
+      </span> */}
     </div>
   );
 };

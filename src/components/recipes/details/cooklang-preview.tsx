@@ -31,9 +31,9 @@ const CooklangPreview = ({
                 return (
                   <span
                     key={i}
-                    className="my-0.5 inline-flex rounded-full border border-stone-300 px-2 whitespace-pre-line dark:border-stone-700"
+                    className="inline-flex items-baseline gap-1 text-white"
                   >
-                    <span className="border-r border-stone-300 p-1 dark:border-stone-700">
+                    <span>
                       <span>
                         {typeof segment.quantity === "number"
                           ? segment.quantity * ingredientScaleFactor
@@ -41,7 +41,7 @@ const CooklangPreview = ({
                       </span>
                       <span>{segment.units}</span>
                     </span>
-                    <span className="p-1">{segment.name}</span>
+                    <span>{segment.name}</span>
                   </span>
                 );
               case "cookware":
