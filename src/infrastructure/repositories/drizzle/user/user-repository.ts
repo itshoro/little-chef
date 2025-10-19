@@ -8,26 +8,13 @@ import type { Connection } from "@/drizzle/db";
 import { users } from "@/drizzle/schema";
 import { eq, type InferSelectModel } from "drizzle-orm";
 
-function userFromDatabaseRow(row: InferSelectModel<typeof users>): User {
-  return User.fromParams({
-    avatar: row.avatar,
-    hashedPassword: row.hashedPassword,
-    id: row.id,
-    publicId: row.publicId,
-    username: row.username as Username, // assume stored usernames are valid
-    appPreferencesId: row.appPreferencesId,
-    collectionPreferencesId: row.collectionPreferencesId,
-    recipePreferencesId: row.recipePreferencesId,
-  });
-}
-
 export class DrizzleUserRepository implements UserRepository {
   constructor(private readonly connection: Connection) {}
 
   async create(dto: CreateUserParams): Promise<User> {
     const [user] = await this.connection.insert(users).values(dto).returning();
 
-    return userFromDatabaseRow(user);
+    return this.fromParams(user);
   }
 
   async findById(id: number): Promise<User | null> {
@@ -38,7 +25,7 @@ export class DrizzleUserRepository implements UserRepository {
       .limit(1);
 
     if (!user) return null;
-    return userFromDatabaseRow(user);
+    return this.fromParams(user);
   }
 
   async findByPublicId(id: string): Promise<User | null> {
@@ -49,7 +36,7 @@ export class DrizzleUserRepository implements UserRepository {
       .limit(1);
 
     if (!user) return null;
-    return userFromDatabaseRow(user);
+    return this.fromParams(user);
   }
 
   async findByUsername(username: Username): Promise<User | null> {
@@ -60,6 +47,15 @@ export class DrizzleUserRepository implements UserRepository {
       .limit(1);
 
     if (!user) return null;
-    return userFromDatabaseRow(user);
+    return this.fromParams(user);
+  }
+
+  // MARK: utils
+
+  fromParams(row: InferSelectModel<typeof users>): User {
+    return {
+      ...row,
+      username: row.username as Username, // assume stored usernames are valid
+    } satisfies User;
   }
 }

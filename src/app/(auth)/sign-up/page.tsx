@@ -1,12 +1,12 @@
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { redirect } from "next/navigation";
 import { SingUpForm } from "./_components/sign-up-form";
-
+import { cookies } from "next/headers";
+import { validateSession } from "@/lib/auth/validate-session";
 const SignUpPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   if (user) redirect("/recipes");
 
   return (

@@ -1,5 +1,5 @@
-import type { Session } from "@/domain/user/session";
-import { SessionRepository } from "@/domain/user/session-repository";
+import type { Session } from "@/domain/auth/session";
+import type { SessionRepository } from "@/application/abstractions/auth/session-repository";
 import type { Connection } from "@/drizzle/db";
 import { sessions } from "@/drizzle/schema";
 import { eq, type InferSelectModel } from "drizzle-orm";

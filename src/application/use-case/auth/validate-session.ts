@@ -1,5 +1,5 @@
 import { isSessionExpired, needsActivityUpdate } from "@/domain/auth/session";
-import type { SessionProvider } from "@/domain/auth/session-provider";
+import type { SessionProvider } from "@/application/abstractions/auth/session-provider";
 import type { UserRepository } from "@/domain/user/user-repository";
 import {
   ACTIVITY_UPDATE_INTERVAL_MS,

@@ -1,31 +1,20 @@
-import type { SessionProvider } from "@/domain/auth/session-provider";
+import type { SessionProvider } from "@/application/abstractions/auth/session-provider";
+import type { Session } from "@/domain/auth/session";
+import type { Result } from "@/domain/shared/result";
 import type { AppPreferencesRepository } from "@/domain/user/app-preferences-repository";
 import type { CollectionPreferencesRepository } from "@/domain/user/collection-preferences-repository";
 import type { PasswordHasher } from "@/domain/user/password-hasher";
 import type { RecipePreferencesRepository } from "@/domain/user/recipe-preferences-repository";
-import type { CreateUserParams } from "@/domain/user/user";
+import type { User } from "@/domain/user/user";
 import type { UserRepository } from "@/domain/user/user-repository";
-import { ConflictError } from "@/lib/errors/conflict/error";
-import type { Password } from "../../domain/user/credentials";
-import { createSession } from "../auth/create-session";
-import { createUser } from "./create-user";
-
-interface SignUpUserParams
-  extends Omit<
-    CreateUserParams,
-    | "id"
-    | "hashedPassword"
-    | "appPreferencesId"
-    | "collectionPreferencesId"
-    | "recipePreferencesId"
-  > {
-  password: Password;
-}
+import { makeCreateSession } from "../use-case/auth/create-session";
+import { makeCreateUser, type CreateUserDTO } from "./create-user";
 
 export const SESSION_COOKIE_NAME = "session";
 
-export async function signUpUser(
-  dto: SignUpUserParams,
+export type SignUpUserDTO = CreateUserDTO;
+
+export function makeSignUpUser(
   userRepository: UserRepository,
   appPreferencesRepository: AppPreferencesRepository,
   collectionPreferencesRepository: CollectionPreferencesRepository,
@@ -33,25 +22,28 @@ export async function signUpUser(
   sessionProvider: SessionProvider,
   passwordHasher: PasswordHasher,
 ) {
-  const now = new Date();
+  return async function signUpUser(
+    dto: SignUpUserDTO,
+  ): Promise<Result<{ user: User; session: Session }, Error>> {
+    const now = new Date();
 
-  const existingUser = await userRepository.findByUsername(dto.username);
-  if (existingUser) {
-    throw new ConflictError("The username is already taken.");
-  }
+    const createUser = makeCreateUser(
+      userRepository,
+      passwordHasher,
+      appPreferencesRepository,
+      recipePreferencesRepository,
+      collectionPreferencesRepository,
+    );
+    const createSession = makeCreateSession(sessionProvider);
 
-  const { password, ...rest } = dto;
-  const hashedPassword = await passwordHasher.hash(password);
+    const existingUser = await userRepository.findByUsername(dto.username);
+    if (existingUser) {
+      return { ok: false, error: new Error("User already exists.") };
+    }
 
-  const user = await createUser(
-    { ...rest, hashedPassword },
-    userRepository,
-    appPreferencesRepository,
-    recipePreferencesRepository,
-    collectionPreferencesRepository,
-  );
+    const user = await createUser(dto);
+    const session = await createSession(now, user);
 
-  const session = await createSession(now, user.id, sessionProvider);
-
-  return { user, session };
+    return { ok: true, value: { user, session } };
+  };
 }

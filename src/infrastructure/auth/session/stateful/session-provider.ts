@@ -1,6 +1,7 @@
-import { SessionProvider } from "@/domain/auth/session-provider";
-import type { SessionRepository } from "@/domain/auth/session-repository";
-import type { SessionTokenProvider } from "@/domain/auth/session-token-provider";
+import { SessionProvider } from "@/application/abstractions/auth/session-provider";
+import type { SessionRepository } from "@/application/abstractions/auth/session-repository";
+import type { SessionTokenProvider } from "@/application/abstractions/auth/session-token-provider";
+import type { User } from "@/domain/user/user";
 
 export const INACTIVITY_TIMEOUT_MS = 1000 * 60 * 60 * 24 * 10; // 10 days
 export const ACTIVITY_UPDATE_INTERVAL_MS = 1000 * 60 * 60; // 1 hour
@@ -30,14 +31,14 @@ export class StatefulSessionProvider implements SessionProvider {
     return session;
   }
 
-  async createSession(userId: number, now: Date = new Date()) {
+  async createSession(user: User, now: Date = new Date()) {
     const id = this.generateSecureRandomString();
     const secret = this.generateSecureRandomString();
     const secretHash = await this.hashSecret(secret);
 
     const session = await this.sessionRepository.create({
       id,
-      userId,
+      userId: user.id,
       secretHash,
       createdAt: now,
       lastVerifiedAt: now,

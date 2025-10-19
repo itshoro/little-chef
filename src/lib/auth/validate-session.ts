@@ -1,9 +1,9 @@
-import { validateSession as _validateSession } from "@/application/auth/validate-session";
+import { validateSession as _validateSession } from "@/application/use-case/auth/validate-session";
 import { db } from "@/drizzle/db";
 import { StatefulSessionProvider } from "@/infrastructure/auth/session/stateful/session-provider";
 import { StatefulSessionTokenProvider } from "@/infrastructure/auth/session/stateful/session-token-provider";
-import { DrizzleSessionRepository } from "@/infrastructure/repositories/drizzle/session-repository";
-import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user-repository";
+import { DrizzleSessionRepository } from "@/infrastructure/repositories/drizzle/auth/session-repository";
+import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user/user-repository";
 
 export async function validateSession() {
   const userRepository = new DrizzleUserRepository(db);

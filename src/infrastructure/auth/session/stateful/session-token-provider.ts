@@ -1,4 +1,4 @@
-import type { SessionTokenProvider } from "@/domain/auth/session-token-provider";
+import type { SessionTokenProvider } from "@/application/abstractions/auth/session-token-provider";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME } from "./constants";
 

@@ -1,26 +1,37 @@
-import type { SessionProvider } from "@/domain/auth/session-provider";
+import type { SessionProvider } from "@/application/abstractions/auth/session-provider";
+import type { Session } from "@/domain/auth/session";
+import type { Result } from "@/domain/shared/result";
+import type { Password, Username } from "@/domain/user/credentials";
 import type { PasswordHasher } from "@/domain/user/password-hasher";
+import type { User } from "@/domain/user/user";
 import type { UserRepository } from "@/domain/user/user-repository";
-import { InvalidCredentialsError } from "@/lib/errors/invalid-credentials/error";
-import type { LoginParams } from "../../domain/user/credentials";
-import { createSession } from "../auth/create-session";
+import { makeCreateSession } from "../use-case/auth/create-session";
 
-export async function signInUser(
-  dto: LoginParams,
-  now: Date,
+export interface SignInUserDTO {
+  username: Username;
+  password: Password;
+}
+
+export function makeSignInUser(
   userRepository: UserRepository,
   sessionProvider: SessionProvider,
   passwordHasher: PasswordHasher,
 ) {
-  const user = await userRepository.findByUsername(dto.username);
+  return async function signInUser(
+    dto: SignInUserDTO,
+    now: Date,
+  ): Promise<Result<{ user: User; session: Session }, Error>> {
+    const createSession = makeCreateSession(sessionProvider);
 
-  if (!user) {
-    throw new InvalidCredentialsError();
-  }
-  if (!passwordHasher.verify(dto.password, user.hashedPassword)) {
-    throw new InvalidCredentialsError();
-  }
+    const user = await userRepository.findByUsername(dto.username);
+    if (!user) {
+      return { ok: false, error: new Error("User does not exist.") };
+    }
+    if (!passwordHasher.verify(dto.password, user.hashedPassword)) {
+      return { ok: false, error: new Error("Password wrong.") };
+    }
 
-  const session = await createSession(now, user.id, sessionProvider);
-  return { user, session };
+    const session = await createSession(now, user);
+    return { ok: true, value: { user, session } };
+  };
 }

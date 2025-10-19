@@ -16,9 +16,11 @@ export async function requireSession(options: Options) {
   return validationResult;
 }
 
-export function redirectToSignIn(returnPath: Route): never {
+export function redirectToSignIn<T extends string = string>(
+  returnPath: Route<T>,
+): never {
   const url = [
-    "/login" satisfies Route,
+    "/login" satisfies Route<T>,
     new URLSearchParams({ returnTo: returnPath }),
   ].join("?") as Route;
 

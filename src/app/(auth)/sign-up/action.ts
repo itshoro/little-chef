@@ -1,73 +1,41 @@
 "use server";
 
-import type { FormState } from "@/components/forms/form/root";
-import { signUp } from "@/lib/services/auth";
+import { makeSignUpUser } from "@/application/user/sign-up";
+import { db } from "@/drizzle/db";
+import { Argon2IDPasswordHasher } from "@/infrastructure/auth/argon2id-password-hasher";
+import { StatefulSessionProvider } from "@/infrastructure/auth/session/stateful/session-provider";
+import { StatefulSessionTokenProvider } from "@/infrastructure/auth/session/stateful/session-token-provider";
+import { DrizzleSessionRepository } from "@/infrastructure/repositories/drizzle/auth/session-repository";
+import { DrizzleAppPreferencesRepository } from "@/infrastructure/repositories/drizzle/user/app-preferences-repository";
+import { DrizzleCollectionPreferencesRepository } from "@/infrastructure/repositories/drizzle/user/collection-preferences-repository";
+import { DrizzleRecipePreferencesRepository } from "@/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
+import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user/user-repository";
 import { isRateLimitedSignUp } from "@/lib/services/rate-limit/auth";
-import { signUpSchema } from "@/lib/validators/auth";
-import { redirect } from "next/navigation";
+import { signUpDTOFromFormData } from "@/transformer/user/create-transformer";
 
-type SignUpData = {
-  username: string;
-  password?: string;
-  confirmPassword?: string;
-  inviteCode?: string;
-};
-
-async function signup(formData: FormData): Promise<FormState<SignUpData>> {
-  const username = formData.get("username") as string;
-  const password = formData.get("password") as string;
-  const confirmationPassword = formData.get("confirmation-password") as string;
-  const inviteCode = formData.get("invite-code") as string;
-
-  try {
-    if (await isRateLimitedSignUp()) {
-      throw new Error("Too many requests.");
-    }
-
-    const parseResult = signUpSchema.safeParse({
-      username,
-      password,
-      confirmationPassword,
-      inviteCode,
-    });
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
-
-    const dto = parseResult.data;
-    if (dto.inviteCode !== process.env.INVITE_CODE) {
-      throw new Error("The entered invite code is invalid.");
-    }
-
-    await signUp(dto);
-
-    return {
-      success: true,
-      message: "",
-    };
-  } catch (e) {
-    if (!(e instanceof Error)) throw e;
-
-    return {
-      success: false,
-      message:
-        e.message ||
-        "Please review the form and correct the errors to proceed with your login.",
-      errors: e.cause as Record<string, unknown>,
-      controls: { username }, // Do not pass password or invite code back.
-    } satisfies FormState<SignUpData>;
+async function signupAction(formData: FormData) {
+  if (await isRateLimitedSignUp()) {
+    throw new Error("Too many requests.");
   }
-}
 
-async function signupAction(
-  formData: FormData,
-): Promise<FormState<SignUpData>> {
-  const response = await signup(formData);
+  const dto = signUpDTOFromFormData(formData);
+  if (!dto.ok) throw dto.error;
 
-  if (response.success) redirect("/recipes");
-  return response;
+  await db.transaction(async (tx) => {
+    const signUpUser = makeSignUpUser(
+      new DrizzleUserRepository(tx),
+      new DrizzleAppPreferencesRepository(tx),
+      new DrizzleCollectionPreferencesRepository(tx),
+      new DrizzleRecipePreferencesRepository(tx),
+      new StatefulSessionProvider(
+        new StatefulSessionTokenProvider(),
+        new DrizzleSessionRepository(tx),
+      ),
+      new Argon2IDPasswordHasher(),
+    );
+
+    await signUpUser(dto.value);
+  });
 }
 
 export { signupAction };
