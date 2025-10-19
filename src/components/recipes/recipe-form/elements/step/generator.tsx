@@ -1,40 +1,41 @@
 "use client";
 
 import * as Generator from "@/components/forms/generator";
-import { Plus } from "@/components/ui/icons/plus";
-import { StepGeneratorItem } from "./item";
 import { FieldRoot } from "@/components/ui/controls/field-root";
-import { Input } from "@/components/ui/controls/input";
+import { Plus } from "@/components/ui/icons/plus";
+import type { Recipe } from "@/domain/recipe/recipe";
+import { useMemo, useRef } from "react";
+import { StepGeneratorItem } from "./item";
 
 type StepsInputProps = {
-  defaultValue?: { publicId: string; description: string; order: number }[];
+  defaultValue?: Recipe["steps"];
 };
 
 const StepsGenerator = ({ defaultValue }: StepsInputProps) => {
+  const count = useRef(defaultValue?.length ?? 0);
+
+  const defaultValueMap = new Map<number, string>(
+    defaultValue?.map((value, index) => [index, value.description]),
+  );
+
   return (
     <Generator.Root
       options={{
-        initialKeys: defaultValue?.map((step) => step.publicId),
-        generator: () => crypto.randomUUID(),
+        initialKeys: defaultValue?.map((_, i) => i),
+        generator: () => count.current++,
         openFirstWhenEmpty: true,
       }}
     >
       <ol>
         <Generator.Items>
-          {(uuid, i) => {
+          {(id, i) => {
             return (
-              <li className="relative my-2" key={uuid}>
-                <FieldRoot name="step.uuid">
-                  <Input type="hidden" value={uuid} />
-                </FieldRoot>
-                <FieldRoot name={`step.${uuid}`}>
+              <li className="relative my-2" key={id}>
+                <FieldRoot name={`step[]`}>
                   <StepGeneratorItem
-                    uuid={uuid}
+                    id={id}
                     order={i + 1}
-                    defaultValue={
-                      defaultValue?.find((item) => item.publicId === uuid)
-                        ?.description
-                    }
+                    defaultValue={defaultValueMap.get(id as unknown as number)}
                   />
                 </FieldRoot>
                 <Generator.Add

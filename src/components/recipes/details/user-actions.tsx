@@ -1,9 +1,13 @@
 import { OptimisticLikeButton } from "@/components/ui/buttons/optimistic-like-button";
 import type { DrizzleRecipe, RecipeIdentifier } from "@/drizzle/schema";
-import type { AuthenticatedUser } from "@/lib/services/auth/types";
-import { isRecipeLiked, likeRecipe, unlikeRecipe } from "@/lib/services/recipe";
+import {
+  likeRecipe,
+  unlikeRecipe,
+  isRecipeLiked,
+} from "@/lib/utils/recipe/like-recipe";
 import { revalidatePath } from "next/cache";
 import { AddToCollectionButton } from "./buttons/add-to-collection-button";
+import type { User } from "@/domain/user/user";
 
 export const LikeButton = async ({
   recipeIdentifier,
@@ -15,7 +19,7 @@ export const LikeButton = async ({
   className?: string;
   recipeIdentifier: RecipeIdentifier;
   initialLikes: number;
-  user: AuthenticatedUser | null;
+  user: User | null;
   disabled?: boolean;
 }) => {
   const isLiked = user ? await isRecipeLiked(recipeIdentifier, user) : false;
@@ -31,13 +35,13 @@ export const LikeButton = async ({
         if (!user) throw new Error("No session available");
 
         if (type === "add") {
-          const count = await likeRecipe(recipeIdentifier, user);
+          await likeRecipe(recipeIdentifier, user);
           revalidatePath("/recipes", "page");
-          return { count, isLiked: true };
+          return { count: initialLikes + 1, isLiked: true };
         } else {
-          const count = await unlikeRecipe(recipeIdentifier, user);
+          await unlikeRecipe(recipeIdentifier, user);
           revalidatePath("/recipes", "page");
-          return { count, isLiked: false };
+          return { count: initialLikes, isLiked: false };
         }
       }}
     />

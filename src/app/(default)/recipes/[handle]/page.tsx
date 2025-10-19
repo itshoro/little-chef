@@ -4,12 +4,12 @@ import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { LikeButton } from "@/components/recipes/details/user-actions";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { Avatar } from "@/components/users/avatar";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { validateSession } from "@/lib/auth/validate-session";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
 import type { UserOutputPublicDTO } from "@/lib/services/user/types";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
+import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
@@ -30,13 +30,14 @@ export async function generateMetadata(
   const params = await props.params;
   const { publicId } = parseHandle(params.handle);
   try {
-    const { recipe, maintainers } = await getRecipeDetailByIdentifier(
-      { publicId },
-      null,
-    );
+    const recipeResult = await getRecipeDetail({ publicId }, null);
+    if (!recipeResult.ok) throw recipeResult.error;
+
+    const recipe = recipeResult.value;
+    if (!recipe) notFound();
 
     return {
-      title: `${recipe.name} by ${generateAttribution(maintainers)}`,
+      title: `${recipe.name} by ${generateAttribution(recipe.collaborators.map((c) => c.user))}`,
       description: `In just ${recipe.cookingTime + recipe.preparationTime} minutes you could be done, yielding ${searchParams.servings} servings!`,
     };
   } catch {
@@ -52,16 +53,16 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     props.searchParams,
   ]);
   try {
-    const { user } = await getAuthenticatedUserFromRequest();
+    const { user } = await validateSession();
     const { publicId } = parseHandle(params.handle);
-    const {
-      recipe,
-      maintainers,
-      steps: rawSteps,
-    } = await getRecipeDetailByIdentifier({ publicId }, user);
+    const recipeResult = await getRecipeDetail({ publicId }, user);
+    if (!recipeResult.ok) throw recipeResult.error;
+
+    const recipe = recipeResult.value;
+    if (!recipe) notFound();
 
     const parser = new Parser();
-    const steps = rawSteps.map((step) => step.description);
+    const steps = recipe.steps.map((step) => step.description);
     const parsedSteps = parser.parse(steps.join());
 
     const servingsFromSearchParams = parseInt(searchParams.servings);
@@ -74,13 +75,13 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
         <ForceWakeLock />
         <article>
           <header className="border-b border-white/5 pb-6">
-            {recipe.coverSrc && (
+            {recipe.cover && (
               <div className="mb-4 px-4">
                 <div className="relative isolate w-full">
                   <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/5 ring-inset dark:ring-white/5" />
                   <Image
                     alt=""
-                    src={recipe.coverSrc}
+                    src={recipe.cover.url}
                     height={400}
                     width={320}
                     className="aspect-[5/4] w-full rounded-3xl object-cover"
@@ -99,7 +100,9 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             >
               <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-gradient-to-l to-stone-900" />
               <div className="flex items-center gap-4">
-                <Attributions maintainers={maintainers} />
+                <Attributions
+                  maintainers={recipe.collaborators.map((c) => c.user)}
+                />
               </div>
               <div className="pointer-events-none sticky right-0 z-10 flex">
                 <div className="h-full w-8 bg-gradient-to-r to-stone-900" />
@@ -182,8 +185,8 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 </div>
               </div>
             </div>
-            {/** TODO: add Cookware list */}
-            {/* {parsedSteps.cookwares.length > 0 && (
+            {/* * TODO: add Cookware list
+            {parsedSteps.cookwares.length > 0 && (
               <CookwareList cookwares={parsedSteps.cookwares} />
             )} */}
 
@@ -224,7 +227,8 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
         </article>
       </>
     );
-  } catch {
+  } catch (e) {
+    console.error(e);
     notFound();
   }
 };

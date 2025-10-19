@@ -1,27 +1,23 @@
 import { LinkButton } from "@/components/ui/buttons/link-button";
-import { unsafeResolveRecipeId } from "@/lib/dal/recipe";
-import type { AuthenticatedUser } from "@/lib/services/auth/types";
-import { assertCanEditRecipe } from "@/lib/services/recipe/permissions";
-import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
+import type { Recipe } from "@/domain/recipe/recipe";
+import type { User } from "@/domain/user/user";
+import { db } from "@/drizzle/db";
+import { DrizzleRecipePermissionRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
 import { generateHandle } from "@/lib/slug";
 import { AddToCollectionButton } from "./add-to-collection-button";
 import { DeleteRecipeButton } from "./delete-button";
 
 interface RecipeActionButtonsProps {
-  recipe: RecipeOutputPublicDTO;
-  user: AuthenticatedUser;
+  recipe: Recipe;
+  user: User;
 }
 
 export const RecipeActionButtons = async ({
   recipe,
   user,
 }: RecipeActionButtonsProps) => {
-  try {
-    const id = await unsafeResolveRecipeId(recipe);
-    await assertCanEditRecipe({ id }, user);
-  } catch {
-    return null;
-  }
+  const recipePermissionRepository = new DrizzleRecipePermissionRepository(db);
+  if (!recipePermissionRepository.canUpdate(recipe.id, user)) return null;
 
   return (
     <div className="flex gap-2">

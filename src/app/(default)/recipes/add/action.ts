@@ -1,12 +1,11 @@
 "use server";
 
-import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
-import { createRecipe } from "@/lib/services/recipe";
-import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
+import { dtoFromFormData } from "@/transformer/recipe/create-transformer";
+import { requireSession } from "@/lib/auth/require-session";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { generateHandle } from "@/lib/slug";
-import { createRecipeSchema } from "@/lib/validators/recipe";
+import { createRecipe } from "@/lib/utils/recipe/create-recipe";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
 export type CreateRecipeControls = {
   sessionId?: string;
@@ -20,83 +19,20 @@ export type CreateRecipeControls = {
   step: Record<string, string>;
 };
 
-async function createAction(
-  formData: FormData,
-): Promise<FormState<CreateRecipeControls>> {
-  const name = formData.get("name") as string;
-  const coverImage = formData.get("cover") as File;
-  const description = formData.get("description") as string;
-  const preparationTime = formData.get("preparationTime") as string;
-  const cookingTime = formData.get("cookingTime") as string;
-  const visibility = formData.get("visibility") as string;
-  const stepUuids = formData.getAll("step.uuid") as string[];
-  const recommendedServingSize = Number(formData.get("servings") as string);
+async function createAction(formData: FormData) {
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  const steps = Array.from(stepUuids).map(
-    (uuid) => formData.get(`step.${uuid}`) as string,
+  const dto = dtoFromFormData(formData);
+  const recipeResult = await createRecipe(user, dto);
+  if (!recipeResult.ok) throw new Error("Failed to create recipe.");
+
+  redirect(
+    `/recipes/${generateHandle(recipeResult.value.slug, recipeResult.value.publicId)}`,
   );
-
-  const file =
-    coverImage instanceof File && coverImage.size > 0 ? coverImage : null;
-
-  let recipe: RecipeOutputPublicDTO;
-  try {
-    const { user } = await assertAuthenticatedForServerAction();
-
-    const payload = {
-      name,
-      cover: { update: true, file },
-      description,
-      preparationTime,
-      cookingTime,
-      visibility,
-      recommendedServingSize,
-      steps,
-    };
-
-    const parseResult = createRecipeSchema.parse(payload);
-    parseResult.steps;
-    recipe = await createRecipe(parseResult, user);
-  } catch (e) {
-    if (!(e instanceof Error)) throw e;
-
-    const controls = {
-      name,
-      description,
-      cover: coverImage,
-      recommendedServingSize,
-      cookingTime: Number(cookingTime),
-      preparationTime: Number(preparationTime),
-      visibility,
-      step: steps,
-    };
-
-    if (e instanceof z.ZodError) {
-      return {
-        success: false,
-        message: "Validation failed.",
-        errors: e.errors.reduce(
-          (acc, error) => {
-            const path = error.path.join(".");
-            if (!acc[path]) acc[path] = [];
-            acc[path].push(error.message);
-            return acc;
-          },
-          {} as Record<string, string[]>,
-        ),
-        controls,
-      };
-    }
-
-    return {
-      success: false,
-      message: e.message,
-      errors: e.cause as Record<string, any>,
-      controls,
-    } satisfies FormState<CreateRecipeControls>;
-  }
-
-  redirect(`/recipes/${generateHandle(recipe.slug, recipe.publicId)}`);
 }
 
 export { createAction };

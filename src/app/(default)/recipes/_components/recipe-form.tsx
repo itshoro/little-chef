@@ -2,6 +2,7 @@
 
 import { Inputs } from "@/components/recipes/recipe-form/inputs";
 import { PendingButton } from "@/components/ui/buttons/pending-button";
+import type { Recipe } from "@/domain/recipe/recipe";
 import type {
   RecipeOutputPublicDTO,
   RecipeStepOutputPublicDTO,
@@ -11,7 +12,7 @@ import { useTransition } from "react";
 type RecipeFormProps = {
   action: (data: FormData) => Promise<void>;
   defaultValue?: {
-    recipe?: Partial<RecipeOutputPublicDTO>;
+    recipe?: Partial<Recipe>;
     steps?: RecipeStepOutputPublicDTO[];
   };
   buttonLabel: string;

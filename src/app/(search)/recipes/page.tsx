@@ -1,9 +1,11 @@
+import { makeFindRecipes } from "@/application/use-case/recipe/find-recipes";
 import { RecipeList } from "@/components/recipes/recipe-list-container";
+import type { User } from "@/domain/user/user";
+import { db } from "@/drizzle/db";
+import { DrizzleRecipeReadRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
+import { validateSession } from "@/lib/auth/validate-session";
 import type { ListQueryOptions } from "@/lib/dal/utils";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import type { AuthenticatedUser } from "@/lib/services/auth/types";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { findRecipes } from "@/lib/services/recipe";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
 
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
 
   return (
     <>
@@ -30,13 +32,15 @@ const SearchResults = async ({
   user,
 }: {
   query?: string;
-  user: AuthenticatedUser | null;
+  user: User | null;
 }) => {
   const queryOptions: ListQueryOptions = {
     search: query ? { query } : undefined,
   };
 
+  const findRecipes = makeFindRecipes(new DrizzleRecipeReadRepository(db));
   const recipes = await findRecipes(queryOptions, user);
+
   return <RecipeList recipes={recipes} title="Search Results" />;
 };
 

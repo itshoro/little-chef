@@ -11,9 +11,9 @@ type ItemsProps = {
 };
 
 const Items = ({ children }: ItemsProps) => {
-  const { uids } = useGeneratorContext(Items.name);
+  const { ids } = useGeneratorContext(Items.name);
 
-  return <>{uids.map(children)}</>;
+  return <>{ids.map(children)}</>;
 };
 
 export { Items };

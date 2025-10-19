@@ -1,4 +1,4 @@
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { validateSession } from "@/lib/auth/validate-session";
 import NextLink from "next/link";
 import { LinkButton } from "../../ui/buttons/link-button";
 import { Avatar } from "../../users/avatar";
@@ -10,7 +10,7 @@ const Header = async ({
   children?: React.ReactNode;
   className?: string;
 }) => {
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
 
   return (
     <header className={`flex ${className}`}>

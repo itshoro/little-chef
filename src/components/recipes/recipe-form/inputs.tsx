@@ -11,10 +11,11 @@ import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
 import { Textarea } from "@/components/ui/controls/textarea";
 import { ServingsInput } from "@/components/ui/controls/servings-input";
+import type { Recipe } from "@/domain/recipe/recipe";
 
 type InputsProps = {
   defaultValue?: {
-    recipe?: Partial<RecipeOutputPublicDTO>;
+    recipe?: Partial<Recipe>;
     steps?: RecipeStepOutputPublicDTO[];
   };
 };
@@ -27,7 +28,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <Input type="hidden" value={defaultValue?.recipe?.publicId} />
         </FieldRoot>
         <div className="mb-4 rounded-2xl bg-stone-50 dark:bg-stone-950">
-          <CoverImageInput defaultValue={defaultValue?.recipe?.coverSrc} />
+          <CoverImageInput defaultValue={defaultValue?.recipe?.cover?.url} />
         </div>
         <div className="mb-4">
           <FieldRoot name="name">
@@ -95,7 +96,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
         </div>
       </div>
       <CooklangInfo />
-      <StepsGenerator defaultValue={defaultValue?.steps} />
+      <StepsGenerator defaultValue={defaultValue?.recipe?.steps} />
     </>
   );
 };

@@ -1,7 +1,7 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
 import type { RecipeIdentifier } from "@/drizzle/schema";
+import { validateSession } from "@/lib/auth/validate-session";
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 import {
   addRecipeToCollection,
   findCollections,
@@ -19,7 +19,7 @@ const AddToCollectionButton = async ({
   recipeIdentifier,
 }: AddToCollectionButtonProps) => {
   // TODO: Remove from collections if already added.
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   if (!user) return null;
 
   const collections = user ? await findCollections({}, user) : [];
@@ -106,7 +106,7 @@ async function addToCollections(
   formData: FormData,
 ) {
   "use server";
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   if (!user) throw new UnauthenticatedError();
   const collection = formData.get("collection") as string;
 

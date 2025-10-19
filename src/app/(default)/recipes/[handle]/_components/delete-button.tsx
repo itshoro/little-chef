@@ -1,7 +1,8 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
 import type { RecipeIdentifier } from "@/drizzle/schema";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { deleteRecipe } from "@/lib/services/recipe";
+import { requireSession } from "@/lib/auth/require-session";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { deleteRecipe } from "@/lib/utils/recipe/delete-recipe";
 import { redirect } from "next/navigation";
 
 type DeleteButtonProps = {
@@ -54,8 +55,11 @@ const DeleteRecipeButton = async ({ recipeIdentifier }: DeleteButtonProps) => {
 
 async function deleteAction(recipeIdentifier: RecipeIdentifier) {
   "use server";
-  const { user } = await getAuthenticatedUserFromRequest();
-  if (!user) throw new Error("Unauthorized");
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
   await deleteRecipe(recipeIdentifier, user);
   redirect("/recipes");

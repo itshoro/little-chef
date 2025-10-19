@@ -3,8 +3,9 @@ import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { parseHandle } from "@/lib/slug";
 import { Actions } from "../actions";
 import { WizardStep } from "../step";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
+import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
+import { validateSession } from "@/lib/auth/validate-session";
+import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<{
@@ -21,16 +22,16 @@ const Page = async (props: PageProps) => {
 
   const searchParams = await props.searchParams;
   const params = await props.params;
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   const { publicId } = parseHandle(params.handle);
+  const recipeResult = await getRecipeDetail({ publicId }, user);
+  if (!recipeResult.ok) throw recipeResult.error;
 
-  const { recipe, steps } = await getRecipeDetailByIdentifier(
-    { publicId },
-    user,
-  );
+  const recipe = recipeResult.value;
+  if (!recipe) notFound();
 
-  const step = Math.min(Number(params.step) || 0, steps.length);
-  const displayedStep = steps[step];
+  const step = Math.min(Number(params.step) || 0, recipe.steps.length);
+  const displayedStep = recipe.steps[step];
 
   const ingredientScaleFactor =
     Number(searchParams.servings) / recipe.recommendedServingSize;
@@ -45,14 +46,14 @@ const Page = async (props: PageProps) => {
             ingredientScaleFactor={ingredientScaleFactor}
           />
           <div className="mt-4 text-sm">
-            Step {step + 1} of {steps.length}
+            Step {step + 1} of {recipe.steps.length}
           </div>
         </div>
         <section className="flex justify-between border-t border-stone-100 py-4 dark:border-stone-800">
           <Actions
             slug={recipe.slug}
             publicId={recipe.publicId}
-            stepCount={steps.length}
+            stepCount={recipe.steps.length}
             step={step}
             servings={searchParams.servings}
           />

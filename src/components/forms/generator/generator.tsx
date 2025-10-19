@@ -3,38 +3,43 @@
 import { useEffect, useState } from "react";
 import { GeneratorContext } from "./context";
 
-type GeneratorOptions<TKey = string> = {
+type GeneratorOptions<TKey extends string | number> = {
   generator: () => TKey;
   initialKeys?: TKey[];
   openFirstWhenEmpty?: boolean;
 };
 
-type GeneratorProps = {
-  options: GeneratorOptions;
+type GeneratorProps<TKey extends string | number> = {
+  options: GeneratorOptions<TKey>;
   children: React.ReactNode;
 };
 
-const Generator = ({ children, options }: GeneratorProps) => {
-  const [uids, addItem, removeItem] = useIdGenerator(options);
+const Generator = <TKey extends string | number>({
+  children,
+  options,
+}: GeneratorProps<TKey>) => {
+  const [ids, addItem, removeItem] = useIdGenerator<TKey>(options);
 
   const removeDisabled =
-    (options.openFirstWhenEmpty ?? false) && uids.length === 1;
+    (options.openFirstWhenEmpty ?? false) && ids.length === 1;
 
   return (
     <GeneratorContext.Provider
-      value={{ uids, addItem, removeItem, removeDisabled }}
+      value={{ ids, addItem, removeItem, removeDisabled }}
     >
       {children}
     </GeneratorContext.Provider>
   );
 };
 
-function useIdGenerator(options: GeneratorOptions) {
-  const [uids, setUids] = useState<string[]>([]);
+function useIdGenerator<TKey extends string | number>(
+  options: GeneratorOptions<TKey>,
+) {
+  const [ids, setIds] = useState<TKey[]>([]);
 
   useEffect(() => {
-    setUids((uids) => {
-      if (uids.length > 0) return uids;
+    setIds((ids) => {
+      if (ids.length > 0) return ids;
 
       if (
         Array.isArray(options.initialKeys) &&
@@ -49,26 +54,24 @@ function useIdGenerator(options: GeneratorOptions) {
   }, [options]);
 
   const addItem = (after?: number) => {
-    setUids((uids) =>
-      after === undefined
-        ? [...uids, options.generator()]
-        : [
-            ...uids.slice(0, after + 1),
-            options.generator(),
-            ...uids.slice(after + 1),
-          ],
-    );
-  };
-
-  const removeItem = (uid: string) => {
-    setUids((_uids) => {
-      if (options.openFirstWhenEmpty && _uids.length === 1) return _uids;
-
-      return _uids.filter((_uid) => _uid !== uid);
+    setIds((uids) => {
+      const newId = options.generator();
+      return after === undefined
+        ? [...uids, newId]
+        : [...uids.slice(0, after + 1), newId, ...uids.slice(after + 1)];
     });
   };
 
-  return [uids, addItem, removeItem] as const;
+  const removeItem = (id: TKey) => {
+    setIds((_ids) => {
+      if (options.openFirstWhenEmpty && _ids.length === 1) return _ids;
+
+      const newIds = _ids.filter((_id) => _id !== id);
+      return newIds;
+    });
+  };
+
+  return [ids, addItem, removeItem] as const;
 }
 
 export { Generator };
