@@ -9,6 +9,6 @@ export function makeFindRecipes(recipeReadRepository: RecipeReadRepository) {
     options: RecipeListOptions,
     user: User | null,
   ) {
-    return recipeReadRepository.list(options, user?.id);
+    return recipeReadRepository.list(options, user);
   };
 }

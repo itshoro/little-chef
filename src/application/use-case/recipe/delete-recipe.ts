@@ -8,7 +8,7 @@ import { RecipeNotFoundError } from "@/lib/errors/resource-not-found/recipe";
 export function makeDeleteRecipe(
   fileStorage: FileStorage,
   recipeRepository: RecipeRepository,
-  recipePermissionRespository: RecipePermissionRepository,
+  recipePermissionRepository: RecipePermissionRepository,
 ) {
   return async function deleteRecipe(
     identifier: { publicId: Recipe["publicId"] } | { id: Recipe["id"] },
@@ -24,12 +24,12 @@ export function makeDeleteRecipe(
     }
 
     if (
-      !(await recipePermissionRespository.canUpdatePermissions(recipe.id, user))
+      !(await recipePermissionRepository.canUpdatePermissions(recipe, user))
     ) {
       throw new Error("User does not have permission to delete this recipe");
     }
 
     if (recipe.cover) await fileStorage.delete(recipe.cover);
-    await recipeRepository.delete(recipe.id);
+    await recipeRepository.delete(recipe);
   };
 }

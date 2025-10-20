@@ -19,7 +19,7 @@ export interface RecipeListOptions {
 export interface RecipeReadRepository {
   list(options: RecipeListOptions, user?: User | null): Promise<Recipe[]>;
 
-  findByIdentifier(
+  findDetailByIdentifier(
     identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
     user?: User | null,
   ): Promise<RecipeDetail | null>;

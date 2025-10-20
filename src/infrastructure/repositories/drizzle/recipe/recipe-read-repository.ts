@@ -56,12 +56,10 @@ export class DrizzleRecipeReadRepository implements RecipeReadRepository {
       .map((r) => r.recipes.coverId)
       .filter((c) => c !== null);
 
-    const [collaboratorsByRecipe, stepsByRecipe, fileReferencesMap] =
-      await Promise.all([
-        this.findCollaborators(recipeIds),
-        this.findSteps(recipeIds),
-        this.findFileReferences(coverIds),
-      ]);
+    const [collaboratorsByRecipe, fileReferencesMap] = await Promise.all([
+      this.findCollaborators(recipeIds),
+      this.findFileReferences(coverIds),
+    ]);
 
     return recipesResult.map((r) => ({
       ...r.recipes,
@@ -69,11 +67,10 @@ export class DrizzleRecipeReadRepository implements RecipeReadRepository {
         ? (fileReferencesMap.get(r.recipes.coverId) ?? null)
         : null,
       collaborators: collaboratorsByRecipe.get(r.recipes.id) ?? [],
-      steps: stepsByRecipe.get(r.recipes.id) ?? [],
     }));
   }
 
-  async findByIdentifier(
+  async findDetailByIdentifier(
     identifier: RecipeIdentifier,
     user?: User | null,
   ): Promise<RecipeDetail | null> {

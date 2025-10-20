@@ -1,22 +1,7 @@
-import type { Collaborator } from "../../application/abstractions/auth/resource-guard";
+import type { Collaborator } from "../shared/collaborator";
 import type { FileReference } from "../shared/file-reference";
 import type { Visibility } from "../shared/visibility";
 import type { Step } from "./step";
-
-export type RecipeInsert = {
-  id: number;
-  publicId: string;
-  name: string;
-  description: string | null;
-  recommendedServingSize: number;
-  cookingTime: number;
-  preparationTime: number;
-  visibility: Visibility;
-  slug: string;
-  likes: number;
-  steps: string[];
-  cover: FileReference | null;
-};
 
 export interface Recipe {
   readonly id: number;
@@ -31,9 +16,9 @@ export interface Recipe {
   readonly cookingTime: number;
   readonly preparationTime: number;
   readonly likes: number;
+  readonly collaborators: Collaborator[];
 }
 
 export interface RecipeDetail extends Recipe {
-  readonly collaborators: Collaborator[];
   readonly steps: Step[];
 }

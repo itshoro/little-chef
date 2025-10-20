@@ -8,7 +8,10 @@ export function makeGetRecipeDetail(recipeRepository: RecipeReadRepository) {
     identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
     user: User | null,
   ): Promise<Result<RecipeDetail | null, Error>> {
-    const recipe = await recipeRepository.findByIdentifier(identifier, user);
+    const recipe = await recipeRepository.findDetailByIdentifier(
+      identifier,
+      user,
+    );
 
     return { ok: true, value: recipe };
   };

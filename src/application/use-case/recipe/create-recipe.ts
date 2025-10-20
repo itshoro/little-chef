@@ -1,5 +1,5 @@
 import type { Recipe, RecipeDetail } from "@/domain/recipe/recipe";
-import { RecipeCreationError } from "@/application/abstractions/recipe/recipe-creation-error";
+import { RecipeCreationError } from "@/domain/recipe/recipe-creation-error";
 import type { RecipePermissionRepository } from "@/application/abstractions/recipe/recipe-permission-repository";
 import type { RecipeRepository } from "@/application/abstractions/recipe/recipe-repository";
 import type { Step } from "@/domain/recipe/step";
@@ -13,7 +13,10 @@ import { makeRevertibleFileReference } from "../../shared/revertible-file-refere
 
 export interface CreateRecipeDTO {
   cover: File | null;
-  recipe: Omit<Recipe, "id" | "publicId" | "cover" | "likes" | "slug">;
+  recipe: Omit<
+    Recipe,
+    "id" | "publicId" | "collaborators" | "cover" | "likes" | "slug"
+  >;
   steps: Step[];
 }
 
@@ -26,45 +29,36 @@ export function makeCreateRecipe(
   return async function createRecipe(
     user: User,
     dto: CreateRecipeDTO,
-  ): Promise<Result<Recipe, RecipeCreationError>> {
+  ): Promise<Result<RecipeDetail, RecipeCreationError>> {
     await using coverReference = makeRevertibleFileReference(
       dto.cover ? await fileStorage.storeTemporary(nanoid(), dto.cover) : null,
       fileStorage,
     );
 
-    const recipeDto: Omit<Recipe, "id"> = {
+    const recipeResult = await recipeRepository.create({
       ...dto.recipe,
       publicId: nanoid(),
       cover: coverReference.ref,
       likes: 0,
       slug: generateSlug(dto.recipe.name),
-    };
-
-    const recipeResult = await recipeRepository.create(recipeDto);
+    });
     if (!recipeResult.ok) return recipeResult;
 
-    const stepsResult = await stepRepository.createSteps(
-      recipeResult.value.id,
-      dto.steps,
-    );
-    if (!stepsResult.ok) return stepsResult;
-
     const permissionResult = await recipePermissionRepository.addPermission(
-      recipeResult.value.id,
+      recipeResult.value,
       user,
       "owner",
     );
     if (!permissionResult.ok) return permissionResult;
 
+    const stepsResult = await stepRepository.createSteps(
+      permissionResult.value,
+      dto.steps,
+    );
+    if (!stepsResult.ok) return stepsResult;
+
     await coverReference.commit();
 
-    const recipeDetail: RecipeDetail = {
-      ...recipeResult.value,
-      cover: coverReference.ref,
-      collaborators: [{ user, role: "owner" }],
-      steps: dto.steps,
-    };
-
-    return { ok: true, value: recipeDetail };
+    return stepsResult;
   };
 }

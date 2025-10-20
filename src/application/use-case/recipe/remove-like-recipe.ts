@@ -24,6 +24,6 @@ export function makeRemoveLikeRecipe(
     }
 
     await recipePermissionRepository.canView(recipe, user);
-    return await recipeLikeRepository.unlikeRecipe(recipe.id, user.id);
+    return await recipeLikeRepository.unlikeRecipe(recipe, user);
   };
 }

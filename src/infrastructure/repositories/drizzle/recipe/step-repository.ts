@@ -1,6 +1,6 @@
-import type { Recipe } from "@/domain/recipe/recipe";
-import type { Step } from "@/domain/recipe/step";
 import type { StepRepository } from "@/application/abstractions/recipe/step-repository";
+import type { Recipe, RecipeDetail } from "@/domain/recipe/recipe";
+import type { Step } from "@/domain/recipe/step";
 import type { Result } from "@/domain/shared/result";
 import type { Connection } from "@/drizzle/db";
 import { recipeSteps } from "@/drizzle/schema";
@@ -10,26 +10,24 @@ export class DrizzleStepRepository implements StepRepository {
   constructor(private readonly db: Connection) {}
 
   async createSteps(
-    recipeId: Recipe["id"],
+    recipe: Recipe,
     steps: Step[],
-  ): Promise<Result<void, Error>> {
+  ): Promise<Result<RecipeDetail, Error>> {
     await this.db.insert(recipeSteps).values(
       steps.map((step) => ({
-        recipeId,
+        recipeId: recipe.id,
         ...step,
       })),
     );
 
-    return { ok: true, value: undefined };
+    return { ok: true, value: { ...recipe, steps } };
   }
 
-  async getStepsForRecipe(
-    recipeId: Recipe["id"],
-  ): Promise<Result<Step[], Error>> {
+  async getStepsForRecipe(recipe: Recipe): Promise<Result<Step[], Error>> {
     const rows = await this.db
       .select()
       .from(recipeSteps)
-      .where(eq(recipeSteps.recipeId, recipeId))
+      .where(eq(recipeSteps.recipeId, recipe.id))
       .orderBy(recipeSteps.order);
 
     const steps: Step[] = rows.map((row) => ({
@@ -41,10 +39,12 @@ export class DrizzleStepRepository implements StepRepository {
   }
 
   async deleteStepsForRecipe(
-    recipeId: Recipe["id"],
-  ): Promise<Result<void, Error>> {
-    await this.db.delete(recipeSteps).where(eq(recipeSteps.recipeId, recipeId));
+    recipe: Recipe,
+  ): Promise<Result<RecipeDetail, Error>> {
+    await this.db
+      .delete(recipeSteps)
+      .where(eq(recipeSteps.recipeId, recipe.id));
 
-    return { ok: true, value: undefined };
+    return { ok: true, value: { ...recipe, steps: [] } };
   }
 }

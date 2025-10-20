@@ -8,28 +8,25 @@ import { and, eq, sql } from "drizzle-orm";
 export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {
   constructor(private readonly db: Connection) {}
 
-  async hasUserLiked(
-    recipeId: Recipe["id"],
-    userId: User["id"],
-  ): Promise<boolean> {
+  async hasUserLiked(recipe: Recipe, user: User): Promise<boolean> {
     const [result] = await this.db
       .select()
       .from(recipeLikes)
       .where(
-        and(eq(recipeLikes.recipeId, recipeId), eq(recipeLikes.userId, userId)),
+        and(
+          eq(recipeLikes.recipeId, recipe.id),
+          eq(recipeLikes.userId, user.id),
+        ),
       );
 
     return result !== undefined;
   }
 
-  async likeRecipe(
-    recipeId: Recipe["id"],
-    userId: User["id"],
-  ): Promise<boolean> {
+  async likeRecipe(recipe: Recipe, user: User): Promise<boolean> {
     return await this.db.transaction(async (tx) => {
       const result = await tx
         .insert(recipeLikes)
-        .values({ recipeId, userId })
+        .values({ recipeId: recipe.id, userId: user.id })
         .onConflictDoNothing();
 
       // todo: verify rowsAffected works as expected with onConflictDoNothing
@@ -37,7 +34,7 @@ export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {
         await tx
           .update(recipes)
           .set({ likes: sql`${recipes.likes} + 1` })
-          .where(eq(recipes.id, recipeId));
+          .where(eq(recipes.id, recipe.id));
 
         return true;
       }
@@ -45,17 +42,14 @@ export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {
     });
   }
 
-  async unlikeRecipe(
-    recipeId: Recipe["id"],
-    userId: User["id"],
-  ): Promise<boolean> {
+  async unlikeRecipe(recipe: Recipe, user: User): Promise<boolean> {
     return await this.db.transaction(async (tx) => {
       const result = await tx
         .delete(recipeLikes)
         .where(
           and(
-            eq(recipeLikes.recipeId, recipeId),
-            eq(recipeLikes.userId, userId),
+            eq(recipeLikes.recipeId, recipe.id),
+            eq(recipeLikes.userId, user.id),
           ),
         );
 
@@ -64,7 +58,7 @@ export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {
         await tx
           .update(recipes)
           .set({ likes: sql`${recipes.likes} - 1` })
-          .where(eq(recipes.id, recipeId));
+          .where(eq(recipes.id, recipe.id));
 
         return true;
       }

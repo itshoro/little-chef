@@ -24,6 +24,6 @@ export function makeAddLikeRecipe(
     }
 
     await recipePermissionRepository.canView(recipe, user);
-    return await recipeLikeRepository.likeRecipe(recipe.id, user.id);
+    return await recipeLikeRepository.likeRecipe(recipe, user);
   };
 }

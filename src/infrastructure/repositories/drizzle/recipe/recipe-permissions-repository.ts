@@ -1,6 +1,6 @@
-import type { Collaborator } from "@/application/abstractions/auth/resource-guard";
-import type { Recipe } from "@/domain/recipe/recipe";
 import type { RecipePermissionRepository } from "@/application/abstractions/recipe/recipe-permission-repository";
+import type { Recipe } from "@/domain/recipe/recipe";
+import type { Collaborator } from "@/domain/shared/collaborator";
 import type { Result } from "@/domain/shared/result";
 import type { Role } from "@/domain/shared/role";
 import type { User } from "@/domain/user/user";
@@ -13,36 +13,41 @@ export class DrizzleRecipePermissionRepository
 {
   constructor(private readonly db: Connection) {}
 
-  async findCollaborators(id: Recipe["id"]): Promise<Collaborator[]> {
+  async findCollaborators(recipe: Recipe): Promise<Collaborator[]> {
     const permissions = await this.db
       .select({ role: recipeUserPermissions.role, user: users })
       .from(recipeUserPermissions)
       .innerJoin(users, eq(users.id, recipeUserPermissions.userId))
-      .where(eq(recipeUserPermissions.recipeId, id));
+      .where(eq(recipeUserPermissions.recipeId, recipe.id));
 
     return permissions as Collaborator[];
   }
 
   async addPermission(
-    id: Recipe["id"],
+    recipe: Recipe,
     user: User,
     role: Role,
-  ): Promise<Result<void, Error>> {
+  ): Promise<Result<Recipe, Error>> {
     await this.db.insert(recipeUserPermissions).values({
-      recipeId: id,
+      recipeId: recipe.id,
       userId: user.id,
       role,
     });
 
-    return { ok: true, value: undefined };
+    const newRecipe = {
+      ...recipe,
+      collaborators: [...recipe.collaborators, { user, role }],
+    };
+
+    return { ok: true, value: newRecipe };
   }
 
-  async removePermission(id: Recipe["id"], user: User): Promise<boolean> {
+  async removePermission(recipe: Recipe, user: User): Promise<boolean> {
     const result = await this.db
       .delete(recipeUserPermissions)
       .where(
         and(
-          eq(recipeUserPermissions.recipeId, id),
+          eq(recipeUserPermissions.recipeId, recipe.id),
           eq(recipeUserPermissions.userId, user.id),
         ),
       );
@@ -71,13 +76,13 @@ export class DrizzleRecipePermissionRepository
     return Boolean(permission);
   }
 
-  async canUpdate(id: Recipe["id"], user: User): Promise<boolean> {
+  async canUpdate(recipe: Recipe, user: User): Promise<boolean> {
     const [permission] = await this.db
       .select()
       .from(recipeUserPermissions)
       .where(
         and(
-          eq(recipeUserPermissions.recipeId, id),
+          eq(recipeUserPermissions.recipeId, recipe.id),
           eq(recipeUserPermissions.userId, user.id),
           inArray(recipeUserPermissions.role, [
             "owner",
@@ -90,13 +95,13 @@ export class DrizzleRecipePermissionRepository
     return Boolean(permission);
   }
 
-  async canUpdatePermissions(id: Recipe["id"], user: User): Promise<boolean> {
+  async canUpdatePermissions(recipe: Recipe, user: User): Promise<boolean> {
     const [permission] = await this.db
       .select()
       .from(recipeUserPermissions)
       .where(
         and(
-          eq(recipeUserPermissions.recipeId, id),
+          eq(recipeUserPermissions.recipeId, recipe.id),
           eq(recipeUserPermissions.userId, user.id),
           inArray(recipeUserPermissions.role, ["owner", "maintainer"]),
         ),

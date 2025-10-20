@@ -1,10 +1,7 @@
-import type { Collaborator } from "@/application/abstractions/auth/resource-guard";
-import { Recipe } from "@/domain/recipe/recipe";
-import type {
-  RecipeRepository,
-  UpdateRecipeParams,
-} from "@/application/abstractions/recipe/recipe-repository";
+import type { RecipeRepository } from "@/application/abstractions/recipe/recipe-repository";
+import { Recipe, type RecipeDetail } from "@/domain/recipe/recipe";
 import type { Step } from "@/domain/recipe/step";
+import type { Collaborator } from "@/domain/shared/collaborator";
 import type { FileReference } from "@/domain/shared/file-reference";
 import type { Result } from "@/domain/shared/result";
 import type { Connection } from "@/drizzle/db";
@@ -15,7 +12,7 @@ import {
   recipeUserPermissions,
   users,
 } from "@/drizzle/schema";
-import { eq, type InferSelectModel } from "drizzle-orm";
+import { eq, type InferInsertModel, type InferSelectModel } from "drizzle-orm";
 
 export class DrizzleRecipeRepository implements RecipeRepository {
   constructor(private readonly db: Connection) {}
@@ -44,13 +41,12 @@ export class DrizzleRecipeRepository implements RecipeRepository {
 
     if (!recipe) return null;
 
-    const [collaborators, steps, cover] = await Promise.all([
+    const [collaborators, cover] = await Promise.all([
       this.findCollaborators(recipe.id),
-      this.findSteps(recipe.id),
-      recipe.coverId ? this.findCover(recipe.coverId) : Promise.resolve(null),
+      this.findCover(recipe.coverId),
     ]);
 
-    return this.fromParams(recipe, collaborators, steps, cover);
+    return this.recipeFromParams(recipe, collaborators, cover);
   }
 
   async findByPublicId(publicId: string): Promise<Recipe | null> {
@@ -62,49 +58,59 @@ export class DrizzleRecipeRepository implements RecipeRepository {
 
     if (!recipe) return null;
 
-    const [collaborators, steps, cover] = await Promise.all([
+    const [collaborators, cover] = await Promise.all([
       this.findCollaborators(recipe.id),
-      this.findSteps(recipe.id),
-      recipe.coverId ? this.findCover(recipe.coverId) : Promise.resolve(null),
+      this.findCover(recipe.coverId),
     ]);
 
-    return this.fromParams(recipe, collaborators, steps, cover);
+    return this.recipeFromParams(recipe, collaborators, cover);
   }
 
-  async update(
-    id: Recipe["id"],
-    dto: UpdateRecipeParams,
-  ): Promise<Result<Recipe, Error>> {
-    const [recipe] = await this.db
+  async update(recipe: Recipe): Promise<Result<Recipe, Error>> {
+    const dto: Required<InferInsertModel<typeof recipes>> = {
+      ...recipe,
+      coverId: recipe.cover?.id ?? null,
+    };
+
+    const result = await this.db
       .update(recipes)
-      .set({ ...dto, coverId: dto.cover?.id ?? null })
-      .where(eq(recipes.id, id))
-      .returning();
+      .set(dto)
+      .where(eq(recipes.id, recipe.id));
 
-    if (!recipe) {
-      return { ok: false, error: new Error("Couldn't update recipe") };
-    }
+    if (result.rowsAffected === 0)
+      return {
+        ok: false,
+        error: new Error("Failed to find recipe to update."),
+      };
 
-    return { ok: true, value: { ...recipe, cover: dto.cover } };
+    return { ok: true, value: recipe };
   }
 
-  async delete(id: Recipe["id"]): Promise<void> {
-    await this.db.delete(recipes).where(eq(recipes.id, id));
+  async delete(recipe: Recipe): Promise<Result<void, Error>> {
+    const result = await this.db
+      .delete(recipes)
+      .where(eq(recipes.id, recipe.id));
+
+    if (result.rowsAffected === 0)
+      return {
+        ok: false,
+        error: new Error("Failed to find recipe to delete."),
+      };
+
+    return { ok: true, value: undefined };
   }
 
   // MARK: utils
 
-  private fromParams(
+  private recipeFromParams(
     recipe: InferSelectModel<typeof recipes>,
-    collaborators?: Collaborator[],
-    steps?: Step[],
-    cover?: FileReference | null,
+    collaborators: Collaborator[],
+    cover: FileReference | null,
   ): Recipe {
     return {
       ...recipe,
-      collaborators: collaborators ?? [],
-      steps: steps ?? [],
-      cover: cover ?? null,
+      collaborators,
+      cover,
     } satisfies Recipe;
   }
 
@@ -116,20 +122,15 @@ export class DrizzleRecipeRepository implements RecipeRepository {
       .where(eq(recipeUserPermissions.recipeId, id))) as Collaborator[];
   }
 
-  private async findSteps(id: number): Promise<Step[]> {
-    return await this.db
-      .select()
-      .from(recipeSteps)
-      .where(eq(recipeSteps.recipeId, id));
-  }
+  private async findCover(id: number | null): Promise<FileReference | null> {
+    if (id === null) return null;
 
-  private async findCover(id: number): Promise<FileReference | null> {
     const [reference] = await this.db
       .select()
       .from(fileReference)
       .where(eq(fileReference.id, id))
       .limit(1);
 
-    return reference;
+    return reference ?? null;
   }
 }

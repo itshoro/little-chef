@@ -28,30 +28,22 @@ export function makeUpdateRecipe(
     user: User,
     dto: UpdateRecipeDTO,
   ): Promise<Result<Recipe, RecipeUpdateError>> {
-    const recipe = await recipeRepository.findByPublicId(dto.recipe.publicId);
-    if (!recipe) {
+    const storedRecipe = await recipeRepository.findByPublicId(
+      dto.recipe.publicId,
+    );
+    if (!storedRecipe) {
       return { ok: false, error: new RecipeUpdateError("Recipe not found") };
     }
 
-    if (!(await recipePermissionRepository.canUpdate(recipe.id, user))) {
+    if (!(await recipePermissionRepository.canUpdate(storedRecipe, user))) {
       return {
         ok: false,
         error: new RecipeUpdateError(
           "User doesn't have permission to update recipe",
-          { cause: { userId: user.id, recipeId: recipe.id } },
+          { cause: { userId: user.id, recipeId: storedRecipe.id } },
         ),
       };
     }
-
-    const stepDeleteResult = await stepRepository.deleteStepsForRecipe(
-      recipe.id,
-    );
-    if (!stepDeleteResult.ok) return stepDeleteResult;
-    const stepCreateResult = await stepRepository.createSteps(
-      recipe.id,
-      dto.steps,
-    );
-    if (!stepCreateResult.ok) return stepCreateResult;
 
     const coverReference = dto.cover
       ? await fileStorage.storeTemporary(nanoid(), dto.cover)
@@ -60,19 +52,31 @@ export function makeUpdateRecipe(
     let cover: FileReference | null = null;
     if (coverReference) cover = coverReference;
     else if (dto.deletePreviousCover) cover = null;
-    else cover = recipe.cover;
+    else cover = storedRecipe.cover;
 
-    const recipeDTO: Omit<Recipe, "id" | "publicId" | "likes"> = {
+    const recipeResult = await recipeRepository.update({
       ...dto.recipe,
       cover,
       slug: generateSlug(dto.recipe.name),
-    };
-
-    const recipeResult = await recipeRepository.update(recipe.id, recipeDTO);
+      likes: storedRecipe.likes,
+      id: storedRecipe.id,
+    });
     if (!recipeResult.ok) return recipeResult;
+    let recipe = recipeResult.value;
 
-    if (dto.deletePreviousCover && recipe.cover) {
-      await fileStorage.delete(recipe.cover);
+    const stepDeleteResult = await stepRepository.deleteStepsForRecipe(recipe);
+    if (!stepDeleteResult.ok) return stepDeleteResult;
+    recipe = recipeResult.value;
+
+    const stepCreateResult = await stepRepository.createSteps(
+      recipe,
+      dto.steps,
+    );
+    if (!stepCreateResult.ok) return stepCreateResult;
+    recipe = recipeResult.value;
+
+    if (dto.deletePreviousCover && storedRecipe.cover) {
+      await fileStorage.delete(storedRecipe.cover);
     }
     if (coverReference) await fileStorage.persistReference(coverReference);
 

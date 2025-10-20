@@ -1,6 +1,6 @@
-import { makeCreateRecipe } from "@/application/use-case/recipe/create-recipe";
+import { makeUpdateRecipe } from "@/application/use-case/recipe/update-recipe";
 import type { Recipe } from "@/domain/recipe/recipe";
-import type { RecipeCreationError } from "@/domain/recipe/recipe-creation-error";
+import type { RecipeUpdateError } from "@/domain/recipe/recipe-update-error";
 import type { Result } from "@/domain/shared/result";
 import { db } from "@/drizzle/db";
 import { DrizzleRecipePermissionRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
@@ -9,19 +9,26 @@ import { DrizzleStepRepository } from "@/infrastructure/repositories/drizzle/rec
 import { UploadthingFileStorage } from "@/infrastructure/shared/uploadthing-file-storage";
 import { UTApi } from "uploadthing/server";
 
-export async function createRecipe(
-  ...args: Parameters<ReturnType<typeof makeCreateRecipe>>
-): Promise<Result<Recipe, RecipeCreationError>> {
+export async function updateRecipe(
+  ...args: Parameters<ReturnType<typeof makeUpdateRecipe>>
+): Promise<Result<Recipe, RecipeUpdateError>> {
   try {
     return await db.transaction(async (tx) => {
-      const createRecipe = makeCreateRecipe(
-        new UploadthingFileStorage(new UTApi(), tx),
-        new DrizzleRecipeRepository(tx),
-        new DrizzleRecipePermissionRepository(tx),
-        new DrizzleStepRepository(tx),
+      const fileStorage = new UploadthingFileStorage(new UTApi(), tx);
+      const recipeRepository = new DrizzleRecipeRepository(tx);
+      const recipePermissionRepository = new DrizzleRecipePermissionRepository(
+        tx,
+      );
+      const stepRepository = new DrizzleStepRepository(tx);
+
+      const updateRecipe = makeUpdateRecipe(
+        fileStorage,
+        recipeRepository,
+        recipePermissionRepository,
+        stepRepository,
       );
 
-      const result = await createRecipe(...args);
+      const result = await updateRecipe(...args);
       if (!result.ok) throw result.error;
 
       return result;
