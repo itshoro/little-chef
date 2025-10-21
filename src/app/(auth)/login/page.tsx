@@ -1,4 +1,4 @@
-import { validateSession } from "@/lib/auth/validate-session";
+import { validateSession } from "@/lib/utils/auth/validate-session";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { redirect } from "next/navigation";
 import { LoginForm } from "./_components/login-form";

@@ -1,5 +1,6 @@
-import type { Session } from "@/domain/auth/session";
 import type { SessionRepository } from "@/application/abstractions/auth/session-repository";
+import type { Session } from "@/domain/auth/session";
+import type { User } from "@/domain/user/user";
 import type { Connection } from "@/drizzle/db";
 import { sessions } from "@/drizzle/schema";
 import { eq, type InferSelectModel } from "drizzle-orm";
@@ -49,5 +50,9 @@ export class DrizzleSessionRepository implements SessionRepository {
 
   async deleteById(id: string): Promise<void> {
     await this.connection.delete(sessions).where(eq(sessions.id, id));
+  }
+
+  async deleteByUser(user: User): Promise<void> {
+    await this.connection.delete(sessions).where(eq(sessions.userId, user.id));
   }
 }

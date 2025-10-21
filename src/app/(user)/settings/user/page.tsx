@@ -1,5 +1,8 @@
-import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
 import type { Metadata } from "next";
 import { UpdateAvatar } from "./_components/update-avatar-form";
 import { UpdatePasswordForm } from "./_components/update-password-form";
@@ -11,11 +14,14 @@ export const metadata: Metadata = {
 
 const UserPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await getAuthenticatedUserOrRedirect();
+
+  const { user } = await requireSession({
+    onUnauthenticated: () => redirectToSignIn("/settings"),
+  });
 
   return (
     <>
-      <UpdateAvatar defaultValue={user?.avatar ?? undefined} />
+      <UpdateAvatar defaultValue={user.avatar?.url} />
       <UpdateUsername defaultValue={user.username} />
       <UpdatePasswordForm />
     </>

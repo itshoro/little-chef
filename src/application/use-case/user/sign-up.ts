@@ -7,7 +7,7 @@ import type { PasswordHasher } from "@/domain/user/password-hasher";
 import type { RecipePreferencesRepository } from "@/domain/user/recipe-preferences-repository";
 import type { User } from "@/domain/user/user";
 import type { UserRepository } from "@/domain/user/user-repository";
-import { makeCreateSession } from "../use-case/auth/create-session";
+import { makeCreateSession } from "../auth/create-session";
 import { makeCreateUser, type CreateUserDTO } from "./create-user";
 
 export const SESSION_COOKIE_NAME = "session";
@@ -42,8 +42,9 @@ export function makeSignUpUser(
     }
 
     const user = await createUser(dto);
-    const session = await createSession(now, user);
+    if (!user.ok) return user;
+    const session = await createSession(now, user.value);
 
-    return { ok: true, value: { user, session } };
+    return { ok: true, value: { user: user.value, session } };
   };
 }

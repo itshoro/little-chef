@@ -1,20 +1,18 @@
+import type { Result } from "@/domain/shared/result";
 import type { Username } from "@/domain/user/credentials";
 import { User } from "@/domain/user/user";
-import {
-  UserRepository,
-  type CreateUserParams,
-} from "@/domain/user/user-repository";
+import { UserRepository } from "@/domain/user/user-repository";
 import type { Connection } from "@/drizzle/db";
-import { users } from "@/drizzle/schema";
+import { fileReference, users } from "@/drizzle/schema";
 import { eq, type InferSelectModel } from "drizzle-orm";
 
 export class DrizzleUserRepository implements UserRepository {
   constructor(private readonly connection: Connection) {}
 
-  async create(dto: CreateUserParams): Promise<User> {
-    const [user] = await this.connection.insert(users).values(dto).returning();
+  async create(user: Omit<User, "id">): Promise<Result<User, Error>> {
+    const result = await this.connection.insert(users).values(user);
 
-    return this.fromParams(user);
+    return { ok: true, value: { ...user, id: Number(result.lastInsertRowid) } };
   }
 
   async findById(id: number): Promise<User | null> {
@@ -22,6 +20,7 @@ export class DrizzleUserRepository implements UserRepository {
       .select()
       .from(users)
       .where(eq(users.id, id))
+      .leftJoin(fileReference, eq(fileReference.id, users.avatarId))
       .limit(1);
 
     if (!user) return null;
@@ -33,6 +32,7 @@ export class DrizzleUserRepository implements UserRepository {
       .select()
       .from(users)
       .where(eq(users.publicId, id))
+      .leftJoin(fileReference, eq(fileReference.id, users.avatarId))
       .limit(1);
 
     if (!user) return null;
@@ -44,18 +44,43 @@ export class DrizzleUserRepository implements UserRepository {
       .select()
       .from(users)
       .where(eq(users.username, username))
+      .leftJoin(fileReference, eq(fileReference.id, users.avatarId))
       .limit(1);
 
     if (!user) return null;
     return this.fromParams(user);
   }
 
+  async update(user: User): Promise<Result<User, Error>> {
+    const result = await this.connection
+      .update(users)
+      .set({
+        username: user.username,
+        avatarId: user.avatar ? Number(user.avatar.id) : null,
+        hashedPassword: user.hashedPassword,
+        appPreferencesId: user.appPreferencesId,
+        collectionPreferencesId: user.collectionPreferencesId,
+        recipePreferencesId: user.recipePreferencesId,
+      })
+      .where(eq(users.id, user.id));
+
+    if (result.rowsAffected !== 1) {
+      return { ok: false, error: new Error("Failed to update user") };
+    }
+
+    return { ok: true, value: user };
+  }
+
   // MARK: utils
 
-  fromParams(row: InferSelectModel<typeof users>): User {
+  fromParams(params: {
+    users: InferSelectModel<typeof users>;
+    file_references: InferSelectModel<typeof fileReference> | null;
+  }): User {
     return {
-      ...row,
-      username: row.username as Username, // assume stored usernames are valid
+      ...params.users,
+      username: params.users.username as Username, // assume stored usernames are valid
+      avatar: params.file_references,
     } satisfies User;
   }
 }

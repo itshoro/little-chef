@@ -18,10 +18,8 @@ const UpdateUsername = ({
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     startTransition(async () => {
-      const result = await updateUsernameAction(
-        new FormData(e.target as HTMLFormElement),
-      );
-      if (result.success) (e.target as HTMLFormElement).reset();
+      await updateUsernameAction(new FormData(e.currentTarget));
+      e.currentTarget.reset();
     });
   };
 

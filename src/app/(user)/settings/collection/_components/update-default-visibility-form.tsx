@@ -7,7 +7,7 @@ import { VisibilitySwitcher } from "@/components/ui/controls/visibility-switcher
 import type { DrizzleCollectionPreferences } from "@/drizzle/schema";
 import { useTransition } from "react";
 import { SettingsCard } from "../../_components/settings-card";
-import { changeDefaultVisibility } from "../_actions/update-default-visibility";
+import { changeDefaultVisibilityAction } from "../_actions/update-default-visibility";
 
 const UpdateDefaultVisibilityForm = ({
   preferences,
@@ -19,7 +19,9 @@ const UpdateDefaultVisibilityForm = ({
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     startTransition(async () => {
-      await changeDefaultVisibility(new FormData(e.target as HTMLFormElement));
+      await changeDefaultVisibilityAction(
+        new FormData(e.target as HTMLFormElement),
+      );
     });
   };
 

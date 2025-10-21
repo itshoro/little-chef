@@ -8,7 +8,7 @@ import { useRef, useState, useTransition, type FormEvent } from "react";
 import { SettingsCard } from "../../_components/settings-card";
 import { changeAvatarAction } from "../_actions/update-avatar";
 
-const UpdateAvatar = ({ defaultValue }: { defaultValue?: string }) => {
+const UpdateAvatar = ({ defaultValue }: { defaultValue?: string | null }) => {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const inputRef = useRef<React.ComponentRef<"input">>(null!);

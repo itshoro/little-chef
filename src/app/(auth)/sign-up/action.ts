@@ -1,6 +1,6 @@
 "use server";
 
-import { makeSignUpUser } from "@/application/user/sign-up";
+import { makeSignUpUser } from "@/application/use-case/user/sign-up";
 import { db } from "@/drizzle/db";
 import { Argon2IDPasswordHasher } from "@/infrastructure/auth/argon2id-password-hasher";
 import { StatefulSessionProvider } from "@/infrastructure/auth/session/stateful/session-provider";

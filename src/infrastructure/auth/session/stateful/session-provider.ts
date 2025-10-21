@@ -53,6 +53,11 @@ export class StatefulSessionProvider implements SessionProvider {
   async invalidateSession(sessionId: string): Promise<void> {
     await this.sessionRepository.deleteById(sessionId);
   }
+
+  async invalidateAllSessionsForUser(user: User): Promise<void> {
+    await this.sessionRepository.deleteByUser(user);
+  }
+
   async updateLastVerifiedAt(sessionId: string, now: Date): Promise<void> {
     await this.sessionRepository.updateLastVerifiedAt(sessionId, now);
   }

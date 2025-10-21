@@ -1,3 +1,4 @@
+import type { Result } from "@/domain/shared/result";
 import type { CollectionPreferences } from "@/domain/user/collection-preferences";
 import { CollectionPreferencesRepository } from "@/domain/user/collection-preferences-repository";
 import type { Connection } from "@/drizzle/db";
@@ -27,5 +28,14 @@ export class DrizzleCollectionPreferencesRepository
       .returning();
 
     return preferences satisfies CollectionPreferences;
+  }
+
+  async update(dto: CollectionPreferences): Promise<Result<void, Error>> {
+    await this.connection
+      .update(collectionPreferences)
+      .set(dto)
+      .where(eq(collectionPreferences.id, dto.id));
+
+    return { ok: true, value: undefined };
   }
 }

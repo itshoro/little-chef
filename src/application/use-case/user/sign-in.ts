@@ -5,7 +5,7 @@ import type { Password, Username } from "@/domain/user/credentials";
 import type { PasswordHasher } from "@/domain/user/password-hasher";
 import type { User } from "@/domain/user/user";
 import type { UserRepository } from "@/domain/user/user-repository";
-import { makeCreateSession } from "../use-case/auth/create-session";
+import { makeCreateSession } from "../auth/create-session";
 
 export interface SignInUserDTO {
   username: Username;
@@ -27,7 +27,7 @@ export function makeSignInUser(
     if (!user) {
       return { ok: false, error: new Error("User does not exist.") };
     }
-    if (!passwordHasher.verify(dto.password, user.hashedPassword)) {
+    if (!(await passwordHasher.verify(dto.password, user.hashedPassword))) {
       return { ok: false, error: new Error("Password wrong.") };
     }
 

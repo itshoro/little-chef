@@ -30,9 +30,3 @@ export const passwordSchema = z
     passwordRange.max,
     `Password must be at most ${passwordRange.max} characters.`,
   );
-
-export type LoginParams = z.infer<typeof loginSchema>;
-export const loginSchema = z.object({
-  username: usernameSchema,
-  password: passwordSchema,
-});

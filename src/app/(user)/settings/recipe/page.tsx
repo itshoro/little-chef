@@ -1,9 +1,12 @@
-import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { getRecipePreferences } from "@/lib/services/user";
 import type { Metadata } from "next";
 import { UpdateDefaultServingSizeForm } from "./_components/update-default-serving-size-form";
 import { UpdateDefaultVisibilityForm } from "./_components/update-default-visibility-form";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
 
 export const metadata: Metadata = {
   title: "Recipe Preferences",
@@ -11,7 +14,9 @@ export const metadata: Metadata = {
 
 const RecipeSettingsPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await getAuthenticatedUserOrRedirect();
+  const { user } = await requireSession({
+    onUnauthenticated: () => redirectToSignIn("/settings/recipe"),
+  });
   const preferences = await getRecipePreferences(user);
 
   return (

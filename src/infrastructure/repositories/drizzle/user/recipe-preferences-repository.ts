@@ -1,3 +1,4 @@
+import type { Result } from "@/domain/shared/result";
 import type { RecipePreferences } from "@/domain/user/recipe-preferences";
 import { RecipePreferencesRepository } from "@/domain/user/recipe-preferences-repository";
 import type { Connection } from "@/drizzle/db";
@@ -27,5 +28,14 @@ export class DrizzleRecipePreferencesRepository
       .returning();
 
     return preferences satisfies RecipePreferences;
+  }
+
+  async update(preferences: RecipePreferences): Promise<Result<void, Error>> {
+    await this.connection
+      .update(recipePreferences)
+      .set(preferences)
+      .where(eq(recipePreferences.id, preferences.id));
+
+    return { ok: true, value: undefined };
   }
 }

@@ -1,8 +1,7 @@
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { validateSession } from "@/lib/utils/auth/validate-session";
 import { redirect } from "next/navigation";
 import { SingUpForm } from "./_components/sign-up-form";
-import { cookies } from "next/headers";
-import { validateSession } from "@/lib/auth/validate-session";
 const SignUpPage = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
