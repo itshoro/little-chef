@@ -17,6 +17,7 @@ import {
   type RecipeIdentifier,
 } from "@/drizzle/schema";
 import { and, eq, inArray, like, or } from "drizzle-orm";
+import type { Username } from "@/domain/user/credentials";
 
 export class DrizzleRecipeReadRepository implements RecipeReadRepository {
   constructor(private readonly db: Connection) {}
@@ -79,7 +80,7 @@ export class DrizzleRecipeReadRepository implements RecipeReadRepository {
       .from(recipes)
       .leftJoin(
         recipeUserPermissions,
-        and(eq(recipes.id, recipeUserPermissions.recipeId)),
+        eq(recipes.id, recipeUserPermissions.recipeId),
       )
       .where(
         and(
@@ -121,9 +122,11 @@ export class DrizzleRecipeReadRepository implements RecipeReadRepository {
         recipeId: recipeUserPermissions.recipeId,
         role: recipeUserPermissions.role,
         user: users,
+        userAvatar: fileReference,
       })
       .from(recipeUserPermissions)
       .innerJoin(users, eq(recipeUserPermissions.userId, users.id))
+      .leftJoin(fileReference, eq(fileReference.id, users.avatarId))
       .where(
         and(
           inArray(recipeUserPermissions.recipeId, recipeIds),
@@ -138,7 +141,14 @@ export class DrizzleRecipeReadRepository implements RecipeReadRepository {
     const collaboratorsByRecipe = new Map<Recipe["id"], Collaborator[]>();
     for (const c of collaboratorsResult) {
       const arr = collaboratorsByRecipe.get(c.recipeId) ?? [];
-      arr.push({ role: c.role, user: c.user as User });
+      arr.push({
+        role: c.role,
+        user: {
+          ...c.user,
+          username: c.user.username as Username,
+          avatar: c.userAvatar,
+        },
+      });
       collaboratorsByRecipe.set(c.recipeId, arr);
     }
 

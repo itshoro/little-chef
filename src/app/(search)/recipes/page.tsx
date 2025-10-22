@@ -3,9 +3,9 @@ import { RecipeList } from "@/components/recipes/recipe-list-container";
 import type { User } from "@/domain/user/user";
 import { db } from "@/drizzle/db";
 import { DrizzleRecipeReadRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
-import { validateSession } from "@/lib/auth/validate-session";
 import type { ListQueryOptions } from "@/lib/dal/utils";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { validateSession } from "@/lib/utils/auth/validate-session";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 

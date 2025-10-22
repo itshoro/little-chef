@@ -1,13 +1,12 @@
 import { OptimisticLikeButton } from "@/components/ui/buttons/optimistic-like-button";
-import type { DrizzleRecipe, RecipeIdentifier } from "@/drizzle/schema";
+import type { User } from "@/domain/user/user";
+import type { RecipeIdentifier } from "@/drizzle/schema";
 import {
+  isRecipeLiked,
   likeRecipe,
   unlikeRecipe,
-  isRecipeLiked,
 } from "@/lib/utils/recipe/like-recipe";
 import { revalidatePath } from "next/cache";
-import { AddToCollectionButton } from "./buttons/add-to-collection-button";
-import type { User } from "@/domain/user/user";
 
 export const LikeButton = async ({
   recipeIdentifier,
@@ -44,24 +43,6 @@ export const LikeButton = async ({
           return { count: initialLikes, isLiked: false };
         }
       }}
-    />
-  );
-};
-
-export const AddToCollection = async ({
-  recipe,
-  publicUserId,
-  className,
-}: {
-  className?: string;
-  recipe: DrizzleRecipe;
-  publicUserId: string | undefined;
-}) => {
-  return (
-    <AddToCollectionButton
-      className={className}
-      recipePublicId={recipe.publicId}
-      disabled={publicUserId === undefined}
     />
   );
 };

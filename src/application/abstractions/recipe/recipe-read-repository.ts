@@ -1,6 +1,5 @@
 import type { Recipe, RecipeDetail } from "@/domain/recipe/recipe";
 import type { User } from "@/domain/user/user";
-import type { Result } from "../../../domain/shared/result";
 
 type PaginationOptions = {
   page: number;

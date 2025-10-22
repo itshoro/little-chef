@@ -1,14 +1,14 @@
 import type { RecipeRepository } from "@/application/abstractions/recipe/recipe-repository";
-import { Recipe, type RecipeDetail } from "@/domain/recipe/recipe";
-import type { Step } from "@/domain/recipe/step";
+import { Recipe } from "@/domain/recipe/recipe";
 import type { Collaborator } from "@/domain/shared/collaborator";
 import type { FileReference } from "@/domain/shared/file-reference";
 import type { Result } from "@/domain/shared/result";
+import type { Username } from "@/domain/user/credentials";
+import type { User } from "@/domain/user/user";
 import type { Connection } from "@/drizzle/db";
 import {
   fileReference,
   recipes,
-  recipeSteps,
   recipeUserPermissions,
   users,
 } from "@/drizzle/schema";
@@ -115,11 +115,21 @@ export class DrizzleRecipeRepository implements RecipeRepository {
   }
 
   private async findCollaborators(id: number): Promise<Collaborator[]> {
-    return (await this.db
-      .select({ role: recipeUserPermissions.role, user: users })
+    const result = await this.db
+      .select()
       .from(recipeUserPermissions)
       .innerJoin(users, eq(users.id, recipeUserPermissions.userId))
-      .where(eq(recipeUserPermissions.recipeId, id))) as Collaborator[];
+      .leftJoin(fileReference, eq(fileReference.id, users.avatarId))
+      .where(eq(recipeUserPermissions.recipeId, id));
+
+    return result.map((item) => ({
+      role: item.recipe_user_permissions.role,
+      user: {
+        ...item.users,
+        username: item.users.username as Username,
+        avatar: item.file_references,
+      } satisfies User,
+    }));
   }
 
   private async findCover(id: number | null): Promise<FileReference | null> {

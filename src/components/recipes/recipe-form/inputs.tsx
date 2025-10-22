@@ -1,23 +1,15 @@
-// import * as Fieldset from "@/components/forms/fieldset";
-import { VisibilitySwitcher } from "@/components/ui/controls/visibility-switcher";
-import type {
-  RecipeOutputPublicDTO,
-  RecipeStepOutputPublicDTO,
-} from "@/lib/services/recipe/types";
-import { CoverImageInput } from "./elements/cover-image";
-import { StepsGenerator } from "./elements/step/generator";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
-import { Textarea } from "@/components/ui/controls/textarea";
 import { ServingsInput } from "@/components/ui/controls/servings-input";
-import type { Recipe } from "@/domain/recipe/recipe";
+import { Textarea } from "@/components/ui/controls/textarea";
+import { VisibilitySwitcher } from "@/components/ui/controls/visibility-switcher";
+import type { RecipeDetail } from "@/domain/recipe/recipe";
+import { CoverImageInput } from "./elements/cover-image";
+import { StepsGenerator } from "./elements/step/generator";
 
 type InputsProps = {
-  defaultValue?: {
-    recipe?: Partial<Recipe>;
-    steps?: RecipeStepOutputPublicDTO[];
-  };
+  defaultValue?: RecipeDetail;
 };
 
 const Inputs = ({ defaultValue }: InputsProps) => {
@@ -25,10 +17,10 @@ const Inputs = ({ defaultValue }: InputsProps) => {
     <>
       <div className="mb-8">
         <FieldRoot name="publicId">
-          <Input type="hidden" value={defaultValue?.recipe?.publicId} />
+          <Input type="hidden" value={defaultValue?.publicId} />
         </FieldRoot>
         <div className="mb-4 rounded-2xl bg-stone-50 dark:bg-stone-950">
-          <CoverImageInput defaultValue={defaultValue?.recipe?.cover?.url} />
+          <CoverImageInput defaultValue={defaultValue?.cover?.url} />
         </div>
         <div className="mb-4">
           <FieldRoot name="name">
@@ -36,7 +28,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
             <Input
               autoFocus
               type="text"
-              defaultValue={defaultValue?.recipe?.name}
+              defaultValue={defaultValue?.name}
               required
             />
           </FieldRoot>
@@ -46,7 +38,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
             <Label>Description</Label>
             <Textarea
               className="min-h-24"
-              defaultValue={defaultValue?.recipe?.description ?? undefined}
+              defaultValue={defaultValue?.description ?? undefined}
             />
           </FieldRoot>
         </div>
@@ -54,9 +46,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
         <div className="mb-8">
           <FieldRoot name="visibility">
             <Label>Visibility</Label>
-            <VisibilitySwitcher
-              defaultValue={defaultValue?.recipe?.visibility}
-            />
+            <VisibilitySwitcher defaultValue={defaultValue?.visibility} />
           </FieldRoot>
         </div>
         <div className="mb-4 flex gap-4">
@@ -65,7 +55,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
               <Label>Prep time (in mins)</Label>
               <Input
                 type="text"
-                defaultValue={defaultValue?.recipe?.preparationTime}
+                defaultValue={defaultValue?.preparationTime}
                 pattern="\d+"
                 required
               />
@@ -76,7 +66,7 @@ const Inputs = ({ defaultValue }: InputsProps) => {
               <Label>Cooking time (in mins)</Label>
               <Input
                 type="text"
-                defaultValue={defaultValue?.recipe?.cookingTime}
+                defaultValue={defaultValue?.cookingTime}
                 pattern="\d+"
                 required
               />
@@ -90,13 +80,13 @@ const Inputs = ({ defaultValue }: InputsProps) => {
           <FieldRoot name="servings">
             <Label>Servings</Label>
             <ServingsInput
-              defaultValue={defaultValue?.recipe?.recommendedServingSize}
+              defaultValue={defaultValue?.recommendedServingSize}
             />
           </FieldRoot>
         </div>
       </div>
       <CooklangInfo />
-      <StepsGenerator defaultValue={defaultValue?.recipe?.steps} />
+      <StepsGenerator defaultValue={defaultValue?.steps} />
     </>
   );
 };

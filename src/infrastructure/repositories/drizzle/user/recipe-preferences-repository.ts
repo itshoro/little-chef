@@ -10,14 +10,13 @@ export class DrizzleRecipePreferencesRepository
 {
   constructor(private readonly connection: Connection) {}
 
-  async findById(id: number): Promise<RecipePreferences | null> {
+  async findById(id: number): Promise<RecipePreferences> {
     const [preferences] = await this.connection
       .select()
       .from(recipePreferences)
       .where(eq(recipePreferences.id, id))
       .limit(1);
 
-    if (!preferences) return null;
     return preferences satisfies RecipePreferences;
   }
 

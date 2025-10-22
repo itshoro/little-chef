@@ -4,11 +4,11 @@ import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { LikeButton } from "@/components/recipes/details/user-actions";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { Avatar } from "@/components/users/avatar";
-import { validateSession } from "@/lib/auth/validate-session";
+import type { Collaborator } from "@/domain/shared/collaborator";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import type { UserOutputPublicDTO } from "@/lib/services/user/types";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
+import { validateSession } from "@/lib/utils/auth/validate-session";
 import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import { Parser } from "@cooklang/cooklang-ts";
 import type { Metadata, ResolvingMetadata } from "next";
@@ -100,9 +100,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             >
               <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-gradient-to-l to-stone-900" />
               <div className="flex items-center gap-4">
-                <Attributions
-                  maintainers={recipe.collaborators.map((c) => c.user)}
-                />
+                <Attributions maintainers={recipe.collaborators} />
               </div>
               <div className="pointer-events-none sticky right-0 z-10 flex">
                 <div className="h-full w-8 bg-gradient-to-r to-stone-900" />
@@ -233,24 +231,18 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
   }
 };
 
-const Attributions = ({
-  maintainers,
-}: {
-  maintainers: UserOutputPublicDTO[];
-}) => {
+const Attributions = ({ maintainers }: { maintainers: Collaborator[] }) => {
   return (
     <>
       {maintainers.map((maintainer) => (
         <article
-          key={maintainer.publicId}
+          key={maintainer.user.publicId}
           className="inline-flex w-max shrink-0 items-center gap-2"
         >
-          {maintainer.avatar && (
-            <Avatar src={maintainer.avatar} alt="" size="size-8" />
-          )}
+          <Avatar src={maintainer.user.avatar?.url} alt="" size="size-8" />
 
           <span className="text-sm text-stone-400 capitalize">
-            {maintainer.username}
+            {maintainer.user.username}
           </span>
         </article>
       ))}

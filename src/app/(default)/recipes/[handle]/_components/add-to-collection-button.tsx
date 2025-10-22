@@ -1,22 +1,20 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
-import type { RecipeIdentifier } from "@/drizzle/schema";
-import { validateSession } from "@/lib/auth/validate-session";
+import type { Recipe } from "@/domain/recipe/recipe";
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import {
-  addRecipeToCollection,
-  findCollections,
-} from "@/lib/services/collection";
+import { validateSession } from "@/lib/utils/auth/validate-session";
+import { addRecipeToCollection } from "@/lib/utils/collection/add-recipe-to-collection";
+import { findCollections } from "@/lib/utils/collection/find-collections";
 
 type AddToCollectionButtonProps = {
   className?: string;
-  recipeIdentifier: RecipeIdentifier;
+  recipe: Recipe;
   disabled?: boolean;
 };
 
 const AddToCollectionButton = async ({
   className,
   disabled,
-  recipeIdentifier,
+  recipe,
 }: AddToCollectionButtonProps) => {
   // TODO: Remove from collections if already added.
   const { user } = await validateSession();
@@ -24,10 +22,7 @@ const AddToCollectionButton = async ({
 
   const collections = user ? await findCollections({}, user) : [];
 
-  const boundAddToCollectionsAction = addToCollections.bind(
-    null,
-    recipeIdentifier,
-  );
+  const boundAddToCollectionsAction = addToCollections.bind(null, recipe);
 
   return (
     <>
@@ -52,7 +47,7 @@ const AddToCollectionButton = async ({
             <div className="relative isolate flex max-h-[50vh] flex-col overflow-auto">
               <div className="pointer-events-none sticky top-0 z-10 h-8 w-full shrink-0 bg-linear-to-b from-white dark:from-black" />
               <ul className="grid w-full flex-1 gap-2 px-6">
-                {collections.map(({ collection }) => (
+                {collections.map((collection) => (
                   <li key={collection.publicId}>
                     <input
                       name="collection"
@@ -101,16 +96,13 @@ const AddToCollectionButton = async ({
   );
 };
 
-async function addToCollections(
-  recipeIdentifier: RecipeIdentifier,
-  formData: FormData,
-) {
+async function addToCollections(recipe: Recipe, formData: FormData) {
   "use server";
   const { user } = await validateSession();
   if (!user) throw new UnauthenticatedError();
   const collection = formData.get("collection") as string;
 
-  await addRecipeToCollection({ publicId: collection }, recipeIdentifier, user);
+  await addRecipeToCollection({ publicId: collection }, recipe, user);
 }
 
 export { AddToCollectionButton };

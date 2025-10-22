@@ -1,6 +1,6 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
 import type { RecipeIdentifier } from "@/drizzle/schema";
-import { requireSession } from "@/lib/auth/require-session";
+import { requireSession } from "@/lib/utils/auth/require-session";
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { deleteRecipe } from "@/lib/utils/recipe/delete-recipe";
 import { redirect } from "next/navigation";

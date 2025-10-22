@@ -1,12 +1,12 @@
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { getRecipePreferences } from "@/lib/services/user";
-import type { Metadata } from "next";
-import { UpdateDefaultServingSizeForm } from "./_components/update-default-serving-size-form";
-import { UpdateDefaultVisibilityForm } from "./_components/update-default-visibility-form";
 import {
   redirectToSignIn,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { getRecipePreferences } from "@/lib/utils/user/get-preferences";
+import type { Metadata } from "next";
+import { UpdateDefaultServingSizeForm } from "./_components/update-default-serving-size-form";
+import { UpdateDefaultVisibilityForm } from "./_components/update-default-visibility-form";
 
 export const metadata: Metadata = {
   title: "Recipe Preferences",

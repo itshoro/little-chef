@@ -10,14 +10,13 @@ export class DrizzleCollectionPreferencesRepository
 {
   constructor(private readonly connection: Connection) {}
 
-  async findById(id: number): Promise<CollectionPreferences | null> {
+  async findById(id: number): Promise<CollectionPreferences> {
     const [preferences] = await this.connection
       .select()
       .from(collectionPreferences)
       .where(eq(collectionPreferences.id, id))
       .limit(1);
 
-    if (!preferences) return null;
     return preferences satisfies CollectionPreferences;
   }
 

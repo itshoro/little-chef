@@ -1,6 +1,9 @@
-import { redirectToSignIn, requireSession } from "@/lib/auth/require-session";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { getRecipePreferences } from "@/lib/services/user";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import { getRecipePreferences } from "@/lib/utils/user/get-preferences";
 import type { Metadata } from "next";
 import { RecipeForm } from "../_components/recipe-form";
 import { createAction } from "./action";

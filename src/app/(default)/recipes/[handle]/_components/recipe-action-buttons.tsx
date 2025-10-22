@@ -17,11 +17,11 @@ export const RecipeActionButtons = async ({
   user,
 }: RecipeActionButtonsProps) => {
   const recipePermissionRepository = new DrizzleRecipePermissionRepository(db);
-  if (!recipePermissionRepository.canUpdate(recipe.id, user)) return null;
+  if (!recipePermissionRepository.canUpdate(recipe, user)) return null;
 
   return (
     <div className="flex gap-2">
-      <AddToCollectionButton recipeIdentifier={recipe} />
+      <AddToCollectionButton recipe={recipe} />
       <LinkButton
         variant="outline"
         href={`/recipes/${generateHandle(recipe.slug, recipe.publicId)}/edit`}

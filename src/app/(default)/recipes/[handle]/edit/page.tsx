@@ -1,6 +1,9 @@
-import { redirectToSignIn, requireSession } from "@/lib/auth/require-session";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { parseHandle } from "@/lib/slug";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
 import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
