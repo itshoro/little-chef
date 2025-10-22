@@ -18,8 +18,6 @@ const IngredientList = ({
     searchParams.get("servings") || recommendedServingSize,
   );
 
-  console.log(preferredServingSize);
-
   return (
     <ul className="grid gap-2">
       {ingredients.map((ingredient) => (

@@ -38,11 +38,7 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   if (!recipe) notFound();
 
   return (
-    <RecipeForm
-      action={editAction}
-      defaultValue={{ recipe }}
-      buttonLabel="Save"
-    />
+    <RecipeForm action={editAction} defaultValue={recipe} buttonLabel="Save" />
   );
 };
 

@@ -26,10 +26,8 @@ const AddRecipePage = async () => {
         action={createAction}
         buttonLabel="Create Recipe"
         defaultValue={{
-          recipe: {
-            recommendedServingSize: preferences?.defaultServingSize,
-            visibility: preferences?.defaultVisibility,
-          },
+          recommendedServingSize: preferences.defaultServingSize,
+          visibility: preferences.defaultVisibility,
         }}
       />
     </>

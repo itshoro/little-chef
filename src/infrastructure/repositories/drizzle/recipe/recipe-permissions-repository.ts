@@ -3,9 +3,10 @@ import type { Recipe } from "@/domain/recipe/recipe";
 import type { Collaborator } from "@/domain/shared/collaborator";
 import type { Result } from "@/domain/shared/result";
 import type { Role } from "@/domain/shared/role";
+import type { Username } from "@/domain/user/credentials";
 import type { User } from "@/domain/user/user";
 import type { Connection } from "@/drizzle/db";
-import { recipeUserPermissions, users } from "@/drizzle/schema";
+import { fileReference, recipeUserPermissions, users } from "@/drizzle/schema";
 import { and, eq, inArray } from "drizzle-orm";
 
 export class DrizzleRecipePermissionRepository
@@ -15,12 +16,20 @@ export class DrizzleRecipePermissionRepository
 
   async findCollaborators(recipe: Recipe): Promise<Collaborator[]> {
     const permissions = await this.db
-      .select({ role: recipeUserPermissions.role, user: users })
+      .select()
       .from(recipeUserPermissions)
       .innerJoin(users, eq(users.id, recipeUserPermissions.userId))
+      .leftJoin(fileReference, eq(fileReference.id, users.avatarId))
       .where(eq(recipeUserPermissions.recipeId, recipe.id));
 
-    return permissions as Collaborator[];
+    return permissions.map((permission) => ({
+      role: permission.recipe_user_permissions.role,
+      user: {
+        ...permission.users,
+        avatar: permission.file_references,
+        username: permission.users.username as Username,
+      },
+    }));
   }
 
   async addPermission(

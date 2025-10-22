@@ -17,7 +17,9 @@ import { eq, type InferInsertModel, type InferSelectModel } from "drizzle-orm";
 export class DrizzleRecipeRepository implements RecipeRepository {
   constructor(private readonly db: Connection) {}
 
-  async create(dto: Omit<Recipe, "id">): Promise<Result<Recipe, Error>> {
+  async create(
+    dto: Omit<Recipe, "id" | "collaborators">,
+  ): Promise<Result<Recipe, Error>> {
     const result = await this.db
       .insert(recipes)
       .values({ ...dto, coverId: dto.cover?.id ?? null });
@@ -28,7 +30,7 @@ export class DrizzleRecipeRepository implements RecipeRepository {
 
     return {
       ok: true,
-      value: { ...dto, id: Number(result.lastInsertRowid) },
+      value: { ...dto, collaborators: [], id: Number(result.lastInsertRowid) },
     };
   }
 

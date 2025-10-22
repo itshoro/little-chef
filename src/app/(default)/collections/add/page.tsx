@@ -16,7 +16,7 @@ const Page = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const { user } = await requireSession({
-    onUnauthenticated: redirectToSignIn("/collections/add"),
+    onUnauthenticated: () => redirectToSignIn("/collections/add"),
   });
   const preferences = await getCollectionPreferences(user);
 

@@ -14,14 +14,14 @@ export async function deleteRecipe(
   await db.transaction(async (tx) => {
     const fileStorage = new UploadthingFileStorage(new UTApi(), tx);
     const recipeRepository = new DrizzleRecipeRepository(tx);
-    const recipePermissionRespository = new DrizzleRecipePermissionRepository(
+    const recipePermissionRepository = new DrizzleRecipePermissionRepository(
       tx,
     );
 
     const deleteRecipe = makeDeleteRecipe(
       fileStorage,
       recipeRepository,
-      recipePermissionRespository,
+      recipePermissionRepository,
     );
 
     await deleteRecipe(identifier, user);

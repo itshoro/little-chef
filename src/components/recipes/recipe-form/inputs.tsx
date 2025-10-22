@@ -9,7 +9,7 @@ import { CoverImageInput } from "./elements/cover-image";
 import { StepsGenerator } from "./elements/step/generator";
 
 type InputsProps = {
-  defaultValue?: RecipeDetail;
+  defaultValue?: Partial<RecipeDetail>;
 };
 
 const Inputs = ({ defaultValue }: InputsProps) => {
