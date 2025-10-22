@@ -1,0 +1,31 @@
+import type {
+  Collection,
+  CollectionDetail,
+} from "@/domain/collection/collection";
+import type { User } from "@/domain/user/user";
+
+type PaginationOptions = {
+  page: number;
+  pageSize: number;
+};
+
+type InternalSearchOptions = {
+  query: string;
+};
+
+export interface CollectionListOptions {
+  pagination?: PaginationOptions;
+  search?: InternalSearchOptions;
+}
+
+export interface CollectionReadRepository {
+  list(
+    options: CollectionListOptions,
+    user?: User | null,
+  ): Promise<Collection[]>;
+
+  findDetailByIdentifier(
+    identifier: { id: Collection["id"] } | { publicId: Collection["publicId"] },
+    user?: User | null,
+  ): Promise<CollectionDetail | null>;
+}

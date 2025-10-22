@@ -1,9 +1,9 @@
 import { CollectionList } from "@/components/collections/collection-list-container";
+import type { User } from "@/domain/user/user";
 import type { ListQueryOptions } from "@/lib/dal/utils";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import type { AuthenticatedUser } from "@/lib/services/auth/types";
-import { findCollections } from "@/lib/services/collection";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { validateSession } from "@/lib/utils/auth/validate-session";
+import { findCollections } from "@/lib/utils/collection/find-collections";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   const searchParams = await props.searchParams;
   const searchQuery = searchParams.q;
 
@@ -32,7 +32,7 @@ const SearchResults = async ({
   user,
 }: {
   query?: string;
-  user: AuthenticatedUser | null;
+  user: User | null;
 }) => {
   const queryOptions: ListQueryOptions = {
     search: query ? { query } : undefined,

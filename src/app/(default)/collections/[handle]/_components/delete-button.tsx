@@ -1,9 +1,9 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { redirect } from "next/navigation";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import { deleteCollection } from "@/lib/services/collection";
 import type { CollectionIdentifier } from "@/drizzle/schema";
+import { requireSession } from "@/lib/utils/auth/require-session";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { deleteCollection } from "@/lib/utils/collection/delete-collection";
+import { redirect } from "next/navigation";
 
 type DeleteButtonProps = {
   collectionIdentifier: CollectionIdentifier;
@@ -57,10 +57,15 @@ const DeleteCollectionButton = async ({
 
 async function deleteAction(collectionIdentifier: CollectionIdentifier) {
   "use server";
-  const { user } = await getAuthenticatedUserFromRequest();
-  if (!user) throw new UnauthenticatedError();
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  await deleteCollection(collectionIdentifier, user);
+  const result = await deleteCollection(collectionIdentifier, user);
+  if (!result.ok) throw result.error;
+
   redirect("/collections");
 }
 

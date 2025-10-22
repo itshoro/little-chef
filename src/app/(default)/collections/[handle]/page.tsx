@@ -5,24 +5,17 @@ import { AvatarStack } from "@/components/users/avatar-stack";
 
 import { LinkButton } from "@/components/ui/buttons/link-button";
 import { Section } from "@/components/ui/section";
-import type { CollectionIdentifier } from "@/drizzle/schema";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import {
-  getCollectionDetailByIdentifier,
-  getCollectionPreviewByIdentifier,
-} from "@/lib/services/collection";
-import type {
-  CollectionDetailsDTO,
-  CollectionOutputPublicDTO,
-} from "@/lib/services/collection/types";
+import type { Collection } from "@/domain/collection/collection";
+import type { Recipe } from "@/domain/recipe/recipe";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import type { RecipePreviewDTO } from "@/lib/services/recipe/types";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
+import { validateSession } from "@/lib/utils/auth/validate-session";
+import { getCollectionDetail } from "@/lib/utils/collection/get-collection-detail";
 import type { Metadata, ResolvedMetadata } from "next";
-import { notFound, redirect, RedirectType } from "next/navigation";
-import { removeRecipeFromCollectionAction } from "./remove-recipe-action";
+import { notFound } from "next/navigation";
 import { DeleteCollectionButton } from "./_components/delete-button";
+import { removeRecipeFromCollectionAction } from "./remove-recipe-action";
 
 type CollectionPageProps = { params: Promise<{ handle: string }> };
 
@@ -33,12 +26,10 @@ export async function generateMetadata(
   const params = await props.params;
   try {
     const { publicId } = parseHandle(params.handle);
-    const { collection } = await getCollectionPreviewByIdentifier(
-      { publicId },
-      null,
-    );
+    const collection = await getCollectionDetail({ publicId }, null);
+    if (!collection.ok) throw new Error("Collection not found");
 
-    return { title: collection.name };
+    return { title: collection.value.name };
   } catch {
     return parent as Metadata;
   }
@@ -48,38 +39,19 @@ const CollectionPage = async (props: CollectionPageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const params = await props.params;
-  const { slug, publicId } = parseHandle(params.handle);
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { publicId } = parseHandle(params.handle);
+  const { user } = await validateSession();
 
-  let collectionDetail: CollectionDetailsDTO;
-  try {
-    collectionDetail = await getCollectionDetailByIdentifier(
-      { publicId },
-      user,
-    );
-  } catch (e) {
-    console.log(e);
-    notFound();
-  }
+  const collectionResult = await getCollectionDetail({ publicId }, user);
+  if (!collectionResult.ok) notFound();
 
-  const { collection, maintainers, recipes } = collectionDetail;
-  if (slug !== collection.slug) {
-    redirect(
-      `/collections/${generateHandle(collection.slug, publicId)}`,
-      RedirectType.replace,
-    );
-  }
+  const collection = collectionResult.value;
+  const collaboratorUsers = collection.collaborators.map((c) => c.user);
+  const attribution = generateAttribution(collaboratorUsers);
+  const isMaintainer =
+    collaboratorUsers.find((c) => c.id === user?.id) !== undefined;
 
-  const attribution = generateAttribution(maintainers);
-
-  const isMaintainer = maintainers
-    .map((maintainer) => maintainer.publicId)
-    .includes(user?.publicId ?? "");
-
-  // todo likes
-  // const isLiked = user
-  //   ? await isCollectionLiked(user?.publicId, collection.id)
-  //   : false;
+  // todo: likes
 
   return (
     <>
@@ -88,7 +60,7 @@ const CollectionPage = async (props: CollectionPageProps) => {
         <div className="flex items-center gap-3 text-sm">
           <span>By </span>
           <div className="flex items-center gap-1">
-            <AvatarStack users={maintainers} />
+            <AvatarStack users={collaboratorUsers} />
             <span>{attribution}</span>
           </div>
         </div>
@@ -144,11 +116,9 @@ const CollectionPage = async (props: CollectionPageProps) => {
       <div className="my-12">
         <Section title="Recipes">
           <RecipeList
-            recipes={recipes}
+            recipes={collection.recipes}
             collection={collection}
-            isMaintainer={maintainers.some(
-              (m) => m.publicId === user?.publicId,
-            )}
+            isMaintainer={isMaintainer}
           />
         </Section>
       </div>
@@ -161,8 +131,8 @@ const RecipeList = async ({
   recipes,
   isMaintainer,
 }: {
-  collection: CollectionOutputPublicDTO;
-  recipes: RecipePreviewDTO[];
+  collection: Collection;
+  recipes: Recipe[];
   isMaintainer: boolean;
 }) => {
   if (recipes.length === 0)
@@ -174,10 +144,10 @@ const RecipeList = async ({
 
   return (
     <ul className="space-y-2">
-      {recipes.map(({ recipe, maintainers }) => (
+      {recipes.map((recipe) => (
         <li key={recipe.publicId}>
           <div className="rounded-xl border dark:border-none dark:bg-stone-950">
-            <RecipeCard recipe={recipe} maintainers={maintainers} />
+            <RecipeCard recipe={recipe} />
             {isMaintainer && (
               <div className="p-2">
                 <form

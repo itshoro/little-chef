@@ -1,7 +1,10 @@
-import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
-import { getCollectionDetailByIdentifier } from "@/lib/services/collection";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { parseHandle } from "@/lib/slug";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import { getCollectionDetail } from "@/lib/utils/collection/get-collection-detail";
 import { notFound } from "next/navigation";
 import { CollectionForm } from "../../_components/collection-form";
 import { editAction } from "./action";
@@ -15,29 +18,24 @@ type PageProps = {
 const Page = async (props: PageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
-  const { user } = await getAuthenticatedUserOrRedirect();
-
   const params = await props.params;
   const { publicId } = parseHandle(params.handle);
 
-  try {
-    const { collection } = await getCollectionDetailByIdentifier(
-      { publicId },
-      user,
-    );
+  const { user } = await requireSession({
+    onUnauthenticated: () =>
+      redirectToSignIn(`/collections/${params.handle}/edit`),
+  });
 
-    return (
-      <>
-        <CollectionForm
-          defaultValue={collection}
-          action={editAction}
-          buttonLabel="Save"
-        />
-      </>
-    );
-  } catch {
-    notFound();
-  }
+  const collectionResult = await getCollectionDetail({ publicId }, user);
+  if (!collectionResult.ok) notFound();
+
+  return (
+    <CollectionForm
+      defaultValue={collectionResult.value}
+      action={editAction}
+      buttonLabel="Save"
+    />
+  );
 };
 
 export default Page;
