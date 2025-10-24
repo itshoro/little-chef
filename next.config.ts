@@ -20,7 +20,6 @@ const nextConfig: NextConfig = {
   experimental: {
     useCache: true,
     authInterrupts: true,
-    devtoolSegmentExplorer: true,
   },
 };
 

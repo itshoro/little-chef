@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-async function middleware(request: NextRequest) {
+async function proxy(request: NextRequest) {
   if (request.method === "GET") {
     // extend session life time on get because we can be certain a new session hasn't been established.
     const response = NextResponse.next({
@@ -47,4 +47,4 @@ async function middleware(request: NextRequest) {
   });
 }
 
-export { middleware };
+export { proxy };
