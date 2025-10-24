@@ -10,7 +10,7 @@ import { DrizzleAppPreferencesRepository } from "@/infrastructure/repositories/d
 import { DrizzleCollectionPreferencesRepository } from "@/infrastructure/repositories/drizzle/user/collection-preferences-repository";
 import { DrizzleRecipePreferencesRepository } from "@/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
 import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user/user-repository";
-import { isRateLimitedSignUp } from "@/lib/services/rate-limit/auth";
+import { isRateLimitedSignUp } from "@/lib/utils/rate-limit/auth";
 import { signUpDTOFromFormData } from "@/transformer/user/create-transformer";
 
 async function signupAction(formData: FormData) {

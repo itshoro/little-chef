@@ -1,4 +1,4 @@
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import Link from "next/link";
 import { redirect } from "next/navigation";

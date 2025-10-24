@@ -1,5 +1,5 @@
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { resetPassword } from "@/lib/utils/auth/reset-password";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { dtoFromFormData } from "@/transformer/auth/reset-password";
 import { redirect, RedirectType } from "next/navigation";
 

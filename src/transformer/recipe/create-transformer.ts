@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { CreateRecipeDTO } from "@/application/use-case/recipe/create-recipe";
-import { visibilitySchema } from "@/lib/validators/visibility";
+import { visibilitySchema } from "@/transformer/shared/visibility";
 import * as z from "zod/mini";
 import { Step } from "../step/transformer";
 import { FileReference } from "../file-reference/transformer";

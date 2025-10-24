@@ -1,5 +1,5 @@
 import { needsActivityUpdate } from "@/domain/auth/session";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import {
   redirectToSignIn,
   redirectToVerify,

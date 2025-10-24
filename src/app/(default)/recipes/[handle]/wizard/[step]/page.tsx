@@ -1,5 +1,5 @@
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { parseHandle } from "@/lib/slug";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";

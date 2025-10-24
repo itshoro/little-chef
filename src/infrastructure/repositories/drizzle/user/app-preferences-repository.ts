@@ -9,14 +9,13 @@ export class DrizzleAppPreferencesRepository
 {
   constructor(private readonly connection: Connection) {}
 
-  async findById(id: number): Promise<AppPreferences | null> {
+  async findById(id: number): Promise<AppPreferences> {
     const [preferences] = await this.connection
       .select()
       .from(appPreferences)
       .where(eq(appPreferences.id, id))
       .limit(1);
 
-    if (!preferences) return null;
     return preferences satisfies AppPreferences;
   }
 

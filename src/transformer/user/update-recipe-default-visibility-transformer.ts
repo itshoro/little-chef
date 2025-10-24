@@ -1,4 +1,4 @@
-import { visibilitySchema } from "@/lib/validators/visibility";
+import { visibilitySchema } from "@/transformer/shared/visibility";
 import * as z from "zod";
 
 const ChangeDefaultVisibility = z.object({

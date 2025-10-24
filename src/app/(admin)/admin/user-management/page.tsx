@@ -2,7 +2,7 @@ import { Avatar } from "@/components/users/avatar";
 import { needsActivityUpdate } from "@/domain/auth/session";
 import { db } from "@/drizzle/db";
 import { fileReference, users } from "@/drizzle/schema";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import {
   redirectToSignIn,
   redirectToVerify,

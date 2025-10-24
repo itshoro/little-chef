@@ -1,4 +1,4 @@
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { redirect } from "next/navigation";
 import { VerifyForm } from "./_components/verify-form";
 import { verifyAction } from "./action";

@@ -1,5 +1,5 @@
 import type { CreateCollectionDTO } from "@/application/use-case/collection/create-collection";
-import { visibilitySchema } from "@/lib/validators/visibility";
+import { visibilitySchema } from "@/transformer/shared/visibility";
 import * as z from "zod/mini";
 
 const Collection = z.object({

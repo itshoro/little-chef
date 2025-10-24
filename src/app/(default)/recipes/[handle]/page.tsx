@@ -5,7 +5,7 @@ import { LikeButton } from "@/components/recipes/details/user-actions";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { Avatar } from "@/components/users/avatar";
 import type { Collaborator } from "@/domain/shared/collaborator";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import { validateSession } from "@/lib/utils/auth/validate-session";

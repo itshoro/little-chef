@@ -1,7 +1,7 @@
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { resetPasswordAction } from "./action";
-import { ResetPasswordForm } from "./_components/reset-password-form";
 import { passwordResetRequestExists } from "@/lib/utils/auth/password-reset-request-exists";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
+import { ResetPasswordForm } from "./_components/reset-password-form";
+import { resetPasswordAction } from "./action";
 
 const ResetPasswordPage = async ({
   searchParams,

@@ -1,4 +1,4 @@
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { parseHandle } from "@/lib/slug";
 import {
   redirectToSignIn,

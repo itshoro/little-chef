@@ -4,7 +4,7 @@ import { PendingButton } from "@/components/ui/buttons/pending-button";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
-import { passwordRange, usernameRange } from "@/lib/validators/user";
+import { passwordRange, usernameRange } from "@/domain/user/credentials";
 import Link from "next/link";
 import { useTransition } from "react";
 import { loginAction } from "../action";
