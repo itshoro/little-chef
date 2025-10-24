@@ -1,7 +1,7 @@
 import { passwordSchema } from "@/lib/domain/user/credentials";
 import * as z from "zod";
 
-export const ChangePassword = z
+const ChangePassword = z
   .object({
     currentPassword: z.string(),
     newPassword: passwordSchema,
@@ -11,7 +11,6 @@ export const ChangePassword = z
     message: "Passwords must match.",
     path: ["confirmNewPassword"],
   });
-export type ChangePasswordFormData = z.infer<typeof ChangePassword>;
 
 export function dtoFromFormData(formData: FormData) {
   const currentPassword = formData.get("currentPassword") as string;

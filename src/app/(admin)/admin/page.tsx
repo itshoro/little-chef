@@ -1,10 +1,10 @@
 import { needsActivityUpdate } from "@/lib/domain/auth/session";
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import {
   redirectToSignIn,
   redirectToVerify,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { forbidden } from "next/navigation";
 
 const AdminPanel = async () => {

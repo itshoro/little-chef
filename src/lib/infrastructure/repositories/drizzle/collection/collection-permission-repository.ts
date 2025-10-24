@@ -1,11 +1,11 @@
+import type { Connection } from "@/drizzle/db";
+import { collections, collectionUserPermissions } from "@/drizzle/schema";
 import type { CollectionPermissionRepository } from "@/lib/application/abstractions/collection/collection-permission-repository";
 import type { Collection } from "@/lib/domain/collection/collection";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Role } from "@/lib/domain/shared/role";
 import type { User } from "@/lib/domain/user/user";
-import type { Connection } from "@/drizzle/db";
-import { collections, collectionUserPermissions } from "@/drizzle/schema";
 import { and, eq, inArray, or } from "drizzle-orm";
 
 export class DrizzleCollectionPermissionRepository

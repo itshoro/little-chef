@@ -1,8 +1,8 @@
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import {
   redirectToSignIn,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { getCollectionPreferences } from "@/lib/utils/user/get-preferences";
 import type { Metadata } from "next";
 import { UpdateDefaultVisibilityForm } from "./_components/update-default-visibility-form";

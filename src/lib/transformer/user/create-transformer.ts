@@ -76,7 +76,7 @@ export function signInDTOFromFormData(
   };
 }
 
-export const SessionVerification = SignIn.extend(
+const SessionVerification = SignIn.extend(
   z.object({
     redirect: z.string().refine((val) => val.startsWith("/"), {
       message: "Redirect must be a relative path",

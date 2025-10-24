@@ -1,5 +1,5 @@
-import { makeCreateCollection } from "@/lib/application/use-case/collection/create-collection";
 import { db } from "@/drizzle/db";
+import { makeCreateCollection } from "@/lib/application/use-case/collection/create-collection";
 import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
 import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";
 

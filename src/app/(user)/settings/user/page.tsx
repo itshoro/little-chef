@@ -1,8 +1,8 @@
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import {
   redirectToSignIn,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import type { Metadata } from "next";
 import { UpdateAvatar } from "./_components/update-avatar-form";
 import { UpdatePasswordForm } from "./_components/update-password-form";

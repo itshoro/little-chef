@@ -1,6 +1,6 @@
 "use server";
 
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
 import { requireSession } from "@/lib/utils/auth/require-session";
 import { updateProfileImage } from "@/lib/utils/user/update-profile-image";
 

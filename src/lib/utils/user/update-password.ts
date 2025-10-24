@@ -1,5 +1,5 @@
-import { makeUpdatePassword } from "@/lib/application/use-case/user/update-password";
 import { db } from "@/drizzle/db";
+import { makeUpdatePassword } from "@/lib/application/use-case/user/update-password";
 import { Argon2IDPasswordHasher } from "@/lib/infrastructure/auth/argon2id-password-hasher";
 import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
 import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";

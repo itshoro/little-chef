@@ -1,9 +1,9 @@
+import type { Connection } from "@/drizzle/db";
+import { fileReference, users } from "@/drizzle/schema";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Username } from "@/lib/domain/user/credentials";
 import { User } from "@/lib/domain/user/user";
 import { UserRepository } from "@/lib/domain/user/user-repository";
-import type { Connection } from "@/drizzle/db";
-import { fileReference, users } from "@/drizzle/schema";
 import { eq, type InferSelectModel } from "drizzle-orm";
 
 export class DrizzleUserRepository implements UserRepository {

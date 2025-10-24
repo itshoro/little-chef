@@ -1,6 +1,6 @@
 import { OptimisticLikeButton } from "@/components/ui/buttons/optimistic-like-button";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { User } from "@/lib/domain/user/user";
-import type { RecipeIdentifier } from "@/drizzle/schema";
 import {
   isRecipeLiked,
   likeRecipe,
@@ -16,7 +16,7 @@ export const LikeButton = async ({
   initialLikes,
 }: {
   className?: string;
-  recipeIdentifier: RecipeIdentifier;
+  recipeIdentifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] };
   initialLikes: number;
   user: User | null;
   disabled?: boolean;

@@ -3,8 +3,8 @@ import "server-only";
 import type { CreateRecipeDTO } from "@/lib/application/use-case/recipe/create-recipe";
 import { visibilitySchema } from "@/lib/transformer/shared/visibility";
 import * as z from "zod/mini";
-import { Step } from "../step/transformer";
 import { FileReference } from "../file-reference/transformer";
+import { Step } from "../step/transformer";
 
 const CreateRecipe = z.object({
   name: z.string().check(z.minLength(2), z.trim()),

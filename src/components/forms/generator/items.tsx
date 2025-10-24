@@ -2,16 +2,12 @@
 
 import { useGeneratorContext } from "./context";
 
-type ItemsProps = {
-  children: (
-    value: string,
-    index: number,
-    array: readonly string[],
-  ) => React.ReactNode;
+type ItemsProps<T> = {
+  children: (value: T, index: number, array: readonly T[]) => React.ReactNode;
 };
 
-const Items = ({ children }: ItemsProps) => {
-  const { ids } = useGeneratorContext(Items.name);
+const Items = <T extends string | number>({ children }: ItemsProps<T>) => {
+  const { ids } = useGeneratorContext<T>(Items.name);
 
   return <>{ids.map(children)}</>;
 };

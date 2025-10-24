@@ -1,9 +1,9 @@
 import { CollectionList } from "@/components/collections/collection-list-container";
+import type { CollectionListOptions } from "@/lib/application/abstractions/collection/collection-read-repository";
 import type { User } from "@/lib/domain/user/user";
-import type { ListQueryOptions } from "@/lib/dal/utils";
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { findCollections } from "@/lib/utils/collection/find-collections";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 
@@ -34,7 +34,7 @@ const SearchResults = async ({
   query?: string;
   user: User | null;
 }) => {
-  const queryOptions: ListQueryOptions = {
+  const queryOptions: CollectionListOptions = {
     search: query ? { query } : undefined,
   };
 

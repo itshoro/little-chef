@@ -1,8 +1,8 @@
-import type { Recipe } from "@/lib/domain/recipe/recipe";
-import type { RecipeLikeRepository } from "@/lib/application/abstractions/recipe/recipe-like-repository";
-import type { User } from "@/lib/domain/user/user";
 import type { Connection } from "@/drizzle/db";
 import { recipeLikes, recipes } from "@/drizzle/schema";
+import type { RecipeLikeRepository } from "@/lib/application/abstractions/recipe/recipe-like-repository";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
+import type { User } from "@/lib/domain/user/user";
 import { and, eq, sql } from "drizzle-orm";
 
 export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {

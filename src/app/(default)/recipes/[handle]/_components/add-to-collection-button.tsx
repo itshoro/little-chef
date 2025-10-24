@@ -1,6 +1,7 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { addRecipeToCollection } from "@/lib/utils/collection/add-recipe-to-collection";
 import { findCollections } from "@/lib/utils/collection/find-collections";

@@ -3,7 +3,6 @@
 import { useCallback, useRef } from "react";
 import { Button } from "../buttons/button";
 import { Input } from "./input";
-import { Label } from "./label";
 
 interface ServingsInputProps extends React.ComponentProps<"input"> {}
 

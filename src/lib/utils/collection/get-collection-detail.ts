@@ -1,7 +1,7 @@
+import { db } from "@/drizzle/db";
 import { makeGetCollectionDetail } from "@/lib/application/use-case/collection/get-collection-detail";
 import type { CollectionDetail } from "@/lib/domain/collection/collection";
 import type { Result } from "@/lib/domain/shared/result";
-import { db } from "@/drizzle/db";
 import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
 import { DrizzleCollectionRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-recipe-repository";
 import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";

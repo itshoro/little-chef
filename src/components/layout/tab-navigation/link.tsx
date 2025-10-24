@@ -1,8 +1,8 @@
 "use client";
 
 import NextLink, { LinkProps } from "next/link";
-import { useTabNavigationContext } from "./root";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useTabNavigationContext } from "./root";
 
 type Props = {
   href: LinkProps<unknown>["href"];

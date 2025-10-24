@@ -1,12 +1,12 @@
-import { makeSignOutUser } from "@/lib/application/use-case/user/sign-out";
 import { Header } from "@/components/layout/header/header";
 import { BackLink } from "@/components/ui/back-link";
 import { Avatar } from "@/components/users/avatar";
 import { db } from "@/drizzle/db";
+import { makeSignOutUser } from "@/lib/application/use-case/user/sign-out";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
 import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
 import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
 import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { requireSession } from "@/lib/utils/auth/require-session";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { redirect } from "next/navigation";

@@ -1,8 +1,8 @@
-export const RECIPE_VISIBILITIES = ["public", "unlisted", "private"] as const;
+import type { Visibility } from "../shared/visibility";
 
 export interface RecipePreferences {
   id: number;
-  defaultVisibility: (typeof RECIPE_VISIBILITIES)[number];
+  defaultVisibility: Visibility;
   defaultServingSize: number;
 }
 

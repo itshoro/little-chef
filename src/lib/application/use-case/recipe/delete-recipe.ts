@@ -1,9 +1,9 @@
-import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { RecipePermissionRepository } from "@/lib/application/abstractions/recipe/recipe-permission-repository";
 import type { RecipeRepository } from "@/lib/application/abstractions/recipe/recipe-repository";
 import type { FileStorage } from "@/lib/application/shared/file-storage";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
+import { RecipeNotFoundError } from "@/lib/domain/recipe/recipe-not-found-error";
 import type { User } from "@/lib/domain/user/user";
-import { RecipeNotFoundError } from "@/lib/errors/resource-not-found/recipe";
 
 export function makeDeleteRecipe(
   fileStorage: FileStorage,

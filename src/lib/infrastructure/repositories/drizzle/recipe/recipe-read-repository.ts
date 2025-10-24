@@ -1,12 +1,3 @@
-import type { Recipe, RecipeDetail } from "@/lib/domain/recipe/recipe";
-import type {
-  RecipeListOptions,
-  RecipeReadRepository,
-} from "@/lib/application/abstractions/recipe/recipe-read-repository";
-import type { Step } from "@/lib/domain/recipe/step";
-import type { Collaborator } from "@/lib/domain/shared/collaborator";
-import type { FileReference } from "@/lib/domain/shared/file-reference";
-import type { User } from "@/lib/domain/user/user";
 import type { Connection } from "@/drizzle/db";
 import {
   fileReference,
@@ -14,10 +5,18 @@ import {
   recipeSteps,
   recipeUserPermissions,
   users,
-  type RecipeIdentifier,
 } from "@/drizzle/schema";
-import { and, eq, inArray, like, or } from "drizzle-orm";
+import type {
+  RecipeListOptions,
+  RecipeReadRepository,
+} from "@/lib/application/abstractions/recipe/recipe-read-repository";
+import type { Recipe, RecipeDetail } from "@/lib/domain/recipe/recipe";
+import type { Step } from "@/lib/domain/recipe/step";
+import type { Collaborator } from "@/lib/domain/shared/collaborator";
+import type { FileReference } from "@/lib/domain/shared/file-reference";
 import type { Username } from "@/lib/domain/user/credentials";
+import type { User } from "@/lib/domain/user/user";
+import { and, eq, inArray, like, or } from "drizzle-orm";
 
 export class DrizzleRecipeReadRepository implements RecipeReadRepository {
   constructor(private readonly db: Connection) {}
@@ -72,7 +71,7 @@ export class DrizzleRecipeReadRepository implements RecipeReadRepository {
   }
 
   async findDetailByIdentifier(
-    identifier: RecipeIdentifier,
+    identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
     user?: User | null,
   ): Promise<RecipeDetail | null> {
     const [result] = await this.db

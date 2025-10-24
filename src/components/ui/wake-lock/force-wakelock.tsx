@@ -1,7 +1,7 @@
 "use client";
 
-import { useWakeLock } from "../../../hooks/use-wake-lock";
 import { useEffect } from "react";
+import { useWakeLock } from "../../../hooks/use-wake-lock";
 
 const ForceWakeLock = () => {
   const { requestLock, releaseLock } = useWakeLock();

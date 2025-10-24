@@ -1,8 +1,8 @@
+import type { Connection } from "@/drizzle/db";
+import { sessions } from "@/drizzle/schema";
 import type { SessionRepository } from "@/lib/application/abstractions/auth/session-repository";
 import type { Session } from "@/lib/domain/auth/session";
 import type { User } from "@/lib/domain/user/user";
-import type { Connection } from "@/drizzle/db";
-import { sessions } from "@/drizzle/schema";
 import { eq, type InferSelectModel } from "drizzle-orm";
 
 function sessionFromDatabaseRow(

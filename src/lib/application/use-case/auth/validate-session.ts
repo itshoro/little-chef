@@ -1,8 +1,8 @@
+import type { SessionProvider } from "@/lib/application/abstractions/auth/session-provider";
 import {
   isSessionExpired,
   needsActivityUpdate,
 } from "@/lib/domain/auth/session";
-import type { SessionProvider } from "@/lib/application/abstractions/auth/session-provider";
 import type { UserRepository } from "@/lib/domain/user/user-repository";
 import {
   ACTIVITY_UPDATE_INTERVAL_MS,

@@ -1,10 +1,10 @@
-import type {
-  TemporaryFileReference,
-  FileReference,
-} from "@/lib/domain/shared/file-reference";
-import type { FileStorage } from "@/lib/application/shared/file-storage";
 import type { Connection } from "@/drizzle/db";
 import { fileReference } from "@/drizzle/schema";
+import type { FileStorage } from "@/lib/application/shared/file-storage";
+import type {
+  FileReference,
+  TemporaryFileReference,
+} from "@/lib/domain/shared/file-reference";
 import { eq } from "drizzle-orm";
 import type { UTApi } from "uploadthing/server";
 

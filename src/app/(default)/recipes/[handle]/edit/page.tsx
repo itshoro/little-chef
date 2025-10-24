@@ -1,9 +1,9 @@
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { parseHandle } from "@/lib/slug";
 import {
   redirectToSignIn,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";

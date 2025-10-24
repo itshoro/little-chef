@@ -1,10 +1,10 @@
+import type { Connection } from "@/drizzle/db";
+import { fileReference, passwordResetRequests, users } from "@/drizzle/schema";
 import type { PasswordResetRepository } from "@/lib/application/abstractions/auth/password-reset-repository";
 import type { PasswordResetRequest } from "@/lib/domain/auth/password-reset-request";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Username } from "@/lib/domain/user/credentials";
 import type { User } from "@/lib/domain/user/user";
-import type { Connection } from "@/drizzle/db";
-import { fileReference, passwordResetRequests, users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 
 export class DrizzlePasswordResetRepository implements PasswordResetRepository {

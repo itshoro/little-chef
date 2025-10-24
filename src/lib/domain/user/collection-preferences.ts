@@ -1,12 +1,8 @@
-export const COLLECTION_VISIBILITIES = [
-  "public",
-  "unlisted",
-  "private",
-] as const;
+import type { Visibility } from "../shared/visibility";
 
 export interface CollectionPreferences {
   id: number;
-  defaultVisibility: (typeof COLLECTION_VISIBILITIES)[number];
+  defaultVisibility: Visibility;
 }
 
 export const DEFAULT_COLLECTION_PREFERENCES: Readonly<

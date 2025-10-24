@@ -5,13 +5,13 @@ import { LikeButton } from "@/components/recipes/details/user-actions";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { Avatar } from "@/components/users/avatar";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import { validateSession } from "@/lib/utils/auth/validate-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import { Parser } from "@cooklang/cooklang-ts";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { RecipeActionButtons } from "./_components/recipe-action-buttons";
@@ -24,25 +24,20 @@ type ShowRecipePageProps = {
 
 export async function generateMetadata(
   props: ShowRecipePageProps,
-  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { publicId } = parseHandle(params.handle);
-  try {
-    const recipeResult = await getRecipeDetail({ publicId }, null);
-    if (!recipeResult.ok) throw recipeResult.error;
+  const recipeResult = await getRecipeDetail({ publicId }, null);
+  if (!recipeResult.ok) throw recipeResult.error;
 
-    const recipe = recipeResult.value;
-    if (!recipe) notFound();
+  const recipe = recipeResult.value;
+  if (!recipe) notFound();
 
-    return {
-      title: `${recipe.name} by ${generateAttribution(recipe.collaborators.map((c) => c.user))}`,
-      description: `In just ${recipe.cookingTime + recipe.preparationTime} minutes you could be done, yielding ${searchParams.servings} servings!`,
-    };
-  } catch {
-    return parent as Metadata;
-  }
+  return {
+    title: `${recipe.name} by ${generateAttribution(recipe.collaborators.map((c) => c.user))}`,
+    description: `In just ${recipe.cookingTime + recipe.preparationTime} minutes you could be done, yielding ${searchParams.servings} servings!`,
+  };
 }
 
 const ShowRecipePage = async (props: ShowRecipePageProps) => {

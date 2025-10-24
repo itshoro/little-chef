@@ -1,4 +1,4 @@
+import { VISIBILITIES } from "@/lib/domain/shared/visibility";
 import { z } from "zod";
-import { VISIBILITIES } from "../../constants";
 
 export const visibilitySchema = z.enum(VISIBILITIES);

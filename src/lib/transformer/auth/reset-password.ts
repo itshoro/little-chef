@@ -1,5 +1,5 @@
-import * as z from "zod";
 import { passwordSchema } from "@/lib/domain/user/credentials";
+import * as z from "zod";
 
 const ResetPassword = z
   .object({

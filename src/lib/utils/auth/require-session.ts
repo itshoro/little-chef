@@ -1,6 +1,6 @@
+import type { Route } from "next";
 import { redirect, RedirectType } from "next/navigation";
 import { validateSession } from "./validate-session";
-import type { Route } from "next";
 
 interface Options {
   onUnauthenticated: () => never;

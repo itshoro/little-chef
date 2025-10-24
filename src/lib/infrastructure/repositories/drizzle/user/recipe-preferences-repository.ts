@@ -1,8 +1,8 @@
+import type { Connection } from "@/drizzle/db";
+import { recipePreferences } from "@/drizzle/schema";
 import type { Result } from "@/lib/domain/shared/result";
 import type { RecipePreferences } from "@/lib/domain/user/recipe-preferences";
 import { RecipePreferencesRepository } from "@/lib/domain/user/recipe-preferences-repository";
-import type { Connection } from "@/drizzle/db";
-import { recipePreferences } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 
 export class DrizzleRecipePreferencesRepository

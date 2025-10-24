@@ -10,8 +10,6 @@ import type { UserRepository } from "@/lib/domain/user/user-repository";
 import { makeCreateSession } from "../auth/create-session";
 import { makeCreateUser, type CreateUserDTO } from "./create-user";
 
-export const SESSION_COOKIE_NAME = "session";
-
 export type SignUpUserDTO = CreateUserDTO;
 
 export function makeSignUpUser(

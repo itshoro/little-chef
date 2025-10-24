@@ -2,10 +2,10 @@
 
 import * as Generator from "@/components/forms/generator";
 import { CooklangPreview } from "@/components/recipes/details/cooklang-preview";
+import { Label } from "@/components/ui/controls/label";
+import { Textarea } from "@/components/ui/controls/textarea";
 import { Trash } from "@/components/ui/icons/trash";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
-import { Textarea } from "@/components/ui/controls/textarea";
-import { Label } from "@/components/ui/controls/label";
 
 type StepGeneratorItemProps<TKey extends string | number> = {
   id: TKey;

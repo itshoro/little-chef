@@ -1,8 +1,8 @@
+import { db } from "@/drizzle/db";
 import {
   makeGetCollectionPreferences,
   makeGetRecipePreferences,
 } from "@/lib/application/use-case/user/get-preferences";
-import { db } from "@/drizzle/db";
 import { DrizzleCollectionPreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/collection-preferences-repository";
 import { DrizzleRecipePreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
 

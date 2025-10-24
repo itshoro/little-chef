@@ -1,10 +1,11 @@
 "use server";
 
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
 import { requireSession } from "@/lib/utils/auth/require-session";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+
 import { generateHandle } from "@/lib/slug";
-import { createCollection } from "@/lib/utils/collection/create-collection";
 import { dtoFromFormData } from "@/lib/transformer/collection/create-transformer";
+import { createCollection } from "@/lib/utils/collection/create-collection";
 import { redirect } from "next/navigation";
 
 async function createAction(formData: FormData) {

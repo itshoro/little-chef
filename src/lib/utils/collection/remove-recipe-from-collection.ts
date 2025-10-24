@@ -1,5 +1,5 @@
-import { makeRemoveRecipeFromCollection } from "@/lib/application/use-case/collection/remove-recipe-from-collection";
 import { db } from "@/drizzle/db";
+import { makeRemoveRecipeFromCollection } from "@/lib/application/use-case/collection/remove-recipe-from-collection";
 import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
 import { DrizzleCollectionRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-recipe-repository";
 import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";

@@ -1,5 +1,5 @@
-import { makeGetRecipeDetail } from "@/lib/application/use-case/recipe/get-recipe-detail";
 import { db } from "@/drizzle/db";
+import { makeGetRecipeDetail } from "@/lib/application/use-case/recipe/get-recipe-detail";
 import { DrizzleRecipeReadRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
 
 export async function getRecipeDetail(

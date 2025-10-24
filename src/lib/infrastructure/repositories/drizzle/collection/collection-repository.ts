@@ -1,8 +1,3 @@
-import type { CollectionRepository } from "@/lib/application/abstractions/collection/collection-repository";
-import type { Collection } from "@/lib/domain/collection/collection";
-import type { Collaborator } from "@/lib/domain/shared/collaborator";
-import type { Result } from "@/lib/domain/shared/result";
-import type { Username } from "@/lib/domain/user/credentials";
 import type { Connection } from "@/drizzle/db";
 import {
   collections,
@@ -10,6 +5,11 @@ import {
   fileReference,
   users,
 } from "@/drizzle/schema";
+import type { CollectionRepository } from "@/lib/application/abstractions/collection/collection-repository";
+import type { Collection } from "@/lib/domain/collection/collection";
+import type { Collaborator } from "@/lib/domain/shared/collaborator";
+import type { Result } from "@/lib/domain/shared/result";
+import type { Username } from "@/lib/domain/user/credentials";
 import { eq, type InferInsertModel } from "drizzle-orm";
 
 export class DrizzleCollectionRepository implements CollectionRepository {

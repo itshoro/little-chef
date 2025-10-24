@@ -1,5 +1,5 @@
-import { makeUpdateUsername } from "@/lib/application/use-case/user/update-username";
 import { db } from "@/drizzle/db";
+import { makeUpdateUsername } from "@/lib/application/use-case/user/update-username";
 import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
 
 export async function updateUsername(

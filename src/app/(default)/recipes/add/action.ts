@@ -1,23 +1,11 @@
 "use server";
 
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
 import { generateHandle } from "@/lib/slug";
+import { dtoFromFormData } from "@/lib/transformer/recipe/create-transformer";
 import { requireSession } from "@/lib/utils/auth/require-session";
 import { createRecipe } from "@/lib/utils/recipe/create-recipe";
-import { dtoFromFormData } from "@/lib/transformer/recipe/create-transformer";
 import { redirect } from "next/navigation";
-
-export type CreateRecipeControls = {
-  sessionId?: string;
-  name: string;
-  cover: File;
-  description: string;
-  preparationTime: number;
-  cookingTime: number;
-  visibility: string;
-  recommendedServingSize: number;
-  step: Record<string, string>;
-};
 
 async function createAction(formData: FormData) {
   const { user } = await requireSession({

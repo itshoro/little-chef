@@ -22,3 +22,10 @@ export interface Recipe {
 export interface RecipeDetail extends Recipe {
   readonly steps: Step[];
 }
+
+export const PERMISSION_ROLES = [
+  "owner",
+  "maintainer",
+  "editor",
+  "viewer",
+] as const;

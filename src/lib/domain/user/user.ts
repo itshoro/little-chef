@@ -11,5 +11,7 @@ export interface User {
   appPreferencesId: number;
   collectionPreferencesId: number;
   recipePreferencesId: number;
-  role: "admin" | "user";
+  role: (typeof USER_ROLES)[number];
 }
+
+export const USER_ROLES = ["admin", "user"] as const;

@@ -1,11 +1,10 @@
 "use server";
 
 import { db } from "@/drizzle/db";
-import { passwordResetRequests, type DrizzleUser } from "@/drizzle/schema";
+import { passwordResetRequests } from "@/drizzle/schema";
+import type { User } from "@/lib/domain/user/user";
 
-async function requestPasswordResetAction(
-  userId: DrizzleUser["id"],
-): Promise<string> {
+async function requestPasswordResetAction(userId: User["id"]): Promise<string> {
   // todo: hard-coded instead of using use-case as this will most likely be refactored soon.
 
   const token = crypto.randomUUID();

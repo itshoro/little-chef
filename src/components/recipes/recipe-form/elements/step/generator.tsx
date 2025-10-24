@@ -3,12 +3,12 @@
 import * as Generator from "@/components/forms/generator";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Plus } from "@/components/ui/icons/plus";
-import type { Recipe } from "@/lib/domain/recipe/recipe";
-import { useMemo, useRef } from "react";
+import type { RecipeDetail } from "@/lib/domain/recipe/recipe";
+import { useRef } from "react";
 import { StepGeneratorItem } from "./item";
 
 type StepsInputProps = {
-  defaultValue?: Recipe["steps"];
+  defaultValue?: RecipeDetail["steps"];
 };
 
 const StepsGenerator = ({ defaultValue }: StepsInputProps) => {

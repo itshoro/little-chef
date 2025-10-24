@@ -1,3 +1,5 @@
+import type { Connection } from "@/drizzle/db";
+import { fileReference, recipeUserPermissions, users } from "@/drizzle/schema";
 import type { RecipePermissionRepository } from "@/lib/application/abstractions/recipe/recipe-permission-repository";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
@@ -5,8 +7,6 @@ import type { Result } from "@/lib/domain/shared/result";
 import type { Role } from "@/lib/domain/shared/role";
 import type { Username } from "@/lib/domain/user/credentials";
 import type { User } from "@/lib/domain/user/user";
-import type { Connection } from "@/drizzle/db";
-import { fileReference, recipeUserPermissions, users } from "@/drizzle/schema";
 import { and, eq, inArray } from "drizzle-orm";
 
 export class DrizzleRecipePermissionRepository

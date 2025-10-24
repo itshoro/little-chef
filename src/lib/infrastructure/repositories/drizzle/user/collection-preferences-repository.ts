@@ -1,8 +1,8 @@
+import type { Connection } from "@/drizzle/db";
+import { collectionPreferences } from "@/drizzle/schema";
 import type { Result } from "@/lib/domain/shared/result";
 import type { CollectionPreferences } from "@/lib/domain/user/collection-preferences";
 import { CollectionPreferencesRepository } from "@/lib/domain/user/collection-preferences-repository";
-import type { Connection } from "@/drizzle/db";
-import { collectionPreferences } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 
 export class DrizzleCollectionPreferencesRepository

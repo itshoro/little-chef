@@ -1,10 +1,3 @@
-import type { CollectionRecipeRepository } from "@/lib/application/abstractions/collection/collection-recipe-repository";
-import type { Collection } from "@/lib/domain/collection/collection";
-import type { Recipe } from "@/lib/domain/recipe/recipe";
-import type { Collaborator } from "@/lib/domain/shared/collaborator";
-import type { Result } from "@/lib/domain/shared/result";
-import type { Username } from "@/lib/domain/user/credentials";
-import type { User } from "@/lib/domain/user/user";
 import type { Connection } from "@/drizzle/db";
 import {
   collectionRecipes,
@@ -14,6 +7,12 @@ import {
   recipeUserPermissions,
   users,
 } from "@/drizzle/schema";
+import type { CollectionRecipeRepository } from "@/lib/application/abstractions/collection/collection-recipe-repository";
+import type { Collection } from "@/lib/domain/collection/collection";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
+import type { Collaborator } from "@/lib/domain/shared/collaborator";
+import type { Result } from "@/lib/domain/shared/result";
+import type { Username } from "@/lib/domain/user/credentials";
 import { and, eq, inArray, sql } from "drizzle-orm";
 
 export class DrizzleCollectionRecipeRepository

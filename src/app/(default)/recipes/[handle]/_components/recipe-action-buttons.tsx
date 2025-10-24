@@ -1,7 +1,7 @@
 import { LinkButton } from "@/components/ui/buttons/link-button";
+import { db } from "@/drizzle/db";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { User } from "@/lib/domain/user/user";
-import { db } from "@/drizzle/db";
 import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
 import { generateHandle } from "@/lib/slug";
 import { AddToCollectionButton } from "./add-to-collection-button";

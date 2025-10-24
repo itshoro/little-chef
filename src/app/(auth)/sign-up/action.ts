@@ -1,7 +1,7 @@
 "use server";
 
-import { makeSignUpUser } from "@/lib/application/use-case/user/sign-up";
 import { db } from "@/drizzle/db";
+import { makeSignUpUser } from "@/lib/application/use-case/user/sign-up";
 import { Argon2IDPasswordHasher } from "@/lib/infrastructure/auth/argon2id-password-hasher";
 import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
 import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
@@ -10,8 +10,8 @@ import { DrizzleAppPreferencesRepository } from "@/lib/infrastructure/repositori
 import { DrizzleCollectionPreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/collection-preferences-repository";
 import { DrizzleRecipePreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
 import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
-import { isRateLimitedSignUp } from "@/lib/utils/rate-limit/auth";
 import { signUpDTOFromFormData } from "@/lib/transformer/user/create-transformer";
+import { isRateLimitedSignUp } from "@/lib/utils/rate-limit/auth";
 
 async function signupAction(formData: FormData) {
   if (await isRateLimitedSignUp()) {

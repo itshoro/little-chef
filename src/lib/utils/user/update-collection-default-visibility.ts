@@ -1,5 +1,5 @@
-import { makeUpdateDefaultVisibility } from "@/lib/application/use-case/user/update-collection-default-visibility";
 import { db } from "@/drizzle/db";
+import { makeUpdateDefaultVisibility } from "@/lib/application/use-case/user/update-collection-default-visibility";
 import { DrizzleCollectionPreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/collection-preferences-repository";
 
 export async function updateDefaultVisibility(

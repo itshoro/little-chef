@@ -9,6 +9,8 @@ export interface RecipeRepository {
   ): Promise<Result<Recipe, RecipeCreationError>>;
   findById(id: number): Promise<Recipe | null>;
   findByPublicId(publicId: string): Promise<Recipe | null>;
-  update(recipe: Recipe): Promise<Result<Recipe, RecipeUpdateError>>;
+  update(
+    recipe: Omit<Recipe, "collaborators">,
+  ): Promise<Result<Recipe, RecipeUpdateError>>;
   delete(recipe: Recipe): Promise<Result<void, Error>>;
 }

@@ -4,8 +4,6 @@ import type { Collection } from "@/lib/domain/collection/collection";
 import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
 
-export type CreateCollectionDTO = Omit<Collection, "id" | "slug" | "publicId">;
-
 export function makeDeleteCollection(
   collectionRepository: CollectionRepository,
   collectionPermissionRepository: CollectionPermissionRepository,

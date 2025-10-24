@@ -1,6 +1,6 @@
+import { db } from "@/drizzle/db";
 import { makeDeleteCollection } from "@/lib/application/use-case/collection/delete-collection";
 import type { Result } from "@/lib/domain/shared/result";
-import { db } from "@/drizzle/db";
 import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
 import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";
 

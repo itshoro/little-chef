@@ -1,7 +1,7 @@
-import type { AppPreferences } from "@/lib/domain/user/app-preferences";
-import { AppPreferencesRepository } from "@/lib/domain/user/app-preferences-repository";
 import type { Connection } from "@/drizzle/db";
 import { appPreferences } from "@/drizzle/schema";
+import type { AppPreferences } from "@/lib/domain/user/app-preferences";
+import { AppPreferencesRepository } from "@/lib/domain/user/app-preferences-repository";
 import { eq } from "drizzle-orm";
 
 export class DrizzleAppPreferencesRepository

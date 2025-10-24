@@ -1,5 +1,5 @@
-import { makeUpdateProfileImage } from "@/lib/application/use-case/user/update-profile-image";
 import { db } from "@/drizzle/db";
+import { makeUpdateProfileImage } from "@/lib/application/use-case/user/update-profile-image";
 import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
 import { UploadthingFileStorage } from "@/lib/infrastructure/shared/uploadthing-file-storage";
 import { UTApi } from "uploadthing/server";

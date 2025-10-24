@@ -1,9 +1,9 @@
 import type { RecipeLikeRepository } from "@/lib/application/abstractions/recipe/recipe-like-repository";
 import type { RecipePermissionRepository } from "@/lib/application/abstractions/recipe/recipe-permission-repository";
 import type { RecipeRepository } from "@/lib/application/abstractions/recipe/recipe-repository";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
+import { RecipeNotFoundError } from "@/lib/domain/recipe/recipe-not-found-error";
 import type { User } from "@/lib/domain/user/user";
-import type { RecipeIdentifier } from "@/drizzle/schema";
-import { RecipeNotFoundError } from "@/lib/errors/resource-not-found/recipe";
 
 export function makeAddLikeRecipe(
   recipeRepository: RecipeRepository,
@@ -11,7 +11,7 @@ export function makeAddLikeRecipe(
   recipePermissionRepository: RecipePermissionRepository,
 ) {
   return async function addLikeRecipe(
-    identifier: RecipeIdentifier,
+    identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
     user: User,
   ) {
     const recipe =

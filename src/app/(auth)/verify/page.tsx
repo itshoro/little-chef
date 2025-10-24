@@ -1,12 +1,11 @@
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
-import { redirect } from "next/navigation";
-import { VerifyForm } from "./_components/verify-form";
-import { verifyAction } from "./action";
 import {
   redirectToSignIn,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import type { Route } from "next";
+import { VerifyForm } from "./_components/verify-form";
+import { verifyAction } from "./action";
 
 type VerifyPageProps = {
   searchParams: Promise<{

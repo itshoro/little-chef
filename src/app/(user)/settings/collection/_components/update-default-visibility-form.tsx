@@ -4,7 +4,7 @@ import { PendingButton } from "@/components/ui/buttons/pending-button";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Label } from "@/components/ui/controls/label";
 import { VisibilitySwitcher } from "@/components/ui/controls/visibility-switcher";
-import type { DrizzleCollectionPreferences } from "@/drizzle/schema";
+import type { CollectionPreferences } from "@/lib/domain/user/collection-preferences";
 import { useTransition } from "react";
 import { SettingsCard } from "../../_components/settings-card";
 import { changeDefaultVisibilityAction } from "../_actions/update-default-visibility";
@@ -12,7 +12,7 @@ import { changeDefaultVisibilityAction } from "../_actions/update-default-visibi
 const UpdateDefaultVisibilityForm = ({
   preferences,
 }: {
-  preferences: DrizzleCollectionPreferences;
+  preferences: CollectionPreferences;
 }) => {
   const [pending, startTransition] = useTransition();
 

@@ -1,14 +1,10 @@
 import { db } from "@/drizzle/db";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
 import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import {
-  redirectToSignIn,
-  requireSession,
-} from "@/lib/utils/auth/require-session";
 import { verifySessionDTOFromFormData } from "@/lib/transformer/user/create-transformer";
+import { requireSession } from "@/lib/utils/auth/require-session";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
 async function verifyAction(redirectUrl: string, formData: FormData) {
   "use server";

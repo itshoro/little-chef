@@ -1,8 +1,8 @@
+import { db } from "@/drizzle/db";
 import { makeUpdateRecipe } from "@/lib/application/use-case/recipe/update-recipe";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { RecipeUpdateError } from "@/lib/domain/recipe/recipe-update-error";
 import type { Result } from "@/lib/domain/shared/result";
-import { db } from "@/drizzle/db";
 import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
 import { DrizzleRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-repository";
 import { DrizzleStepRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/step-repository";

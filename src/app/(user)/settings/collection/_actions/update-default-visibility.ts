@@ -1,9 +1,9 @@
 "use server";
 
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+import { dtoFromFormData } from "@/lib/transformer/user/update-collection-default-visibility-transformer";
 import { requireSession } from "@/lib/utils/auth/require-session";
 import { updateDefaultVisibility } from "@/lib/utils/user/update-collection-default-visibility";
-import { dtoFromFormData } from "@/lib/transformer/user/update-collection-default-visibility-transformer";
 
 async function changeDefaultVisibilityAction(formData: FormData) {
   const { user } = await requireSession({

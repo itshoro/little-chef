@@ -1,5 +1,5 @@
-import type { TemporaryFileReference } from "@/lib/domain/shared/file-reference";
 import type { FileStorage } from "@/lib/application/shared/file-storage";
+import type { TemporaryFileReference } from "@/lib/domain/shared/file-reference";
 
 export function makeRevertibleFileReference<
   TRef extends TemporaryFileReference | null,

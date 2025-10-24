@@ -1,8 +1,8 @@
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import {
   redirectToSignIn,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { getRecipePreferences } from "@/lib/utils/user/get-preferences";
 import type { Metadata } from "next";
 import { UpdateDefaultServingSizeForm } from "./_components/update-default-serving-size-form";

@@ -1,11 +1,11 @@
-import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { RecipePermissionRepository } from "@/lib/application/abstractions/recipe/recipe-permission-repository";
 import type { RecipeRepository } from "@/lib/application/abstractions/recipe/recipe-repository";
+import type { StepRepository } from "@/lib/application/abstractions/recipe/step-repository";
+import type { FileStorage } from "@/lib/application/shared/file-storage";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { RecipeUpdateError } from "@/lib/domain/recipe/recipe-update-error";
 import type { Step } from "@/lib/domain/recipe/step";
-import type { StepRepository } from "@/lib/application/abstractions/recipe/step-repository";
 import type { FileReference } from "@/lib/domain/shared/file-reference";
-import type { FileStorage } from "@/lib/application/shared/file-storage";
 import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
 import { nanoid } from "@/lib/nanoid";
@@ -14,7 +14,7 @@ import { generateSlug } from "@/lib/slug";
 export interface UpdateRecipeDTO {
   cover: File | null;
   deletePreviousCover: boolean;
-  recipe: Omit<Recipe, "id" | "cover" | "likes" | "slug">;
+  recipe: Omit<Recipe, "id" | "cover" | "likes" | "slug" | "collaborators">;
   steps: Step[];
 }
 

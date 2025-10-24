@@ -1,11 +1,11 @@
-import { makeFindRecipes } from "@/lib/application/use-case/recipe/find-recipes";
 import { RecipeList } from "@/components/recipes/recipe-list-container";
-import type { User } from "@/lib/domain/user/user";
 import { db } from "@/drizzle/db";
+import type { RecipeListOptions } from "@/lib/application/abstractions/recipe/recipe-read-repository";
+import { makeFindRecipes } from "@/lib/application/use-case/recipe/find-recipes";
+import type { User } from "@/lib/domain/user/user";
 import { DrizzleRecipeReadRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
-import type { ListQueryOptions } from "@/lib/dal/utils";
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { validateSession } from "@/lib/utils/auth/validate-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 
@@ -34,7 +34,7 @@ const SearchResults = async ({
   query?: string;
   user: User | null;
 }) => {
-  const queryOptions: ListQueryOptions = {
+  const queryOptions: RecipeListOptions = {
     search: query ? { query } : undefined,
   };
 

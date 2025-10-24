@@ -7,12 +7,12 @@ import { LinkButton } from "@/components/ui/buttons/link-button";
 import { Section } from "@/components/ui/section";
 import type { Collection } from "@/lib/domain/collection/collection";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { getCollectionDetail } from "@/lib/utils/collection/get-collection-detail";
-import type { Metadata, ResolvedMetadata } from "next";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DeleteCollectionButton } from "./_components/delete-button";
 import { removeRecipeFromCollectionAction } from "./remove-recipe-action";
@@ -21,18 +21,13 @@ type CollectionPageProps = { params: Promise<{ handle: string }> };
 
 export async function generateMetadata(
   props: CollectionPageProps,
-  parent: ResolvedMetadata,
 ): Promise<Metadata> {
   const params = await props.params;
-  try {
-    const { publicId } = parseHandle(params.handle);
-    const collection = await getCollectionDetail({ publicId }, null);
-    if (!collection.ok) throw new Error("Collection not found");
+  const { publicId } = parseHandle(params.handle);
+  const collection = await getCollectionDetail({ publicId }, null);
+  if (!collection.ok) throw new Error("Collection not found");
 
-    return { title: collection.value.name };
-  } catch {
-    return parent as Metadata;
-  }
+  return { title: collection.value.name };
 }
 
 const CollectionPage = async (props: CollectionPageProps) => {

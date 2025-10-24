@@ -1,13 +1,13 @@
 import { Avatar } from "@/components/users/avatar";
-import { needsActivityUpdate } from "@/lib/domain/auth/session";
 import { db } from "@/drizzle/db";
 import { fileReference, users } from "@/drizzle/schema";
-import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
+import { needsActivityUpdate } from "@/lib/domain/auth/session";
 import {
   redirectToSignIn,
   redirectToVerify,
   requireSession,
 } from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { eq } from "drizzle-orm";
 import { forbidden } from "next/navigation";
 import { RequestPasswordResetActionForm } from "./_components/request-password-reset-form";

@@ -14,3 +14,10 @@ export interface Collection {
 export interface CollectionDetail extends Collection {
   recipes: Recipe[];
 }
+
+export const PERMISSION_ROLES = [
+  "owner",
+  "maintainer",
+  "editor",
+  "viewer",
+] as const;

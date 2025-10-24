@@ -23,4 +23,4 @@ function useGeneratorContext<TKey extends string | number>(
   return context as unknown as GeneratorContextProps<TKey>;
 }
 
-export { GeneratorContext, type GeneratorContextProps, useGeneratorContext };
+export { GeneratorContext, useGeneratorContext, type GeneratorContextProps };
