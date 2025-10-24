@@ -2,7 +2,7 @@
 
 import { Inputs } from "@/components/recipes/recipe-form/inputs";
 import { PendingButton } from "@/components/ui/buttons/pending-button";
-import type { RecipeDetail } from "@/domain/recipe/recipe";
+import type { RecipeDetail } from "@/lib/domain/recipe/recipe";
 import { useTransition } from "react";
 
 type RecipeFormProps = {

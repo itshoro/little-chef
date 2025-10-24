@@ -1,4 +1,4 @@
-import type { User } from "@/domain/user/user";
+import type { User } from "@/lib/domain/user/user";
 import { Avatar } from "./avatar";
 
 const AvatarStack = ({

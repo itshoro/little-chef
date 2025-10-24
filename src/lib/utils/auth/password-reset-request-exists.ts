@@ -1,6 +1,6 @@
-import { makeHasResetPasswordRequest } from "@/application/use-case/user/has-reset-password-request";
+import { makeHasResetPasswordRequest } from "@/lib/application/use-case/user/has-reset-password-request";
 import { db } from "@/drizzle/db";
-import { DrizzlePasswordResetRepository } from "@/infrastructure/repositories/drizzle/auth/password-reset-repository";
+import { DrizzlePasswordResetRepository } from "@/lib/infrastructure/repositories/drizzle/auth/password-reset-repository";
 
 export async function passwordResetRequestExists(
   token: string,

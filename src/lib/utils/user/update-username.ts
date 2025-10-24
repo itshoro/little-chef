@@ -1,6 +1,6 @@
-import { makeUpdateUsername } from "@/application/use-case/user/update-username";
+import { makeUpdateUsername } from "@/lib/application/use-case/user/update-username";
 import { db } from "@/drizzle/db";
-import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user/user-repository";
+import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
 
 export async function updateUsername(
   ...args: Parameters<ReturnType<typeof makeUpdateUsername>>

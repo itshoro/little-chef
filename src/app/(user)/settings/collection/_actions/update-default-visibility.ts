@@ -3,7 +3,7 @@
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { requireSession } from "@/lib/utils/auth/require-session";
 import { updateDefaultVisibility } from "@/lib/utils/user/update-collection-default-visibility";
-import { dtoFromFormData } from "@/transformer/user/update-collection-default-visibility-transformer";
+import { dtoFromFormData } from "@/lib/transformer/user/update-collection-default-visibility-transformer";
 
 async function changeDefaultVisibilityAction(formData: FormData) {
   const { user } = await requireSession({

@@ -3,7 +3,7 @@
 import * as Generator from "@/components/forms/generator";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Plus } from "@/components/ui/icons/plus";
-import type { Recipe } from "@/domain/recipe/recipe";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { useMemo, useRef } from "react";
 import { StepGeneratorItem } from "./item";
 

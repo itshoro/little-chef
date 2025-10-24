@@ -3,7 +3,7 @@
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { updatePassword } from "@/lib/utils/user/update-password";
-import { dtoFromFormData } from "@/transformer/user/update-password-transformer";
+import { dtoFromFormData } from "@/lib/transformer/user/update-password-transformer";
 
 async function changePasswordAction(formData: FormData) {
   const { user } = await validateSession();

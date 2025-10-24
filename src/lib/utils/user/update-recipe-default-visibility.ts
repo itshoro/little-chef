@@ -1,6 +1,6 @@
-import { makeUpdateDefaultVisibility } from "@/application/use-case/user/update-recipe-default-visibility";
+import { makeUpdateDefaultVisibility } from "@/lib/application/use-case/user/update-recipe-default-visibility";
 import { db } from "@/drizzle/db";
-import { DrizzleRecipePreferencesRepository } from "@/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
+import { DrizzleRecipePreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
 
 export async function updateDefaultVisibility(
   ...args: Parameters<ReturnType<typeof makeUpdateDefaultVisibility>>

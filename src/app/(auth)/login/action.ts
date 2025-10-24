@@ -1,13 +1,13 @@
 "use server";
 
-import { makeSignInUser } from "@/application/use-case/user/sign-in";
+import { makeSignInUser } from "@/lib/application/use-case/user/sign-in";
 import { db } from "@/drizzle/db";
-import { Argon2IDPasswordHasher } from "@/infrastructure/auth/argon2id-password-hasher";
-import { StatefulSessionProvider } from "@/infrastructure/auth/session/stateful/session-provider";
-import { StatefulSessionTokenProvider } from "@/infrastructure/auth/session/stateful/session-token-provider";
-import { DrizzleSessionRepository } from "@/infrastructure/repositories/drizzle/auth/session-repository";
-import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user/user-repository";
-import { signInDTOFromFormData } from "@/transformer/user/create-transformer";
+import { Argon2IDPasswordHasher } from "@/lib/infrastructure/auth/argon2id-password-hasher";
+import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
+import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
+import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
+import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
+import { signInDTOFromFormData } from "@/lib/transformer/user/create-transformer";
 
 async function loginAction(formData: FormData) {
   const dto = signInDTOFromFormData(formData);

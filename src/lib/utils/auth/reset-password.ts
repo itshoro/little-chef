@@ -1,11 +1,11 @@
-import { makeResetPassword } from "@/application/use-case/user/reset-password";
+import { makeResetPassword } from "@/lib/application/use-case/user/reset-password";
 import { db } from "@/drizzle/db";
-import { Argon2IDPasswordHasher } from "@/infrastructure/auth/argon2id-password-hasher";
-import { StatefulSessionProvider } from "@/infrastructure/auth/session/stateful/session-provider";
-import { StatefulSessionTokenProvider } from "@/infrastructure/auth/session/stateful/session-token-provider";
-import { DrizzlePasswordResetRepository } from "@/infrastructure/repositories/drizzle/auth/password-reset-repository";
-import { DrizzleSessionRepository } from "@/infrastructure/repositories/drizzle/auth/session-repository";
-import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user/user-repository";
+import { Argon2IDPasswordHasher } from "@/lib/infrastructure/auth/argon2id-password-hasher";
+import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
+import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
+import { DrizzlePasswordResetRepository } from "@/lib/infrastructure/repositories/drizzle/auth/password-reset-repository";
+import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
+import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
 
 export async function resetPassword(
   ...args: Parameters<ReturnType<typeof makeResetPassword>>

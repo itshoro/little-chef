@@ -1,6 +1,6 @@
-import { makeUpdateDefaultServingSize } from "@/application/use-case/user/update-recipe-default-serving-size";
+import { makeUpdateDefaultServingSize } from "@/lib/application/use-case/user/update-recipe-default-serving-size";
 import { db } from "@/drizzle/db";
-import { DrizzleRecipePreferencesRepository } from "@/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
+import { DrizzleRecipePreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
 
 export async function updateDefaultServingSize(
   ...args: Parameters<ReturnType<typeof makeUpdateDefaultServingSize>>

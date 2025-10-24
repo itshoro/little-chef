@@ -1,5 +1,5 @@
 import { CollectionList } from "@/components/collections/collection-list-container";
-import type { User } from "@/domain/user/user";
+import type { User } from "@/lib/domain/user/user";
 import type { ListQueryOptions } from "@/lib/dal/utils";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { validateSession } from "@/lib/utils/auth/validate-session";

@@ -1,8 +1,8 @@
-import { makeFindRecipes } from "@/application/use-case/recipe/find-recipes";
+import { makeFindRecipes } from "@/lib/application/use-case/recipe/find-recipes";
 import { RecipeList } from "@/components/recipes/recipe-list-container";
-import type { User } from "@/domain/user/user";
+import type { User } from "@/lib/domain/user/user";
 import { db } from "@/drizzle/db";
-import { DrizzleRecipeReadRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
+import { DrizzleRecipeReadRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
 import type { ListQueryOptions } from "@/lib/dal/utils";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { validateSession } from "@/lib/utils/auth/validate-session";

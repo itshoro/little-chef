@@ -1,7 +1,7 @@
-import { makeUpdateProfileImage } from "@/application/use-case/user/update-profile-image";
+import { makeUpdateProfileImage } from "@/lib/application/use-case/user/update-profile-image";
 import { db } from "@/drizzle/db";
-import { DrizzleUserRepository } from "@/infrastructure/repositories/drizzle/user/user-repository";
-import { UploadthingFileStorage } from "@/infrastructure/shared/uploadthing-file-storage";
+import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
+import { UploadthingFileStorage } from "@/lib/infrastructure/shared/uploadthing-file-storage";
 import { UTApi } from "uploadthing/server";
 
 export async function updateProfileImage(

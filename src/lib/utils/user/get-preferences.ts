@@ -1,10 +1,10 @@
 import {
   makeGetCollectionPreferences,
   makeGetRecipePreferences,
-} from "@/application/use-case/user/get-preferences";
+} from "@/lib/application/use-case/user/get-preferences";
 import { db } from "@/drizzle/db";
-import { DrizzleCollectionPreferencesRepository } from "@/infrastructure/repositories/drizzle/user/collection-preferences-repository";
-import { DrizzleRecipePreferencesRepository } from "@/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
+import { DrizzleCollectionPreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/collection-preferences-repository";
+import { DrizzleRecipePreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
 
 export async function getCollectionPreferences(
   ...args: Parameters<ReturnType<typeof makeGetCollectionPreferences>>

@@ -1,9 +1,9 @@
-import { makeRemoveRecipeFromCollection } from "@/application/use-case/collection/remove-recipe-from-collection";
+import { makeRemoveRecipeFromCollection } from "@/lib/application/use-case/collection/remove-recipe-from-collection";
 import { db } from "@/drizzle/db";
-import { DrizzleCollectionPermissionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-permission-repository";
-import { DrizzleCollectionRecipeRepository } from "@/infrastructure/repositories/drizzle/collection/collection-recipe-repository";
-import { DrizzleCollectionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-repository";
-import { DrizzleRecipePermissionRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
+import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
+import { DrizzleCollectionRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-recipe-repository";
+import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";
+import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
 
 export async function removeRecipeFromCollection(
   ...args: Parameters<ReturnType<typeof makeRemoveRecipeFromCollection>>

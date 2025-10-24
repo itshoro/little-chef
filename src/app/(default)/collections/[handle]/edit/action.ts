@@ -4,7 +4,7 @@ import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { generateHandle } from "@/lib/slug";
 import { requireSession } from "@/lib/utils/auth/require-session";
 import { updateCollection } from "@/lib/utils/collection/update-collection";
-import { dtoFromFormData } from "@/transformer/collection/update-transformer";
+import { dtoFromFormData } from "@/lib/transformer/collection/update-transformer";
 import { redirect } from "next/navigation";
 
 async function editAction(formData: FormData) {

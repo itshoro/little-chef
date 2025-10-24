@@ -2,7 +2,7 @@
 
 import { Inputs } from "@/app/(default)/collections/_components/collection-form-inputs";
 import { PendingButton } from "@/components/ui/buttons/pending-button";
-import type { Collection } from "@/domain/collection/collection";
+import type { Collection } from "@/lib/domain/collection/collection";
 import { useTransition } from "react";
 
 type CollectionFormProps = {

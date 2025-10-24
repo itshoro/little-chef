@@ -1,4 +1,4 @@
-import type { Recipe } from "@/domain/recipe/recipe";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { requireSession } from "@/lib/utils/auth/require-session";
 import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
 import { removeRecipeFromCollection } from "@/lib/utils/collection/remove-recipe-from-collection";

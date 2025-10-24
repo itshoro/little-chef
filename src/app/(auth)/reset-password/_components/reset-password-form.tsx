@@ -4,7 +4,7 @@ import { Label } from "@/components/layout/settings-section";
 import { PendingButton } from "@/components/ui/buttons/pending-button";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Input } from "@/components/ui/controls/input";
-import { passwordRange } from "@/domain/user/credentials";
+import { passwordRange } from "@/lib/domain/user/credentials";
 import { useTransition } from "react";
 
 const ResetPasswordForm = ({

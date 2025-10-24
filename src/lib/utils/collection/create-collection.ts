@@ -1,7 +1,7 @@
-import { makeCreateCollection } from "@/application/use-case/collection/create-collection";
+import { makeCreateCollection } from "@/lib/application/use-case/collection/create-collection";
 import { db } from "@/drizzle/db";
-import { DrizzleCollectionPermissionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-permission-repository";
-import { DrizzleCollectionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-repository";
+import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
+import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";
 
 export async function createCollection(
   ...args: Parameters<ReturnType<typeof makeCreateCollection>>

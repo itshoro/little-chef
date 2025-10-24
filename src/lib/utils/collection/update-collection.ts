@@ -1,7 +1,7 @@
-import { makeUpdateCollection } from "@/application/use-case/collection/update-collection";
+import { makeUpdateCollection } from "@/lib/application/use-case/collection/update-collection";
 import { db } from "@/drizzle/db";
-import { DrizzleCollectionPermissionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-permission-repository";
-import { DrizzleCollectionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-repository";
+import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
+import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";
 
 export async function updateCollection(
   ...args: Parameters<ReturnType<typeof makeUpdateCollection>>

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/controls/label";
 import Link from "next/link";
 import { useTransition } from "react";
 import { signupAction } from "../action";
-import { passwordRange, usernameRange } from "@/domain/user/credentials";
+import { passwordRange, usernameRange } from "@/lib/domain/user/credentials";
 
 const SingUpForm = () => {
   const [pending, startTransition] = useTransition();

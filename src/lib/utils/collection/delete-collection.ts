@@ -1,8 +1,8 @@
-import { makeDeleteCollection } from "@/application/use-case/collection/delete-collection";
-import type { Result } from "@/domain/shared/result";
+import { makeDeleteCollection } from "@/lib/application/use-case/collection/delete-collection";
+import type { Result } from "@/lib/domain/shared/result";
 import { db } from "@/drizzle/db";
-import { DrizzleCollectionPermissionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-permission-repository";
-import { DrizzleCollectionRepository } from "@/infrastructure/repositories/drizzle/collection/collection-repository";
+import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-permission-repository";
+import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";
 
 export async function deleteCollection(
   ...args: Parameters<ReturnType<typeof makeDeleteCollection>>

@@ -1,4 +1,4 @@
-import type { Collection } from "@/domain/collection/collection";
+import type { Collection } from "@/lib/domain/collection/collection";
 import { Section } from "../ui/section";
 import { CollectionCard } from "./collection-card";
 import { NoMoreCollections } from "./fallbacks/empty";

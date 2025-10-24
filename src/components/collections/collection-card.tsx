@@ -1,5 +1,5 @@
 import { AvatarStack } from "@/components/users/avatar-stack";
-import type { Collection } from "@/domain/collection/collection";
+import type { Collection } from "@/lib/domain/collection/collection";
 import { generateHandle } from "@/lib/slug";
 import * as Card from "../ui/link-card";
 

@@ -1,6 +1,6 @@
 import { resetPassword } from "@/lib/utils/auth/reset-password";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
-import { dtoFromFormData } from "@/transformer/auth/reset-password";
+import { dtoFromFormData } from "@/lib/transformer/auth/reset-password";
 import { redirect, RedirectType } from "next/navigation";
 
 async function resetPasswordAction(token: string, formData: FormData) {

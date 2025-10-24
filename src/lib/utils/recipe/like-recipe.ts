@@ -1,12 +1,12 @@
-import { makeAddLikeRecipe } from "@/application/use-case/recipe/add-like-recipe";
-import { makeIsRecipeLiked } from "@/application/use-case/recipe/is-recipe-liked";
-import { makeRemoveLikeRecipe } from "@/application/use-case/recipe/remove-like-recipe";
-import type { User } from "@/domain/user/user";
+import { makeAddLikeRecipe } from "@/lib/application/use-case/recipe/add-like-recipe";
+import { makeIsRecipeLiked } from "@/lib/application/use-case/recipe/is-recipe-liked";
+import { makeRemoveLikeRecipe } from "@/lib/application/use-case/recipe/remove-like-recipe";
+import type { User } from "@/lib/domain/user/user";
 import { db } from "@/drizzle/db";
 import type { RecipeIdentifier } from "@/drizzle/schema";
-import { DrizzleRecipeLikeRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-like-repository";
-import { DrizzleRecipePermissionRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
-import { DrizzleRecipeRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-repository";
+import { DrizzleRecipeLikeRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-like-repository";
+import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
+import { DrizzleRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-repository";
 
 export async function likeRecipe(identifier: RecipeIdentifier, user: User) {
   return await db.transaction(async (tx) => {

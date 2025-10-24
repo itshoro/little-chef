@@ -1,5 +1,5 @@
 import { OptimisticLikeButton } from "@/components/ui/buttons/optimistic-like-button";
-import type { User } from "@/domain/user/user";
+import type { User } from "@/lib/domain/user/user";
 import type { RecipeIdentifier } from "@/drizzle/schema";
 import {
   isRecipeLiked,

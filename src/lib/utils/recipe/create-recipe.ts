@@ -1,12 +1,12 @@
-import { makeCreateRecipe } from "@/application/use-case/recipe/create-recipe";
-import type { Recipe } from "@/domain/recipe/recipe";
-import type { RecipeCreationError } from "@/domain/recipe/recipe-creation-error";
-import type { Result } from "@/domain/shared/result";
+import { makeCreateRecipe } from "@/lib/application/use-case/recipe/create-recipe";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
+import type { RecipeCreationError } from "@/lib/domain/recipe/recipe-creation-error";
+import type { Result } from "@/lib/domain/shared/result";
 import { db } from "@/drizzle/db";
-import { DrizzleRecipePermissionRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
-import { DrizzleRecipeRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-repository";
-import { DrizzleStepRepository } from "@/infrastructure/repositories/drizzle/recipe/step-repository";
-import { UploadthingFileStorage } from "@/infrastructure/shared/uploadthing-file-storage";
+import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
+import { DrizzleRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-repository";
+import { DrizzleStepRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/step-repository";
+import { UploadthingFileStorage } from "@/lib/infrastructure/shared/uploadthing-file-storage";
 import { UTApi } from "uploadthing/server";
 
 export async function createRecipe(

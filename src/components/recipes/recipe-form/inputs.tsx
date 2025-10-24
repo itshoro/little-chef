@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/controls/label";
 import { ServingsInput } from "@/components/ui/controls/servings-input";
 import { Textarea } from "@/components/ui/controls/textarea";
 import { VisibilitySwitcher } from "@/components/ui/controls/visibility-switcher";
-import type { RecipeDetail } from "@/domain/recipe/recipe";
+import type { RecipeDetail } from "@/lib/domain/recipe/recipe";
 import { CoverImageInput } from "./elements/cover-image";
 import { StepsGenerator } from "./elements/step/generator";
 

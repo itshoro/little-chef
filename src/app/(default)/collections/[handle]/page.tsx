@@ -5,8 +5,8 @@ import { AvatarStack } from "@/components/users/avatar-stack";
 
 import { LinkButton } from "@/components/ui/buttons/link-button";
 import { Section } from "@/components/ui/section";
-import type { Collection } from "@/domain/collection/collection";
-import type { Recipe } from "@/domain/recipe/recipe";
+import type { Collection } from "@/lib/domain/collection/collection";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";

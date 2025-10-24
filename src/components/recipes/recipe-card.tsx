@@ -1,5 +1,5 @@
 import { AvatarStack } from "@/components/users/avatar-stack";
-import type { Recipe } from "@/domain/recipe/recipe";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { generateHandle } from "@/lib/slug";
 import * as Card from "../ui/link-card";
 

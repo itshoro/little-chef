@@ -1,4 +1,4 @@
-import type { Recipe } from "@/domain/recipe/recipe";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { Section } from "../ui/section";
 import { NoMoreRecipes } from "./fallbacks/empty";
 import { RecipeCard } from "./recipe-card";

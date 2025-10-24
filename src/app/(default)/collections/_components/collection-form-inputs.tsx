@@ -2,7 +2,7 @@ import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
 import { VisibilitySwitcher } from "@/components/ui/controls/visibility-switcher";
-import type { Collection } from "@/domain/collection/collection";
+import type { Collection } from "@/lib/domain/collection/collection";
 
 type InputsProps = {
   defaultValue?: Partial<Collection>;

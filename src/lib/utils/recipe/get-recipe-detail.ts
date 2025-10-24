@@ -1,6 +1,6 @@
-import { makeGetRecipeDetail } from "@/application/use-case/recipe/get-recipe-detail";
+import { makeGetRecipeDetail } from "@/lib/application/use-case/recipe/get-recipe-detail";
 import { db } from "@/drizzle/db";
-import { DrizzleRecipeReadRepository } from "@/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
+import { DrizzleRecipeReadRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
 
 export async function getRecipeDetail(
   ...args: Parameters<ReturnType<typeof makeGetRecipeDetail>>
