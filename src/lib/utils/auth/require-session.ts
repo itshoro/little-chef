@@ -26,3 +26,14 @@ export function redirectToSignIn<T extends string = string>(
 
   redirect(url, RedirectType.replace);
 }
+
+export function redirectToVerify<T extends string = string>(
+  returnPath: Route<T>,
+): never {
+  const url = [
+    "/verify" satisfies Route<T>,
+    new URLSearchParams({ redirect: returnPath }),
+  ].join("?") as Route;
+
+  redirect(url, RedirectType.replace);
+}

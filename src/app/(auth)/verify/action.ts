@@ -1,69 +1,30 @@
-import type { DrizzleSessionScope } from "@/drizzle/schema";
-import { SESSION_SCOPES } from "@/lib/constants";
-import { unsafeAddSessionScopes } from "@/lib/dal/session";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
-import { getUserByCredentials } from "@/lib/services/user";
-import { loginSchema } from "@/lib/validators/auth";
+import { db } from "@/drizzle/db";
+import { DrizzleSessionRepository } from "@/infrastructure/repositories/drizzle/auth/session-repository";
+import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import { verifySessionDTOFromFormData } from "@/transformer/user/create-transformer";
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-export const verifySchema = z.object({
-  redirect: z.string().refine((val) => val.startsWith("/"), {
-    message: "Redirect must be a relative path",
-  }),
-  scope: z
-    .union([
-      z.enum(SESSION_SCOPES),
-      z.array(z.enum(SESSION_SCOPES)),
-      z.undefined(),
-    ])
-    .transform((val) => {
-      if (Array.isArray(val)) {
-        return Array.from(new Set(val));
-      }
-      if (typeof val === "string") {
-        return [val];
-      }
-      return [];
-    })
-    .refine((val) => val.length > 0, {
-      message: "At least one scope is required",
-    }),
-});
-
-const schema = loginSchema.extend(verifySchema.shape);
-
-async function verifyAction(
-  redirectUrl: string,
-  scopes: DrizzleSessionScope["scope"][],
-  formData: FormData,
-) {
+async function verifyAction(redirectUrl: string, formData: FormData) {
   "use server";
-  if (await isRateLimitedLogin()) {
-    throw new Error("Too many requests.");
-  }
-
-  const username = formData.get("username") as string;
-  const password = formData.get("password") as string;
-  const dto = schema.parse({
-    username,
-    password,
-    redirect: redirectUrl,
-    scope: scopes,
+  const { session } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
   });
 
-  const [{ user, session }, userByCredentials] = await Promise.all([
-    getAuthenticatedUserFromRequest(),
-    getUserByCredentials(dto.username, dto.password),
-  ]);
+  const dto = verifySessionDTOFromFormData(redirectUrl, formData);
+  if (!dto.ok) throw dto.error;
 
-  if (!user || !userByCredentials || user.id !== userByCredentials.id) {
-    throw new Error("Couldn't verify session for the user.");
-  }
+  const repo = new DrizzleSessionRepository(db);
+  await repo.updateLastVerifiedAt(session.id, new Date());
 
-  await unsafeAddSessionScopes(session, dto.scope);
-  return redirect(redirectUrl);
+  redirect(redirectUrl as Route);
 }
 
 export { verifyAction };

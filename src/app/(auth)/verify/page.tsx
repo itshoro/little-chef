@@ -1,38 +1,36 @@
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { redirect } from "next/navigation";
 import { VerifyForm } from "./_components/verify-form";
-import { verifyAction, verifySchema } from "./action";
+import { verifyAction } from "./action";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import type { Route } from "next";
 
 type VerifyPageProps = {
   searchParams: Promise<{
-    redirect?: string | string[];
-    scope?: string | string[];
+    redirect?: string;
   }>;
 };
 
 const VerifyPage = async (params: VerifyPageProps) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await getAuthenticatedUserFromRequest();
-  if (!user) redirect("/login");
 
-  const verifiedParams = verifySchema.safeParse(await params.searchParams);
-  if (!verifiedParams.success) {
-    return (
-      <>
-        <div className="flex h-screen flex-col items-center justify-center">
-          <h1 className="mb-4 text-4xl font-bold">Invalid Parameters</h1>
-          <p className="text-lg">{verifiedParams.error.message}</p>
-        </div>
-      </>
-    );
+  const searchParams = await params.searchParams;
+  if (
+    !searchParams.redirect ||
+    typeof searchParams.redirect !== "string" ||
+    !searchParams.redirect.startsWith("/")
+  ) {
+    throw new Error("Invalid redirect URL");
   }
 
-  const boundVerifyAction = verifyAction.bind(
-    null,
-    verifiedParams.data.redirect,
-    verifiedParams.data.scope,
-  );
+  await requireSession({
+    onUnauthenticated: () => redirectToSignIn(searchParams.redirect as Route),
+  });
+
+  const boundVerifyAction = verifyAction.bind(null, searchParams.redirect);
 
   return (
     <>
@@ -42,11 +40,6 @@ const VerifyPage = async (params: VerifyPageProps) => {
           <p>
             Please verify your credentials to continue. This is required to
             access certain features.
-          </p>
-          <p>
-            Verifying your credentials will add the scopes{" "}
-            {verifiedParams.data.scope.join(", ")} to your session for 15
-            minutes.
           </p>
         </div>
         <VerifyForm action={boundVerifyAction} />

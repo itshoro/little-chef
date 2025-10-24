@@ -1,7 +1,7 @@
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
 import { resetPasswordAction } from "./action";
-import { unsafeGetPasswordResetRequest } from "@/lib/dal/session";
 import { ResetPasswordForm } from "./_components/reset-password-form";
+import { passwordResetRequestExists } from "@/lib/utils/auth/password-reset-request-exists";
 
 const ResetPasswordPage = async ({
   searchParams,
@@ -11,8 +11,7 @@ const ResetPasswordPage = async ({
   if (await isRateLimitedGlobally("read")) return "Too many requests";
   const token = (await searchParams).token;
 
-  const resetRequest = await unsafeGetPasswordResetRequest(token);
-  if (resetRequest === null) {
+  if (!(await passwordResetRequestExists(token))) {
     return (
       <div className="flex h-screen flex-col items-center justify-center">
         <h1 className="mb-4 text-4xl font-bold">Invalid Token</h1>

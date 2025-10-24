@@ -50,7 +50,7 @@ const ResetPasswordForm = ({
       </div>
 
       <div className="mt-2 flex items-baseline justify-between">
-        <PendingButton pending={pending}>Register</PendingButton>
+        <PendingButton pending={pending}>Change Password</PendingButton>
       </div>
     </form>
   );

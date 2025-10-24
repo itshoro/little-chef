@@ -2,13 +2,14 @@ import type { FileReference } from "../shared/file-reference";
 import type { Username } from "./credentials";
 
 export interface User {
-  readonly id: number;
-  readonly publicId: string;
+  id: number;
+  publicId: string;
 
-  readonly username: Username;
-  readonly avatar: FileReference | null;
-  readonly hashedPassword: string;
-  readonly appPreferencesId: number;
-  readonly collectionPreferencesId: number;
-  readonly recipePreferencesId: number;
+  username: Username;
+  avatar: FileReference | null;
+  hashedPassword: string;
+  appPreferencesId: number;
+  collectionPreferencesId: number;
+  recipePreferencesId: number;
+  role: "admin" | "user";
 }

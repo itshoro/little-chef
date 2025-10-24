@@ -1,26 +1,22 @@
-import {
-  getAuthenticatedUserFromRequest,
-  hasSessionScopes,
-} from "@/lib/services/auth";
+import { needsActivityUpdate } from "@/domain/auth/session";
 import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { hasUserRoles } from "@/lib/services/user";
-import { forbidden, redirect } from "next/navigation";
+import {
+  redirectToSignIn,
+  redirectToVerify,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import { forbidden } from "next/navigation";
 
 const AdminPanel = async () => {
-  // todo: extract verification logic for re-use in other admin pages
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user, session } = await getAuthenticatedUserFromRequest();
+  const { user, session } = await requireSession({
+    onUnauthenticated: () => redirectToSignIn("/admin"),
+  });
 
-  if (!user) redirect("/login");
-  if (!(await hasUserRoles(user, ["admin"]))) forbidden();
+  if (user.role !== "admin") forbidden();
 
-  // todo: consider extending the scope lifetime if already present
-  if (!(await hasSessionScopes(session, ["sudo"]))) {
-    const params = new URLSearchParams();
-    params.set("redirect", "/admin");
-    params.set("scope", "sudo");
-
-    redirect(`/verify?${params.toString()}`);
+  if (needsActivityUpdate(session, new Date(), 15 * 60 * 1000)) {
+    redirectToVerify("/admin");
   }
 
   return (

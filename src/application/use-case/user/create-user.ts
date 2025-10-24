@@ -37,6 +37,7 @@ export function makeCreateUser(
       appPreferencesId: appPreferences.id,
       collectionPreferencesId: collectionPreferences.id,
       recipePreferencesId: recipePreferences.id,
+      role: "user",
     });
   };
 }
