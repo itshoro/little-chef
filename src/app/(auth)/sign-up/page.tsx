@@ -2,8 +2,14 @@ import { validateSession } from "@/lib/utils/auth/validate-session";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { redirect } from "next/navigation";
 import { SingUpForm } from "./_components/sign-up-form";
-const SignUpPage = async () => {
+
+const SignUpPage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ returnTo: string }>;
+}) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
+  const returnTo = (await searchParams).returnTo;
 
   const { user } = await validateSession();
   if (user) redirect("/recipes");
@@ -24,7 +30,7 @@ const SignUpPage = async () => {
           currently implemented and won't be as part of this small private test
           run.
         </p>
-        <SingUpForm />
+        <SingUpForm returnTo={returnTo} />
       </div>
     </>
   );

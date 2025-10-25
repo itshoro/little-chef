@@ -21,21 +21,28 @@ async function signupAction(formData: FormData) {
   const dto = signUpDTOFromFormData(formData);
   if (!dto.ok) throw dto.error;
 
-  await db.transaction(async (tx) => {
-    const signUpUser = makeSignUpUser(
-      new DrizzleUserRepository(tx),
-      new DrizzleAppPreferencesRepository(tx),
-      new DrizzleCollectionPreferencesRepository(tx),
-      new DrizzleRecipePreferencesRepository(tx),
-      new StatefulSessionProvider(
-        new StatefulSessionTokenProvider(),
-        new DrizzleSessionRepository(tx),
-      ),
-      new Argon2IDPasswordHasher(),
-    );
+  try {
+    return await db.transaction(async (tx) => {
+      const signUpUser = makeSignUpUser(
+        new DrizzleUserRepository(tx),
+        new DrizzleAppPreferencesRepository(tx),
+        new DrizzleCollectionPreferencesRepository(tx),
+        new DrizzleRecipePreferencesRepository(tx),
+        new StatefulSessionProvider(
+          new StatefulSessionTokenProvider(),
+          new DrizzleSessionRepository(tx),
+        ),
+        new Argon2IDPasswordHasher(),
+      );
 
-    await signUpUser(dto.value);
-  });
+      const result = await signUpUser(dto.value);
+      if (!result.ok) throw result.error;
+
+      return { ok: true, value: undefined } as const;
+    });
+  } catch (e) {
+    return { ok: false, error: e as Error } as const;
+  }
 }
 
 export { signupAction };

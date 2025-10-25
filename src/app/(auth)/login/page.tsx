@@ -10,16 +10,16 @@ const LoginPage = async ({
   searchParams: Promise<{ returnTo: string }>;
 }) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const targetPage = (await searchParams).returnTo;
+  const returnTo = (await searchParams).returnTo;
   const { user } = await validateSession();
 
-  if (user) redirect((targetPage as Route) || "/recipes");
+  if (user) redirect((returnTo as Route) || "/recipes");
 
   return (
     <>
       <h1 className="font-medium">Login</h1>
       <div className="max-w-(--breakpoint-sm) py-4">
-        <LoginForm />
+        <LoginForm returnTo={returnTo} />
       </div>
     </>
   );

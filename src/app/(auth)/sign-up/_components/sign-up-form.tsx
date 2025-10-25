@@ -5,11 +5,13 @@ import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
 import { passwordRange, usernameRange } from "@/lib/domain/user/credentials";
+import type { Route } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { useTransition } from "react";
 import { signupAction } from "../action";
 
-const SingUpForm = () => {
+const SingUpForm = ({ returnTo }: { returnTo?: Route }) => {
   const [pending, startTransition] = useTransition();
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -17,7 +19,8 @@ const SingUpForm = () => {
 
     startTransition(async () => {
       const formData = new FormData(e.currentTarget);
-      await signupAction(formData);
+      const result = await signupAction(formData);
+      if (!result.ok) redirect(returnTo || "/recipes");
     });
   }
 
@@ -68,7 +71,14 @@ const SingUpForm = () => {
       <div className="mt-2 flex items-baseline justify-between">
         <span>
           Already have an account?{" "}
-          <Link className="text-lime-300 underline" href="/login">
+          <Link
+            className="text-lime-300 underline"
+            href={
+              returnTo
+                ? `/login?returnTo=${encodeURIComponent(String(returnTo))}`
+                : "/login"
+            }
+          >
             Sign in
           </Link>
         </span>
