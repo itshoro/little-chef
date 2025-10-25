@@ -52,16 +52,23 @@ export class DrizzleUserRepository implements UserRepository {
   }
 
   async update(user: User): Promise<Result<User, Error>> {
+    const dto: Omit<
+      InferSelectModel<typeof users>,
+      "createdAt" | "id" | "publicId"
+    > = {
+      username: user.username,
+      avatarId: user.avatar ? Number(user.avatar.id) : null,
+      hashedPassword: user.hashedPassword,
+      appPreferencesId: user.appPreferencesId,
+      collectionPreferencesId: user.collectionPreferencesId,
+      recipePreferencesId: user.recipePreferencesId,
+      updatedAt: new Date(),
+      role: user.role,
+    };
+
     const result = await this.connection
       .update(users)
-      .set({
-        username: user.username,
-        avatarId: user.avatar ? Number(user.avatar.id) : null,
-        hashedPassword: user.hashedPassword,
-        appPreferencesId: user.appPreferencesId,
-        collectionPreferencesId: user.collectionPreferencesId,
-        recipePreferencesId: user.recipePreferencesId,
-      })
+      .set(dto)
       .where(eq(users.id, user.id));
 
     if (result.rowsAffected !== 1) {

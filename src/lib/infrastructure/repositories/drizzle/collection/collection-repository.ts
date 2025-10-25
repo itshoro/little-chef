@@ -70,8 +70,14 @@ export class DrizzleCollectionRepository implements CollectionRepository {
   }
 
   async update(collection: Collection): Promise<Result<Collection, Error>> {
-    const dto: InferInsertModel<typeof collections> = {
-      ...collection,
+    const dto: Omit<
+      InferInsertModel<typeof collections>,
+      "id" | "publicId" | "createdAt" | "itemCount" | "likes"
+    > = {
+      name: collection.name,
+      slug: collection.slug,
+      visibility: collection.visibility,
+      updatedAt: new Date(),
     };
 
     const result = await this.db

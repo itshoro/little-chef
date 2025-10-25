@@ -69,9 +69,10 @@ export class DrizzleRecipeRepository implements RecipeRepository {
   }
 
   async update(recipe: Recipe): Promise<Result<Recipe, Error>> {
-    const dto: Required<InferInsertModel<typeof recipes>> = {
+    const dto: Omit<Required<InferInsertModel<typeof recipes>>, "createdAt"> = {
       ...recipe,
       coverId: recipe.cover?.id ?? null,
+      updatedAt: new Date(),
     };
 
     const result = await this.db

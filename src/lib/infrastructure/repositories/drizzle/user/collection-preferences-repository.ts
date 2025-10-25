@@ -3,7 +3,7 @@ import { collectionPreferences } from "@/drizzle/schema";
 import type { Result } from "@/lib/domain/shared/result";
 import type { CollectionPreferences } from "@/lib/domain/user/collection-preferences";
 import { CollectionPreferencesRepository } from "@/lib/domain/user/collection-preferences-repository";
-import { eq } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 
 export class DrizzleCollectionPreferencesRepository
   implements CollectionPreferencesRepository
@@ -29,11 +29,20 @@ export class DrizzleCollectionPreferencesRepository
     return preferences satisfies CollectionPreferences;
   }
 
-  async update(dto: CollectionPreferences): Promise<Result<void, Error>> {
+  async update(
+    preferences: CollectionPreferences,
+  ): Promise<Result<void, Error>> {
+    const dto: Omit<
+      Required<InferInsertModel<typeof collectionPreferences>>,
+      "id"
+    > = {
+      defaultVisibility: preferences.defaultVisibility,
+    };
+
     await this.connection
       .update(collectionPreferences)
       .set(dto)
-      .where(eq(collectionPreferences.id, dto.id));
+      .where(eq(collectionPreferences.id, preferences.id));
 
     return { ok: true, value: undefined };
   }

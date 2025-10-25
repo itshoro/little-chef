@@ -3,7 +3,7 @@ import { recipePreferences } from "@/drizzle/schema";
 import type { Result } from "@/lib/domain/shared/result";
 import type { RecipePreferences } from "@/lib/domain/user/recipe-preferences";
 import { RecipePreferencesRepository } from "@/lib/domain/user/recipe-preferences-repository";
-import { eq } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 
 export class DrizzleRecipePreferencesRepository
   implements RecipePreferencesRepository
@@ -30,9 +30,17 @@ export class DrizzleRecipePreferencesRepository
   }
 
   async update(preferences: RecipePreferences): Promise<Result<void, Error>> {
+    const dto: Omit<
+      Required<InferInsertModel<typeof recipePreferences>>,
+      "id"
+    > = {
+      defaultServingSize: preferences.defaultServingSize,
+      defaultVisibility: preferences.defaultVisibility,
+    };
+
     await this.connection
       .update(recipePreferences)
-      .set(preferences)
+      .set(dto)
       .where(eq(recipePreferences.id, preferences.id));
 
     return { ok: true, value: undefined };
