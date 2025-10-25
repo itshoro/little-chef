@@ -3,7 +3,7 @@ import { PERMISSION_ROLES as RECIPE_PERMISSION_ROLES } from "@/lib/domain/recipe
 import { VISIBILITIES } from "@/lib/domain/shared/visibility";
 import { THEMES } from "@/lib/domain/user/app-preferences";
 import { USER_ROLES } from "@/lib/domain/user/user";
-import { sql, type InferInsertModel, type InferSelectModel } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
   blob,
   integer,
@@ -29,6 +29,12 @@ export const recipes = sqliteTable("recipes", {
   coverId: integer("coverId").references(() => fileReference.id, {
     onDelete: "set null",
   }),
+  createdAt: integer({ mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
 });
 
 export const recipeUserPermissions = sqliteTable(
@@ -55,32 +61,48 @@ export const recipeUserPermissions = sqliteTable(
   ],
 );
 
-export const recipeLikes = sqliteTable("recipe_likes", {
-  recipeId: integer()
-    .notNull()
-    .references(() => recipes.id, { onDelete: "cascade" }),
-  userId: integer()
-    .notNull()
-    .references(() => users.id),
-  createdAt: integer({ mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-});
+export const recipeLikes = sqliteTable(
+  "recipe_likes",
+  {
+    recipeId: integer()
+      .notNull()
+      .references(() => recipes.id, { onDelete: "cascade" }),
+    userId: integer()
+      .notNull()
+      .references(() => users.id),
+    createdAt: integer({ mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.recipeId, table.userId],
+      name: "recipe_likes_pkey",
+    }),
+  ],
+);
 
-export const recipeSteps = sqliteTable("steps", {
-  id: integer("id").primaryKey(),
-  recipeId: integer("recipeId")
-    .notNull()
-    .references(() => recipes.id, { onDelete: "cascade" }),
-  order: integer("order").notNull(),
-  description: text("description").notNull(),
-});
+export const recipeSteps = sqliteTable(
+  "steps",
+  {
+    recipeId: integer("recipeId")
+      .notNull()
+      .references(() => recipes.id, { onDelete: "cascade" }),
+    order: integer("order").notNull(),
+    description: text("description").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.recipeId, table.order],
+      name: "steps_pkey",
+    }),
+  ],
+);
 
 // MARK: collections
 export const collections = sqliteTable("collections", {
   id: integer("id").primaryKey(),
   publicId: text("publicId").notNull().unique(),
-  isCustom: integer("isCustom", { mode: "boolean" }),
   visibility: text("visibility", {
     enum: VISIBILITIES,
   }).notNull(),
@@ -88,16 +110,31 @@ export const collections = sqliteTable("collections", {
   name: text("name").notNull(),
   slug: text("slug").notNull(),
   likes: integer("likes").notNull().default(0),
+  createdAt: integer({ mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
 });
 
-export const collectionRecipes = sqliteTable("collection_recipes", {
-  collectionId: integer("collectionId")
-    .notNull()
-    .references(() => collections.id, { onDelete: "cascade" }),
-  recipeId: integer("recipeId")
-    .notNull()
-    .references(() => recipes.id, { onDelete: "cascade" }),
-});
+export const collectionRecipes = sqliteTable(
+  "collection_recipes",
+  {
+    collectionId: integer("collectionId")
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+    recipeId: integer("recipeId")
+      .notNull()
+      .references(() => recipes.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.collectionId, table.recipeId],
+      name: "collection_recipes_pkey",
+    }),
+  ],
+);
 
 export const collectionUserPermissions = sqliteTable(
   "collection_user_permissions",
@@ -123,17 +160,27 @@ export const collectionUserPermissions = sqliteTable(
   ],
 );
 
-export const collectionLikes = sqliteTable("collection_likes", {
-  collectionId: integer()
-    .notNull()
-    .references(() => collections.id),
-  userId: integer()
-    .notNull()
-    .references(() => users.id),
-  createdAt: integer({ mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-});
+export const collectionLikes = sqliteTable(
+  "collection_likes",
+  {
+    collectionId: integer()
+      .notNull()
+      .references(() => collections.id),
+    userId: integer()
+      .notNull()
+      .references(() => users.id),
+    createdAt: integer({ mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.collectionId, table.userId],
+      name: "collection_likes_pkey",
+    }),
+  ],
+);
+
 // MARK: users
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey(),
@@ -152,6 +199,12 @@ export const users = sqliteTable("users", {
   recipePreferencesId: integer("recipePreferencesId")
     .notNull()
     .references(() => recipePreferences.id),
+  createdAt: integer({ mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
 });
 
 export const userRoles = sqliteTable(
