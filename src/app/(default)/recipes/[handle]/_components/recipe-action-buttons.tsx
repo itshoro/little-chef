@@ -1,6 +1,6 @@
 import { LinkButton } from "@/components/ui/buttons/link-button";
 import { db } from "@/drizzle/db";
-import type { Recipe } from "@/lib/domain/recipe/recipe";
+import { toPublicRecipe, type Recipe } from "@/lib/domain/recipe/recipe";
 import type { User } from "@/lib/domain/user/user";
 import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
 import { generateHandle } from "@/lib/slug";
@@ -41,7 +41,7 @@ export const RecipeActionButtons = async ({
         <span className="text-white">Edit</span>
       </LinkButton>
 
-      <DeleteRecipeButton recipeIdentifier={recipe} />
+      <DeleteRecipeButton recipeIdentifier={toPublicRecipe(recipe)} />
     </div>
   );
 };

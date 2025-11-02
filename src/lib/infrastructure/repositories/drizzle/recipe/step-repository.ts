@@ -9,42 +9,58 @@ import { eq } from "drizzle-orm";
 export class DrizzleStepRepository implements StepRepository {
   constructor(private readonly db: Connection) {}
 
-  async createSteps(
-    recipe: Recipe,
-    steps: Step[],
-  ): Promise<Result<RecipeDetail, Error>> {
-    await this.db.insert(recipeSteps).values(
-      steps.map((step) => ({
-        recipeId: recipe.id,
-        ...step,
-      })),
-    );
+  async createSteps(recipe: Recipe, steps: Step[]): Promise<Result<void>> {
+    try {
+      await this.db.insert(recipeSteps).values(
+        steps.map((step) => ({
+          recipeId: recipe.id,
+          ...step,
+        })),
+      );
 
-    return { ok: true, value: { ...recipe, steps } };
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to create steps.", { cause: e }),
+      };
+    }
   }
 
   async getStepsForRecipe(recipe: Recipe): Promise<Result<Step[], Error>> {
-    const rows = await this.db
-      .select()
-      .from(recipeSteps)
-      .where(eq(recipeSteps.recipeId, recipe.id))
-      .orderBy(recipeSteps.order);
+    try {
+      const rows = await this.db
+        .select()
+        .from(recipeSteps)
+        .where(eq(recipeSteps.recipeId, recipe.id))
+        .orderBy(recipeSteps.order);
 
-    const steps: Step[] = rows.map((row) => ({
-      order: row.order,
-      description: row.description,
-    }));
+      const steps: Step[] = rows.map((row) => ({
+        order: row.order,
+        description: row.description,
+      }));
 
-    return { ok: true, value: steps };
+      return { ok: true, value: steps };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to get steps for recipe.", { cause: e }),
+      };
+    }
   }
 
-  async deleteStepsForRecipe(
-    recipe: Recipe,
-  ): Promise<Result<RecipeDetail, Error>> {
-    await this.db
-      .delete(recipeSteps)
-      .where(eq(recipeSteps.recipeId, recipe.id));
+  async deleteStepsForRecipe(recipe: Recipe): Promise<Result<void>> {
+    try {
+      await this.db
+        .delete(recipeSteps)
+        .where(eq(recipeSteps.recipeId, recipe.id));
 
-    return { ok: true, value: { ...recipe, steps: [] } };
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to delete steps for recipe.", { cause: e }),
+      };
+    }
   }
 }

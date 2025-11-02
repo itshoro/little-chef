@@ -6,41 +6,47 @@ import type { Collection } from "@/lib/domain/collection/collection";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
+import type { RecipeRepository } from "../../abstractions/recipe/recipe-repository";
 
 export function makeAddRecipeToCollection(
   collectionRepository: CollectionRepository,
   collectionRecipeRepository: CollectionRecipeRepository,
   collectionPermissionRepository: CollectionPermissionRepository,
+  recipeRepository: RecipeRepository,
   recipePermissionRepository: RecipePermissionRepository,
 ) {
   return async function addRecipeToCollection(
     collectionIdentifier:
       | { id: Collection["id"] }
       | { publicId: Collection["publicId"] },
-    recipe: Recipe,
+    recipeIdentifier:
+      | { id: Recipe["id"] }
+      | {
+          publicId: Recipe["publicId"];
+        },
     user: User,
-  ): Promise<Result<void, Error>> {
-    const collection =
+  ): Promise<Result<void>> {
+    const [collectionRes, recipeRes] = await Promise.all([
       "id" in collectionIdentifier
-        ? await collectionRepository.findById(collectionIdentifier.id)
-        : await collectionRepository.findByPublicId(
-            collectionIdentifier.publicId,
-          );
-    if (!collection) {
-      return { ok: false, error: new Error("Collection not found") };
-    }
+        ? collectionRepository.findById(collectionIdentifier.id)
+        : collectionRepository.findByPublicId(collectionIdentifier.publicId),
+      "id" in recipeIdentifier
+        ? recipeRepository.findById(recipeIdentifier.id)
+        : recipeRepository.findByPublicId(recipeIdentifier.publicId),
+    ]);
+
+    if (!collectionRes.ok) return collectionRes;
+    if (!recipeRes.ok) return recipeRes;
+    const collection = collectionRes.value;
+    const recipe = recipeRes.value;
 
     const [canUpdateCollection, canViewRecipe] = await Promise.all([
       collectionPermissionRepository.canUpdate(collection, user),
       recipePermissionRepository.canView(recipe, user),
     ]);
 
-    if (!canUpdateCollection) {
-      return { ok: false, error: new Error("User cannot update collection") };
-    }
-    if (!canViewRecipe) {
-      return { ok: false, error: new Error("User cannot view recipe") };
-    }
+    if (!canUpdateCollection.ok) return canUpdateCollection;
+    if (!canViewRecipe.ok) return canViewRecipe;
 
     return await collectionRecipeRepository.addRecipeToCollection(
       collection,

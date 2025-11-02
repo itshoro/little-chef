@@ -10,7 +10,7 @@ async function changePasswordAction(formData: FormData) {
   if (!user) throw new UnauthenticatedError();
 
   const dto = dtoFromFormData(formData);
-  console.log(await updatePassword(user, dto.newPassword));
+  console.log(await updatePassword(user, dto.currentPassword, dto.newPassword));
 }
 
 export { changePasswordAction };

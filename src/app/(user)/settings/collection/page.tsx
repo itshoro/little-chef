@@ -16,11 +16,12 @@ const CollectionSettingsPage = async () => {
   const { user } = await requireSession({
     onUnauthenticated: () => redirectToSignIn("/settings/collection"),
   });
-  const preferences = await getCollectionPreferences(user);
+  const preferencesRes = await getCollectionPreferences(user);
+  if (!preferencesRes.ok) throw preferencesRes.error;
 
   return (
     <>
-      <UpdateDefaultVisibilityForm preferences={preferences} />
+      <UpdateDefaultVisibilityForm preferences={preferencesRes.value} />
     </>
   );
 };

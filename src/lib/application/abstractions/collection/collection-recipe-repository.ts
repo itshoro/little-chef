@@ -6,12 +6,12 @@ export interface CollectionRecipeRepository {
   addRecipeToCollection(
     collection: Collection,
     recipe: Recipe,
-  ): Promise<Result<void, Error>>;
+  ): Promise<Result<void>>;
 
   removeRecipeFromCollection(
     collection: Collection,
     recipe: Recipe,
-  ): Promise<Result<void, Error>>;
+  ): Promise<Result<void>>;
 
   findRecipesForCollection(
     collection: Collection,

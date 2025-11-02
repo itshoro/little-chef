@@ -7,6 +7,7 @@ import type {
 } from "@/lib/domain/collection/collection";
 import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
+import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 
 export function makeGetCollectionDetail(
   collectionRepository: CollectionRepository,
@@ -16,27 +17,37 @@ export function makeGetCollectionDetail(
   return async function getCollectionDetail(
     identifier: { id: Collection["id"] } | { publicId: Collection["publicId"] },
     user: User | null,
-  ): Promise<Result<CollectionDetail, Error>> {
-    const collection =
+  ): Promise<Result<CollectionDetail>> {
+    const collectionRes =
       "id" in identifier
         ? await collectionRepository.findById(identifier.id)
         : await collectionRepository.findByPublicId(identifier.publicId);
+    if (!collectionRes.ok) return collectionRes;
+    const collection = collectionRes.value;
 
-    if (!collection) {
-      return { ok: false, error: new Error("Collection not found.") };
-    }
-
-    if (!(await collectionPermissionRepository.canView(collection, user))) {
-      return { ok: false, error: new Error("Access denied.") };
-    }
+    const permissionResult = await collectionPermissionRepository.canView(
+      collection,
+      user,
+    );
+    if (!permissionResult.ok) return permissionResult;
 
     const recipesResult =
       await collectionRecipeRepository.findRecipesForCollection(collection);
     if (!recipesResult.ok) return recipesResult;
+    const recipes = recipesResult.value;
+
+    const collectionDetail: CollectionDetail = {
+      ...collection,
+      recipes,
+    };
+    taintObjectReference(
+      "collection details may not be passed over the network boundary, consider calling `toPublicCollectionDetail` first",
+      collectionDetail,
+    );
 
     return {
       ok: true,
-      value: { ...collection, recipes: recipesResult.value },
+      value: collectionDetail,
     };
   };
 }

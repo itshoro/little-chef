@@ -18,6 +18,7 @@ import type {
 } from "@/lib/domain/collection/collection";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
+import type { Result } from "@/lib/domain/shared/result";
 import type { Username } from "@/lib/domain/user/credentials";
 import type { User } from "@/lib/domain/user/user";
 import { and, eq, inArray, like, or } from "drizzle-orm";
@@ -30,79 +31,103 @@ export class DrizzleCollectionReadRepository
   async list(
     options: CollectionListOptions,
     user?: User | null,
-  ): Promise<Collection[]> {
-    options.pagination ??= { page: 1, pageSize: 20 };
+  ): Promise<Result<Collection[]>> {
+    try {
+      options.pagination ??= { page: 1, pageSize: 20 };
 
-    const whereConditions = [
-      or(inArray(collections.visibility, ["public", "unlisted"])),
-      user?.id ? eq(collectionUserPermissions.userId, user.id) : undefined,
-    ];
+      const whereConditions = [
+        or(inArray(collections.visibility, ["public", "unlisted"])),
+        user?.id ? eq(collectionUserPermissions.userId, user.id) : undefined,
+      ];
 
-    if (options.search?.query) {
-      const q = `%${options.search.query}%`;
-      whereConditions.push(like(collections.name, q));
+      if (options.search?.query) {
+        const q = `%${options.search.query}%`;
+        whereConditions.push(like(collections.name, q));
+      }
+
+      const collectionsResult = await this.db
+        .selectDistinct()
+        .from(collections)
+        .leftJoin(
+          collectionUserPermissions,
+          eq(collections.id, collectionUserPermissions.collectionId),
+        )
+        .where(or(...whereConditions))
+        .offset((options.pagination.page - 1) * options.pagination.pageSize)
+        .limit(options.pagination.pageSize);
+
+      if (collectionsResult.length === 0) return { ok: true, value: [] };
+
+      const collectionIds = collectionsResult.map((r) => r.collections.id);
+      const collaboratorsByCollection =
+        await this.findCollaborators(collectionIds);
+
+      return {
+        ok: true,
+        value: collectionsResult.map((r) => ({
+          ...r.collections,
+          collaborators: collaboratorsByCollection.get(r.collections.id) ?? [],
+        })),
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to list collections.", { cause: e }),
+      };
     }
-
-    const collectionsResult = await this.db
-      .selectDistinct()
-      .from(collections)
-      .leftJoin(
-        collectionUserPermissions,
-        eq(collections.id, collectionUserPermissions.collectionId),
-      )
-      .where(or(...whereConditions))
-      .offset((options.pagination.page - 1) * options.pagination.pageSize)
-      .limit(options.pagination.pageSize);
-
-    if (collectionsResult.length === 0) return [];
-
-    const collectionIds = collectionsResult.map((r) => r.collections.id);
-    const collaboratorsByCollection =
-      await this.findCollaborators(collectionIds);
-
-    return collectionsResult.map((r) => ({
-      ...r.collections,
-      collaborators: collaboratorsByCollection.get(r.collections.id) ?? [],
-    }));
   }
 
   async findDetailByIdentifier(
     identifier: { id: Collection["id"] } | { publicId: Collection["publicId"] },
     user?: User | null,
-  ): Promise<CollectionDetail | null> {
-    const [result] = await this.db
-      .select()
-      .from(collections)
-      .leftJoin(
-        collectionUserPermissions,
-        eq(collectionUserPermissions.collectionId, collections.id),
-      )
-      .where(
-        and(
-          "id" in identifier
-            ? eq(collections.id, identifier.id)
-            : eq(collections.publicId, identifier.publicId),
-          or(
-            inArray(collections.visibility, ["public", "unlisted"]),
-            user?.id
-              ? eq(collectionUserPermissions.userId, user.id)
-              : undefined,
+  ): Promise<Result<CollectionDetail>> {
+    try {
+      const [result] = await this.db
+        .select()
+        .from(collections)
+        .leftJoin(
+          collectionUserPermissions,
+          eq(collectionUserPermissions.collectionId, collections.id),
+        )
+        .where(
+          and(
+            "id" in identifier
+              ? eq(collections.id, identifier.id)
+              : eq(collections.publicId, identifier.publicId),
+            or(
+              inArray(collections.visibility, ["public", "unlisted"]),
+              user?.id
+                ? eq(collectionUserPermissions.userId, user.id)
+                : undefined,
+            ),
           ),
-        ),
-      );
+        );
 
-    if (!result) return null;
+      if (!result) {
+        return { ok: false, error: new Error("Collection not found") };
+      }
 
-    const [collaborators, recipes] = await Promise.all([
-      this.findCollaborators([result.collections.id]),
-      this.findRecipes(result.collections.id),
-    ]);
+      const [collaborators, recipes] = await Promise.all([
+        this.findCollaborators([result.collections.id]),
+        this.findRecipes(result.collections.id),
+      ]);
 
-    return {
-      ...result.collections,
-      collaborators: collaborators.get(result.collections.id) ?? [],
-      recipes: recipes,
-    };
+      return {
+        ok: true,
+        value: {
+          ...result.collections,
+          collaborators: collaborators.get(result.collections.id) ?? [],
+          recipes: recipes,
+        },
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to find collection by identifier.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
   private async findCollaborators(

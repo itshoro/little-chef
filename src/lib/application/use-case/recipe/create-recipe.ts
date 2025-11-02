@@ -9,6 +9,7 @@ import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
 import { nanoid } from "@/lib/nanoid";
 import { generateSlug } from "@/lib/slug";
+import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 import { makeRevertibleFileReference } from "../../shared/revertible-file-reference";
 
 export interface CreateRecipeDTO {
@@ -29,36 +30,44 @@ export function makeCreateRecipe(
   return async function createRecipe(
     user: User,
     dto: CreateRecipeDTO,
-  ): Promise<Result<RecipeDetail, RecipeCreationError>> {
-    await using coverReference = makeRevertibleFileReference(
-      dto.cover ? await fileStorage.storeTemporary(nanoid(), dto.cover) : null,
+  ): Promise<Result<Recipe, RecipeCreationError>> {
+    const tempRefRes = dto.cover
+      ? await fileStorage.storeTemporary(nanoid(), dto.cover)
+      : null;
+    if (tempRefRes && !tempRefRes.ok) return tempRefRes;
+
+    await using revertibleRef = makeRevertibleFileReference(
+      tempRefRes?.value ?? null,
       fileStorage,
     );
 
     const recipeResult = await recipeRepository.create({
       ...dto.recipe,
       publicId: nanoid(),
-      cover: coverReference.ref,
+      cover: revertibleRef.ref,
       likes: 0,
       slug: generateSlug(dto.recipe.name),
     });
     if (!recipeResult.ok) return recipeResult;
+    const recipe = recipeResult.value;
 
     const permissionResult = await recipePermissionRepository.addPermission(
-      recipeResult.value,
+      recipe,
       user,
       "owner",
     );
     if (!permissionResult.ok) return permissionResult;
 
-    const stepsResult = await stepRepository.createSteps(
-      permissionResult.value,
-      dto.steps,
-    );
+    const stepsResult = await stepRepository.createSteps(recipe, dto.steps);
     if (!stepsResult.ok) return stepsResult;
 
-    await coverReference.commit();
+    await revertibleRef.commit();
 
-    return stepsResult;
+    taintObjectReference(
+      "recipe may not be passed over the network boundary, consider calling `toPublicRecipe` first.",
+      recipe,
+    );
+
+    return { ok: true, value: recipe };
   };
 }

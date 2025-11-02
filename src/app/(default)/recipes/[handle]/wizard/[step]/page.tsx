@@ -6,6 +6,7 @@ import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import { notFound } from "next/navigation";
 import { Actions } from "../actions";
 import { WizardStep } from "../step";
+import type { Step } from "@/lib/domain/recipe/step";
 
 type PageProps = {
   params: Promise<{
@@ -31,7 +32,7 @@ const Page = async (props: PageProps) => {
   if (!recipe) notFound();
 
   const step = Math.min(Number(params.step) || 0, recipe.steps.length);
-  const displayedStep = recipe.steps[step];
+  const displayedStep = recipe.steps[step] as Step;
 
   const ingredientScaleFactor =
     Number(searchParams.servings) / recipe.recommendedServingSize;

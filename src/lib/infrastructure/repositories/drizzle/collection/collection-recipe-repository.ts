@@ -23,78 +23,103 @@ export class DrizzleCollectionRecipeRepository
   async addRecipeToCollection(
     collection: Collection,
     recipe: Recipe,
-  ): Promise<Result<void, Error>> {
-    await this.db
-      .insert(collectionRecipes)
-      .values({ collectionId: collection.id, recipeId: recipe.id });
-    await this.db
-      .update(collections)
-      .set({ itemCount: sql`${collections.itemCount} + 1` })
-      .where(eq(collections.id, collection.id));
+  ): Promise<Result<void>> {
+    try {
+      await this.db
+        .insert(collectionRecipes)
+        .values({ collectionId: collection.id, recipeId: recipe.id });
+      await this.db
+        .update(collections)
+        .set({ itemCount: sql`${collections.itemCount} + 1` })
+        .where(eq(collections.id, collection.id));
 
-    return { ok: true, value: undefined };
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to add recipe to collection.", { cause: e }),
+      };
+    }
   }
 
   async removeRecipeFromCollection(
     collection: Collection,
     recipe: Recipe,
-  ): Promise<Result<void, Error>> {
-    await this.db
-      .delete(collectionRecipes)
-      .where(
-        and(
-          eq(collectionRecipes.collectionId, collection.id),
-          eq(collectionRecipes.recipeId, recipe.id),
-        ),
-      );
-    await this.db
-      .update(collections)
-      .set({ itemCount: sql`${collections.itemCount} - 1` })
-      .where(eq(collections.id, collection.id));
+  ): Promise<Result<void>> {
+    try {
+      await this.db
+        .delete(collectionRecipes)
+        .where(
+          and(
+            eq(collectionRecipes.collectionId, collection.id),
+            eq(collectionRecipes.recipeId, recipe.id),
+          ),
+        );
+      await this.db
+        .update(collections)
+        .set({ itemCount: sql`${collections.itemCount} - 1` })
+        .where(eq(collections.id, collection.id));
 
-    return { ok: true, value: undefined };
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to remove recipe from collection.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
   async findRecipesForCollection(
     collection: Collection,
   ): Promise<Result<Recipe[], Error>> {
-    const rows = await this.db
-      .select()
-      .from(collectionRecipes)
-      .where(eq(collectionRecipes.collectionId, collection.id))
-      .innerJoin(recipes, eq(recipes.id, collectionRecipes.recipeId))
-      .innerJoin(fileReference, eq(fileReference.id, recipes.coverId));
+    try {
+      const rows = await this.db
+        .select()
+        .from(collectionRecipes)
+        .where(eq(collectionRecipes.collectionId, collection.id))
+        .innerJoin(recipes, eq(recipes.id, collectionRecipes.recipeId))
+        .innerJoin(fileReference, eq(fileReference.id, recipes.coverId));
 
-    const collaboratorMap = await this.findCollaborators(
-      rows.map((r) => r.recipes.id),
-    );
+      const collaboratorMap = await this.findCollaborators(
+        rows.map((r) => r.recipes.id),
+      );
 
-    const _recipes = rows.map(
-      ({ recipes: recipeRow, file_references: file }) =>
-        ({
-          id: recipeRow.id,
-          publicId: recipeRow.publicId,
-          name: recipeRow.name,
-          description: recipeRow.description,
-          cover: {
-            id: file.id,
-            url: file.url,
-            mimeType: file.mimeType,
-            byteSize: file.byteSize,
-            createdAt: file.createdAt,
-            publicId: file.publicId,
-          },
-          slug: recipeRow.slug,
-          cookingTime: recipeRow.cookingTime,
-          likes: recipeRow.likes,
-          preparationTime: recipeRow.preparationTime,
-          recommendedServingSize: recipeRow.recommendedServingSize,
-          visibility: recipeRow.visibility,
-          collaborators: collaboratorMap.get(recipeRow.id) ?? [],
-        }) satisfies Recipe,
-    );
+      const _recipes = rows.map(
+        ({ recipes: recipeRow, file_references: file }) =>
+          ({
+            id: recipeRow.id,
+            publicId: recipeRow.publicId,
+            name: recipeRow.name,
+            description: recipeRow.description,
+            cover: {
+              id: file.id,
+              url: file.url,
+              mimeType: file.mimeType,
+              byteSize: file.byteSize,
+              createdAt: file.createdAt,
+              publicId: file.publicId,
+            },
+            slug: recipeRow.slug,
+            cookingTime: recipeRow.cookingTime,
+            likes: recipeRow.likes,
+            preparationTime: recipeRow.preparationTime,
+            recommendedServingSize: recipeRow.recommendedServingSize,
+            visibility: recipeRow.visibility,
+            collaborators: collaboratorMap.get(recipeRow.id) ?? [],
+          }) satisfies Recipe,
+      );
 
-    return { ok: true, value: _recipes };
+      return { ok: true, value: _recipes };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to find recipes for collection.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
   private async findCollaborators(

@@ -1,6 +1,10 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
 import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
-import type { Recipe } from "@/lib/domain/recipe/recipe";
+import {
+  toPublicRecipe,
+  type PublicRecipe,
+  type Recipe,
+} from "@/lib/domain/recipe/recipe";
 
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { addRecipeToCollection } from "@/lib/utils/collection/add-recipe-to-collection";
@@ -12,18 +16,22 @@ type AddToCollectionButtonProps = {
   disabled?: boolean;
 };
 
+// todo: should handle toggling instead of just adding
 const AddToCollectionButton = async ({
   className,
   disabled,
   recipe,
 }: AddToCollectionButtonProps) => {
-  // TODO: Remove from collections if already added.
   const { user } = await validateSession();
   if (!user) return null;
 
-  const collections = user ? await findCollections({}, user) : [];
+  const collectionsRes = await findCollections({}, user);
+  const collections = collectionsRes.ok ? collectionsRes.value : []; // todo: display error?
 
-  const boundAddToCollectionsAction = addToCollections.bind(null, recipe);
+  const boundAddToCollectionsAction = addToCollections.bind(
+    null,
+    toPublicRecipe(recipe),
+  );
 
   return (
     <>
@@ -97,13 +105,15 @@ const AddToCollectionButton = async ({
   );
 };
 
-async function addToCollections(recipe: Recipe, formData: FormData) {
+async function addToCollections(recipe: PublicRecipe, formData: FormData) {
   "use server";
   const { user } = await validateSession();
   if (!user) throw new UnauthenticatedError();
   const collection = formData.get("collection") as string;
 
-  await addRecipeToCollection({ publicId: collection }, recipe, user);
+  console.log(
+    await addRecipeToCollection({ publicId: collection }, recipe, user),
+  );
 }
 
 export { AddToCollectionButton };

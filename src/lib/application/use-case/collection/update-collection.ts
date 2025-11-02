@@ -4,10 +4,11 @@ import type { Collection } from "@/lib/domain/collection/collection";
 import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
 import { generateSlug } from "@/lib/slug";
+import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 
 export type UpdateCollectionDTO = Omit<
   Collection,
-  "id" | "slug" | "collaborators"
+  "id" | "publicId" | "slug" | "collaborators"
 >;
 
 export function makeUpdateCollection(
@@ -15,32 +16,41 @@ export function makeUpdateCollection(
   collectionPermissionRepository: CollectionPermissionRepository,
 ) {
   return async function updateCollection(
+    collectionIdentifier:
+      | { id: Collection["id"] }
+      | { publicId: Collection["publicId"] },
     dto: UpdateCollectionDTO,
     user: User,
-  ): Promise<Result<Collection, Error>> {
-    const collection = await collectionRepository.findByPublicId(dto.publicId);
+  ): Promise<Result<Collection>> {
+    const collectionRes =
+      "id" in collectionIdentifier
+        ? await collectionRepository.findById(collectionIdentifier.id)
+        : await collectionRepository.findByPublicId(
+            collectionIdentifier.publicId,
+          );
+    if (!collectionRes.ok) return collectionRes;
+    const collection = collectionRes.value;
 
-    if (!collection) {
-      return {
-        ok: false,
-        error: new Error("Collection not found."),
-      };
-    }
+    const permissionRes = await collectionPermissionRepository.canUpdate(
+      collection,
+      user,
+    );
+    if (!permissionRes.ok) return permissionRes;
 
-    if (!(await collectionPermissionRepository.canUpdate(collection, user))) {
-      return {
-        ok: false,
-        error: new Error(
-          "User does not have permission to update this collection.",
-        ),
-      };
-    }
-
-    return await collectionRepository.update({
+    const updatedCollectionRes = await collectionRepository.update({
       ...dto,
       id: collection.id,
+      publicId: collection.publicId,
       collaborators: collection.collaborators,
       slug: generateSlug(dto.name),
     });
+
+    if (!updatedCollectionRes.ok) return updatedCollectionRes;
+    taintObjectReference(
+      "collection may not be passed over the network boundary, consider calling `toPublicCollection` first",
+      updatedCollectionRes.value,
+    );
+
+    return updatedCollectionRes;
   };
 }

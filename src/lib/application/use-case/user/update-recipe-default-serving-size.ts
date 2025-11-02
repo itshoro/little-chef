@@ -1,5 +1,5 @@
 import type { Result } from "@/lib/domain/shared/result";
-import type { RecipePreferencesRepository } from "@/lib/domain/user/recipe-preferences-repository";
+import type { RecipePreferencesRepository } from "@/lib/application/abstractions/user/recipe-preferences-repository";
 import type { User } from "@/lib/domain/user/user";
 
 export function makeUpdateDefaultServingSize(
@@ -8,20 +8,13 @@ export function makeUpdateDefaultServingSize(
   return async function updateDefaultServingSize(
     user: User,
     servingSize: number,
-  ): Promise<Result<void, Error>> {
-    const preferences = await recipePreferencesRepository.findById(
+  ): Promise<Result<void>> {
+    const preferencesRes = await recipePreferencesRepository.findById(
       user.collectionPreferencesId,
     );
-    if (!preferences) {
-      return {
-        ok: false,
-        error: new Error("Recipe preferences not found"),
-      };
-    }
+    if (!preferencesRes.ok) return preferencesRes;
+    preferencesRes.value.defaultServingSize = servingSize;
 
-    preferences.defaultServingSize = servingSize;
-    const result = recipePreferencesRepository.update(preferences);
-
-    return result;
+    return recipePreferencesRepository.update(preferencesRes.value);
   };
 }

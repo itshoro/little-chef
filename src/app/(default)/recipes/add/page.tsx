@@ -18,7 +18,8 @@ const AddRecipePage = async () => {
   const { user } = await requireSession({
     onUnauthenticated: () => redirectToSignIn("/recipes/add"),
   });
-  const preferences = await getRecipePreferences(user);
+  const preferencesRes = await getRecipePreferences(user);
+  if (!preferencesRes.ok) throw preferencesRes.error;
 
   return (
     <>
@@ -26,8 +27,8 @@ const AddRecipePage = async () => {
         action={createAction}
         buttonLabel="Create Recipe"
         defaultValue={{
-          recommendedServingSize: preferences.defaultServingSize,
-          visibility: preferences.defaultVisibility,
+          recommendedServingSize: preferencesRes.value.defaultServingSize,
+          visibility: preferencesRes.value.defaultVisibility,
         }}
       />
     </>

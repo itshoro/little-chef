@@ -3,8 +3,8 @@ import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
 
 export interface PasswordResetRepository {
-  generateResetToken(
+  createPasswordResetRequest(
     resetRequest: Omit<PasswordResetRequest, "id">,
-  ): Promise<Result<PasswordResetRequest, Error>>;
-  validateResetToken(token: string): Promise<Result<User, Error>>;
+  ): Promise<Result<PasswordResetRequest>>;
+  validateResetToken(token: string): Promise<Result<User>>;
 }

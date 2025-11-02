@@ -11,29 +11,21 @@ export function makeDeleteCollection(
   return async function deleteCollection(
     identifier: { publicId: Collection["publicId"] } | { id: Collection["id"] },
     user: User,
-  ): Promise<Result<void, Error>> {
-    const collection =
+  ): Promise<Result<void>> {
+    const collectionRes =
       "id" in identifier
         ? await collectionRepository.findById(identifier.id)
         : await collectionRepository.findByPublicId(identifier.publicId);
 
-    if (!collection) {
-      return { ok: false, error: new Error("Collection not found") };
-    }
+    if (!collectionRes.ok) return collectionRes;
+    const collection = collectionRes.value;
 
-    if (
-      !(await collectionPermissionRepository.canUpdatePermissions(
+    const permissionRes =
+      await collectionPermissionRepository.canUpdatePermissions(
         collection,
         user,
-      ))
-    ) {
-      return {
-        ok: false,
-        error: new Error(
-          "User does not have permission to delete this collection",
-        ),
-      };
-    }
+      );
+    if (!permissionRes.ok) return permissionRes;
 
     return await collectionRepository.delete(collection);
   };

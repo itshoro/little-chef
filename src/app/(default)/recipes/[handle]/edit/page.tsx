@@ -1,3 +1,4 @@
+import { toPublicRecipeDetail } from "@/lib/domain/recipe/recipe";
 import { parseHandle } from "@/lib/slug";
 import {
   redirectToSignIn,
@@ -31,14 +32,18 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   });
 
   // todo: new use case that checks if user can edit while fetching recipe detail
-  const recipeResult = await getRecipeDetail({ publicId }, user);
-  if (!recipeResult.ok) throw recipeResult.error;
+  const recipeDetailResult = await getRecipeDetail({ publicId }, user);
+  if (!recipeDetailResult.ok) throw recipeDetailResult.error;
 
-  const recipe = recipeResult.value;
+  const recipe = recipeDetailResult.value;
   if (!recipe) notFound();
 
   return (
-    <RecipeForm action={editAction} defaultValue={recipe} buttonLabel="Save" />
+    <RecipeForm
+      action={editAction}
+      defaultValue={toPublicRecipeDetail(recipe)}
+      buttonLabel="Save"
+    />
   );
 };
 

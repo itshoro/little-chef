@@ -19,7 +19,6 @@ const UpdateUsername = ({
     e.preventDefault();
     startTransition(async () => {
       await updateUsernameAction(new FormData(e.currentTarget));
-      e.currentTarget.reset();
     });
   };
 

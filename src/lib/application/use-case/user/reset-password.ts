@@ -1,11 +1,9 @@
+import type { PasswordHasher } from "@/lib/application/abstractions/auth/password-hasher";
 import type { PasswordResetRepository } from "@/lib/application/abstractions/auth/password-reset-repository";
 import type { SessionProvider } from "@/lib/application/abstractions/auth/session-provider";
-import type { Session } from "@/lib/domain/auth/session";
+import type { UserRepository } from "@/lib/application/abstractions/user/user-repository";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Password } from "@/lib/domain/user/credentials";
-import type { PasswordHasher } from "@/lib/domain/user/password-hasher";
-import type { User } from "@/lib/domain/user/user";
-import type { UserRepository } from "@/lib/domain/user/user-repository";
 
 export function makeResetPassword(
   passwordResetRepository: PasswordResetRepository,
@@ -16,21 +14,26 @@ export function makeResetPassword(
   return async function resetPassword(
     token: string,
     newPassword: Password,
-  ): Promise<Result<{ session: Session; user: User }, Error>> {
+  ): Promise<Result<undefined>> {
     const userResult = await passwordResetRepository.validateResetToken(token);
     if (!userResult.ok) return userResult;
 
-    let user = userResult.value;
+    const user = userResult.value;
+    const invalidationRes =
+      await sessionProvider.invalidateAllSessionsForUser(user);
+    if (!invalidationRes.ok) return invalidationRes;
 
-    await sessionProvider.invalidateAllSessionsForUser(user);
+    const hashRes = await passwordHasher.hash(newPassword);
 
-    user.hashedPassword = await passwordHasher.hash(newPassword);
-    const updateResult = await userRepository.update(user);
-    if (!updateResult.ok) return updateResult;
-    user = updateResult.value;
+    if (!hashRes.ok) return hashRes;
+    user.hashedPassword = hashRes.value;
 
-    const session = await sessionProvider.createSession(user, new Date());
+    const updateRes = await userRepository.update(user);
+    if (!updateRes.ok) return updateRes;
 
-    return { ok: true, value: { user, session } };
+    const sessionRes = await sessionProvider.createSession(user, new Date());
+    if (!sessionRes.ok) return sessionRes;
+
+    return { ok: true, value: undefined };
   };
 }

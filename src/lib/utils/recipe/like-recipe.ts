@@ -1,3 +1,4 @@
+import "server-only";
 import { db } from "@/drizzle/db";
 import { makeAddLikeRecipe } from "@/lib/application/use-case/recipe/add-like-recipe";
 import { makeIsRecipeLiked } from "@/lib/application/use-case/recipe/is-recipe-liked";
@@ -7,9 +8,10 @@ import type { User } from "@/lib/domain/user/user";
 import { DrizzleRecipeLikeRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-like-repository";
 import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
 import { DrizzleRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-repository";
+import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
 
 export async function likeRecipe(
-  identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
+  recipeIdentifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
   user: User,
 ) {
   return await db.transaction(async (tx) => {
@@ -25,7 +27,7 @@ export async function likeRecipe(
       recipePermissionRepository,
     );
 
-    return await like(identifier, user);
+    return await like(recipeIdentifier, user);
   });
 }
 

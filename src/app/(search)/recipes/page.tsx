@@ -40,8 +40,9 @@ const SearchResults = async ({
 
   const findRecipes = makeFindRecipes(new DrizzleRecipeReadRepository(db));
   const recipes = await findRecipes(queryOptions, user);
+  if (!recipes.ok) throw recipes.error;
 
-  return <RecipeList recipes={recipes} title="Search Results" />;
+  return <RecipeList recipes={recipes.value} title="Search Results" />;
 };
 
 export default Page;

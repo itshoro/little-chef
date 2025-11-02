@@ -1,5 +1,5 @@
 import { db } from "@/drizzle/db";
-import { validateSession as _validateSession } from "@/lib/application/use-case/auth/validate-session";
+import { makeValidateSession } from "@/lib/application/use-case/auth/validate-session";
 import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
 import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
 import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
@@ -13,5 +13,7 @@ export async function validateSession() {
     sessionRepository,
   );
 
-  return await _validateSession(new Date(), sessionProvider, userRepository);
+  const validateSession = makeValidateSession(sessionProvider, userRepository);
+
+  return await validateSession(new Date());
 }

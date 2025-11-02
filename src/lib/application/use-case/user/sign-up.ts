@@ -1,12 +1,13 @@
 import type { SessionProvider } from "@/lib/application/abstractions/auth/session-provider";
 import type { Session } from "@/lib/domain/auth/session";
 import type { Result } from "@/lib/domain/shared/result";
-import type { AppPreferencesRepository } from "@/lib/domain/user/app-preferences-repository";
-import type { CollectionPreferencesRepository } from "@/lib/domain/user/collection-preferences-repository";
-import type { PasswordHasher } from "@/lib/domain/user/password-hasher";
-import type { RecipePreferencesRepository } from "@/lib/domain/user/recipe-preferences-repository";
+import type { AppPreferencesRepository } from "@/lib/application/abstractions/user/app-preferences-repository";
+import type { CollectionPreferencesRepository } from "@/lib/application/abstractions/user/collection-preferences-repository";
+import type { PasswordHasher } from "@/lib/application/abstractions/auth/password-hasher";
+import type { RecipePreferencesRepository } from "@/lib/application/abstractions/user/recipe-preferences-repository";
 import type { User } from "@/lib/domain/user/user";
-import type { UserRepository } from "@/lib/domain/user/user-repository";
+import type { UserRepository } from "@/lib/application/abstractions/user/user-repository";
+import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 import { makeCreateSession } from "../auth/create-session";
 import { makeCreateUser, type CreateUserDTO } from "./create-user";
 
@@ -35,14 +36,24 @@ export function makeSignUpUser(
     const createSession = makeCreateSession(sessionProvider);
 
     const existingUser = await userRepository.findByUsername(dto.username);
-    if (existingUser) {
+    if (existingUser.ok) {
       return { ok: false, error: new Error("User already exists.") };
     }
 
-    const user = await createUser(dto);
-    if (!user.ok) return user;
-    const session = await createSession(now, user.value);
+    const userRes = await createUser(dto);
+    if (!userRes.ok) return userRes;
 
-    return { ok: true, value: { user: user.value, session } };
+    const sessionRes = await createSession(now, userRes.value);
+    if (!sessionRes.ok) return sessionRes;
+
+    taintObjectReference(
+      "sessions may not be passed over the network boundary",
+      sessionRes,
+    );
+
+    return {
+      ok: true,
+      value: { user: userRes.value, session: sessionRes.value },
+    };
   };
 }

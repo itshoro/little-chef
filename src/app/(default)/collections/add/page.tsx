@@ -18,13 +18,14 @@ const Page = async () => {
   const { user } = await requireSession({
     onUnauthenticated: () => redirectToSignIn("/collections/add"),
   });
-  const preferences = await getCollectionPreferences(user);
+  const preferencesRes = await getCollectionPreferences(user);
+  if (!preferencesRes.ok) throw preferencesRes.error;
 
   return (
     <>
       <CollectionForm
         action={createAction}
-        defaultValue={{ visibility: preferences.defaultVisibility }}
+        defaultValue={{ visibility: preferencesRes.value.defaultVisibility }}
         buttonLabel="Create Collection"
       />
     </>

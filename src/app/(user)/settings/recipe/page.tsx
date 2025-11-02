@@ -17,12 +17,13 @@ const RecipeSettingsPage = async () => {
   const { user } = await requireSession({
     onUnauthenticated: () => redirectToSignIn("/settings/recipe"),
   });
-  const preferences = await getRecipePreferences(user);
+  const preferencesRes = await getRecipePreferences(user);
+  if (!preferencesRes.ok) throw preferencesRes.error;
 
   return (
     <>
-      <UpdateDefaultVisibilityForm preferences={preferences} />
-      <UpdateDefaultServingSizeForm preferences={preferences} />
+      <UpdateDefaultVisibilityForm preferences={preferencesRes.value} />
+      <UpdateDefaultServingSizeForm preferences={preferencesRes.value} />
     </>
   );
 };

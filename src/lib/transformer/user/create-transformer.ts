@@ -1,40 +1,31 @@
-import "server-only";
-
 import type { SignInUserDTO } from "@/lib/application/use-case/user/sign-in";
 import type { SignUpUserDTO } from "@/lib/application/use-case/user/sign-up";
 import type { Result } from "@/lib/domain/shared/result";
 import { passwordSchema, usernameSchema } from "@/lib/domain/user/credentials";
-import * as z from "zod/v4";
+import * as z from "zod/mini";
 
-const SignUp = z
-  .object({
-    username: usernameSchema,
-    password: passwordSchema,
-    confirmationPassword: passwordSchema,
-    inviteCode: z.string(),
-  })
-  .refine((data) => data.password === data.confirmationPassword, {
-    message: "Passwords must match.",
-    path: ["confirmation-password"],
-  })
-  .refine((data) => data.inviteCode === process.env.INVITE_CODE, {
-    message: "The entered invite code is invalid.",
-  });
+const SignUpServer = z.object({
+  username: usernameSchema,
+  password: passwordSchema,
+  inviteCode: z
+    .string()
+    .check(z.refine((val) => val === process.env.INVITE_CODE)),
+});
 
-const SignIn = z.object({
+export const signInSchema = z.object({
   username: usernameSchema,
   password: passwordSchema,
 });
 
 export function signUpDTOFromFormData(
   formData: FormData,
-): Result<SignUpUserDTO, Error> {
+): Result<SignUpUserDTO> {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
   const confirmationPassword = formData.get("confirmation-password") as string;
   const inviteCode = formData.get("invite-code") as string;
 
-  const payload = SignUp.safeParse({
+  const payload = SignUpServer.safeParse({
     username,
     password,
     confirmationPassword,
@@ -55,11 +46,11 @@ export function signUpDTOFromFormData(
 
 export function signInDTOFromFormData(
   formData: FormData,
-): Result<SignInUserDTO, Error> {
+): Result<SignInUserDTO> {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
-  const payload = SignIn.safeParse({
+  const payload = signInSchema.safeParse({
     username,
     password,
   });
@@ -76,11 +67,10 @@ export function signInDTOFromFormData(
   };
 }
 
-const SessionVerification = SignIn.extend(
+const SessionVerification = z.extend(
+  signInSchema,
   z.object({
-    redirect: z.string().refine((val) => val.startsWith("/"), {
-      message: "Redirect must be a relative path",
-    }),
+    redirect: z.string().check(z.refine((val) => val.startsWith("/"))),
   }).shape,
 );
 

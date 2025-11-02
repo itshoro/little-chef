@@ -29,10 +29,9 @@ export async function generateMetadata(
   const params = await props.params;
   const { publicId } = parseHandle(params.handle);
   const recipeResult = await getRecipeDetail({ publicId }, null);
-  if (!recipeResult.ok) throw recipeResult.error;
+  if (!recipeResult.ok) return {};
 
   const recipe = recipeResult.value;
-  if (!recipe) notFound();
 
   return {
     title: `${recipe.name} by ${generateAttribution(recipe.collaborators.map((c) => c.user))}`,
@@ -104,8 +103,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                     <ShareCurrentPageButton />
                     <LikeButton
                       user={user}
-                      disabled={user === null}
-                      recipeIdentifier={recipe}
+                      recipe={recipe}
                       initialLikes={recipe.likes}
                     />
                   </section>

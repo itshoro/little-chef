@@ -39,8 +39,11 @@ const SearchResults = async ({
   };
 
   const collections = await findCollections(queryOptions, user);
+  if (!collections.ok) throw collections.error;
 
-  return <CollectionList title="Search Results" collections={collections} />;
+  return (
+    <CollectionList title="Search Results" collections={collections.value} />
+  );
 };
 
 export default Page;

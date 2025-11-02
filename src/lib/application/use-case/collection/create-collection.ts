@@ -1,13 +1,11 @@
 import type { CollectionPermissionRepository } from "@/lib/application/abstractions/collection/collection-permission-repository";
 import type { CollectionRepository } from "@/lib/application/abstractions/collection/collection-repository";
-import type {
-  Collection,
-  CollectionDetail,
-} from "@/lib/domain/collection/collection";
+import type { Collection } from "@/lib/domain/collection/collection";
 import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
 import { nanoid } from "@/lib/nanoid";
 import { generateSlug } from "@/lib/slug";
+import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 
 export type CreateCollectionDTO = Omit<
   Collection,
@@ -21,7 +19,7 @@ export function makeCreateCollection(
   return async function createCollection(
     dto: CreateCollectionDTO,
     user: User,
-  ): Promise<Result<CollectionDetail, Error>> {
+  ): Promise<Result<Collection>> {
     const createResult = await collectionRepository.create({
       ...dto,
       publicId: nanoid(),
@@ -36,6 +34,11 @@ export function makeCreateCollection(
     );
     if (!permissionResult.ok) return permissionResult;
 
-    return { ok: true, value: { ...permissionResult.value, recipes: [] } };
+    taintObjectReference(
+      "collections may not be passed over the network boundary, consider calling `toPublicCollection` first.",
+      createResult.value,
+    );
+
+    return createResult;
   };
 }

@@ -2,7 +2,6 @@ import type { RecipeLikeRepository } from "@/lib/application/abstractions/recipe
 import type { RecipePermissionRepository } from "@/lib/application/abstractions/recipe/recipe-permission-repository";
 import type { RecipeRepository } from "@/lib/application/abstractions/recipe/recipe-repository";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
-import { RecipeNotFoundError } from "@/lib/domain/recipe/recipe-not-found-error";
 import type { User } from "@/lib/domain/user/user";
 
 export function makeRemoveLikeRecipe(
@@ -11,19 +10,23 @@ export function makeRemoveLikeRecipe(
   recipePermissionRepository: RecipePermissionRepository,
 ) {
   return async function removeLikeRecipe(
-    identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
+    recipeIdentifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
     user: User,
   ) {
-    const recipe =
-      "id" in identifier
-        ? await recipeRepository.findById(identifier.id)
-        : await recipeRepository.findByPublicId(identifier.publicId);
+    const recipeResult =
+      "id" in recipeIdentifier
+        ? await recipeRepository.findById(recipeIdentifier.id)
+        : await recipeRepository.findByPublicId(recipeIdentifier.publicId);
 
-    if (!recipe) {
-      throw new RecipeNotFoundError(identifier);
-    }
+    if (!recipeResult.ok) return recipeResult;
+    const recipe = recipeResult.value;
 
-    await recipePermissionRepository.canView(recipe, user);
+    const permissionResult = await recipePermissionRepository.canView(
+      recipe,
+      user,
+    );
+    if (!permissionResult.ok) return permissionResult;
+
     return await recipeLikeRepository.unlikeRecipe(recipe, user);
   };
 }

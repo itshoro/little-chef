@@ -5,9 +5,9 @@ import { visibilitySchema } from "@/lib/transformer/shared/visibility";
 import * as z from "zod/mini";
 import { FileReference } from "../file-reference/transformer";
 import { Step } from "../step/transformer";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 
 const UpdateRecipe = z.object({
-  publicId: z.string(),
   name: z.string().check(z.minLength(2), z.trim()),
   description: z.nullable(z.string()),
   recommendedServingSize: z.coerce.number().check(z.minimum(1)),
@@ -17,7 +17,10 @@ const UpdateRecipe = z.object({
   steps: z.array(z.string()),
 });
 
-export function dtoFromFormData(formData: FormData): UpdateRecipeDTO {
+export function dtoFromFormData(formData: FormData): {
+  publicId: Recipe["publicId"];
+  dto: UpdateRecipeDTO;
+} {
   const publicId = formData.get("publicId") as string;
   const name = formData.get("name") as string;
   const coverImage = formData.get("cover") as File;
@@ -32,7 +35,6 @@ export function dtoFromFormData(formData: FormData): UpdateRecipeDTO {
     coverImage instanceof File && coverImage.size > 0 ? coverImage : null;
 
   const payload = {
-    publicId,
     name,
     description,
     preparationTime,
@@ -43,12 +45,15 @@ export function dtoFromFormData(formData: FormData): UpdateRecipeDTO {
   };
 
   return {
-    recipe: UpdateRecipe.parse(payload),
-    cover: FileReference.parse(cover),
-    steps: steps.map((step, i) => ({
-      description: Step.parse(step),
-      order: i,
-    })),
-    deletePreviousCover: formData.get("deletePreviousCover") === "true",
+    publicId,
+    dto: {
+      recipe: UpdateRecipe.parse(payload),
+      cover: FileReference.parse(cover),
+      steps: steps.map((step, i) => ({
+        description: Step.parse(step),
+        order: i,
+      })),
+      deletePreviousCover: formData.get("coverDeleted") === "true",
+    },
   };
 }

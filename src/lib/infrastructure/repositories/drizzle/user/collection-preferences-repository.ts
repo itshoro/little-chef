@@ -1,8 +1,8 @@
 import type { Connection } from "@/drizzle/db";
 import { collectionPreferences } from "@/drizzle/schema";
+import { CollectionPreferencesRepository } from "@/lib/application/abstractions/user/collection-preferences-repository";
 import type { Result } from "@/lib/domain/shared/result";
 import type { CollectionPreferences } from "@/lib/domain/user/collection-preferences";
-import { CollectionPreferencesRepository } from "@/lib/domain/user/collection-preferences-repository";
 import { eq, type InferInsertModel } from "drizzle-orm";
 
 export class DrizzleCollectionPreferencesRepository
@@ -10,28 +10,42 @@ export class DrizzleCollectionPreferencesRepository
 {
   constructor(private readonly connection: Connection) {}
 
-  async findById(id: number): Promise<CollectionPreferences> {
+  async findById(id: number): Promise<Result<CollectionPreferences>> {
     const [preferences] = await this.connection
       .select()
       .from(collectionPreferences)
       .where(eq(collectionPreferences.id, id))
       .limit(1);
 
-    return preferences satisfies CollectionPreferences;
+    if (!preferences) {
+      return {
+        ok: false,
+        error: new Error("Collection preferences not found"),
+      };
+    }
+
+    return { ok: true, value: preferences };
   }
 
-  async create(dto: CollectionPreferences): Promise<CollectionPreferences> {
+  async create(
+    dto: CollectionPreferences,
+  ): Promise<Result<CollectionPreferences>> {
     const [preferences] = await this.connection
       .insert(collectionPreferences)
       .values(dto)
       .returning();
 
-    return preferences satisfies CollectionPreferences;
+    if (!preferences) {
+      return {
+        ok: false,
+        error: new Error("Collection preferences not found"),
+      };
+    }
+
+    return { ok: true, value: preferences };
   }
 
-  async update(
-    preferences: CollectionPreferences,
-  ): Promise<Result<void, Error>> {
+  async update(preferences: CollectionPreferences): Promise<Result<void>> {
     const dto: Omit<
       Required<InferInsertModel<typeof collectionPreferences>>,
       "id"

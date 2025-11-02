@@ -3,6 +3,6 @@ import type { Session } from "@/lib/domain/auth/session";
 
 export function makeSignOutUser(SessionProvider: SessionProvider) {
   return async function signOutUser(session: Session) {
-    await SessionProvider.invalidateSession(session.id);
+    return await SessionProvider.invalidateSession(session.id);
   };
 }

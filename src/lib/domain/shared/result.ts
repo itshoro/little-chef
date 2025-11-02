@@ -1,4 +1,4 @@
-export type Result<TValue, TError extends Error> =
+export type Result<TValue, TError = Error> =
   | {
       ok: true;
       value: TValue;

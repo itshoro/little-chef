@@ -2,9 +2,10 @@ import type { SessionProvider } from "@/lib/application/abstractions/auth/sessio
 import type { Session } from "@/lib/domain/auth/session";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Password, Username } from "@/lib/domain/user/credentials";
-import type { PasswordHasher } from "@/lib/domain/user/password-hasher";
+import type { PasswordHasher } from "@/lib/application/abstractions/auth/password-hasher";
 import type { User } from "@/lib/domain/user/user";
-import type { UserRepository } from "@/lib/domain/user/user-repository";
+import type { UserRepository } from "@/lib/application/abstractions/user/user-repository";
+import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 import { makeCreateSession } from "../auth/create-session";
 
 export interface SignInUserDTO {
@@ -23,15 +24,33 @@ export function makeSignInUser(
   ): Promise<Result<{ user: User; session: Session }, Error>> {
     const createSession = makeCreateSession(sessionProvider);
 
-    const user = await userRepository.findByUsername(dto.username);
-    if (!user) {
+    const userRes = await userRepository.findByUsername(dto.username);
+
+    if (!userRes.ok) {
       return { ok: false, error: new Error("User does not exist.") };
     }
-    if (!(await passwordHasher.verify(dto.password, user.hashedPassword))) {
-      return { ok: false, error: new Error("Password wrong.") };
-    }
+    const user = userRes.value;
 
-    const session = await createSession(now, user);
+    const verificationRes = await passwordHasher.verify(
+      dto.password,
+      user.hashedPassword,
+    );
+    if (!verificationRes.ok) return verificationRes;
+
+    const sessionRes = await createSession(now, user);
+
+    if (!sessionRes.ok) return sessionRes;
+    const session = sessionRes.value;
+
+    taintObjectReference(
+      "sessions may not be passed over the network boundary",
+      session,
+    );
+    taintObjectReference(
+      "users may not be passed over the network boundary, consider calling `toPublicUser` first",
+      user,
+    );
+
     return { ok: true, value: { user, session } };
   };
 }

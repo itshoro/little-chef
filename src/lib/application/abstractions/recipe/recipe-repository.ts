@@ -7,10 +7,10 @@ export interface RecipeRepository {
   create(
     params: Omit<Recipe, "id" | "collaborators">,
   ): Promise<Result<Recipe, RecipeCreationError>>;
-  findById(id: number): Promise<Recipe | null>;
-  findByPublicId(publicId: string): Promise<Recipe | null>;
+  findById(id: number): Promise<Result<Recipe>>;
+  findByPublicId(publicId: string): Promise<Result<Recipe>>;
   update(
     recipe: Omit<Recipe, "collaborators">,
   ): Promise<Result<Recipe, RecipeUpdateError>>;
-  delete(recipe: Recipe): Promise<Result<void, Error>>;
+  delete(recipe: Recipe): Promise<Result<void>>;
 }

@@ -8,7 +8,7 @@ import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/d
 
 export async function getCollectionDetail(
   ...args: Parameters<ReturnType<typeof makeGetCollectionDetail>>
-): Promise<Result<CollectionDetail, Error>> {
+): Promise<Result<CollectionDetail>> {
   try {
     return await db.transaction(async (tx) => {
       const collectionRepository = new DrizzleCollectionRepository(tx);

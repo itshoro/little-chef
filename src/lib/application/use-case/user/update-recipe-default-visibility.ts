@@ -1,6 +1,6 @@
 import type { Result } from "@/lib/domain/shared/result";
 import type { Visibility } from "@/lib/domain/shared/visibility";
-import type { RecipePreferencesRepository } from "@/lib/domain/user/recipe-preferences-repository";
+import type { RecipePreferencesRepository } from "@/lib/application/abstractions/user/recipe-preferences-repository";
 import type { User } from "@/lib/domain/user/user";
 
 export function makeUpdateDefaultVisibility(
@@ -9,20 +9,13 @@ export function makeUpdateDefaultVisibility(
   return async function updateDefaultVisibility(
     user: User,
     visibility: Visibility,
-  ): Promise<Result<void, Error>> {
-    const preferences = await recipePreferencesRepository.findById(
+  ): Promise<Result<void>> {
+    const preferencesRes = await recipePreferencesRepository.findById(
       user.collectionPreferencesId,
     );
-    if (!preferences) {
-      return {
-        ok: false,
-        error: new Error("Recipe preferences not found"),
-      };
-    }
+    if (!preferencesRes.ok) return preferencesRes;
 
-    preferences.defaultVisibility = visibility;
-    const result = recipePreferencesRepository.update(preferences);
-
-    return result;
+    preferencesRes.value.defaultVisibility = visibility;
+    return recipePreferencesRepository.update(preferencesRes.value);
   };
 }

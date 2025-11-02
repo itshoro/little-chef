@@ -50,7 +50,7 @@ const UpdateAvatar = ({ defaultValue }: { defaultValue?: string | null }) => {
             </Button>
             <input
               onChange={(e) => {
-                if (e.target.files?.length) {
+                if (e.target.files?.length === 1) {
                   const reader = new FileReader();
                   reader.onload = (e) => {
                     const image = new Image();
@@ -78,7 +78,7 @@ const UpdateAvatar = ({ defaultValue }: { defaultValue?: string | null }) => {
 
                     image.src = e.target!.result as string;
                   };
-                  reader.readAsDataURL(e.target.files[0]);
+                  reader.readAsDataURL(e.target.files[0] as Blob);
                 }
               }}
               type="file"

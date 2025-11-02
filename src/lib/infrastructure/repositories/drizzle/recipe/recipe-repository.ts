@@ -19,102 +19,143 @@ export class DrizzleRecipeRepository implements RecipeRepository {
 
   async create(
     dto: Omit<Recipe, "id" | "collaborators">,
-  ): Promise<Result<Recipe, Error>> {
-    const result = await this.db
-      .insert(recipes)
-      .values({ ...dto, coverId: dto.cover?.id ?? null });
+  ): Promise<Result<Recipe>> {
+    try {
+      const result = await this.db
+        .insert(recipes)
+        .values({ ...dto, coverId: dto.cover?.id ?? null });
 
-    if (!result.lastInsertRowid) {
-      return { ok: false, error: new Error("Couldn't add recipe to database") };
+      if (!result.lastInsertRowid) {
+        return {
+          ok: false,
+          error: new Error("Couldn't add recipe to database"),
+        };
+      }
+
+      return {
+        ok: true,
+        value: {
+          ...dto,
+          collaborators: [],
+          id: Number(result.lastInsertRowid),
+        },
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to create recipe.", { cause: e }),
+      };
     }
-
-    return {
-      ok: true,
-      value: { ...dto, collaborators: [], id: Number(result.lastInsertRowid) },
-    };
   }
 
-  async findById(id: number): Promise<Recipe | null> {
-    const [recipe] = await this.db
-      .select()
-      .from(recipes)
-      .where(eq(recipes.id, id))
-      .limit(1);
+  async findById(id: number): Promise<Result<Recipe>> {
+    try {
+      const [recipe] = await this.db
+        .select()
+        .from(recipes)
+        .where(eq(recipes.id, id))
+        .limit(1);
 
-    if (!recipe) return null;
-
-    const [collaborators, cover] = await Promise.all([
-      this.findCollaborators(recipe.id),
-      this.findCover(recipe.coverId),
-    ]);
-
-    return this.recipeFromParams(recipe, collaborators, cover);
-  }
-
-  async findByPublicId(publicId: string): Promise<Recipe | null> {
-    const [recipe] = await this.db
-      .select()
-      .from(recipes)
-      .where(eq(recipes.publicId, publicId))
-      .limit(1);
-
-    if (!recipe) return null;
-
-    const [collaborators, cover] = await Promise.all([
-      this.findCollaborators(recipe.id),
-      this.findCover(recipe.coverId),
-    ]);
-
-    return this.recipeFromParams(recipe, collaborators, cover);
-  }
-
-  async update(recipe: Recipe): Promise<Result<Recipe, Error>> {
-    const dto: Omit<Required<InferInsertModel<typeof recipes>>, "createdAt"> = {
-      ...recipe,
-      coverId: recipe.cover?.id ?? null,
-      updatedAt: new Date(),
-    };
-
-    const result = await this.db
-      .update(recipes)
-      .set(dto)
-      .where(eq(recipes.id, recipe.id));
-
-    if (result.rowsAffected === 0)
+      return this.recipeFromRow(recipe);
+    } catch (e) {
       return {
         ok: false,
-        error: new Error("Failed to find recipe to update."),
+        error: new Error("Failed to find recipe by ID.", { cause: e }),
       };
-
-    return { ok: true, value: recipe };
+    }
   }
 
-  async delete(recipe: Recipe): Promise<Result<void, Error>> {
-    const result = await this.db
-      .delete(recipes)
-      .where(eq(recipes.id, recipe.id));
+  async findByPublicId(publicId: string): Promise<Result<Recipe>> {
+    try {
+      const [recipe] = await this.db
+        .select()
+        .from(recipes)
+        .where(eq(recipes.publicId, publicId))
+        .limit(1);
 
-    if (result.rowsAffected === 0)
+      return this.recipeFromRow(recipe);
+    } catch (e) {
       return {
         ok: false,
-        error: new Error("Failed to find recipe to delete."),
+        error: new Error("Failed to find recipe by public ID.", { cause: e }),
+      };
+    }
+  }
+
+  async update(recipe: Recipe): Promise<Result<Recipe>> {
+    try {
+      const dto: Omit<
+        Required<InferInsertModel<typeof recipes>>,
+        "createdAt"
+      > = {
+        ...recipe,
+        coverId: recipe.cover?.id ?? null,
+        updatedAt: new Date(),
       };
 
-    return { ok: true, value: undefined };
+      const result = await this.db
+        .update(recipes)
+        .set(dto)
+        .where(eq(recipes.id, recipe.id));
+
+      if (result.rowsAffected === 0)
+        return {
+          ok: false,
+          error: new Error("Failed to find recipe to update."),
+        };
+
+      return { ok: true, value: recipe };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to update recipe.", { cause: e }),
+      };
+    }
+  }
+
+  async delete(recipe: Recipe): Promise<Result<void>> {
+    try {
+      const result = await this.db
+        .delete(recipes)
+        .where(eq(recipes.id, recipe.id));
+
+      if (result.rowsAffected === 0)
+        return {
+          ok: false,
+          error: new Error("Failed to find recipe to delete."),
+        };
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to delete recipe.", { cause: e }),
+      };
+    }
   }
 
   // MARK: utils
 
-  private recipeFromParams(
-    recipe: InferSelectModel<typeof recipes>,
-    collaborators: Collaborator[],
-    cover: FileReference | null,
-  ): Recipe {
+  private async recipeFromRow(
+    recipe?: InferSelectModel<typeof recipes>,
+  ): Promise<Result<Recipe>> {
+    if (!recipe) {
+      return { ok: false, error: new Error("Recipe not found") };
+    }
+
+    const [collaborators, cover] = await Promise.all([
+      this.findCollaborators(recipe.id),
+      this.findCover(recipe.coverId),
+    ]);
+
     return {
-      ...recipe,
-      collaborators,
-      cover,
-    } satisfies Recipe;
+      ok: true,
+      value: {
+        ...recipe,
+        collaborators,
+        cover,
+      },
+    };
   }
 
   private async findCollaborators(id: number): Promise<Collaborator[]> {

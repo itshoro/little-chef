@@ -14,9 +14,9 @@ async function editAction(formData: FormData) {
     },
   });
 
-  const dto = dtoFromFormData(formData);
+  const { publicId, dto } = dtoFromFormData(formData);
 
-  const recipeResult = await updateRecipe(user, dto);
+  const recipeResult = await updateRecipe({ publicId }, dto, user);
   if (!recipeResult.ok) throw recipeResult.error;
 
   redirect(

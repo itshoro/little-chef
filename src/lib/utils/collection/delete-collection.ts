@@ -6,7 +6,7 @@ import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/d
 
 export async function deleteCollection(
   ...args: Parameters<ReturnType<typeof makeDeleteCollection>>
-): Promise<Result<void, Error>> {
+): Promise<Result<void>> {
   try {
     return await db.transaction(async (tx) => {
       const deleteCollection = makeDeleteCollection(

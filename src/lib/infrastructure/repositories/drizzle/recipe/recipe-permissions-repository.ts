@@ -1,11 +1,9 @@
 import type { Connection } from "@/drizzle/db";
-import { fileReference, recipeUserPermissions, users } from "@/drizzle/schema";
+import { recipeUserPermissions } from "@/drizzle/schema";
 import type { RecipePermissionRepository } from "@/lib/application/abstractions/recipe/recipe-permission-repository";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
-import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Role } from "@/lib/domain/shared/role";
-import type { Username } from "@/lib/domain/user/credentials";
 import type { User } from "@/lib/domain/user/user";
 import { and, eq, inArray } from "drizzle-orm";
 
@@ -14,108 +12,167 @@ export class DrizzleRecipePermissionRepository
 {
   constructor(private readonly db: Connection) {}
 
-  async findCollaborators(recipe: Recipe): Promise<Collaborator[]> {
-    const permissions = await this.db
-      .select()
-      .from(recipeUserPermissions)
-      .innerJoin(users, eq(users.id, recipeUserPermissions.userId))
-      .leftJoin(fileReference, eq(fileReference.id, users.avatarId))
-      .where(eq(recipeUserPermissions.recipeId, recipe.id));
-
-    return permissions.map((permission) => ({
-      role: permission.recipe_user_permissions.role,
-      user: {
-        ...permission.users,
-        avatar: permission.file_references,
-        username: permission.users.username as Username,
-      },
-    }));
-  }
-
   async addPermission(
     recipe: Recipe,
     user: User,
     role: Role,
-  ): Promise<Result<Recipe, Error>> {
-    await this.db.insert(recipeUserPermissions).values({
-      recipeId: recipe.id,
-      userId: user.id,
-      role,
-    });
+  ): Promise<Result<void>> {
+    try {
+      const result = await this.db.insert(recipeUserPermissions).values({
+        recipeId: recipe.id,
+        userId: user.id,
+        role,
+      });
 
-    const newRecipe = {
-      ...recipe,
-      collaborators: [...recipe.collaborators, { user, role }],
-    };
+      if (result.rowsAffected === 0) {
+        return {
+          ok: false,
+          error: new Error("Failed to add permission."),
+        };
+      }
 
-    return { ok: true, value: newRecipe };
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to add permission.", { cause: e }),
+      };
+    }
   }
 
-  async removePermission(recipe: Recipe, user: User): Promise<boolean> {
-    const result = await this.db
-      .delete(recipeUserPermissions)
-      .where(
-        and(
-          eq(recipeUserPermissions.recipeId, recipe.id),
-          eq(recipeUserPermissions.userId, user.id),
-        ),
-      );
+  async removePermission(recipe: Recipe, user: User): Promise<Result<void>> {
+    try {
+      const result = await this.db
+        .delete(recipeUserPermissions)
+        .where(
+          and(
+            eq(recipeUserPermissions.recipeId, recipe.id),
+            eq(recipeUserPermissions.userId, user.id),
+          ),
+        );
 
-    return result.rowsAffected === 1;
+      if (result.rowsAffected === 0) {
+        return {
+          ok: false,
+          error: new Error("Failed to remove permission."),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to remove permission.", { cause: e }),
+      };
+    }
   }
 
-  async canView(resource: Recipe, user: User): Promise<boolean> {
+  async canView(resource: Recipe, user: User): Promise<Result<void>> {
     if (
       resource.visibility === "public" ||
       resource.visibility === "unlisted"
     ) {
-      return true;
+      return { ok: true, value: undefined };
     }
 
-    const [permission] = await this.db
-      .select()
-      .from(recipeUserPermissions)
-      .where(
-        and(
-          eq(recipeUserPermissions.recipeId, resource.id),
-          eq(recipeUserPermissions.userId, user.id),
-        ),
-      );
+    try {
+      const [permission] = await this.db
+        .select()
+        .from(recipeUserPermissions)
+        .where(
+          and(
+            eq(recipeUserPermissions.recipeId, resource.id),
+            eq(recipeUserPermissions.userId, user.id),
+          ),
+        );
 
-    return Boolean(permission);
+      if (!permission) {
+        return {
+          ok: false,
+          error: new Error("User does not have permission to view recipe."),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("User does not have permission to view recipe.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
-  async canUpdate(recipe: Recipe, user: User): Promise<boolean> {
-    const [permission] = await this.db
-      .select()
-      .from(recipeUserPermissions)
-      .where(
-        and(
-          eq(recipeUserPermissions.recipeId, recipe.id),
-          eq(recipeUserPermissions.userId, user.id),
-          inArray(recipeUserPermissions.role, [
-            "owner",
-            "maintainer",
-            "editor",
-          ]),
-        ),
-      );
+  async canUpdate(recipe: Recipe, user: User): Promise<Result<void>> {
+    try {
+      const [permission] = await this.db
+        .select()
+        .from(recipeUserPermissions)
+        .where(
+          and(
+            eq(recipeUserPermissions.recipeId, recipe.id),
+            eq(recipeUserPermissions.userId, user.id),
+            inArray(recipeUserPermissions.role, [
+              "owner",
+              "maintainer",
+              "editor",
+            ]),
+          ),
+        );
 
-    return Boolean(permission);
+      if (!permission) {
+        return {
+          ok: false,
+          error: new Error("User does not have permission to update recipe."),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("User does not have permission to update recipe.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
-  async canUpdatePermissions(recipe: Recipe, user: User): Promise<boolean> {
-    const [permission] = await this.db
-      .select()
-      .from(recipeUserPermissions)
-      .where(
-        and(
-          eq(recipeUserPermissions.recipeId, recipe.id),
-          eq(recipeUserPermissions.userId, user.id),
-          inArray(recipeUserPermissions.role, ["owner", "maintainer"]),
-        ),
-      );
+  async canUpdatePermissions(
+    recipe: Recipe,
+    user: User,
+  ): Promise<Result<void>> {
+    try {
+      const [permission] = await this.db
+        .select()
+        .from(recipeUserPermissions)
+        .where(
+          and(
+            eq(recipeUserPermissions.recipeId, recipe.id),
+            eq(recipeUserPermissions.userId, user.id),
+            inArray(recipeUserPermissions.role, ["owner", "maintainer"]),
+          ),
+        );
 
-    return Boolean(permission);
+      if (!permission) {
+        return {
+          ok: false,
+          error: new Error(
+            "User does not have permission to update recipe permissions.",
+          ),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error(
+          "User does not have permission to update recipe permissions.",
+          { cause: e },
+        ),
+      };
+    }
   }
 }

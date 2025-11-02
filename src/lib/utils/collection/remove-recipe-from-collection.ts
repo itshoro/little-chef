@@ -4,6 +4,7 @@ import { DrizzleCollectionPermissionRepository } from "@/lib/infrastructure/repo
 import { DrizzleCollectionRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-recipe-repository";
 import { DrizzleCollectionRepository } from "@/lib/infrastructure/repositories/drizzle/collection/collection-repository";
 import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
+import { DrizzleRecipeRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-repository";
 
 export async function removeRecipeFromCollection(
   ...args: Parameters<ReturnType<typeof makeRemoveRecipeFromCollection>>
@@ -13,6 +14,7 @@ export async function removeRecipeFromCollection(
     const collectionRecipeRepository = new DrizzleCollectionRecipeRepository(
       tx,
     );
+    const recipeRepository = new DrizzleRecipeRepository(tx);
     const recipePermissionRepository = new DrizzleRecipePermissionRepository(
       tx,
     );
@@ -23,6 +25,7 @@ export async function removeRecipeFromCollection(
       collectionRepository,
       collectionRecipeRepository,
       collectionPermissionRepository,
+      recipeRepository,
       recipePermissionRepository,
     );
 

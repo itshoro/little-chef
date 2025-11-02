@@ -1,10 +1,11 @@
 import type { Connection } from "@/drizzle/db";
-import { fileReference } from "@/drizzle/schema";
+import { fileReference, recipeUserPermissions } from "@/drizzle/schema";
 import type { FileStorage } from "@/lib/application/shared/file-storage";
 import type {
   FileReference,
   TemporaryFileReference,
 } from "@/lib/domain/shared/file-reference";
+import type { Result } from "@/lib/domain/shared/result";
 import { eq } from "drizzle-orm";
 import type { UTApi } from "uploadthing/server";
 
@@ -17,7 +18,7 @@ export class UploadthingFileStorage implements FileStorage {
   async storeTemporary(
     publicId: string,
     file: File,
-  ): Promise<TemporaryFileReference> {
+  ): Promise<Result<TemporaryFileReference>> {
     const fileUpload = await this.utapi.uploadFiles(file);
 
     if (fileUpload.error) {
@@ -35,6 +36,13 @@ export class UploadthingFileStorage implements FileStorage {
       })
       .returning();
 
+    if (!result) {
+      return {
+        ok: false,
+        error: new Error("Failed to create file reference in database."),
+      };
+    }
+
     const ref: TemporaryFileReference = {
       id: result.id,
       publicId: result.publicId,
@@ -45,22 +53,56 @@ export class UploadthingFileStorage implements FileStorage {
       expiresAt: result.expiresAt!,
     };
 
-    return ref;
+    return { ok: true, value: ref };
   }
 
-  async persistReference(reference: TemporaryFileReference): Promise<void> {
-    this.db
-      .update(fileReference)
-      .set({ expiresAt: null })
-      .where(eq(fileReference.id, reference.id));
+  async persistReference(
+    reference: TemporaryFileReference,
+  ): Promise<Result<void>> {
+    try {
+      const result = await this.db
+        .update(fileReference)
+        .set({ expiresAt: null })
+        .where(eq(fileReference.id, reference.id));
+
+      if (result.rowsAffected === 0) {
+        return {
+          ok: false,
+          error: new Error("Failed to persist file reference."),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to persist file reference.", { cause: e }),
+      };
+    }
   }
 
-  async delete(reference: FileReference): Promise<void> {
-    const key = reference.url.split("/").at(-1)!;
-    await this.utapi.deleteFiles(key);
+  async delete(reference: FileReference): Promise<Result<void>> {
+    try {
+      const key = reference.url.split("/").at(-1)!;
+      await this.utapi.deleteFiles(key);
 
-    await this.db
-      .delete(fileReference)
-      .where(eq(fileReference.id, reference.id));
+      const result = await this.db
+        .delete(fileReference)
+        .where(eq(fileReference.id, reference.id));
+
+      if (result.rowsAffected === 0) {
+        return {
+          ok: false,
+          error: new Error("Failed to delete file reference."),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to delete file reference.", { cause: e }),
+      };
+    }
   }
 }

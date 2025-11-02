@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
   },
   typedRoutes: true,
   experimental: {
+    taint: true,
     useCache: true,
     authInterrupts: true,
     devtoolSegmentExplorer: true,

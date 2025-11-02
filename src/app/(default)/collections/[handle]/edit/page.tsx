@@ -1,3 +1,4 @@
+import { toPublicCollectionDetail } from "@/lib/domain/collection/collection";
 import { parseHandle } from "@/lib/slug";
 import {
   redirectToSignIn,
@@ -31,7 +32,7 @@ const Page = async (props: PageProps) => {
 
   return (
     <CollectionForm
-      defaultValue={collectionResult.value}
+      defaultValue={toPublicCollectionDetail(collectionResult.value)}
       action={editAction}
       buttonLabel="Save"
     />

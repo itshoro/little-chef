@@ -2,12 +2,12 @@
 
 import { Inputs } from "@/components/recipes/recipe-form/inputs";
 import { PendingButton } from "@/components/ui/buttons/pending-button";
-import type { RecipeDetail } from "@/lib/domain/recipe/recipe";
+import type { PublicRecipeDetail } from "@/lib/domain/recipe/recipe";
 import { useTransition } from "react";
 
 type RecipeFormProps = {
   action: (data: FormData) => Promise<void>;
-  defaultValue?: Partial<RecipeDetail>;
+  defaultValue?: Partial<PublicRecipeDetail>;
   buttonLabel: string;
 };
 

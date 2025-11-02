@@ -15,9 +15,9 @@ async function editAction(formData: FormData) {
     },
   });
 
-  const dto = dtoFromFormData(formData);
+  const { dto, publicId } = dtoFromFormData(formData);
 
-  const result = await updateCollection(dto, user);
+  const result = await updateCollection({ publicId }, dto, user);
   if (!result.ok) throw result.error;
 
   const collection = result.value;

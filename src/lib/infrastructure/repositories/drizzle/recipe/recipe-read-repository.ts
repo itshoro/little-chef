@@ -14,6 +14,7 @@ import type { Recipe, RecipeDetail } from "@/lib/domain/recipe/recipe";
 import type { Step } from "@/lib/domain/recipe/step";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import type { FileReference } from "@/lib/domain/shared/file-reference";
+import type { Result } from "@/lib/domain/shared/result";
 import type { Username } from "@/lib/domain/user/credentials";
 import type { User } from "@/lib/domain/user/user";
 import { and, eq, inArray, like, or } from "drizzle-orm";
@@ -21,96 +22,121 @@ import { and, eq, inArray, like, or } from "drizzle-orm";
 export class DrizzleRecipeReadRepository implements RecipeReadRepository {
   constructor(private readonly db: Connection) {}
 
-  async list(options: RecipeListOptions, user: User | null): Promise<Recipe[]> {
-    options.pagination ??= { page: 1, pageSize: 20 };
+  async list(
+    options: RecipeListOptions,
+    user: User | null,
+  ): Promise<Result<Recipe[]>> {
+    try {
+      options.pagination ??= { page: 1, pageSize: 20 };
 
-    const whereConditions: any[] = [
-      or(
-        inArray(recipes.visibility, ["public", "unlisted"]),
-        user?.id ? eq(recipeUserPermissions.userId, user.id) : undefined,
-      ),
-    ];
+      const whereConditions: any[] = [
+        or(
+          inArray(recipes.visibility, ["public", "unlisted"]),
+          user?.id ? eq(recipeUserPermissions.userId, user.id) : undefined,
+        ),
+      ];
 
-    if (options.search?.query) {
-      const q = `%${options.search.query}%`;
-      whereConditions.push(
-        or(like(recipes.name, q), like(recipes.description, q)),
-      );
+      if (options.search?.query) {
+        const q = `%${options.search.query}%`;
+        whereConditions.push(
+          or(like(recipes.name, q), like(recipes.description, q)),
+        );
+      }
+
+      const recipesResult = await this.db
+        .selectDistinct()
+        .from(recipes)
+        .leftJoin(
+          recipeUserPermissions,
+          eq(recipes.id, recipeUserPermissions.recipeId),
+        )
+        .where(and(...whereConditions))
+        .offset((options.pagination.page - 1) * options.pagination.pageSize)
+        .limit(options.pagination.pageSize);
+
+      if (recipesResult.length === 0) return { ok: true, value: [] };
+
+      const recipeIds = recipesResult.map((r) => r.recipes.id);
+      const coverIds = recipesResult
+        .map((r) => r.recipes.coverId)
+        .filter((c) => c !== null);
+
+      const [collaboratorsByRecipe, fileReferencesMap] = await Promise.all([
+        this.findCollaborators(recipeIds),
+        this.findFileReferences(coverIds),
+      ]);
+
+      return {
+        ok: true,
+        value: recipesResult.map((r) => ({
+          ...r.recipes,
+          cover: r.recipes.coverId
+            ? (fileReferencesMap.get(r.recipes.coverId) ?? null)
+            : null,
+          collaborators: collaboratorsByRecipe.get(r.recipes.id) ?? [],
+        })),
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to list recipes.", { cause: e }),
+      };
     }
-
-    const recipesResult = await this.db
-      .selectDistinct()
-      .from(recipes)
-      .leftJoin(
-        recipeUserPermissions,
-        eq(recipes.id, recipeUserPermissions.recipeId),
-      )
-      .where(and(...whereConditions))
-      .offset((options.pagination.page - 1) * options.pagination.pageSize)
-      .limit(options.pagination.pageSize);
-
-    if (recipesResult.length === 0) return [];
-
-    const recipeIds = recipesResult.map((r) => r.recipes.id);
-    const coverIds = recipesResult
-      .map((r) => r.recipes.coverId)
-      .filter((c) => c !== null);
-
-    const [collaboratorsByRecipe, fileReferencesMap] = await Promise.all([
-      this.findCollaborators(recipeIds),
-      this.findFileReferences(coverIds),
-    ]);
-
-    return recipesResult.map((r) => ({
-      ...r.recipes,
-      cover: r.recipes.coverId
-        ? (fileReferencesMap.get(r.recipes.coverId) ?? null)
-        : null,
-      collaborators: collaboratorsByRecipe.get(r.recipes.id) ?? [],
-    }));
   }
 
   async findDetailByIdentifier(
     identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
     user?: User | null,
-  ): Promise<RecipeDetail | null> {
-    const [result] = await this.db
-      .select()
-      .from(recipes)
-      .leftJoin(
-        recipeUserPermissions,
-        eq(recipes.id, recipeUserPermissions.recipeId),
-      )
-      .where(
-        and(
-          "id" in identifier
-            ? eq(recipes.id, identifier.id)
-            : eq(recipes.publicId, identifier.publicId),
-          or(
-            inArray(recipes.visibility, ["public", "unlisted"]),
-            user?.id ? eq(recipeUserPermissions.userId, user.id) : undefined,
+  ): Promise<Result<RecipeDetail>> {
+    try {
+      const [result] = await this.db
+        .select()
+        .from(recipes)
+        .leftJoin(
+          recipeUserPermissions,
+          eq(recipes.id, recipeUserPermissions.recipeId),
+        )
+        .where(
+          and(
+            "id" in identifier
+              ? eq(recipes.id, identifier.id)
+              : eq(recipes.publicId, identifier.publicId),
+            or(
+              inArray(recipes.visibility, ["public", "unlisted"]),
+              user?.id ? eq(recipeUserPermissions.userId, user.id) : undefined,
+            ),
           ),
-        ),
-      );
+        );
 
-    if (!result) return null;
+      if (!result) return { ok: false, error: new Error("Recipe not found") };
 
-    const [collaborators, steps, cover] = await Promise.all([
-      this.findCollaborators([result.recipes.id]),
-      this.findSteps([result.recipes.id]),
-      result.recipes.coverId
-        ? this.findFileReferences([result.recipes.coverId]).then(
-            (map) => map.get(result.recipes.coverId!) ?? null,
-          )
-        : Promise.resolve(null),
-    ]);
+      const [collaborators, steps, cover] = await Promise.all([
+        this.findCollaborators([result.recipes.id]),
+        this.findSteps([result.recipes.id]),
+        result.recipes.coverId
+          ? this.findFileReferences([result.recipes.coverId]).then(
+              (map) => map.get(result.recipes.coverId!) ?? null,
+            )
+          : Promise.resolve(null),
+      ]);
 
-    return {
-      ...result.recipes,
-      cover,
-      collaborators: collaborators.get(result.recipes.id) ?? [],
-      steps: steps.get(result.recipes.id) ?? [],
-    };
+      return {
+        ok: true,
+        value: {
+          ...result.recipes,
+          cover,
+          collaborators: collaborators.get(result.recipes.id) ?? [],
+          steps: steps.get(result.recipes.id) ?? [],
+        },
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to find recipe detail by identifier.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
   private async findCollaborators(

@@ -1,6 +1,8 @@
 import { SessionProvider } from "@/lib/application/abstractions/auth/session-provider";
 import type { SessionRepository } from "@/lib/application/abstractions/auth/session-repository";
 import type { SessionTokenProvider } from "@/lib/application/abstractions/auth/session-token-provider";
+import type { Session } from "@/lib/domain/auth/session";
+import type { Result } from "@/lib/domain/shared/result";
 import type { User } from "@/lib/domain/user/user";
 
 export const INACTIVITY_TIMEOUT_MS = 1000 * 60 * 60 * 24 * 10; // 10 days
@@ -12,54 +14,67 @@ export class StatefulSessionProvider implements SessionProvider {
     private readonly sessionRepository: SessionRepository,
   ) {}
 
-  async getSession() {
-    const token = await this.sessionTokenProvider.getSessionToken();
-    if (!token) return null;
+  async getSession(): Promise<Result<Session>> {
+    const tokenRes = await this.sessionTokenProvider.getSessionToken();
+    if (!tokenRes.ok) return tokenRes;
 
-    const [id, secret] = token.split(".");
-    if (!id || !secret) return null;
+    const [id, secret] = tokenRes.value.split(".");
+    if (!id || !secret) {
+      return { ok: false, error: new Error("Unrecognized token format.") };
+    }
 
-    const session = await this.sessionRepository.findById(id);
-    if (!session) return null;
+    const sessionRes = await this.sessionRepository.findById(id);
+    if (!sessionRes.ok) return sessionRes;
+    const session = sessionRes.value;
 
     const hasMatchingSecret = this.constantTimeEqual(
       await this.hashSecret(secret),
       session.secretHash,
     );
-    if (!hasMatchingSecret) return null;
+    if (!hasMatchingSecret) {
+      return { ok: false, error: new Error("Invalid session token.") };
+    }
 
-    return session;
+    return { ok: true, value: session };
   }
 
-  async createSession(user: User, now: Date = new Date()) {
+  async createSession(
+    user: User,
+    now: Date = new Date(),
+  ): Promise<Result<Session>> {
     const id = this.generateSecureRandomString();
     const secret = this.generateSecureRandomString();
     const secretHash = await this.hashSecret(secret);
 
-    const session = await this.sessionRepository.create({
+    const sessionRes = await this.sessionRepository.create({
       id,
       userId: user.id,
       secretHash,
       createdAt: now,
       lastVerifiedAt: now,
     });
+    if (!sessionRes.ok) return sessionRes;
 
     const token = `${id}.${secret}`;
-    await this.sessionTokenProvider.storeSessionToken(token);
+    const storeRes = await this.sessionTokenProvider.storeSessionToken(token);
+    if (!storeRes) return storeRes;
 
-    return session;
+    return sessionRes;
   }
 
-  async invalidateSession(sessionId: string): Promise<void> {
-    await this.sessionRepository.deleteById(sessionId);
+  async invalidateSession(sessionId: string): Promise<Result<void>> {
+    return await this.sessionRepository.deleteById(sessionId);
   }
 
-  async invalidateAllSessionsForUser(user: User): Promise<void> {
-    await this.sessionRepository.deleteByUser(user);
+  async invalidateAllSessionsForUser(user: User): Promise<Result<void>> {
+    return await this.sessionRepository.deleteByUser(user);
   }
 
-  async updateLastVerifiedAt(sessionId: string, now: Date): Promise<void> {
-    await this.sessionRepository.updateLastVerifiedAt(sessionId, now);
+  async updateLastVerifiedAt(
+    sessionId: string,
+    now: Date,
+  ): Promise<Result<void>> {
+    return await this.sessionRepository.updateLastVerifiedAt(sessionId, now);
   }
 
   private generateSecureRandomString(
@@ -72,7 +87,7 @@ export class StatefulSessionProvider implements SessionProvider {
 
     let id = "";
     for (let i = 0; i < bytes.length; i++) {
-      id += alphabet[bytes[i] % alphabet.length];
+      id += alphabet[(bytes[i] as number) % alphabet.length];
     }
     return id;
   }
@@ -83,7 +98,7 @@ export class StatefulSessionProvider implements SessionProvider {
     }
     let c = 0;
     for (let i = 0; i < a.byteLength; i++) {
-      c |= a[i] ^ b[i];
+      c |= (a[i] as number) ^ (b[i] as number);
     }
     return c === 0;
   }

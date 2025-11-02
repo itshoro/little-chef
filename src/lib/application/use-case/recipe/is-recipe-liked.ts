@@ -2,7 +2,6 @@ import type { RecipeLikeRepository } from "@/lib/application/abstractions/recipe
 import type { RecipePermissionRepository } from "@/lib/application/abstractions/recipe/recipe-permission-repository";
 import type { RecipeRepository } from "@/lib/application/abstractions/recipe/recipe-repository";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
-import { RecipeNotFoundError } from "@/lib/domain/recipe/recipe-not-found-error";
 import type { User } from "@/lib/domain/user/user";
 
 export function makeIsRecipeLiked(
@@ -14,15 +13,19 @@ export function makeIsRecipeLiked(
     identifier: { id: Recipe["id"] } | { publicId: Recipe["publicId"] },
     user: User,
   ) {
-    const recipe =
+    const recipeRes =
       "id" in identifier
         ? await recipeRepository.findById(identifier.id)
         : await recipeRepository.findByPublicId(identifier.publicId);
 
-    if (!recipe) {
-      throw new RecipeNotFoundError(identifier);
-    }
-    await recipePermissionRepository.canView(recipe, user);
+    if (!recipeRes.ok) return recipeRes;
+    const recipe = recipeRes.value;
+
+    const permissionRes = await recipePermissionRepository.canView(
+      recipe,
+      user,
+    );
+    if (!permissionRes.ok) return permissionRes;
 
     return await recipeLikeRepository.hasUserLiked(recipe, user);
   };

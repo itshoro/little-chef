@@ -2,7 +2,6 @@ import type { Connection } from "@/drizzle/db";
 import { collections, collectionUserPermissions } from "@/drizzle/schema";
 import type { CollectionPermissionRepository } from "@/lib/application/abstractions/collection/collection-permission-repository";
 import type { Collection } from "@/lib/domain/collection/collection";
-import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Role } from "@/lib/domain/shared/role";
 import type { User } from "@/lib/domain/user/user";
@@ -13,94 +12,162 @@ export class DrizzleCollectionPermissionRepository
 {
   constructor(private readonly db: Connection) {}
 
-  async canView(collection: Collection, user: User | null): Promise<boolean> {
-    const result = await this.db
-      .select()
-      .from(collectionUserPermissions)
-      .innerJoin(
-        collections,
-        eq(collections.id, collectionUserPermissions.collectionId),
-      )
-      .where(
-        or(
-          inArray(collections.visibility, ["public", "unlisted"]),
+  async canView(
+    collection: Collection,
+    user: User | null,
+  ): Promise<Result<void>> {
+    try {
+      if (
+        collection.visibility === "public" ||
+        collection.visibility === "unlisted"
+      ) {
+        return { ok: true, value: undefined };
+      }
+
+      const result = await this.db
+        .select()
+        .from(collectionUserPermissions)
+        .innerJoin(
+          collections,
+          eq(collections.id, collectionUserPermissions.collectionId),
+        )
+        .where(
+          or(
+            inArray(collections.visibility, ["public", "unlisted"]),
+            and(
+              user ? eq(collectionUserPermissions.userId, user.id) : undefined,
+              eq(collectionUserPermissions.collectionId, collection.id),
+              inArray(collectionUserPermissions.role, [
+                "owner",
+                "maintainer",
+                "editor",
+                "viewer",
+              ]),
+            ),
+          ),
+        );
+
+      if (result.length === 0) {
+        return {
+          ok: false,
+          error: new Error("User does not have permission to view collection."),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("User does not have permission to view collection.", {
+          cause: e,
+        }),
+      };
+    }
+  }
+
+  async canUpdate(collection: Collection, user: User): Promise<Result<void>> {
+    try {
+      const result = await this.db
+        .select()
+        .from(collectionUserPermissions)
+        .where(
           and(
-            user ? eq(collectionUserPermissions.userId, user.id) : undefined,
+            eq(collectionUserPermissions.userId, user.id),
             eq(collectionUserPermissions.collectionId, collection.id),
             inArray(collectionUserPermissions.role, [
               "owner",
               "maintainer",
               "editor",
-              "viewer",
             ]),
           ),
-        ),
-      );
+        );
 
-    return result.length > 0;
-  }
+      if (result.length === 0) {
+        return {
+          ok: false,
+          error: new Error("User does not have permission to view collection."),
+        };
+      }
 
-  async canUpdate(collection: Collection, user: User): Promise<boolean> {
-    const result = await this.db
-      .select()
-      .from(collectionUserPermissions)
-      .where(
-        and(
-          eq(collectionUserPermissions.userId, user.id),
-          eq(collectionUserPermissions.collectionId, collection.id),
-          inArray(collectionUserPermissions.role, [
-            "owner",
-            "maintainer",
-            "editor",
-          ]),
-        ),
-      );
-
-    return result.length > 0;
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("User does not have permission to view collection.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
   async canUpdatePermissions(
     collection: Collection,
     user: User,
-  ): Promise<boolean> {
-    const result = await this.db
-      .select()
-      .from(collectionUserPermissions)
-      .where(
-        and(
-          eq(collectionUserPermissions.userId, user.id),
-          eq(collectionUserPermissions.collectionId, collection.id),
-          inArray(collectionUserPermissions.role, ["owner", "maintainer"]),
-        ),
-      );
+  ): Promise<Result<void>> {
+    try {
+      const result = await this.db
+        .select()
+        .from(collectionUserPermissions)
+        .where(
+          and(
+            eq(collectionUserPermissions.userId, user.id),
+            eq(collectionUserPermissions.collectionId, collection.id),
+            inArray(collectionUserPermissions.role, ["owner", "maintainer"]),
+          ),
+        );
 
-    return result.length > 0;
+      if (result.length === 0) {
+        return {
+          ok: false,
+          error: new Error("User does not have permission to view collection."),
+        };
+      }
+
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("User does not have permission to view collection.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
   async addPermission(
     collection: Collection,
     user: User,
     role: Role,
-  ): Promise<Result<Collection, Error>> {
-    await this.db.insert(collectionUserPermissions).values({
-      collectionId: collection.id,
-      userId: user.id,
-      role,
-    });
+  ): Promise<Result<void>> {
+    try {
+      const result = await this.db.insert(collectionUserPermissions).values({
+        collectionId: collection.id,
+        userId: user.id,
+        role,
+      });
 
-    const newCollection = {
-      ...collection,
-      collaborators: [...collection.collaborators, { user, role }],
-    };
+      if (result.rowsAffected === 0) {
+        return {
+          ok: false,
+          error: new Error("Failed to add permission to collection."),
+        };
+      }
 
-    return { ok: true, value: newCollection };
+      return { ok: true, value: undefined };
+    } catch (e) {
+      return {
+        ok: false,
+        error: new Error("Failed to add permission to collection.", {
+          cause: e,
+        }),
+      };
+    }
   }
 
-  async removePermission(collection: Collection, user: User): Promise<boolean> {
-    throw new Error("Method not implemented.");
-  }
-
-  async findCollaborators(collection: Collection): Promise<Collaborator[]> {
+  async removePermission(
+    collection: Collection,
+    user: User,
+  ): Promise<Result<void>> {
     throw new Error("Method not implemented.");
   }
 }

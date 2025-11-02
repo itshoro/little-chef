@@ -1,5 +1,5 @@
-import type { CollectionPreferencesRepository } from "@/lib/domain/user/collection-preferences-repository";
-import type { RecipePreferencesRepository } from "@/lib/domain/user/recipe-preferences-repository";
+import type { CollectionPreferencesRepository } from "@/lib/application/abstractions/user/collection-preferences-repository";
+import type { RecipePreferencesRepository } from "@/lib/application/abstractions/user/recipe-preferences-repository";
 import type { User } from "@/lib/domain/user/user";
 
 export function makeGetCollectionPreferences(

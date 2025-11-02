@@ -5,8 +5,11 @@ import { AvatarStack } from "@/components/users/avatar-stack";
 
 import { LinkButton } from "@/components/ui/buttons/link-button";
 import { Section } from "@/components/ui/section";
-import type { Collection } from "@/lib/domain/collection/collection";
-import type { Recipe } from "@/lib/domain/recipe/recipe";
+import {
+  toPublicCollection,
+  type Collection,
+} from "@/lib/domain/collection/collection";
+import { toPublicRecipe, type Recipe } from "@/lib/domain/recipe/recipe";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import { validateSession } from "@/lib/utils/auth/validate-session";
@@ -103,7 +106,9 @@ const CollectionPage = async (props: CollectionPageProps) => {
                 </svg>
                 <span className="text-white">Edit</span>
               </LinkButton>
-              <DeleteCollectionButton collectionIdentifier={collection} />
+              <DeleteCollectionButton
+                collectionIdentifier={{ publicId: collection.publicId }}
+              />
             </div>
           </Section>
         </div>
@@ -148,8 +153,8 @@ const RecipeList = async ({
                 <form
                   action={removeRecipeFromCollectionAction.bind(
                     null,
-                    collection,
-                    recipe,
+                    toPublicCollection(collection),
+                    toPublicRecipe(recipe),
                   )}
                 >
                   <Button type="submit">Remove</Button>
