@@ -16,12 +16,11 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  cacheComponents: true,
   typedRoutes: true,
   experimental: {
     taint: true,
-    useCache: true,
     authInterrupts: true,
-    devtoolSegmentExplorer: true,
   },
 };
 
