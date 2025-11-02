@@ -1,4 +1,6 @@
 {
     "typescript.preferences.preferTypeOnlyAutoImports": true,
-    "prettier.configPath": "./.prettierrc"
+    "prettier.configPath": "./.prettierrc",
+    "typescript.experimental.useTsgo": true,
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }
