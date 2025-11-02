@@ -1,1 +1,0 @@
-ALTER TABLE `temporaryAssets` ADD `createdAt` text DEFAULT (current_timestamp) NOT NULL;
