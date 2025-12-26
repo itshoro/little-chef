@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import Form from "next/form";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRef } from "react";
@@ -11,7 +12,7 @@ type Props = {
 const Input = ({ initialQuery }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>(undefined);
-  const pathname = usePathname();
+  const pathname = usePathname() as Route;
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Escape") {
