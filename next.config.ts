@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
         hostname: "*.ufs.sh",
       },
     ],
+    qualities: [75, 85],
   },
   typescript: {
     ignoreBuildErrors: true,
