@@ -1,11 +1,11 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "d2f6db1b-b8a5-45cc-8459-b1363beef15f",
+  "id": "9be74bf6-b9da-40a2-bcdb-7299be9fa457",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "appPreferences": {
-      "name": "appPreferences",
+    "app_preferences": {
+      "name": "app_preferences",
       "columns": {
         "id": {
           "name": "id",
@@ -26,10 +26,78 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "collectionPreferences": {
-      "name": "collectionPreferences",
+    "collection_likes": {
+      "name": "collection_likes",
+      "columns": {
+        "collectionId": {
+          "name": "collectionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "collection_likes_collectionId_collections_id_fk": {
+          "name": "collection_likes_collectionId_collections_id_fk",
+          "tableFrom": "collection_likes",
+          "tableTo": "collections",
+          "columnsFrom": [
+            "collectionId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "collection_likes_userId_users_id_fk": {
+          "name": "collection_likes_userId_users_id_fk",
+          "tableFrom": "collection_likes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "collection_likes_pkey": {
+          "columns": [
+            "collectionId",
+            "userId"
+          ],
+          "name": "collection_likes_pkey"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "collection_preferences": {
+      "name": "collection_preferences",
       "columns": {
         "id": {
           "name": "id",
@@ -50,10 +118,11 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "collectionRecipes": {
-      "name": "collectionRecipes",
+    "collection_recipes": {
+      "name": "collection_recipes",
       "columns": {
         "collectionId": {
           "name": "collectionId",
@@ -72,9 +141,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "collectionRecipes_collectionId_collections_id_fk": {
-          "name": "collectionRecipes_collectionId_collections_id_fk",
-          "tableFrom": "collectionRecipes",
+        "collection_recipes_collectionId_collections_id_fk": {
+          "name": "collection_recipes_collectionId_collections_id_fk",
+          "tableFrom": "collection_recipes",
           "tableTo": "collections",
           "columnsFrom": [
             "collectionId"
@@ -82,12 +151,12 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "collectionRecipes_recipeId_recipes_id_fk": {
-          "name": "collectionRecipes_recipeId_recipes_id_fk",
-          "tableFrom": "collectionRecipes",
+        "collection_recipes_recipeId_recipes_id_fk": {
+          "name": "collection_recipes_recipeId_recipes_id_fk",
+          "tableFrom": "collection_recipes",
           "tableTo": "recipes",
           "columnsFrom": [
             "recipeId"
@@ -99,11 +168,20 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "collection_recipes_pkey": {
+          "columns": [
+            "collectionId",
+            "recipeId"
+          ],
+          "name": "collection_recipes_pkey"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "collectionSubscriptions": {
-      "name": "collectionSubscriptions",
+    "collection_user_permissions": {
+      "name": "collection_user_permissions",
       "columns": {
         "collectionId": {
           "name": "collectionId",
@@ -125,13 +203,21 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "collectionSubscriptions_collectionId_collections_id_fk": {
-          "name": "collectionSubscriptions_collectionId_collections_id_fk",
-          "tableFrom": "collectionSubscriptions",
+        "collection_user_permissions_collectionId_collections_id_fk": {
+          "name": "collection_user_permissions_collectionId_collections_id_fk",
+          "tableFrom": "collection_user_permissions",
           "tableTo": "collections",
           "columnsFrom": [
             "collectionId"
@@ -139,12 +225,12 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "collectionSubscriptions_userId_users_id_fk": {
-          "name": "collectionSubscriptions_userId_users_id_fk",
-          "tableFrom": "collectionSubscriptions",
+        "collection_user_permissions_userId_users_id_fk": {
+          "name": "collection_user_permissions_userId_users_id_fk",
+          "tableFrom": "collection_user_permissions",
           "tableTo": "users",
           "columnsFrom": [
             "userId"
@@ -152,20 +238,21 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "collectionSubscriptionsPkey": {
+        "collection_user_permissions_pkey": {
           "columns": [
             "collectionId",
             "userId"
           ],
-          "name": "collectionSubscriptionsPkey"
+          "name": "collection_user_permissions_pkey"
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "collections": {
       "name": "collections",
@@ -184,18 +271,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "isCustom": {
-          "name": "isCustom",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "visibility": {
           "name": "visibility",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "itemCount": {
@@ -219,6 +299,30 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "likes": {
+          "name": "likes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
         }
       },
       "indexes": {
@@ -232,10 +336,221 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "recipePreferences": {
-      "name": "recipePreferences",
+    "file_references": {
+      "name": "file_references",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "publicId": {
+          "name": "publicId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mimeType": {
+          "name": "mimeType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "byteSize": {
+          "name": "byteSize",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "file_references_publicId_unique": {
+          "name": "file_references_publicId_unique",
+          "columns": [
+            "publicId"
+          ],
+          "isUnique": true
+        },
+        "file_references_url_unique": {
+          "name": "file_references_url_unique",
+          "columns": [
+            "url"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "password_reset_requests": {
+      "name": "password_reset_requests",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "password_reset_requests_token_unique": {
+          "name": "password_reset_requests_token_unique",
+          "columns": [
+            "token"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "password_reset_requests_userId_users_id_fk": {
+          "name": "password_reset_requests_userId_users_id_fk",
+          "tableFrom": "password_reset_requests",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "recipe_likes": {
+      "name": "recipe_likes",
+      "columns": {
+        "recipeId": {
+          "name": "recipeId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recipe_likes_recipeId_recipes_id_fk": {
+          "name": "recipe_likes_recipeId_recipes_id_fk",
+          "tableFrom": "recipe_likes",
+          "tableTo": "recipes",
+          "columnsFrom": [
+            "recipeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "recipe_likes_userId_users_id_fk": {
+          "name": "recipe_likes_userId_users_id_fk",
+          "tableFrom": "recipe_likes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "recipe_likes_pkey": {
+          "columns": [
+            "recipeId",
+            "userId"
+          ],
+          "name": "recipe_likes_pkey"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "recipe_preferences": {
+      "name": "recipe_preferences",
       "columns": {
         "id": {
           "name": "id",
@@ -264,10 +579,64 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "recipeSubscriptions": {
-      "name": "recipeSubscriptions",
+    "steps": {
+      "name": "steps",
+      "columns": {
+        "recipeId": {
+          "name": "recipeId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "steps_recipeId_recipes_id_fk": {
+          "name": "steps_recipeId_recipes_id_fk",
+          "tableFrom": "steps",
+          "tableTo": "recipes",
+          "columnsFrom": [
+            "recipeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "steps_pkey": {
+          "columns": [
+            "recipeId",
+            "order"
+          ],
+          "name": "steps_pkey"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "recipe_user_permissions": {
+      "name": "recipe_user_permissions",
       "columns": {
         "recipeId": {
           "name": "recipeId",
@@ -289,13 +658,21 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "recipeSubscriptions_recipeId_recipes_id_fk": {
-          "name": "recipeSubscriptions_recipeId_recipes_id_fk",
-          "tableFrom": "recipeSubscriptions",
+        "recipe_user_permissions_recipeId_recipes_id_fk": {
+          "name": "recipe_user_permissions_recipeId_recipes_id_fk",
+          "tableFrom": "recipe_user_permissions",
           "tableTo": "recipes",
           "columnsFrom": [
             "recipeId"
@@ -306,9 +683,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "recipeSubscriptions_userId_users_id_fk": {
-          "name": "recipeSubscriptions_userId_users_id_fk",
-          "tableFrom": "recipeSubscriptions",
+        "recipe_user_permissions_userId_users_id_fk": {
+          "name": "recipe_user_permissions_userId_users_id_fk",
+          "tableFrom": "recipe_user_permissions",
           "tableTo": "users",
           "columnsFrom": [
             "userId"
@@ -316,21 +693,21 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "recipeSubscriptionsPkey": {
+        "recipe_user_permissions_pkey": {
           "columns": [
             "recipeId",
-            "role",
             "userId"
           ],
-          "name": "recipeSubscriptionsPkey"
+          "name": "recipe_user_permissions_pkey"
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "recipes": {
       "name": "recipes",
@@ -347,6 +724,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "recommendedServingSize": {
@@ -400,6 +784,29 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
+        },
+        "coverId": {
+          "name": "coverId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
         }
       },
       "indexes": {
@@ -411,9 +818,24 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "recipes_coverId_file_references_id_fk": {
+          "name": "recipes_coverId_file_references_id_fk",
+          "tableFrom": "recipes",
+          "tableTo": "file_references",
+          "columnsFrom": [
+            "coverId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "sessions": {
       "name": "sessions",
@@ -432,8 +854,22 @@
           "notNull": true,
           "autoincrement": false
         },
-        "expiresAt": {
-          "name": "expiresAt",
+        "secretHash": {
+          "name": "secretHash",
+          "type": "blob",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lastVerifiedAt": {
+          "name": "lastVerifiedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -452,68 +888,48 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "steps": {
-      "name": "steps",
+    "user_roles": {
+      "name": "user_roles",
       "columns": {
-        "id": {
-          "name": "id",
+        "userId": {
+          "name": "userId",
           "type": "integer",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "publicId": {
-          "name": "publicId",
+        "role": {
+          "name": "role",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "recipeId": {
-          "name": "recipeId",
+        "createdAt": {
+          "name": "createdAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(unixepoch())"
         }
       },
-      "indexes": {
-        "steps_publicId_unique": {
-          "name": "steps_publicId_unique",
-          "columns": [
-            "publicId"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
-        "steps_recipeId_recipes_id_fk": {
-          "name": "steps_recipeId_recipes_id_fk",
-          "tableFrom": "steps",
-          "tableTo": "recipes",
+        "user_roles_userId_users_id_fk": {
+          "name": "user_roles_userId_users_id_fk",
+          "tableFrom": "user_roles",
+          "tableTo": "users",
           "columnsFrom": [
-            "recipeId"
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -522,8 +938,76 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "user_roles_pkey": {
+          "columns": [
+            "userId",
+            "role"
+          ],
+          "name": "user_roles_pkey"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "user_sessions": {
+      "name": "user_sessions",
+      "columns": {
+        "sessionId": {
+          "name": "sessionId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_sessions_sessionId_sessions_id_fk": {
+          "name": "user_sessions_sessionId_sessions_id_fk",
+          "tableFrom": "user_sessions",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "sessionId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_sessions_userId_users_id_fk": {
+          "name": "user_sessions_userId_users_id_fk",
+          "tableFrom": "user_sessions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "user_sessions_pkey": {
+          "columns": [
+            "sessionId",
+            "userId"
+          ],
+          "name": "user_sessions_pkey"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "users": {
       "name": "users",
@@ -556,6 +1040,21 @@
           "notNull": true,
           "autoincrement": false
         },
+        "avatarId": {
+          "name": "avatarId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'user'"
+        },
         "appPreferencesId": {
           "name": "appPreferencesId",
           "type": "integer",
@@ -576,6 +1075,22 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
         }
       },
       "indexes": {
@@ -588,10 +1103,23 @@
         }
       },
       "foreignKeys": {
-        "users_appPreferencesId_appPreferences_id_fk": {
-          "name": "users_appPreferencesId_appPreferences_id_fk",
+        "users_avatarId_file_references_id_fk": {
+          "name": "users_avatarId_file_references_id_fk",
           "tableFrom": "users",
-          "tableTo": "appPreferences",
+          "tableTo": "file_references",
+          "columnsFrom": [
+            "avatarId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_appPreferencesId_app_preferences_id_fk": {
+          "name": "users_appPreferencesId_app_preferences_id_fk",
+          "tableFrom": "users",
+          "tableTo": "app_preferences",
           "columnsFrom": [
             "appPreferencesId"
           ],
@@ -601,10 +1129,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "users_collectionPreferencesId_collectionPreferences_id_fk": {
-          "name": "users_collectionPreferencesId_collectionPreferences_id_fk",
+        "users_collectionPreferencesId_collection_preferences_id_fk": {
+          "name": "users_collectionPreferencesId_collection_preferences_id_fk",
           "tableFrom": "users",
-          "tableTo": "collectionPreferences",
+          "tableTo": "collection_preferences",
           "columnsFrom": [
             "collectionPreferencesId"
           ],
@@ -614,10 +1142,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "users_recipePreferencesId_recipePreferences_id_fk": {
-          "name": "users_recipePreferencesId_recipePreferences_id_fk",
+        "users_recipePreferencesId_recipe_preferences_id_fk": {
+          "name": "users_recipePreferencesId_recipe_preferences_id_fk",
           "tableFrom": "users",
-          "tableTo": "recipePreferences",
+          "tableTo": "recipe_preferences",
           "columnsFrom": [
             "recipePreferencesId"
           ],
@@ -629,9 +1157,11 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     }
   },
+  "views": {},
   "enums": {},
   "_meta": {
     "schemas": {},

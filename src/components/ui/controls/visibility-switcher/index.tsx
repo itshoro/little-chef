@@ -1,10 +1,8 @@
-import { VISIBILITIES } from "@/lib/constants";
+import { VISIBILITIES, type Visibility } from "@/lib/domain/shared/visibility";
 import { RadioCard, RadioCards } from "../radio-cards";
 import { PrivateVisibility } from "./icon/private-visibility";
 import { PublicVisibility } from "./icon/public-visibility";
 import { UnlistedVisibility } from "./icon/unlisted-visibility";
-
-type Visibility = (typeof VISIBILITIES)[number];
 
 type VisibilitySwitcherProps = {
   defaultValue?: Visibility;

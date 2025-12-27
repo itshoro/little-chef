@@ -1,14 +1,11 @@
+import type { User } from "@/lib/domain/user/user";
 import { Avatar } from "./avatar";
 
 const AvatarStack = ({
   users,
   size = "size-8",
 }: {
-  users: {
-    username: string;
-    publicId: string;
-    avatar: string | null;
-  }[];
+  users: User[];
   size?: `size-${number}`;
 }) => {
   const slice = users.slice(0, 5);
@@ -20,7 +17,7 @@ const AvatarStack = ({
           size={size}
           key={user.publicId}
           alt={user.username}
-          src={user.avatar!}
+          src={user.avatar?.url}
           className="z-[var(--stack-position)] transition-transform hover:z-50 hover:scale-110 focus:z-50 focus:scale-110"
           style={
             { "--stack-position": slice.length - i } as React.CSSProperties

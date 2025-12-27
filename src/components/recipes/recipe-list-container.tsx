@@ -1,11 +1,11 @@
-import type { RecipePreviewDTO } from "@/lib/services/recipe/types";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { Section } from "../ui/section";
 import { NoMoreRecipes } from "./fallbacks/empty";
 import { RecipeCard } from "./recipe-card";
 
 type RecipeListProps = {
   title: string;
-  recipes: RecipePreviewDTO[];
+  recipes: Recipe[];
 };
 
 const RecipeList = ({ recipes, title }: RecipeListProps) => {
@@ -16,14 +16,14 @@ const RecipeList = ({ recipes, title }: RecipeListProps) => {
   );
 };
 
-const Contents = ({ recipes }: { recipes: RecipePreviewDTO[] }) => {
+const Contents = ({ recipes }: { recipes: Recipe[] }) => {
   if (recipes.length === 0) return <NoMoreRecipes />;
 
   return (
     <ul className="grid gap-4">
-      {recipes.map((dto) => (
-        <li key={dto.recipe.publicId}>
-          <RecipeCard recipe={dto.recipe} maintainers={dto.maintainers} />
+      {recipes.map((recipe) => (
+        <li key={recipe.publicId}>
+          <RecipeCard recipe={recipe} />
         </li>
       ))}
     </ul>

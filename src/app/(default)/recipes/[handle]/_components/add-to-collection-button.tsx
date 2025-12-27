@@ -1,32 +1,36 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
-import type { RecipeIdentifier } from "@/drizzle/schema";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
 import {
-  addRecipeToCollection,
-  findCollections,
-} from "@/lib/services/collection";
+  toPublicRecipe,
+  type PublicRecipe,
+  type Recipe,
+} from "@/lib/domain/recipe/recipe";
+
+import { validateSession } from "@/lib/utils/auth/validate-session";
+import { addRecipeToCollection } from "@/lib/utils/collection/add-recipe-to-collection";
+import { findCollections } from "@/lib/utils/collection/find-collections";
 
 type AddToCollectionButtonProps = {
   className?: string;
-  recipeIdentifier: RecipeIdentifier;
+  recipe: Recipe;
   disabled?: boolean;
 };
 
+// todo: should handle toggling instead of just adding
 const AddToCollectionButton = async ({
   className,
   disabled,
-  recipeIdentifier,
+  recipe,
 }: AddToCollectionButtonProps) => {
-  // TODO: Remove from collections if already added.
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   if (!user) return null;
 
-  const collections = user ? await findCollections({}, user) : [];
+  const collectionsRes = await findCollections({}, user);
+  const collections = collectionsRes.ok ? collectionsRes.value : []; // todo: display error?
 
   const boundAddToCollectionsAction = addToCollections.bind(
     null,
-    recipeIdentifier,
+    toPublicRecipe(recipe),
   );
 
   return (
@@ -52,7 +56,7 @@ const AddToCollectionButton = async ({
             <div className="relative isolate flex max-h-[50vh] flex-col overflow-auto">
               <div className="pointer-events-none sticky top-0 z-10 h-8 w-full shrink-0 bg-linear-to-b from-white dark:from-black" />
               <ul className="grid w-full flex-1 gap-2 px-6">
-                {collections.map(({ collection }) => (
+                {collections.map((collection) => (
                   <li key={collection.publicId}>
                     <input
                       name="collection"
@@ -101,16 +105,15 @@ const AddToCollectionButton = async ({
   );
 };
 
-async function addToCollections(
-  recipeIdentifier: RecipeIdentifier,
-  formData: FormData,
-) {
+async function addToCollections(recipe: PublicRecipe, formData: FormData) {
   "use server";
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   if (!user) throw new UnauthenticatedError();
   const collection = formData.get("collection") as string;
 
-  await addRecipeToCollection({ publicId: collection }, recipeIdentifier, user);
+  console.log(
+    await addRecipeToCollection({ publicId: collection }, recipe, user),
+  );
 }
 
 export { AddToCollectionButton };

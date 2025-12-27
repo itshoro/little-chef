@@ -1,36 +1,26 @@
 "use server";
 
-import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
-import { createCollection } from "@/lib/services/collection";
-import type { CollectionOutputPublicDTO } from "@/lib/services/collection/types";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+import { requireSession } from "@/lib/utils/auth/require-session";
+
 import { generateHandle } from "@/lib/slug";
-import { createCollectionSchema } from "@/lib/validators/collection";
+import { dtoFromFormData } from "@/lib/transformer/collection/create-transformer";
+import { createCollection } from "@/lib/utils/collection/create-collection";
 import { redirect } from "next/navigation";
 
 async function createAction(formData: FormData) {
-  const name = formData.get("name") as string;
-  const visibility = formData.get("visibility") as string;
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  let collection: CollectionOutputPublicDTO;
-  try {
-    const { user } = await assertAuthenticatedForServerAction();
-
-    const parseResult = createCollectionSchema.safeParse({ name, visibility });
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
-    collection = await createCollection(parseResult.data, user);
-  } catch (e) {
-    if (!(e instanceof Error)) throw e;
-    console.error(e);
-
-    return;
-  }
+  const dto = dtoFromFormData(formData);
+  const result = await createCollection(dto, user);
+  if (!result.ok) throw result.error;
 
   redirect(
-    `/collections/${generateHandle(collection.slug, collection.publicId)}`,
+    `/collections/${generateHandle(result.value.slug, result.value.publicId)}`,
   );
 }
 

@@ -1,4 +1,4 @@
-import { Root } from "./root";
 import { Link } from "./link";
+import { Root } from "./root";
 
-export { Root, Link };
+export { Link, Root };

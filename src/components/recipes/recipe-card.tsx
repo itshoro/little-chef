@@ -1,9 +1,9 @@
 import { AvatarStack } from "@/components/users/avatar-stack";
-import type { RecipePreviewDTO } from "@/lib/services/recipe/types";
+import type { Recipe } from "@/lib/domain/recipe/recipe";
 import { generateHandle } from "@/lib/slug";
 import * as Card from "../ui/link-card";
 
-const RecipeCard = async ({ recipe, maintainers }: RecipePreviewDTO) => {
+const RecipeCard = async ({ recipe }: { recipe: Recipe }) => {
   return (
     <Card.Root>
       <Card.Link
@@ -16,7 +16,7 @@ const RecipeCard = async ({ recipe, maintainers }: RecipePreviewDTO) => {
           <div className="font-medium">
             <span>{recipe.name}</span>
           </div>
-          <AvatarStack users={maintainers} />
+          <AvatarStack users={recipe.collaborators.map((c) => c.user)} />
         </div>
       </div>
     </Card.Root>

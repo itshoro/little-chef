@@ -1,41 +1,19 @@
 "use server";
 
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { updateCollectionPreferences } from "@/lib/services/user";
-import { changeCollectionDefaultVisibilitySchema } from "@/lib/validators/user";
-import { revalidatePath } from "next/cache";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+import { dtoFromFormData } from "@/lib/transformer/user/update-collection-default-visibility-transformer";
+import { requireSession } from "@/lib/utils/auth/require-session";
+import { updateDefaultVisibility } from "@/lib/utils/user/update-collection-default-visibility";
 
-async function changeDefaultVisibility(formData: FormData) {
-  const visibility = formData.get("visibility") as string;
+async function changeDefaultVisibilityAction(formData: FormData) {
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  const { user } = await getAuthenticatedUserFromRequest();
-  if (!user) throw new UnauthenticatedError();
-
-  try {
-    const parseResult = changeCollectionDefaultVisibilitySchema.safeParse({
-      visibility,
-    });
-
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
-    await updateCollectionPreferences(
-      { defaultVisibility: parseResult.data.visibility },
-      user,
-    );
-    revalidatePath("/settings/collection", "page");
-    return {
-      success: true,
-      message: "",
-    };
-  } catch (e) {
-    if (!(e instanceof Error)) throw e;
-
-    return;
-  }
+  const dto = dtoFromFormData(formData);
+  console.log(await updateDefaultVisibility(user, dto.visibility));
 }
 
-export { changeDefaultVisibility };
+export { changeDefaultVisibilityAction };

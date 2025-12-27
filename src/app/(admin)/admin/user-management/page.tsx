@@ -1,34 +1,35 @@
 import { Avatar } from "@/components/users/avatar";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { forbidden, redirect } from "next/navigation";
-import { RequestPasswordResetActionForm } from "./_components/request-password-reset-form";
-import {
-  getAuthenticatedUserFromRequest,
-  hasSessionScopes,
-} from "@/lib/services/auth";
-import { hasUserRoles } from "@/lib/services/user";
 import { db } from "@/drizzle/db";
-import { users } from "@/drizzle/schema";
+import { fileReference, users } from "@/drizzle/schema";
+import { needsActivityUpdate } from "@/lib/domain/auth/session";
+import {
+  redirectToSignIn,
+  redirectToVerify,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
+import { eq } from "drizzle-orm";
+import { forbidden } from "next/navigation";
+import { RequestPasswordResetActionForm } from "./_components/request-password-reset-form";
 
 async function getUsers() {
-  return db.select().from(users);
+  return db
+    .select()
+    .from(users)
+    .leftJoin(fileReference, eq(fileReference.id, users.avatarId));
 }
 
 const UserManagementPage = async () => {
   // todo: extract verification logic for re-use in other admin pages
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user, session } = await getAuthenticatedUserFromRequest();
+  const { user, session } = await requireSession({
+    onUnauthenticated: () => redirectToSignIn("/admin/user-management"),
+  });
 
-  if (!user) redirect("/login");
-  if (!(await hasUserRoles(user, ["admin"]))) forbidden();
+  if (user.role !== "admin") forbidden();
 
-  // todo: consider extending the scope lifetime if already present
-  if (!(await hasSessionScopes(session, ["sudo"]))) {
-    const params = new URLSearchParams();
-    params.set("redirect", "/admin");
-    params.set("scope", "sudo");
-
-    redirect(`/verify?${params.toString()}`);
+  if (needsActivityUpdate(session, new Date(), 15 * 60 * 1000)) {
+    redirectToVerify("/admin");
   }
 
   const users = await getUsers();
@@ -47,16 +48,20 @@ const UserManagementPage = async () => {
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
+            <tr key={user.users.id}>
+              <td>{user.users.id}</td>
               <td>
-                {user.avatar && (
-                  <Avatar alt="" size="size-10" src={user.avatar} />
+                {user.file_references && (
+                  <Avatar
+                    alt=""
+                    size="size-10"
+                    src={user.file_references.url}
+                  />
                 )}
               </td>
-              <td>{user.username}</td>
+              <td>{user.users.username}</td>
               <td>
-                <RequestPasswordResetActionForm userId={user.id} />
+                <RequestPasswordResetActionForm userId={user.users.id} />
               </td>
             </tr>
           ))}

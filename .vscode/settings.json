@@ -1,4 +1,20 @@
 {
-    "typescript.preferences.preferTypeOnlyAutoImports": true,
-    "prettier.configPath": "./.prettierrc"
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "prettier.configPath": "./.prettierrc",
+  "typescript.experimental.useTsgo": true,
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "[javascript]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

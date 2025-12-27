@@ -1,11 +1,11 @@
-import type { CollectionPreviewDTO } from "@/lib/services/collection/types";
+import type { Collection } from "@/lib/domain/collection/collection";
 import { Section } from "../ui/section";
-import { NoMoreCollections } from "./fallbacks/empty";
 import { CollectionCard } from "./collection-card";
+import { NoMoreCollections } from "./fallbacks/empty";
 
 type CollectionListProps = {
   title: string;
-  collections: CollectionPreviewDTO[];
+  collections: Collection[];
 };
 
 const CollectionList = ({ collections, title }: CollectionListProps) => {
@@ -16,17 +16,14 @@ const CollectionList = ({ collections, title }: CollectionListProps) => {
   );
 };
 
-const Contents = ({ collections }: { collections: CollectionPreviewDTO[] }) => {
+const Contents = ({ collections }: { collections: Collection[] }) => {
   if (collections.length === 0) return <NoMoreCollections />;
 
   return (
     <ul className="grid gap-4">
       {collections.map((dto) => (
-        <li key={dto.collection.publicId}>
-          <CollectionCard
-            collection={dto.collection}
-            maintainers={dto.maintainers}
-          />
+        <li key={dto.publicId}>
+          <CollectionCard collection={dto} />
         </li>
       ))}
     </ul>

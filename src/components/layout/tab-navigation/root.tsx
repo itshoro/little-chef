@@ -1,8 +1,8 @@
 "use client";
 
-import { Highlight } from "./highlight";
-import { createContext, useRef } from "react";
 import { useContext } from "@/hooks/use-context";
+import { createContext, useRef } from "react";
+import { Highlight } from "./highlight";
 
 type RootProps = {
   children: React.ReactNode;

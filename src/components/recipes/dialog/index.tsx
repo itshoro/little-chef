@@ -1,4 +1,4 @@
-import { Root } from "./root";
 import { Modal } from "./modal";
+import { Root } from "./root";
 
-export { Root, Modal };
+export { Modal, Root };

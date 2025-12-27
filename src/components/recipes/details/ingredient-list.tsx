@@ -1,8 +1,8 @@
 "use client";
 
 import { Ingredient } from "@cooklang/cooklang-ts";
-import { AmountItem } from "./amount-item";
 import { useSearchParams } from "next/navigation";
+import { AmountItem } from "./amount-item";
 
 type IngredientListProps = {
   ingredients: Ingredient[];

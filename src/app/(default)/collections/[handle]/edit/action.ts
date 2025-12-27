@@ -1,39 +1,26 @@
 "use server";
 
-import type { DrizzleCollection } from "@/drizzle/schema";
-import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
-import { updateCollection } from "@/lib/services/collection";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+
 import { generateHandle } from "@/lib/slug";
-import { editCollectionSchema } from "@/lib/validators/collection";
+import { dtoFromFormData } from "@/lib/transformer/collection/update-transformer";
+import { requireSession } from "@/lib/utils/auth/require-session";
+import { updateCollection } from "@/lib/utils/collection/update-collection";
 import { redirect } from "next/navigation";
 
 async function editAction(formData: FormData) {
-  const publicId = formData.get("publicId") as string;
-  const name = formData.get("name") as string;
-  const visibility = formData.get("visibility") as string;
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  let collection: DrizzleCollection;
-  try {
-    const { user } = await assertAuthenticatedForServerAction();
+  const { dto, publicId } = dtoFromFormData(formData);
 
-    const parseResult = editCollectionSchema.safeParse({
-      name,
-      visibility,
-      publicId,
-    });
+  const result = await updateCollection({ publicId }, dto, user);
+  if (!result.ok) throw result.error;
 
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
-    collection = await updateCollection(parseResult.data, user);
-  } catch (e) {
-    console.error(e);
-    if (!(e instanceof Error)) throw e;
-
-    return;
-  }
+  const collection = result.value;
 
   redirect(
     `/collections/${generateHandle(collection.slug, collection.publicId)}`,

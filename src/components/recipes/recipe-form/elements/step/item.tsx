@@ -2,22 +2,22 @@
 
 import * as Generator from "@/components/forms/generator";
 import { CooklangPreview } from "@/components/recipes/details/cooklang-preview";
+import { Label } from "@/components/ui/controls/label";
+import { Textarea } from "@/components/ui/controls/textarea";
 import { Trash } from "@/components/ui/icons/trash";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
-import { Textarea } from "@/components/ui/controls/textarea";
-import { Label } from "@/components/ui/controls/label";
 
-type StepGeneratorItemProps = {
-  uuid: string;
+type StepGeneratorItemProps<TKey extends string | number> = {
+  id: TKey;
   order: number;
   defaultValue?: string;
 };
 
-const StepGeneratorItem = ({
-  uuid,
+const StepGeneratorItem = <TKey extends string | number>({
+  id,
   order,
   defaultValue,
-}: StepGeneratorItemProps) => {
+}: StepGeneratorItemProps<TKey>) => {
   const [input, setInput] = useState(defaultValue);
   const deferredInput = useDeferredValue(input);
 
@@ -26,7 +26,7 @@ const StepGeneratorItem = ({
       <div>
         <div className="flex">
           <InputMask
-            uuid={uuid}
+            id={id}
             order={order}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -45,16 +45,21 @@ const StepGeneratorItem = ({
   );
 };
 
-type InputMaskProps = {
-  uuid: StepGeneratorItemProps["uuid"];
-  order: StepGeneratorItemProps["order"];
+type InputMaskProps<TKey extends string | number> = {
+  order: StepGeneratorItemProps<TKey>["order"];
+  id: StepGeneratorItemProps<TKey>["id"];
   value: string | undefined;
   onChange: React.ChangeEventHandler<React.ComponentRef<"textarea">>;
 };
 
 const maxLength = 280;
 
-const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
+const InputMask = <TKey extends string | number>({
+  order,
+  id,
+  value,
+  onChange,
+}: InputMaskProps<TKey>) => {
   const textRef = useRef<React.ComponentRef<"textarea">>(null);
 
   return (
@@ -71,8 +76,8 @@ const InputMask = ({ uuid, order, value, onChange }: InputMaskProps) => {
       </div>
       <div className="group mb-auto ml-4 grid place-items-center">
         <Generator.Remove
+          id={id}
           className="grid place-items-center rounded-sm p-2.5 text-stone-500 transition-colors disabled:bg-stone-200 dark:border dark:border-stone-700 dark:bg-stone-800 dark:active:not-disabled:bg-stone-700 dark:disabled:bg-stone-900 dark:disabled:text-stone-700"
-          uid={uuid}
         >
           <div title="Remove">
             <Trash />

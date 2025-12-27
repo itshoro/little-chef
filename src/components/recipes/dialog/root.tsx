@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, forwardRef, useRef } from "react";
 import { useContext } from "@/hooks/use-context";
+import { createContext, forwardRef, useRef } from "react";
 
 type DialogContextProps = {
   ref: React.RefObject<React.ComponentRef<"dialog"> | null>;

@@ -4,12 +4,13 @@ import { PendingButton } from "@/components/ui/buttons/pending-button";
 import { FieldRoot } from "@/components/ui/controls/field-root";
 import { Input } from "@/components/ui/controls/input";
 import { Label } from "@/components/ui/controls/label";
-import { passwordRange, usernameRange } from "@/lib/validators/user";
+import { passwordRange, usernameRange } from "@/lib/domain/user/credentials";
+import type { Route } from "next";
 import Link from "next/link";
 import { useTransition } from "react";
 import { loginAction } from "../action";
 
-const LoginForm = () => {
+const LoginForm = ({ returnTo }: { returnTo?: Route }) => {
   const [pending, startTransition] = useTransition();
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -48,7 +49,14 @@ const LoginForm = () => {
       <div className="mt-2 flex items-baseline justify-between">
         <span>
           Don't have an account?{" "}
-          <Link className="text-lime-300 underline" href="/sign-up">
+          <Link
+            className="text-lime-300 underline"
+            href={
+              returnTo
+                ? `/sign-up?returnTo=${encodeURIComponent(String(returnTo))}`
+                : "/sign-up"
+            }
+          >
             Sign up
           </Link>
         </span>

@@ -1,0 +1,8 @@
+{
+  "files": { "includes": ["src/**/*.{ts,tsx}"] },
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 80,
+    "indentWidth": 2
+  }
+}

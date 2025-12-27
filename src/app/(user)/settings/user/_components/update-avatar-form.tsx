@@ -8,7 +8,7 @@ import { useRef, useState, useTransition, type FormEvent } from "react";
 import { SettingsCard } from "../../_components/settings-card";
 import { changeAvatarAction } from "../_actions/update-avatar";
 
-const UpdateAvatar = ({ defaultValue }: { defaultValue?: string }) => {
+const UpdateAvatar = ({ defaultValue }: { defaultValue?: string | null }) => {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const inputRef = useRef<React.ComponentRef<"input">>(null!);
@@ -50,7 +50,7 @@ const UpdateAvatar = ({ defaultValue }: { defaultValue?: string }) => {
             </Button>
             <input
               onChange={(e) => {
-                if (e.target.files?.length) {
+                if (e.target.files?.length === 1) {
                   const reader = new FileReader();
                   reader.onload = (e) => {
                     const image = new Image();
@@ -78,7 +78,7 @@ const UpdateAvatar = ({ defaultValue }: { defaultValue?: string }) => {
 
                     image.src = e.target!.result as string;
                   };
-                  reader.readAsDataURL(e.target.files[0]);
+                  reader.readAsDataURL(e.target.files[0] as Blob);
                 }
               }}
               type="file"

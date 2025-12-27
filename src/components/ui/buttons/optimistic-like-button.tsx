@@ -8,7 +8,7 @@ type OptimisticLikeButtonProps = {
   isLiked: boolean;
   disabled?: boolean;
   className?: string;
-  action: (
+  action?: (
     type: "add" | "remove",
   ) => Promise<{ count: number; isLiked: boolean }>;
 };
@@ -70,6 +70,8 @@ function useOptimisticLikes(
   );
 
   function dispatchAction() {
+    if (!action) return;
+
     startTransition(async () => {
       const actionType = optimisticLikes.isLiked ? "remove" : "add";
       if (optimisticLikes) dispatch(actionType);

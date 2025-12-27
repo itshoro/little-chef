@@ -1,9 +1,13 @@
-import { getAuthenticatedUserOrRedirect } from "@/lib/services/auth";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
+import { toPublicRecipeDetail } from "@/lib/domain/recipe/recipe";
 import { parseHandle } from "@/lib/slug";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
+import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { RecipeForm } from "../../_components/recipe-form";
 import { editAction } from "./action";
 
@@ -22,25 +26,25 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
 
   const params = await props.params;
   const { publicId } = parseHandle(params.handle);
-  const { user } = await getAuthenticatedUserOrRedirect();
 
-  if (!user) redirect("/login");
+  const { user } = await requireSession({
+    onUnauthenticated: () => redirectToSignIn(`/recipes/${params.handle}/edit`),
+  });
 
-  try {
-    const recipe = await getRecipeDetailByIdentifier({ publicId }, user);
+  // todo: new use case that checks if user can edit while fetching recipe detail
+  const recipeDetailResult = await getRecipeDetail({ publicId }, user);
+  if (!recipeDetailResult.ok) throw recipeDetailResult.error;
 
-    return (
-      <RecipeForm
-        action={editAction}
-        defaultValue={recipe}
-        buttonLabel="Save"
-      />
-    );
-  } catch (e) {
-    if (e instanceof Error) {
-      notFound();
-    }
-  }
+  const recipe = recipeDetailResult.value;
+  if (!recipe) notFound();
+
+  return (
+    <RecipeForm
+      action={editAction}
+      defaultValue={toPublicRecipeDetail(recipe)}
+      buttonLabel="Save"
+    />
+  );
 };
 
 export default EditRecipePage;

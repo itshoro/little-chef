@@ -4,14 +4,14 @@ import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { LikeButton } from "@/components/recipes/details/user-actions";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
 import { Avatar } from "@/components/users/avatar";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { getRecipeDetailByIdentifier } from "@/lib/services/recipe";
-import type { UserOutputPublicDTO } from "@/lib/services/user/types";
+import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
+import { validateSession } from "@/lib/utils/auth/validate-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
+import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
 import { Parser } from "@cooklang/cooklang-ts";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { RecipeActionButtons } from "./_components/recipe-action-buttons";
@@ -24,24 +24,19 @@ type ShowRecipePageProps = {
 
 export async function generateMetadata(
   props: ShowRecipePageProps,
-  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { publicId } = parseHandle(params.handle);
-  try {
-    const { recipe, maintainers } = await getRecipeDetailByIdentifier(
-      { publicId },
-      null,
-    );
+  const recipeResult = await getRecipeDetail({ publicId }, null);
+  if (!recipeResult.ok) return {};
 
-    return {
-      title: `${recipe.name} by ${generateAttribution(maintainers)}`,
-      description: `In just ${recipe.cookingTime + recipe.preparationTime} minutes you could be done, yielding ${searchParams.servings} servings!`,
-    };
-  } catch {
-    return parent as Metadata;
-  }
+  const recipe = recipeResult.value;
+
+  return {
+    title: `${recipe.name} by ${generateAttribution(recipe.collaborators.map((c) => c.user))}`,
+    description: `In just ${recipe.cookingTime + recipe.preparationTime} minutes you could be done, yielding ${searchParams.servings} servings!`,
+  };
 }
 
 const ShowRecipePage = async (props: ShowRecipePageProps) => {
@@ -52,16 +47,16 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     props.searchParams,
   ]);
   try {
-    const { user } = await getAuthenticatedUserFromRequest();
+    const { user } = await validateSession();
     const { publicId } = parseHandle(params.handle);
-    const {
-      recipe,
-      maintainers,
-      steps: rawSteps,
-    } = await getRecipeDetailByIdentifier({ publicId }, user);
+    const recipeResult = await getRecipeDetail({ publicId }, user);
+    if (!recipeResult.ok) throw recipeResult.error;
+
+    const recipe = recipeResult.value;
+    if (!recipe) notFound();
 
     const parser = new Parser();
-    const steps = rawSteps.map((step) => step.description);
+    const steps = recipe.steps.map((step) => step.description);
     const parsedSteps = parser.parse(steps.join());
 
     const servingsFromSearchParams = parseInt(searchParams.servings);
@@ -74,13 +69,13 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
         <ForceWakeLock />
         <article>
           <header className="border-b border-white/5 pb-6">
-            {recipe.coverSrc && (
+            {recipe.cover && (
               <div className="mb-4 px-4">
                 <div className="relative isolate w-full">
                   <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/5 ring-inset dark:ring-white/5" />
                   <Image
                     alt=""
-                    src={recipe.coverSrc}
+                    src={recipe.cover.url}
                     height={400}
                     width={320}
                     className="aspect-[5/4] w-full rounded-3xl object-cover"
@@ -99,7 +94,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             >
               <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-gradient-to-l to-stone-900" />
               <div className="flex items-center gap-4">
-                <Attributions maintainers={maintainers} />
+                <Attributions maintainers={recipe.collaborators} />
               </div>
               <div className="pointer-events-none sticky right-0 z-10 flex">
                 <div className="h-full w-8 bg-gradient-to-r to-stone-900" />
@@ -108,8 +103,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                     <ShareCurrentPageButton />
                     <LikeButton
                       user={user}
-                      disabled={user === null}
-                      recipeIdentifier={recipe}
+                      recipe={recipe}
                       initialLikes={recipe.likes}
                     />
                   </section>
@@ -182,8 +176,8 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 </div>
               </div>
             </div>
-            {/** TODO: add Cookware list */}
-            {/* {parsedSteps.cookwares.length > 0 && (
+            {/* * TODO: add Cookware list
+            {parsedSteps.cookwares.length > 0 && (
               <CookwareList cookwares={parsedSteps.cookwares} />
             )} */}
 
@@ -224,29 +218,24 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
         </article>
       </>
     );
-  } catch {
+  } catch (e) {
+    console.error(e);
     notFound();
   }
 };
 
-const Attributions = ({
-  maintainers,
-}: {
-  maintainers: UserOutputPublicDTO[];
-}) => {
+const Attributions = ({ maintainers }: { maintainers: Collaborator[] }) => {
   return (
     <>
       {maintainers.map((maintainer) => (
         <article
-          key={maintainer.publicId}
+          key={maintainer.user.publicId}
           className="inline-flex w-max shrink-0 items-center gap-2"
         >
-          {maintainer.avatar && (
-            <Avatar src={maintainer.avatar} alt="" size="size-8" />
-          )}
+          <Avatar src={maintainer.user.avatar?.url} alt="" size="size-8" />
 
           <span className="text-sm text-stone-400 capitalize">
-            {maintainer.username}
+            {maintainer.user.username}
           </span>
         </article>
       ))}

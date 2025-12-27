@@ -1,39 +1,19 @@
 "use server";
 
-import { db } from "@/drizzle/db";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { updateUser } from "@/lib/services/user";
-import { changeUsernameSchema } from "@/lib/validators/user";
-import { revalidatePath } from "next/cache";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+import { dtoFromFormData } from "@/lib/transformer/user/update-username-transformer";
+import { requireSession } from "@/lib/utils/auth/require-session";
+import { updateUsername } from "@/lib/utils/user/update-username";
 
-const updateUsernameAction = async (data: FormData) => {
-  const username = data.get("username") as string;
-  const { user } = await getAuthenticatedUserFromRequest();
-  if (!user) throw new UnauthenticatedError();
+const updateUsernameAction = async (formData: FormData) => {
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  try {
-    const dto = changeUsernameSchema.parse({ username });
-
-    await updateUser(db, { username: dto.username }, user);
-    revalidatePath("/settings/user", "page");
-    return {
-      success: true,
-      message: "",
-    };
-  } catch (e) {
-    if (e instanceof Error) {
-      return {
-        success: false,
-        message: e.message,
-      };
-    }
-
-    return {
-      success: false,
-      message: "An unexpected error occurred. Please try again.",
-    };
-  }
+  const dto = dtoFromFormData(formData);
+  console.log(await updateUsername(user, dto.username));
 };
 
 export { updateUsernameAction };

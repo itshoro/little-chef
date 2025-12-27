@@ -1,12 +1,14 @@
 import * as WithConfirmation from "@/components/ui/buttons/button-with-confirmation";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+import type { Collection } from "@/lib/domain/collection/collection";
+import { requireSession } from "@/lib/utils/auth/require-session";
+import { deleteCollection } from "@/lib/utils/collection/delete-collection";
 import { redirect } from "next/navigation";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import { deleteCollection } from "@/lib/services/collection";
-import type { CollectionIdentifier } from "@/drizzle/schema";
 
 type DeleteButtonProps = {
-  collectionIdentifier: CollectionIdentifier;
+  collectionIdentifier:
+    | { id: Collection["id"] }
+    | { publicId: Collection["publicId"] };
 };
 
 const DeleteCollectionButton = async ({
@@ -55,12 +57,21 @@ const DeleteCollectionButton = async ({
   );
 };
 
-async function deleteAction(collectionIdentifier: CollectionIdentifier) {
+async function deleteAction(
+  collectionIdentifier:
+    | { id: Collection["id"] }
+    | { publicId: Collection["publicId"] },
+) {
   "use server";
-  const { user } = await getAuthenticatedUserFromRequest();
-  if (!user) throw new UnauthenticatedError();
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  await deleteCollection(collectionIdentifier, user);
+  const result = await deleteCollection(collectionIdentifier, user);
+  if (!result.ok) throw result.error;
+
   redirect("/collections");
 }
 

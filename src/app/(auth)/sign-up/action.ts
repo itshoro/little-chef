@@ -1,73 +1,48 @@
 "use server";
 
-import type { FormState } from "@/components/forms/form/root";
-import { signUp } from "@/lib/services/auth";
-import { isRateLimitedSignUp } from "@/lib/services/rate-limit/auth";
-import { signUpSchema } from "@/lib/validators/auth";
-import { redirect } from "next/navigation";
+import { db } from "@/drizzle/db";
+import { makeSignUpUser } from "@/lib/application/use-case/user/sign-up";
+import { Argon2IDPasswordHasher } from "@/lib/infrastructure/auth/argon2id-password-hasher";
+import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
+import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
+import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
+import { DrizzleAppPreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/app-preferences-repository";
+import { DrizzleCollectionPreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/collection-preferences-repository";
+import { DrizzleRecipePreferencesRepository } from "@/lib/infrastructure/repositories/drizzle/user/recipe-preferences-repository";
+import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
+import { signUpDTOFromFormData } from "@/lib/transformer/user/create-transformer";
+import { isRateLimitedSignUp } from "@/lib/utils/rate-limit/auth";
 
-type SignUpData = {
-  username: string;
-  password?: string;
-  confirmPassword?: string;
-  inviteCode?: string;
-};
+async function signupAction(formData: FormData) {
+  if (await isRateLimitedSignUp()) {
+    throw new Error("Too many requests.");
+  }
 
-async function signup(formData: FormData): Promise<FormState<SignUpData>> {
-  const username = formData.get("username") as string;
-  const password = formData.get("password") as string;
-  const confirmationPassword = formData.get("confirmation-password") as string;
-  const inviteCode = formData.get("invite-code") as string;
+  const dto = signUpDTOFromFormData(formData);
+  if (!dto.ok) throw dto.error;
 
   try {
-    if (await isRateLimitedSignUp()) {
-      throw new Error("Too many requests.");
-    }
+    return await db.transaction(async (tx) => {
+      const signUpUser = makeSignUpUser(
+        new DrizzleUserRepository(tx),
+        new DrizzleAppPreferencesRepository(tx),
+        new DrizzleCollectionPreferencesRepository(tx),
+        new DrizzleRecipePreferencesRepository(tx),
+        new StatefulSessionProvider(
+          new StatefulSessionTokenProvider(),
+          new DrizzleSessionRepository(tx),
+        ),
+        new Argon2IDPasswordHasher(),
+      );
 
-    const parseResult = signUpSchema.safeParse({
-      username,
-      password,
-      confirmationPassword,
-      inviteCode,
+      const result = await signUpUser(dto.value);
+      if (!result.ok) throw result.error;
+
+      return { ok: true, value: undefined } as const;
     });
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
-
-    const dto = parseResult.data;
-    if (dto.inviteCode !== process.env.INVITE_CODE) {
-      throw new Error("The entered invite code is invalid.");
-    }
-
-    await signUp(dto);
-
-    return {
-      success: true,
-      message: "",
-    };
   } catch (e) {
-    if (!(e instanceof Error)) throw e;
-
-    return {
-      success: false,
-      message:
-        e.message ||
-        "Please review the form and correct the errors to proceed with your login.",
-      errors: e.cause as Record<string, unknown>,
-      controls: { username }, // Do not pass password or invite code back.
-    } satisfies FormState<SignUpData>;
+    return { ok: false, error: e as Error } as const;
   }
-}
-
-async function signupAction(
-  formData: FormData,
-): Promise<FormState<SignUpData>> {
-  const response = await signup(formData);
-
-  if (response.success) redirect("/recipes");
-  return response;
 }
 
 export { signupAction };

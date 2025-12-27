@@ -1,31 +1,27 @@
 import { LinkButton } from "@/components/ui/buttons/link-button";
-import { unsafeResolveRecipeId } from "@/lib/dal/recipe";
-import type { AuthenticatedUser } from "@/lib/services/auth/types";
-import { assertCanEditRecipe } from "@/lib/services/recipe/permissions";
-import type { RecipeOutputPublicDTO } from "@/lib/services/recipe/types";
+import { db } from "@/drizzle/db";
+import { toPublicRecipe, type Recipe } from "@/lib/domain/recipe/recipe";
+import type { User } from "@/lib/domain/user/user";
+import { DrizzleRecipePermissionRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-permissions-repository";
 import { generateHandle } from "@/lib/slug";
 import { AddToCollectionButton } from "./add-to-collection-button";
 import { DeleteRecipeButton } from "./delete-button";
 
 interface RecipeActionButtonsProps {
-  recipe: RecipeOutputPublicDTO;
-  user: AuthenticatedUser;
+  recipe: Recipe;
+  user: User;
 }
 
 export const RecipeActionButtons = async ({
   recipe,
   user,
 }: RecipeActionButtonsProps) => {
-  try {
-    const id = await unsafeResolveRecipeId(recipe);
-    await assertCanEditRecipe({ id }, user);
-  } catch {
-    return null;
-  }
+  const recipePermissionRepository = new DrizzleRecipePermissionRepository(db);
+  if (!recipePermissionRepository.canUpdate(recipe, user)) return null;
 
   return (
     <div className="flex gap-2">
-      <AddToCollectionButton recipeIdentifier={recipe} />
+      <AddToCollectionButton recipe={recipe} />
       <LinkButton
         variant="outline"
         href={`/recipes/${generateHandle(recipe.slug, recipe.publicId)}/edit`}
@@ -45,7 +41,7 @@ export const RecipeActionButtons = async ({
         <span className="text-white">Edit</span>
       </LinkButton>
 
-      <DeleteRecipeButton recipeIdentifier={recipe} />
+      <DeleteRecipeButton recipeIdentifier={toPublicRecipe(recipe)} />
     </div>
   );
 };

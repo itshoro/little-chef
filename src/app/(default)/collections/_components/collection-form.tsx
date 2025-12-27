@@ -2,11 +2,11 @@
 
 import { Inputs } from "@/app/(default)/collections/_components/collection-form-inputs";
 import { PendingButton } from "@/components/ui/buttons/pending-button";
-import type { CollectionOutputPublicDTO } from "@/lib/services/collection/types";
+import type { PublicCollection } from "@/lib/domain/collection/collection";
 import { useTransition } from "react";
 
 type CollectionFormProps = {
-  defaultValue: Partial<CollectionOutputPublicDTO>;
+  defaultValue: Partial<PublicCollection>;
   action: (data: FormData) => Promise<void>;
   buttonLabel?: string;
 };

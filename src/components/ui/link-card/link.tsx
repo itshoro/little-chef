@@ -1,5 +1,5 @@
-import NextLink from "next/link";
 import type { Route } from "next";
+import NextLink from "next/link";
 
 type LinkProps<T extends string> = {
   href: Route<T> | URL;

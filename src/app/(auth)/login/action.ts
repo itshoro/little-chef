@@ -1,56 +1,31 @@
 "use server";
 
-import type { FormState } from "@/components/forms/form/root";
-import { logIn } from "@/lib/services/auth";
-import { isRateLimitedLogin } from "@/lib/services/rate-limit/auth";
-import { loginSchema } from "@/lib/validators/auth";
-import { redirect } from "next/navigation";
+import { db } from "@/drizzle/db";
+import { makeSignInUser } from "@/lib/application/use-case/user/sign-in";
+import { Argon2IDPasswordHasher } from "@/lib/infrastructure/auth/argon2id-password-hasher";
+import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
+import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
+import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
+import { DrizzleUserRepository } from "@/lib/infrastructure/repositories/drizzle/user/user-repository";
+import { signInDTOFromFormData } from "@/lib/transformer/user/create-transformer";
 
-export type LoginFormData = {
-  username: string;
-  password?: string;
-};
+async function loginAction(formData: FormData) {
+  const dto = signInDTOFromFormData(formData);
+  if (!dto.ok) throw dto.error;
 
-async function login(formData: FormData): Promise<FormState<LoginFormData>> {
-  const username = formData.get("username") as string;
-  const password = formData.get("password") as string;
+  await db.transaction(async (tx) => {
+    const signInUser = makeSignInUser(
+      new DrizzleUserRepository(tx),
+      new StatefulSessionProvider(
+        new StatefulSessionTokenProvider(),
+        new DrizzleSessionRepository(tx),
+      ),
+      new Argon2IDPasswordHasher(),
+    );
 
-  try {
-    if (await isRateLimitedLogin()) {
-      throw new Error("Too many requests.");
-    }
-
-    const parseResult = loginSchema.safeParse({ username, password });
-    if (!parseResult.success) {
-      throw new Error(undefined, {
-        cause: parseResult.error.flatten().fieldErrors,
-      });
-    }
-
-    await logIn(parseResult.data);
-
-    return {
-      success: true,
-      message: "",
-    };
-  } catch (e) {
-    if (!(e instanceof Error)) throw e;
-
-    return {
-      success: false,
-      message:
-        e.message ||
-        "Please review the form and correct the errors to proceed with your login.",
-      errors: e.cause as Record<string, unknown>,
-      controls: { username }, // Do not pass password back.
-    } satisfies FormState<LoginFormData>;
-  }
-}
-
-async function loginAction(
-  formData: FormData,
-): Promise<FormState<LoginFormData>> {
-  return await login(formData);
+    const result = await signInUser(dto.value, new Date());
+    if (!result.ok) throw result.error;
+  });
 }
 
 export { loginAction };

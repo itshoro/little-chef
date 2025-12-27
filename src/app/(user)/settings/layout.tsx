@@ -1,15 +1,17 @@
 import { Header } from "@/components/layout/header/header";
 import { BackLink } from "@/components/ui/back-link";
 import { Avatar } from "@/components/users/avatar";
-import {
-  getAuthenticatedUserFromRequest,
-  getAuthenticatedUserOrRedirect,
-} from "@/lib/services/auth";
+import { db } from "@/drizzle/db";
+import { makeSignOutUser } from "@/lib/application/use-case/user/sign-out";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+import { StatefulSessionProvider } from "@/lib/infrastructure/auth/session/stateful/session-provider";
+import { StatefulSessionTokenProvider } from "@/lib/infrastructure/auth/session/stateful/session-token-provider";
+import { DrizzleSessionRepository } from "@/lib/infrastructure/repositories/drizzle/auth/session-repository";
+import { requireSession } from "@/lib/utils/auth/require-session";
+import { validateSession } from "@/lib/utils/auth/validate-session";
+import { redirect } from "next/navigation";
 import { Navigation } from "./_components/navigation";
 import { SettingsSidebarWrapper } from "./_components/settings-sidebar-wrapper";
-import { unsafeInvalidateSession } from "@/lib/dal/session";
-import { UnauthenticatedError } from "@/lib/errors/unauthenticated/error";
-import { redirect } from "next/navigation";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
@@ -58,19 +60,31 @@ const SettingsLayout = async (props: { children: React.ReactNode }) => {
 
 async function signoutAction() {
   "use server";
-  const { session } = await getAuthenticatedUserFromRequest();
-  if (!session) throw new UnauthenticatedError();
+  const { session } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  await unsafeInvalidateSession(session.id);
+  const signOut = makeSignOutUser(
+    new StatefulSessionProvider(
+      new StatefulSessionTokenProvider(),
+      new DrizzleSessionRepository(db),
+    ),
+  );
+  await signOut(session);
+
   redirect("/");
 }
 
 const UserCard = async () => {
-  const { user } = await getAuthenticatedUserOrRedirect();
+  const { user } = await validateSession();
+
+  if (!user) return null;
 
   return (
     <div className="flex items-center gap-4">
-      <Avatar src={user.avatar ?? undefined} alt="" size="size-12" />
+      <Avatar src={user.avatar?.url} alt="" size="size-12" />
       <div className="flex-1">
         <div className="font-semibold">{user.username}</div>
       </div>

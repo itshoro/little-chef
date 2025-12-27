@@ -2,20 +2,24 @@
 
 import { useGeneratorContext } from "./context";
 
-type RemoveProps = {
+type RemoveProps<TKey> = {
   children: React.ReactNode;
-  uid: string;
+  id: TKey;
   className: string;
 };
 
-const Remove = ({ children, className, uid }: RemoveProps) => {
-  const { removeItem, removeDisabled } = useGeneratorContext(Remove.name);
+const Remove = <TKey extends string | number>({
+  children,
+  className,
+  id,
+}: RemoveProps<TKey>) => {
+  const { removeItem, removeDisabled } = useGeneratorContext<TKey>(Remove.name);
   return (
     <button
       disabled={removeDisabled}
       type="button"
       className={className}
-      onClick={() => removeItem(uid)}
+      onClick={() => removeItem(id)}
     >
       {children}
     </button>

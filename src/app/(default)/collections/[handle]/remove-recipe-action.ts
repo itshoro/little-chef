@@ -1,20 +1,22 @@
-import type { CollectionIdentifier, RecipeIdentifier } from "@/drizzle/schema";
-import { assertAuthenticatedForServerAction } from "@/lib/services/auth";
-import { removeRecipeFromCollection } from "@/lib/services/collection";
+import { UnauthenticatedError } from "@/lib/domain/auth/unauthenticated-error";
+import type { PublicRecipe, Recipe } from "@/lib/domain/recipe/recipe";
+import { requireSession } from "@/lib/utils/auth/require-session";
+
+import { removeRecipeFromCollection } from "@/lib/utils/collection/remove-recipe-from-collection";
 import { revalidatePath } from "next/cache";
 
 async function removeRecipeFromCollectionAction(
   collectionIdentifier: { publicId: string },
-  recipeIdentifier: { publicId: string },
+  recipe: PublicRecipe,
 ) {
   "use server";
+  const { user } = await requireSession({
+    onUnauthenticated: () => {
+      throw new UnauthenticatedError();
+    },
+  });
 
-  const { user } = await assertAuthenticatedForServerAction();
-  await removeRecipeFromCollection(
-    collectionIdentifier,
-    recipeIdentifier,
-    user,
-  );
+  await removeRecipeFromCollection(collectionIdentifier, recipe, user);
 
   revalidatePath(`/collections/${collectionIdentifier.publicId}`);
 }

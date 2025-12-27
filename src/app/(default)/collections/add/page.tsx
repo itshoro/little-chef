@@ -1,8 +1,10 @@
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
-import { getCollectionPreferences } from "@/lib/services/user";
+import {
+  redirectToSignIn,
+  requireSession,
+} from "@/lib/utils/auth/require-session";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
+import { getCollectionPreferences } from "@/lib/utils/user/get-preferences";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { CollectionForm } from "../_components/collection-form";
 import { createAction } from "./action";
 
@@ -13,16 +15,17 @@ export const metadata: Metadata = {
 const Page = async () => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
-  const { user } = await getAuthenticatedUserFromRequest();
-
-  if (!user) redirect("/login");
-  const preferences = await getCollectionPreferences(user);
+  const { user } = await requireSession({
+    onUnauthenticated: () => redirectToSignIn("/collections/add"),
+  });
+  const preferencesRes = await getCollectionPreferences(user);
+  if (!preferencesRes.ok) throw preferencesRes.error;
 
   return (
     <>
       <CollectionForm
         action={createAction}
-        defaultValue={{ visibility: preferences.defaultVisibility }}
+        defaultValue={{ visibility: preferencesRes.value.defaultVisibility }}
         buttonLabel="Create Collection"
       />
     </>

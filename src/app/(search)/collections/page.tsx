@@ -1,9 +1,9 @@
 import { CollectionList } from "@/components/collections/collection-list-container";
-import type { ListQueryOptions } from "@/lib/dal/utils";
-import { getAuthenticatedUserFromRequest } from "@/lib/services/auth";
-import type { AuthenticatedUser } from "@/lib/services/auth/types";
-import { findCollections } from "@/lib/services/collection";
-import { isRateLimitedGlobally } from "@/lib/services/rate-limit/global";
+import type { CollectionListOptions } from "@/lib/application/abstractions/collection/collection-read-repository";
+import type { User } from "@/lib/domain/user/user";
+import { validateSession } from "@/lib/utils/auth/validate-session";
+import { findCollections } from "@/lib/utils/collection/find-collections";
+import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import type { Metadata } from "next";
 import { AddButton } from "../components/AddButton";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const Page = async (props: { searchParams: Promise<{ q?: string }> }) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const { user } = await getAuthenticatedUserFromRequest();
+  const { user } = await validateSession();
   const searchParams = await props.searchParams;
   const searchQuery = searchParams.q;
 
@@ -32,15 +32,18 @@ const SearchResults = async ({
   user,
 }: {
   query?: string;
-  user: AuthenticatedUser | null;
+  user: User | null;
 }) => {
-  const queryOptions: ListQueryOptions = {
+  const queryOptions: CollectionListOptions = {
     search: query ? { query } : undefined,
   };
 
   const collections = await findCollections(queryOptions, user);
+  if (!collections.ok) throw collections.error;
 
-  return <CollectionList title="Search Results" collections={collections} />;
+  return (
+    <CollectionList title="Search Results" collections={collections.value} />
+  );
 };
 
 export default Page;

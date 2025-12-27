@@ -1,13 +1,12 @@
 "use client";
 
-import type { DrizzleUser } from "@/drizzle/schema";
-import { requestPasswordResetAction } from "../_actions/request-password-reset-action";
-import { useTransition } from "react";
-import { Button } from "@/components/ui/buttons/button";
 import { PendingButton } from "@/components/ui/buttons/pending-button";
+import type { User } from "@/lib/domain/user/user";
+import { useTransition } from "react";
+import { requestPasswordResetAction } from "../_actions/request-password-reset-action";
 
 type RequestPasswordResetActionFormProps = {
-  userId: DrizzleUser["id"];
+  userId: User["id"];
 };
 
 const RequestPasswordResetActionForm = ({
