@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { Navigation } from "./navigation";
 
@@ -15,7 +16,7 @@ const SettingsSidebar = ({ showMenu }: { showMenu: boolean }) => {
 
 type BackToSettingsProps = {
   label: string;
-  href: string;
+  href: Route;
 };
 
 const BackToOrigin = ({ href, label }: BackToSettingsProps) => {

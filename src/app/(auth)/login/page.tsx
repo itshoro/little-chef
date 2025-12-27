@@ -10,7 +10,7 @@ const LoginPage = async ({
   searchParams: Promise<{ returnTo: string }>;
 }) => {
   if (await isRateLimitedGlobally("read")) return "Too many requests";
-  const returnTo = (await searchParams).returnTo;
+  const returnTo = (await searchParams).returnTo as Route;
   const { user } = await validateSession();
 
   if (user) redirect((returnTo as Route) || "/recipes");

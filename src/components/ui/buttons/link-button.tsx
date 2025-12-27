@@ -1,8 +1,9 @@
+import type { Route } from "next";
 import Link from "next/link";
 
 interface LinkButtonProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  href: string;
+  href: Route;
   variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg";
   children: React.ReactNode;
@@ -70,7 +71,7 @@ export function LinkButton({
   if (external) {
     return (
       <a {...finalProps}>
-        <div className="absolute -z-10 hidden size-[max(48px,100%)] [@media(pointer:coarse)]:block" />
+        <div className="absolute -z-10 hidden size-[max(48px,100%)] pointer-coarse:block" />
         {children}
       </a>
     );
@@ -78,7 +79,7 @@ export function LinkButton({
 
   return (
     <Link {...finalProps}>
-      <div className="absolute -z-10 hidden size-[max(48px,100%)] [@media(pointer:coarse)]:block" />
+      <div className="absolute -z-10 hidden size-[max(48px,100%)] pointer-coarse:block" />
       {children}
     </Link>
   );
