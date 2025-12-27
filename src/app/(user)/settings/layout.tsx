@@ -12,10 +12,11 @@ import { validateSession } from "@/lib/utils/auth/validate-session";
 import { redirect } from "next/navigation";
 import { Navigation } from "./_components/navigation";
 import { SettingsSidebarWrapper } from "./_components/settings-sidebar-wrapper";
+import { connection } from "next/server";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
-    <div className="h-[100svh]">
+    <div className="h-svh">
       <div className="flex min-h-full flex-col">
         <div className="mx-auto w-full max-w-(--breakpoint-xl) p-4">
           <Header>
@@ -78,6 +79,7 @@ async function signoutAction() {
 }
 
 const UserCard = async () => {
+  await connection();
   const { user } = await validateSession();
 
   if (!user) return null;

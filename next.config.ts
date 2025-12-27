@@ -12,16 +12,16 @@ const nextConfig: NextConfig = {
         hostname: "*.ufs.sh",
       },
     ],
+    qualities: [75, 85],
   },
   typescript: {
     ignoreBuildErrors: true,
   },
+  cacheComponents: true,
   typedRoutes: true,
   experimental: {
     taint: true,
-    useCache: true,
     authInterrupts: true,
-    devtoolSegmentExplorer: true,
   },
 };
 

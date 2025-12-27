@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,7 +14,7 @@ const Navigation = ({ className }: { className?: string }) => {
   );
 };
 
-const Item = ({ label, href }: { label: string; href: string }) => {
+const Item = ({ label, href }: { label: string; href: Route }) => {
   const pathname = usePathname();
 
   return (

@@ -1,5 +1,6 @@
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import NextLink from "next/link";
+import { connection } from "next/server";
 import { LinkButton } from "../../ui/buttons/link-button";
 import { Avatar } from "../../users/avatar";
 
@@ -10,6 +11,7 @@ const Header = async ({
   children?: React.ReactNode;
   className?: string;
 }) => {
+  await connection();
   const { user } = await validateSession();
 
   return (

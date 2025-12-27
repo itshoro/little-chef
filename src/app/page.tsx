@@ -2,8 +2,10 @@ import { validateSession } from "@/lib/utils/auth/validate-session";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 const Page = async () => {
+  await connection();
   if (await isRateLimitedGlobally("read")) return "Too many requests";
 
   const { user } = await validateSession();

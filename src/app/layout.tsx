@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -14,11 +15,13 @@ export const metadata: Metadata = {
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="min-h-[100dvh]">
+    <html lang="en" className="min-h-dvh">
       <body className={`${inter.className} dark:bg-stone-900 dark:text-white`}>
         <div>
-          <div className="mx-auto min-h-[100dvh]">
-            <div className="min-h-[100svh]">{props.children}</div>
+          <div className="mx-auto min-h-dvh">
+            <div className="min-h-svh">
+              <Suspense>{props.children}</Suspense>
+            </div>
           </div>
         </div>
       </body>

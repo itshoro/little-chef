@@ -6,13 +6,15 @@ import { Suspense } from "react";
 const Layout = async (props: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header className="mx-auto w-full max-w-(--breakpoint-xl) items-center gap-3 p-4">
-        <div className="w-full">
-          <Suspense fallback={<SearchFallback />}>
-            <Search />
-          </Suspense>
-        </div>
-      </Header>
+      <Suspense>
+        <Header className="mx-auto w-full max-w-(--breakpoint-xl) items-center gap-3 p-4">
+          <div className="w-full">
+            <Suspense fallback={<SearchFallback />}>
+              <Search />
+            </Suspense>
+          </div>
+        </Header>
+      </Suspense>
       <div className="@container">
         <section className="border-b border-stone-200 pb-2 dark:border-stone-800">
           <div className="mx-auto max-w-(--breakpoint-xl) px-4">
