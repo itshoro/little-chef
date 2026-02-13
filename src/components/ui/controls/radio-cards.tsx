@@ -63,27 +63,27 @@ export function RadioCard({
         name={name}
         value={value}
         id={id}
-        className="peer checked:text-bg-300 absolute top-2 right-2 appearance-none rounded-full border-0 !bg-transparent before:absolute before:inset-1 before:rounded-full checked:ring-2 checked:ring-lime-300 checked:outline-none checked:before:bg-lime-300"
+        className="peer checked:text-bg-300 absolute top-2 right-2 appearance-none rounded-full border-0 bg-transparent! before:absolute before:inset-1 before:rounded-full checked:ring-2 checked:ring-lime-300 checked:outline-none checked:before:bg-lime-300"
         {...props}
       />
 
       <label
         htmlFor={id}
-        className={`relative flex cursor-pointer flex-col rounded-lg border border-white/5 bg-stone-800 p-4 transition-all duration-200 peer-checked:border-lime-300/50 peer-checked:bg-lime-900/20 peer-checked:ring-1 peer-checked:ring-lime-300 focus-within:ring-2 focus-within:ring-lime-300 focus-within:ring-offset-2 focus-within:ring-offset-stone-900 hover:border-white/10 hover:bg-stone-700/50 ${className}`}
+        className={`relative flex cursor-pointer flex-col rounded-lg border border-stone-300 p-4 transition-all duration-200 peer-checked:bg-lime-300/20 peer-checked:ring-1 peer-checked:ring-lime-300 focus-within:ring-2 focus-within:ring-lime-300 focus-within:ring-offset-2 focus-within:ring-offset-stone-900 dark:border-white/5 dark:bg-stone-800 dark:peer-checked:border-lime-300/50 dark:peer-checked:bg-lime-900/20 dark:hover:border-white/10 dark:hover:bg-stone-700/50 ${className}`}
       >
         <div className="flex items-start gap-3">
           {icon && (
-            <div className="flex-shrink-0">
-              <div className="h-6 w-6 text-white/70">{icon}</div>
+            <div className="shrink-0">
+              <div className="h-6 w-6 dark:text-white/70">{icon}</div>
             </div>
           )}
 
           <div className="min-w-0 flex-1">
-            <div className="mb-1 text-sm font-medium text-white">
+            <div className="mb-1 text-sm font-medium text-black dark:text-white">
               {children}
             </div>
             {description && (
-              <div className="text-xs leading-relaxed text-pretty text-white/60">
+              <div className="text-xs leading-relaxed text-pretty text-black/60 dark:text-white/60">
                 {description}
               </div>
             )}
