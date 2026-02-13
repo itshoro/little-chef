@@ -23,7 +23,7 @@ const BackToOrigin = ({ href, label }: BackToSettingsProps) => {
   return (
     <Link
       href={href}
-      className="block border-b border-stone-800 px-4 py-6 text-sm"
+      className="block border-b border-stone-200 px-4 py-6 text-sm dark:border-stone-800"
     >
       <div className="flex items-center gap-2">
         <svg

@@ -20,7 +20,7 @@ const Item = ({ label, href }: { label: string; href: Route }) => {
   return (
     <Link
       replace={true}
-      className="block border-b border-stone-800 px-6 py-6 text-white hover:bg-stone-900 data-[active=true]:font-medium data-[active=true]:text-white lg:-mx-4 lg:rounded-xl lg:border-none lg:px-4 lg:py-3 lg:text-stone-500 lg:first-of-type:not-[:has(~a[data-active=true])]:font-medium lg:first-of-type:not-[:has(~a[data-active=true])]:text-white"
+      className="block border-b border-stone-200 px-6 py-6 hover:bg-stone-100 data-[active=true]:font-medium data-[active=true]:text-black lg:-mx-4 lg:rounded-xl lg:border-none lg:px-4 lg:py-3 lg:text-stone-500 lg:first-of-type:not-[:has(~a[data-active=true])]:font-medium lg:first-of-type:not-[:has(~a[data-active=true])]:text-black dark:border-stone-800 dark:text-white dark:hover:bg-stone-900 dark:data-[active=true]:text-white dark:lg:text-stone-500 dark:lg:first-of-type:not-[:has(~a[data-active=true])]:text-white"
       data-active={href === pathname}
       href={href}
     >

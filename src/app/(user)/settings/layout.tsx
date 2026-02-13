@@ -13,6 +13,7 @@ import { redirect } from "next/navigation";
 import { Navigation } from "./_components/navigation";
 import { SettingsSidebarWrapper } from "./_components/settings-sidebar-wrapper";
 import { connection } from "next/server";
+import { Button } from "@/components/ui/buttons/button";
 
 const SettingsLayout = async (props: { children: React.ReactNode }) => {
   return (
@@ -23,8 +24,8 @@ const SettingsLayout = async (props: { children: React.ReactNode }) => {
             <BackLink />
           </Header>
         </div>
-        <section className="border-t border-stone-800">
-          <div className="mb-4 border-b border-stone-800">
+        <section className="border-t border-stone-200 dark:border-stone-800">
+          <div className="mb-4 border-b border-stone-200 dark:border-stone-800">
             <div className="mx-auto max-w-(--breakpoint-xl) p-4">
               <div className="flex justify-between">
                 <div className="flex items-center gap-2">
@@ -32,12 +33,13 @@ const SettingsLayout = async (props: { children: React.ReactNode }) => {
                 </div>
 
                 <form action={signoutAction}>
-                  <button
-                    className="rounded-full border bg-stone-200 px-5 py-2 font-medium text-black dark:border-stone-800"
+                  <Button
+                    className="font-medium"
                     type="submit"
+                    variant="outline"
                   >
                     Sign out
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>
