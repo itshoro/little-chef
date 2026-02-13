@@ -78,7 +78,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                     src={recipe.cover.url}
                     height={400}
                     width={320}
-                    className="aspect-[5/4] w-full rounded-3xl object-cover"
+                    className="aspect-5/4 w-full rounded-3xl object-cover"
                     priority={true}
                     quality={85}
                   />
@@ -92,12 +92,12 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 scrollbarColor: "var(--color-stone-500) var(--color-stone-900)",
               }}
             >
-              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-gradient-to-l to-stone-900" />
+              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-linear-to-l to-white dark:to-stone-900" />
               <div className="flex items-center gap-4">
                 <Attributions maintainers={recipe.collaborators} />
               </div>
               <div className="pointer-events-none sticky right-0 z-10 flex">
-                <div className="h-full w-8 bg-gradient-to-r to-stone-900" />
+                <div className="h-full w-8 bg-linear-to-r to-white dark:to-stone-900" />
                 <div className="pointer-events-auto relative flex">
                   <section className="relative z-10 ml-auto flex gap-2 pr-4">
                     <ShareCurrentPageButton />
@@ -107,7 +107,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                       initialLikes={recipe.likes}
                     />
                   </section>
-                  <div className="absolute top-0 h-full w-full bg-stone-900" />
+                  <div className="absolute top-0 h-full w-full bg-white dark:bg-stone-900" />
                 </div>
               </div>
             </section>
@@ -135,7 +135,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 scrollbarColor: "var(--color-stone-500) var(--color-stone-900)",
               }}
             >
-              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-gradient-to-l to-stone-900" />
+              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-linear-to-l to-white dark:to-stone-900" />
               <div className="flex items-center gap-8 whitespace-nowrap">
                 <article>
                   <h3 className="text-stone-400">Prep Time</h3>
@@ -155,7 +155,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
                 </article>
               </div>
               <div className="pointer-events-none sticky right-0 z-10 flex items-end justify-end">
-                <div className="h-full w-8 bg-gradient-to-r to-stone-900" />
+                <div className="h-full w-8 bg-linear-to-r to-white dark:to-stone-900" />
                 <div className="pointer-events-auto relative">
                   <section className="relative z-10 ml-auto flex gap-2 pr-4"></section>
                   <div className="absolute top-0 h-full w-full bg-stone-900" />

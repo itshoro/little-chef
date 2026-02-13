@@ -52,8 +52,6 @@ type InputMaskProps<TKey extends string | number> = {
   onChange: React.ChangeEventHandler<React.ComponentRef<"textarea">>;
 };
 
-const maxLength = 280;
-
 const InputMask = <TKey extends string | number>({
   order,
   id,
@@ -167,8 +165,10 @@ const StepCounterLabel = ({
   children?: React.ReactNode;
 }) => {
   return (
-    <Label className="m-2 h-8 w-8 shrink-0 grow-0 rounded-full bg-neutral-100 text-sm font-bold select-none dark:bg-stone-900">
-      <div className="translate-y-1.5 text-center">{children}</div>
+    <Label className="m-2 h-8 w-8 shrink-0 grow-0 rounded-full bg-stone-200 text-sm font-bold select-none dark:bg-stone-900">
+      <div className="translate-y-1.5 text-center text-black dark:text-white">
+        {children}
+      </div>
     </Label>
   );
 };

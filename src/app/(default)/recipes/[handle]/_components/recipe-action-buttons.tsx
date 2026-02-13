@@ -38,7 +38,7 @@ export const RecipeActionButtons = async ({
             clipRule="evenodd"
           />
         </svg>
-        <span className="text-white">Edit</span>
+        <span>Edit</span>
       </LinkButton>
 
       <DeleteRecipeButton recipeIdentifier={toPublicRecipe(recipe)} />

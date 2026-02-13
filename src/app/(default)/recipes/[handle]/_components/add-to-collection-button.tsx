@@ -38,7 +38,7 @@ const AddToCollectionButton = async ({
       <WithConfirmation.Root>
         <WithConfirmation.Modal>
           <div className="m-6 mb-2 flex items-end justify-between">
-            <div className="text-sm font-medium dark:text-white">
+            <div className="text-sm font-medium text-black dark:text-white">
               Your Collections
             </div>
             <WithConfirmation.CancelButton variant="ghost">
@@ -98,7 +98,7 @@ const AddToCollectionButton = async ({
           >
             <path d="M3.75 2a.75.75 0 0 0-.75.75v10.5a.75.75 0 0 0 1.28.53L8 10.06l3.72 3.72a.75.75 0 0 0 1.28-.53V2.75a.75.75 0 0 0-.75-.75h-8.5Z" />
           </svg>
-          <span className="text-white">Add to Collection</span>
+          <span>Add to Collection</span>
         </WithConfirmation.TriggerButton>
       </WithConfirmation.Root>
     </>

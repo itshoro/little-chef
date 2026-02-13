@@ -31,7 +31,7 @@ const CoverImageInput = ({
 
   return (
     <>
-      <div className="relative isolate mb-8 h-64 overflow-hidden rounded-2xl ring ring-inset dark:ring-white/10">
+      <div className="relative isolate mb-8 h-64 overflow-hidden rounded-2xl ring ring-black/10 ring-inset dark:ring-white/10">
         {src && (
           <>
             <div className="pointer-events-none absolute bottom-0 z-10 flex h-3/4 w-full">
@@ -92,7 +92,7 @@ const CoverImageInput = ({
         <label className="absolute inset-0 block">
           {!src && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 select-none">
-              <div className="mb-4 grid size-12 place-items-center rounded-full bg-stone-800">
+              <div className="mb-4 grid size-12 place-items-center rounded-full dark:bg-stone-800">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
