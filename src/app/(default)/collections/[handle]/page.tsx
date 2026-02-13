@@ -104,7 +104,7 @@ const CollectionPage = async (props: CollectionPageProps) => {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="text-white">Edit</span>
+                <span>Edit</span>
               </LinkButton>
               <DeleteCollectionButton
                 collectionIdentifier={{ publicId: collection.publicId }}
