@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
   experimental: {
     taint: true,
     authInterrupts: true,
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
   },
 };
 
