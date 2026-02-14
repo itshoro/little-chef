@@ -80,7 +80,7 @@ export class DrizzleCollectionRecipeRepository
         .from(collectionRecipes)
         .where(eq(collectionRecipes.collectionId, collection.id))
         .innerJoin(recipes, eq(recipes.id, collectionRecipes.recipeId))
-        .innerJoin(fileReference, eq(fileReference.id, recipes.coverId));
+        .leftJoin(fileReference, eq(fileReference.id, recipes.coverId));
 
       const collaboratorMap = await this.findCollaborators(
         rows.map((r) => r.recipes.id),
@@ -93,7 +93,7 @@ export class DrizzleCollectionRecipeRepository
             publicId: recipeRow.publicId,
             name: recipeRow.name,
             description: recipeRow.description,
-            cover: {
+            cover: file && {
               id: file.id,
               url: file.url,
               mimeType: file.mimeType,
