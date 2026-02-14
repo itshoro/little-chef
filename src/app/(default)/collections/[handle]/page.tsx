@@ -159,7 +159,7 @@ const RecipeList = async ({
     <ul className="space-y-2">
       {recipes.map((recipe) => (
         <li key={recipe.publicId}>
-          <div className="rounded-xl border dark:border-none dark:bg-stone-950">
+          <div className="rounded-xl border border-stone-200 dark:border-stone-800">
             <RecipeCard recipe={recipe} />
             {isMaintainer && (
               <div className="p-2">
@@ -170,7 +170,9 @@ const RecipeList = async ({
                     toPublicRecipe(recipe),
                   )}
                 >
-                  <Button type="submit">Remove</Button>
+                  <Button variant="outline" type="submit">
+                    Remove
+                  </Button>
                 </form>
               </div>
             )}
