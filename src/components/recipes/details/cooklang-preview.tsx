@@ -33,13 +33,14 @@ const CooklangPreview = ({
     <div>
       {sections.map((section, i) => (
         <p key={i} className="leading-relaxed text-balance whitespace-normal">
-          {section.content.map((step, stepId) => {
+          {section.content.map((step, j) => {
             switch (step.type) {
               case "text":
-                return <Fragment key={i}>{step.value}</Fragment>;
+                return <Fragment key={j}>{step.value}</Fragment>;
               case "step":
                 return (
                   <CooklangStep
+                    key={j}
                     recipe={recipe}
                     scaleFactor={ingredientScaleFactor}
                     step={step.value}
@@ -69,6 +70,7 @@ const CooklangStep = ({
           case "ingredient":
             return (
               <CooklangStepIngredient
+                key={i}
                 ingredient={recipe.ingredients[item.index] as Ingredient}
                 scaleFactor={scaleFactor}
               />
@@ -76,22 +78,27 @@ const CooklangStep = ({
           case "cookware":
             return (
               <CooklangStepCookware
+                key={i}
                 cookware={recipe.cookware[item.index] as Cookware}
               />
             );
           case "timer":
             return (
-              <CooklangStepTimer timer={recipe.timers[item.index] as Timer} />
+              <CooklangStepTimer
+                key={i}
+                timer={recipe.timers[item.index] as Timer}
+              />
             );
           case "inlineQuantity":
             return (
               <CooklangStepInlineQuantity
+                key={i}
                 scaleFactor={scaleFactor}
                 quantity={recipe.inline_quantities[item.index] as Quantity}
               />
             );
           case "text":
-            return <>{item.value}</>;
+            return <Fragment key={i}>{item.value}</Fragment>;
         }
       })}
     </>
