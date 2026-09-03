@@ -22,7 +22,7 @@ const AddRecipePage = async () => {
   if (!preferencesRes.ok) throw preferencesRes.error;
 
   return (
-    <>
+    <div className="px-4">
       <RecipeForm
         action={createAction}
         buttonLabel="Create Recipe"
@@ -31,7 +31,7 @@ const AddRecipePage = async () => {
           visibility: preferencesRes.value.defaultVisibility,
         }}
       />
-    </>
+    </div>
   );
 };
 

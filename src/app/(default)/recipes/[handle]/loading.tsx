@@ -15,7 +15,6 @@ const Loading = () => {
       <Skeleton height={16} width="100%" className="mb-2 rounded-xl" />
       <Skeleton height={16} width="100%" className="mb-2 rounded-xl" />
       <Skeleton height={16} width="60%" className="mb-2 rounded-xl" />
-      <div className=""></div>
     </div>
   );
 };

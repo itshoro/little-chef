@@ -38,7 +38,7 @@ const Page = async (props: PageProps) => {
     Number(searchParams.servings) / recipe.recommendedServingSize;
 
   return (
-    <>
+    <div className="px-4">
       <ForceWakeLock />
       <div>
         <div className="mt-auto flex flex-col items-center justify-center py-8">
@@ -60,7 +60,7 @@ const Page = async (props: PageProps) => {
           />
         </section>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -5,12 +5,14 @@ import { BackLink } from "../../components/ui/back-link";
 const Layout = async (props: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen flex-col">
-      <Suspense fallback={<HeaderFallback />}>
-        <Header className="mx-auto w-full max-w-(--breakpoint-xl) items-center gap-3 p-4">
-          <BackLink />
-        </Header>
-      </Suspense>
-      <div className="mx-auto w-full max-w-prose">{props.children}</div>
+      <div className="p-4">
+        <Suspense fallback={<HeaderFallback />}>
+          <Header className="mx-auto w-full max-w-(--breakpoint-xl) items-center gap-3">
+            <BackLink />
+          </Header>
+        </Suspense>
+      </div>
+      {props.children}
     </div>
   );
 };

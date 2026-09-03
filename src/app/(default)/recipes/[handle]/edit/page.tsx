@@ -39,11 +39,13 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   if (!recipe) notFound();
 
   return (
-    <RecipeForm
-      action={editAction}
-      defaultValue={toPublicRecipeDetail(recipe)}
-      buttonLabel="Save"
-    />
+    <div className="px-4">
+      <RecipeForm
+        action={editAction}
+        defaultValue={toPublicRecipeDetail(recipe)}
+        buttonLabel="Save"
+      />
+    </div>
   );
 };
 

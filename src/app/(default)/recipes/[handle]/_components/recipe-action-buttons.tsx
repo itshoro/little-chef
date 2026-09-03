@@ -21,7 +21,6 @@ export const RecipeActionButtons = async ({
 
   return (
     <div className="flex gap-2">
-      <AddToCollectionButton recipe={recipe} />
       <LinkButton
         variant="outline"
         href={`/recipes/${generateHandle(recipe.slug, recipe.publicId)}/edit`}

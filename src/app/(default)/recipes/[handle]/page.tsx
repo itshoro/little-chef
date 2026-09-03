@@ -14,7 +14,9 @@ import { Parser } from "@cooklang/cooklang";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { AddToCollectionButton } from "./_components/add-to-collection-button";
 import { RecipeActionButtons } from "./_components/recipe-action-buttons";
+import { RecipeDescription } from "./_components/recipe-description";
 import { ToWizardForm } from "./_components/to-wizard-form";
 
 type ShowRecipePageProps = {
@@ -67,119 +69,108 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     return (
       <>
         <ForceWakeLock />
-        <article>
-          <header className="border-b border-white/5 pb-6">
+        <article className="grid grid-cols-[1rem_1fr_1rem]">
+          <header className="contents">
             {recipe.cover && (
-              <div className="mb-4 px-4">
-                <div className="relative isolate w-full">
-                  <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/5 ring-inset dark:ring-white/5" />
-                  <Image
-                    alt=""
-                    src={recipe.cover.url}
-                    height={400}
-                    width={320}
-                    className="aspect-5/4 w-full rounded-3xl object-cover"
-                    priority={true}
-                    quality={85}
-                  />
-                </div>
+              <div className="relative isolate col-start-2 mb-4 w-full">
+                <div className="absolute inset-0 z-10 rounded-3xl ring ring-black/5 ring-inset dark:ring-white/5" />
+                <Image
+                  alt=""
+                  src={recipe.cover.url}
+                  height={400}
+                  width={320}
+                  className="aspect-5/4 w-full rounded-3xl object-cover"
+                  priority={true}
+                  quality={85}
+                />
               </div>
             )}
 
-            <section
-              className="isolate my-1 grid grid-cols-[auto_minmax(min-content,1fr)_auto] overflow-x-auto py-1"
-              style={{
-                scrollbarColor: "var(--color-stone-500) var(--color-stone-900)",
-              }}
-            >
-              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-linear-to-l to-white dark:to-stone-900" />
-              <div className="flex items-center gap-4">
-                <Attributions maintainers={recipe.collaborators} />
-              </div>
-              <div className="pointer-events-none sticky right-0 z-10 flex">
-                <div className="h-full w-8 bg-linear-to-r to-white dark:to-stone-900" />
-                <div className="pointer-events-auto relative flex">
-                  <section className="relative z-10 ml-auto flex gap-2 pr-4">
-                    <ShareCurrentPageButton />
-                    <LikeButton
-                      user={user}
-                      recipe={recipe}
-                      initialLikes={recipe.likes}
-                    />
-                  </section>
-                  <div className="absolute top-0 h-full w-full bg-white dark:bg-stone-900" />
-                </div>
-              </div>
-            </section>
-
-            <div className="mt-4 px-4">
-              <div className="mb-12">
-                <h1 className="mb-3 text-2xl leading-snug font-medium text-balance">
-                  {recipe.name}
-                </h1>
-                <p className="leading-relaxed text-pretty text-stone-400">
-                  {recipe.description}
-                </p>
-              </div>
-
-              <section className="-mx-4 whitespace-nowrap">
-                {user && <RecipeActionButtons recipe={recipe} user={user} />}
+            <div className="col-start-2 flex">
+              <section className="ml-auto flex gap-2">
+                <ShareCurrentPageButton />
+                <LikeButton
+                  user={user}
+                  recipe={recipe}
+                  initialLikes={recipe.likes}
+                />
+                <AddToCollectionButton recipe={recipe} />
               </section>
             </div>
+
+            <h1 className="col-start-2 my-4 text-2xl leading-snug font-medium text-balance">
+              {recipe.name}
+            </h1>
+
+            <div className="col-start-2 mt-4 mb-6">
+              <section
+                className="isolate my-1 -ml-4 grid grid-cols-[auto_minmax(min-content,1fr)_auto] overflow-x-auto py-1"
+                style={{
+                  scrollbarColor:
+                    "var(--color-stone-500) var(--color-stone-900)",
+                }}
+              >
+                <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-linear-to-l to-white dark:to-stone-900" />
+                <div className="flex items-center gap-8 whitespace-nowrap">
+                  <article>
+                    <h3 className="mb-1 text-sm text-stone-400">Prep Time</h3>
+                    <span className="font-medium">
+                      {recipe.preparationTime} minutes
+                    </span>
+                  </article>
+                  <article>
+                    <h3 className="mb-1 text-sm text-stone-400">
+                      Cooking Time
+                    </h3>
+                    <span className="font-medium">
+                      {recipe.cookingTime} minutes
+                    </span>
+                  </article>
+                  <article>
+                    <h3 className="text-s mb-1 text-stone-400">Total Time</h3>
+                    <span className="font-medium">
+                      {recipe.preparationTime + recipe.cookingTime} minutes
+                    </span>
+                  </article>
+                </div>
+                <div className="pointer-events-none sticky right-0 z-10 flex items-end justify-end">
+                  <div className="h-full w-8 bg-linear-to-r to-white dark:to-stone-900" />
+                  <div className="pointer-events-auto relative">
+                    <section className="relative z-10 ml-auto flex gap-2 pr-4"></section>
+                    <div className="absolute top-0 h-full w-full bg-stone-900" />
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <hr className="col-span-3 col-start-1 my-6 text-white/5" />
+
+            <div className="col-start-2">
+              <RecipeDescription
+                collaborators={recipe.collaborators}
+                description={recipe.description}
+              />
+            </div>
+
+            <hr className="col-span-3 col-start-1 my-4 text-white/5" />
+
+            <section className="col-start-2 whitespace-nowrap">
+              {/* Once more actions are being added, this needs to be a scroll-container on mobile devices. */}
+              {user && <RecipeActionButtons recipe={recipe} user={user} />}
+            </section>
+
+            <hr className="col-span-3 col-start-1 mt-4 text-white/5" />
           </header>
 
-          <div className="my-8">
-            <section
-              className="isolate my-1 grid grid-cols-[auto_minmax(min-content,1fr)_auto] overflow-x-auto py-1"
-              style={{
-                scrollbarColor: "var(--color-stone-500) var(--color-stone-900)",
-              }}
-            >
-              <div className="pointer-events-none sticky left-0 z-10 h-full w-4 bg-linear-to-l to-white dark:to-stone-900" />
-              <div className="flex items-center gap-8 whitespace-nowrap">
-                <article>
-                  <h3 className="text-stone-400">Prep Time</h3>
-                  <span className="font-medium">
-                    {recipe.preparationTime} min
-                  </span>
-                </article>
-                <article>
-                  <h3 className="text-stone-400">Cooking Time</h3>
-                  <span className="font-medium">{recipe.cookingTime} min</span>
-                </article>
-                <article>
-                  <h3 className="text-stone-400">Total Time</h3>
-                  <span className="font-medium">
-                    {recipe.preparationTime + recipe.cookingTime} min
-                  </span>
-                </article>
-              </div>
-              <div className="pointer-events-none sticky right-0 z-10 flex items-end justify-end">
-                <div className="h-full w-8 bg-linear-to-r to-white dark:to-stone-900" />
-                <div className="pointer-events-auto relative">
-                  <section className="relative z-10 ml-auto flex gap-2 pr-4"></section>
-                  <div className="absolute top-0 h-full w-full bg-stone-900" />
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <section className="my-12 px-4">
-            <div className="mb-6">
-              <div className="flex w-full flex-wrap items-baseline justify-between gap-6">
-                <h2 className="shrink text-xl font-medium">Ingredients</h2>
-                <div className="pointer-events-auto">
-                  <ServingsQueryStore
-                    min={0}
-                    defaultValue={defaultServingSize}
-                  />
-                </div>
+          <section className="col-start-2 mt-6">
+            <div className="mb-6 flex w-full flex-wrap items-baseline justify-between gap-6">
+              <h2 className="shrink text-sm font-medium text-stone-400">
+                Ingredients
+              </h2>
+              <div className="pointer-events-auto">
+                <ServingsQueryStore min={0} defaultValue={defaultServingSize} />
               </div>
             </div>
-            {/* * TODO: add Cookware list
-            {parsedSteps.cookwares.length > 0 && (
-              <CookwareList cookwares={parsedSteps.cookwares} />
-            )} */}
 
             {parsedRecipe.recipe.ingredients.length > 0 && (
               <IngredientList
@@ -189,7 +180,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             )}
           </section>
 
-          <footer className="pointer-events-none sticky bottom-0 isolate px-4 py-8">
+          <footer className="pointer-events-none sticky bottom-0 isolate col-span-3 col-start-1 px-4 py-8">
             <span
               className="absolute inset-0 fill-black backdrop-blur"
               style={{
