@@ -5,6 +5,7 @@ type AvatarProps = {
   alt: string;
   className?: string;
   size?: `size-${number}`;
+  loading?: React.ComponentProps<"img">["loading"];
 } & React.ComponentProps<"span">;
 
 const Avatar = ({
@@ -12,6 +13,7 @@ const Avatar = ({
   alt,
   className,
   size = "size-10",
+  loading = "lazy",
   ...props
 }: AvatarProps) => {
   const sizePx = Number(size.split("-")[1]) * 4;
@@ -34,6 +36,7 @@ const Avatar = ({
           height={sizePx}
           alt=""
           className={`rounded-full ${size}`}
+          loading={loading}
         />
       )}
     </span>

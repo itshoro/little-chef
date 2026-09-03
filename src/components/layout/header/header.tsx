@@ -20,7 +20,11 @@ const Header = async ({
       <div className="ml-auto inline-flex items-center">
         {user ? (
           <NextLink href="/settings" className="contents">
-            <Avatar src={user.avatar?.url ?? undefined} alt={user.username} />
+            <Avatar
+              src={user.avatar?.url ?? undefined}
+              alt={user.username}
+              loading="eager"
+            />
           </NextLink>
         ) : (
           <LinkButton href="/login">
@@ -32,4 +36,15 @@ const Header = async ({
   );
 };
 
-export { Header };
+// todo: margin is missing from fallback, but applied in actual header..
+const HeaderFallback = () => {
+  return (
+    <header className="flex">
+      <div className="ml-auto inline-flex items-center">
+        <Avatar src={undefined} alt="" />
+      </div>
+    </header>
+  );
+};
+
+export { Header, HeaderFallback };
