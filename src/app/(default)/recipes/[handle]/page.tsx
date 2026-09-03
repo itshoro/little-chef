@@ -10,7 +10,7 @@ import { generateAttribution } from "@/lib/utils/attribution";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
-import { Parser } from "@cooklang/cooklang-ts";
+import { Parser } from "@cooklang/cooklang";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -57,7 +57,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
 
     const parser = new Parser();
     const steps = recipe.steps.map((step) => step.description);
-    const parsedSteps = parser.parse(steps.join());
+    const parsedRecipe = parser.parse(steps.join());
 
     const servingsFromSearchParams = parseInt(searchParams.servings);
     const defaultServingSize = isNaN(servingsFromSearchParams)
@@ -181,9 +181,9 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               <CookwareList cookwares={parsedSteps.cookwares} />
             )} */}
 
-            {parsedSteps.ingredients.length > 0 && (
+            {parsedRecipe.recipe.ingredients.length > 0 && (
               <IngredientList
-                ingredients={parsedSteps.ingredients}
+                ingredients={parsedRecipe.recipe.ingredients}
                 recommendedServingSize={recipe.recommendedServingSize}
               />
             )}

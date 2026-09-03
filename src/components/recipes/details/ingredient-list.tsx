@@ -1,6 +1,6 @@
 "use client";
 
-import { Ingredient } from "@cooklang/cooklang-ts";
+import { getNumericValue, type Ingredient } from "@cooklang/cooklang";
 import { useSearchParams } from "next/navigation";
 import { AmountItem } from "./amount-item";
 
@@ -24,14 +24,15 @@ const IngredientList = ({
         <li key={ingredient.name}>
           <AmountItem
             label={ingredient.name}
-            amount={
-              typeof ingredient.quantity === "number"
-                ? `${
-                    (ingredient.quantity / recommendedServingSize) *
-                    preferredServingSize
-                  } ${ingredient.units}`
-                : `${ingredient.quantity} ${ingredient.units}`
-            }
+            amount={[
+              ingredient.quantity?.scalable
+                ? (getNumericValue(ingredient.quantity?.value)?.valueOf() ??
+                    0) * preferredServingSize
+                : (getNumericValue(ingredient.quantity?.value)?.valueOf() ?? 0),
+              ingredient.quantity?.unit,
+            ]
+              .filter((x) => x)
+              .join(" ")}
           />
         </li>
       ))}
