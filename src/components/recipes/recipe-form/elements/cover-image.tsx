@@ -1,37 +1,30 @@
 "use client";
 
 import { Button } from "@/components/ui/buttons/button";
-import Image from "next/image";
-import { useRef, useState } from "react";
+import { Spinner } from "@/components/ui/buttons/pending-button";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 const CoverImageInput = ({
   defaultValue,
 }: {
   defaultValue?: string | null;
 }) => {
-  const newCoverRef = useRef<HTMLInputElement>(null);
-  const [src, setSrc] = useState(defaultValue);
-  const [coverDeleted, setCoverDeleted] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const { src, coverDeletedValue, inputRef, handleFileChange, handleDelete } =
+    useCoverImageInput(defaultValue);
 
-  function setCover(e: React.ChangeEvent<HTMLInputElement>) {
-    const coverImage = e.currentTarget.files?.[0];
-    if (coverImage === undefined) return;
-    setCoverDeleted(false);
-    setSrc((src) => {
-      if (src) URL.revokeObjectURL(src);
-      return coverImage ? URL.createObjectURL(coverImage) : "";
-    });
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.currentTarget.files?.[0];
+    if (file === undefined) return;
+    startTransition(() => handleFileChange(file));
   }
-
-  const handleDelete = () => {
-    newCoverRef.current!.value = "";
-    setSrc(null);
-    setCoverDeleted(true);
-  };
 
   return (
     <>
-      <div className="relative isolate mb-8 h-64 overflow-hidden rounded-2xl ring ring-black/10 ring-inset dark:ring-white/10">
+      <div
+        className="group relative isolate mb-8 aspect-5/4 overflow-hidden rounded-2xl ring ring-black/10 ring-inset dark:ring-white/10"
+        data-pending={pending}
+      >
         {src && (
           <>
             <div className="pointer-events-none absolute bottom-0 z-10 flex h-3/4 w-full">
@@ -40,7 +33,8 @@ const CoverImageInput = ({
                   <Button
                     type="button"
                     onClick={() => {
-                      newCoverRef.current?.click();
+                      if (pending) return;
+                      inputRef.current?.click();
                     }}
                     className="pointer-events-auto flex items-center gap-2"
                   >
@@ -56,39 +50,34 @@ const CoverImageInput = ({
                     Select Image
                   </Button>
                   <button
-                    className="pointer-events-auto rounded-full bg-lime-300 text-black"
+                    className="pointer-events-auto grid size-12 cursor-pointer place-items-center rounded-full bg-lime-300 text-black"
                     type="button"
                     onClick={handleDelete}
                   >
-                    <div className="grid size-12 cursor-pointer place-items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        className="size-4"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-
-                      <span className="sr-only">Delete Image</span>
-                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      className="size-4"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="sr-only">Delete Image</span>
                   </button>
                 </div>
               </div>
             </div>
-            <Image
-              alt=""
-              src={src}
-              height={400}
-              width={600}
-              className="size-full object-cover"
-            />
+            <img alt="" src={src} className="size-full object-cover" />
           </>
         )}
+
+        <div className="absolute inset-0 z-20 hidden items-center justify-center bg-black/40 group-data-[pending=true]:flex">
+          <Spinner className="size-8 text-white" />
+        </div>
         <label className="absolute inset-0 block">
           {!src && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 select-none">
@@ -111,22 +100,81 @@ const CoverImageInput = ({
             </div>
           )}
           <input
-            ref={newCoverRef}
+            ref={inputRef}
             type="file"
             name="cover"
             accept="image/*"
-            onChange={setCover}
+            onChange={onChange}
             className="hidden"
           />
           <input
             type="hidden"
             name="coverDeleted"
-            value={coverDeleted ? "true" : "false"}
+            value={coverDeletedValue ? "true" : "false"}
           />
         </label>
       </div>
     </>
   );
 };
+
+function useCoverImageInput(defaultValue?: string | null) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [coverDeleted, setCoverDeleted] = useState(false);
+  const coverDeletedValue = coverDeleted && coverUrl === null;
+  const src = coverDeletedValue ? null : (coverUrl ?? defaultValue ?? null);
+
+  useEffect(() => {
+    return () => {
+      if (coverUrl) URL.revokeObjectURL(coverUrl);
+    };
+  }, [coverUrl]);
+
+  async function handleFileChange(file: File) {
+    setCoverDeleted(false);
+
+    const compressedFile = await compress(file);
+
+    const dt = new DataTransfer();
+    dt.items.add(compressedFile);
+    inputRef.current!.files = dt.files;
+
+    const url = URL.createObjectURL(compressedFile);
+    setCoverUrl(url);
+  }
+
+  function handleDelete() {
+    inputRef.current!.value = "";
+    setCoverUrl(null);
+    setCoverDeleted(true);
+  }
+
+  return {
+    src,
+    coverDeletedValue,
+    inputRef,
+    handleFileChange,
+    handleDelete,
+  } as const;
+}
+
+async function compress(
+  file: File,
+  options?: { quality?: number; type?: string },
+): Promise<File> {
+  const quality = options?.quality ?? 0.65;
+  const type = options?.type ?? "image/avif";
+
+  const bitmap = await window.createImageBitmap(file);
+
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(bitmap, 0, 0);
+
+  const blob = await canvas.convertToBlob({ type, quality });
+
+  return new File([blob], file.name, { type });
+}
 
 export { CoverImageInput };

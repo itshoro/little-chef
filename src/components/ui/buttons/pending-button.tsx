@@ -4,9 +4,9 @@ interface PendingButtonProps extends ButtonProps {
   pending: boolean;
 }
 
-const Spinner = () => {
+const Spinner = ({ className = "" }: { className?: string }) => {
   return (
-    <svg className="z-10 size-4 animate-spin" viewBox="0 0 20 20">
+    <svg className={`z-10 size-4 animate-spin ${className}`} viewBox="0 0 20 20">
       <circle
         cy="50%"
         cx="50%"
@@ -39,4 +39,4 @@ const PendingButton = ({
   );
 };
 
-export { PendingButton };
+export { PendingButton, Spinner };

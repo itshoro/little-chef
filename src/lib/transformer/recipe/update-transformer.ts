@@ -53,7 +53,8 @@ export function dtoFromFormData(formData: FormData): {
         description: Step.parse(step),
         order: i,
       })),
-      deletePreviousCover: formData.get("coverDeleted") === "true",
+      deletePreviousCover:
+        formData.get("coverDeleted") === "true" || cover !== null,
     },
   };
 }
