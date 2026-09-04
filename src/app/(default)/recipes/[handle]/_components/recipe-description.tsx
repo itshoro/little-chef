@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/buttons/button";
 import { Avatar } from "@/components/users/avatar";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import { useState } from "react";
@@ -29,21 +30,23 @@ const RecipeDescription = ({
         <Attributions maintainers={collaborators} />
       </div>
       <div className="group" aria-expanded={expanded}>
-        <p className="mb-2 leading-relaxed text-balance text-stone-400">
+        <p className="mb-2 leading-relaxed text-stone-400">
           {expanded ? description : <>{truncatedDescription}&hellip;</>}
         </p>
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setExpanded(true)}
-          className="block cursor-pointer self-start text-sm font-medium group-aria-expanded:hidden"
+          className="-mx-4 block! cursor-pointer self-start text-sm font-medium group-aria-expanded:hidden!"
         >
           Show more
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
           onClick={() => setExpanded(false)}
-          className="hidden cursor-pointer self-start text-sm font-medium group-aria-expanded:block"
+          className="not:group-aria-expanded:hidden -mx-4 hidden! cursor-pointer self-start text-sm font-medium group-aria-expanded:block!"
         >
           Show less
-        </button>
+        </Button>
       </div>
     </section>
   );

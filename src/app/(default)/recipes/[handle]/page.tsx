@@ -69,7 +69,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     return (
       <>
         <ForceWakeLock />
-        <article className="grid grid-cols-[1rem_1fr_1rem]">
+        <article className="mx-auto grid max-w-(--breakpoint-md) grid-cols-[1rem_1fr_1rem]">
           <header className="contents">
             {recipe.cover && (
               <div className="relative isolate col-start-2 mb-4 w-full">

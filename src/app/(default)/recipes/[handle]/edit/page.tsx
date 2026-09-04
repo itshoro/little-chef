@@ -39,7 +39,7 @@ const EditRecipePage = async (props: EditRecipePageProps) => {
   if (!recipe) notFound();
 
   return (
-    <div className="px-4">
+    <div className="mx-auto w-full max-w-(--breakpoint-md) px-4">
       <RecipeForm
         action={editAction}
         defaultValue={toPublicRecipeDetail(recipe)}

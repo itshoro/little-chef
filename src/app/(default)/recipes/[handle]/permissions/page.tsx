@@ -30,7 +30,7 @@ const Page = async (props: { params: Promise<{ handle: string }> }) => {
   }
 
   return (
-    <main className="">
+    <main className="mx-auto w-full max-w-(--breakpoint-md)">
       <header className="mb-2 flex items-center justify-between px-4">
         <h1 className="text-sm font-medium text-stone-400">Permissions</h1>
         <Button variant="secondary">Add new user</Button>
