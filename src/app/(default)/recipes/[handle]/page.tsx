@@ -152,14 +152,14 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
               />
             </div>
 
-            <hr className="col-span-3 col-start-1 my-4 text-white/5" />
+            <hr className="col-span-3 col-start-1 mt-4 text-white/5" />
 
-            <section className="col-start-2 whitespace-nowrap">
+            <section className="col-span-3 col-start-1 overflow-x-auto p-4 whitespace-nowrap">
               {/* Once more actions are being added, this needs to be a scroll-container on mobile devices. */}
               {user && <RecipeActionButtons recipe={recipe} user={user} />}
             </section>
 
-            <hr className="col-span-3 col-start-1 mt-4 text-white/5" />
+            <hr className="col-span-3 col-start-1 text-white/5" />
           </header>
 
           <section className="col-start-2 mt-6">
