@@ -5,7 +5,7 @@ function useWakeLock() {
   const isLocked = useSyncExternalStore(
     store.subscribe.bind(store),
     () => store.getSnapshot.bind(store)(),
-    () => store.getSnapshot.bind(store)(),
+    () => false,
   );
   const requestLock = useCallback(store.requestLock.bind(store), [store]);
   const releaseLock = useCallback(store.releaseLock.bind(store), [store]);
