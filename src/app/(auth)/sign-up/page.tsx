@@ -2,7 +2,7 @@ import { validateSession } from "@/lib/utils/auth/validate-session";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
-import { SingUpForm } from "./_components/sign-up-form";
+import { SignUpForm } from "./_components/sign-up-form";
 
 const SignUpPage = async ({
   searchParams,
@@ -31,7 +31,7 @@ const SignUpPage = async ({
           currently implemented and won't be as part of this small private test
           run.
         </p>
-        <SingUpForm returnTo={returnTo} />
+        <SignUpForm returnTo={returnTo} />
       </div>
     </>
   );

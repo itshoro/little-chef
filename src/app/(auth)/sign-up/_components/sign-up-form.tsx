@@ -11,7 +11,7 @@ import { redirect } from "next/navigation";
 import { useTransition } from "react";
 import { signupAction } from "../action";
 
-const SingUpForm = ({ returnTo }: { returnTo?: Route }) => {
+const SignUpForm = ({ returnTo }: { returnTo?: Route }) => {
   const [pending, startTransition] = useTransition();
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -88,4 +88,4 @@ const SingUpForm = ({ returnTo }: { returnTo?: Route }) => {
   );
 };
 
-export { SingUpForm };
+export { SignUpForm };
