@@ -5,9 +5,7 @@ import type { Result } from "@/lib/domain/shared/result";
 import type { RecipePreferences } from "@/lib/domain/user/recipe-preferences";
 import { eq, type InferInsertModel } from "drizzle-orm";
 
-export class DrizzleRecipePreferencesRepository
-  implements RecipePreferencesRepository
-{
+export class DrizzleRecipePreferencesRepository implements RecipePreferencesRepository {
   constructor(private readonly connection: Connection) {}
 
   async findById(id: number): Promise<Result<RecipePreferences>> {
@@ -15,6 +13,20 @@ export class DrizzleRecipePreferencesRepository
       .select()
       .from(recipePreferences)
       .where(eq(recipePreferences.id, id))
+      .limit(1);
+
+    if (!preferences) {
+      return { ok: false, error: new Error("Recipe preferences not found") };
+    }
+
+    return { ok: true, value: preferences };
+  }
+
+  async findByUserId(id: number): Promise<Result<RecipePreferences>> {
+    const [preferences] = await this.connection
+      .select()
+      .from(recipePreferences)
+      .where(eq(recipePreferences.userId, id))
       .limit(1);
 
     if (!preferences) {
@@ -43,7 +55,7 @@ export class DrizzleRecipePreferencesRepository
   async update(preferences: RecipePreferences): Promise<Result<void>> {
     const dto: Omit<
       Required<InferInsertModel<typeof recipePreferences>>,
-      "id"
+      "id" | "userId"
     > = {
       defaultServingSize: preferences.defaultServingSize,
       defaultVisibility: preferences.defaultVisibility,

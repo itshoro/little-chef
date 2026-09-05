@@ -25,17 +25,6 @@ export function makeCreateUser(
   collectionPreferencesRepository: CollectionPreferencesRepository,
 ) {
   return async function createUser(dto: CreateUserDTO): Promise<Result<User>> {
-    const [appPreferences, recipePreferences, collectionPreferences] =
-      await Promise.all([
-        appPreferencesRepository.create(DEFAULT_APP_PREFERENCES),
-        recipePreferencesRepository.create(DEFAULT_RECIPE_PREFERENCES),
-        collectionPreferencesRepository.create(DEFAULT_COLLECTION_PREFERENCES),
-      ]);
-
-    if (!appPreferences.ok) return appPreferences;
-    if (!recipePreferences.ok) return recipePreferences;
-    if (!collectionPreferences.ok) return collectionPreferences;
-
     const hashResult = await passwordHasher.hash(dto.password);
     if (!hashResult.ok) return hashResult;
 
@@ -44,13 +33,30 @@ export function makeCreateUser(
       publicId: nanoid(),
       avatar: null,
       hashedPassword: hashResult.value,
-      appPreferencesId: appPreferences.value.id,
-      collectionPreferencesId: collectionPreferences.value.id,
-      recipePreferencesId: recipePreferences.value.id,
       role: "user",
     });
 
     if (!result.ok) return result;
+
+    const [appPreferences, recipePreferences, collectionPreferences] =
+      await Promise.all([
+        appPreferencesRepository.create({
+          ...DEFAULT_APP_PREFERENCES,
+          userId: result.value.id,
+        }),
+        recipePreferencesRepository.create({
+          ...DEFAULT_RECIPE_PREFERENCES,
+          userId: result.value.id,
+        }),
+        collectionPreferencesRepository.create({
+          ...DEFAULT_COLLECTION_PREFERENCES,
+          userId: result.value.id,
+        }),
+      ]);
+
+    if (!appPreferences.ok) return appPreferences;
+    if (!recipePreferences.ok) return recipePreferences;
+    if (!collectionPreferences.ok) return collectionPreferences;
 
     taintObjectReference(
       "users may not be passed over the network boundary, consider calling `toPublicUser` first",

@@ -5,12 +5,27 @@ import type { Result } from "@/lib/domain/shared/result";
 import type { CollectionPreferences } from "@/lib/domain/user/collection-preferences";
 import { eq, type InferInsertModel } from "drizzle-orm";
 
-export class DrizzleCollectionPreferencesRepository
-  implements CollectionPreferencesRepository
-{
+export class DrizzleCollectionPreferencesRepository implements CollectionPreferencesRepository {
   constructor(private readonly connection: Connection) {}
 
   async findById(id: number): Promise<Result<CollectionPreferences>> {
+    const [preferences] = await this.connection
+      .select()
+      .from(collectionPreferences)
+      .where(eq(collectionPreferences.id, id))
+      .limit(1);
+
+    if (!preferences) {
+      return {
+        ok: false,
+        error: new Error("Collection preferences not found"),
+      };
+    }
+
+    return { ok: true, value: preferences };
+  }
+
+  async findByUserId(id: number): Promise<Result<CollectionPreferences>> {
     const [preferences] = await this.connection
       .select()
       .from(collectionPreferences)
@@ -48,7 +63,7 @@ export class DrizzleCollectionPreferencesRepository
   async update(preferences: CollectionPreferences): Promise<Result<void>> {
     const dto: Omit<
       Required<InferInsertModel<typeof collectionPreferences>>,
-      "id"
+      "id" | "userId"
     > = {
       defaultVisibility: preferences.defaultVisibility,
     };

@@ -190,15 +190,6 @@ export const users = sqliteTable("users", {
 
   avatarId: integer("avatarId").references(() => fileReference.id),
   role: text({ enum: USER_ROLES }).notNull().default("user"),
-  appPreferencesId: integer("appPreferencesId")
-    .notNull()
-    .references(() => appPreferences.id),
-  collectionPreferencesId: integer("collectionPreferencesId")
-    .notNull()
-    .references(() => collectionPreferences.id),
-  recipePreferencesId: integer("recipePreferencesId")
-    .notNull()
-    .references(() => recipePreferences.id),
   createdAt: integer({ mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
@@ -228,6 +219,9 @@ export const userRoles = sqliteTable(
 
 export const appPreferences = sqliteTable("app_preferences", {
   id: integer("id").primaryKey(),
+  userId: integer("userId")
+    .notNull()
+    .references(() => users.id),
   theme: text("theme", {
     enum: THEMES,
   })
@@ -237,6 +231,9 @@ export const appPreferences = sqliteTable("app_preferences", {
 
 export const collectionPreferences = sqliteTable("collection_preferences", {
   id: integer("id").primaryKey(),
+  userId: integer("userId")
+    .notNull()
+    .references(() => users.id),
   defaultVisibility: text("defaultVisibility", {
     enum: VISIBILITIES,
   })
@@ -246,6 +243,9 @@ export const collectionPreferences = sqliteTable("collection_preferences", {
 
 export const recipePreferences = sqliteTable("recipe_preferences", {
   id: integer("id").primaryKey(),
+  userId: integer("userId")
+    .notNull()
+    .references(() => users.id),
   defaultVisibility: text("defaultVisibility", {
     enum: VISIBILITIES,
   })

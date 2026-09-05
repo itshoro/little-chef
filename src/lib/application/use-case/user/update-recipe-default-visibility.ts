@@ -10,8 +10,8 @@ export function makeUpdateDefaultVisibility(
     user: User,
     visibility: Visibility,
   ): Promise<Result<void>> {
-    const preferencesRes = await recipePreferencesRepository.findById(
-      user.collectionPreferencesId,
+    const preferencesRes = await recipePreferencesRepository.findByUserId(
+      user.id,
     );
     if (!preferencesRes.ok) return preferencesRes;
 

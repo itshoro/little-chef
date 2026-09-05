@@ -77,9 +77,6 @@ export class DrizzleUserRepository implements UserRepository {
       username: user.username,
       avatarId: user.avatar ? Number(user.avatar.id) : null,
       hashedPassword: user.hashedPassword,
-      appPreferencesId: user.appPreferencesId,
-      collectionPreferencesId: user.collectionPreferencesId,
-      recipePreferencesId: user.recipePreferencesId,
       updatedAt: new Date(),
       role: user.role,
     };

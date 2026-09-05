@@ -6,8 +6,8 @@ export function makeGetCollectionPreferences(
   collectionPreferencesRepository: CollectionPreferencesRepository,
 ) {
   return async function getCollectionPreferences(user: User) {
-    const preferences = await collectionPreferencesRepository.findById(
-      user.collectionPreferencesId,
+    const preferences = await collectionPreferencesRepository.findByUserId(
+      user.id,
     );
 
     return preferences;
@@ -18,9 +18,7 @@ export function makeGetRecipePreferences(
   recipePreferencesRepository: RecipePreferencesRepository,
 ) {
   return async function getRecipePreferences(user: User) {
-    const preferences = await recipePreferencesRepository.findById(
-      user.recipePreferencesId,
-    );
+    const preferences = await recipePreferencesRepository.findByUserId(user.id);
 
     return preferences;
   };
