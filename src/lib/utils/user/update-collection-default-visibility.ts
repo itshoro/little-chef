@@ -14,10 +14,7 @@ export async function updateDefaultVisibility(
         collectionPreferencesRepository,
       );
 
-      const result = await updateDefaultVisibility(...args);
-      if (!result.ok) throw result.error;
-
-      return result;
+      return await updateDefaultVisibility(...args);
     });
   } catch (e) {
     return { ok: false, error: e as Error };

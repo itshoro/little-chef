@@ -26,7 +26,7 @@ const UpdateDefaultServingSizeForm = ({
   return (
     <SettingsCard>
       <form onSubmit={onSubmit}>
-        <SettingsCard.Header title="Change default visibility" />
+        <SettingsCard.Header title="Change default serving size" />
         <FieldRoot name="servingSize">
           <Label>Default Serving Size</Label>
           <Input

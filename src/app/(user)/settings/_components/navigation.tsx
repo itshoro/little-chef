@@ -10,6 +10,7 @@ const Navigation = ({ className }: { className?: string }) => {
       <Item label="General" href="/settings/user" />
       <Item label="Collection" href="/settings/collection" />
       <Item label="Recipe" href="/settings/recipe" />
+      <Item label="History" href="/settings/history" />
     </nav>
   );
 };
