@@ -72,7 +72,7 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     return (
       <>
         <ForceWakeLock />
-        <article className="mx-auto grid max-w-(--breakpoint-md) grid-cols-[1rem_1fr_1rem]">
+        <article className="grd mx-auto w-full max-w-(--breakpoint-md) grid-cols-[1rem_1fr_1rem]">
           <header className="contents">
             {recipe.cover && (
               <div className="relative isolate col-start-2 mb-4 w-full">
@@ -156,13 +156,15 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
             </div>
 
             <hr className="col-span-3 col-start-1 mt-4 text-white/5" />
-
-            <section className="col-span-3 col-start-1 overflow-x-auto p-4 whitespace-nowrap">
-              {/* Once more actions are being added, this needs to be a scroll-container on mobile devices. */}
-              {user && <RecipeActionButtons recipe={recipe} user={user} />}
-            </section>
-
-            <hr className="col-span-3 col-start-1 text-white/5" />
+            {user && (
+              <>
+                <section className="col-span-3 col-start-1 overflow-x-auto p-4 whitespace-nowrap">
+                  {/* Once more actions are being added, this needs to be a scroll-container on mobile devices. */}
+                  <RecipeActionButtons recipe={recipe} user={user} />
+                </section>
+                <hr className="col-span-3 col-start-1 text-white/5" />
+              </>
+            )}
           </header>
 
           <section className="col-start-2 mt-6">

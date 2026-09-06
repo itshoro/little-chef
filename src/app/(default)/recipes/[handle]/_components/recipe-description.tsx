@@ -14,40 +14,45 @@ const RecipeDescription = ({
   collaborators: Collaborator[];
   description: string | null;
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const descriptionRequiresTruncation =
+    description && description.length >= TRUNCATED_DESCRIPTION_LENGTH;
+
+  const [expanded, setExpanded] = useState(!descriptionRequiresTruncation);
   const truncatedDescription = description?.substring(
     0,
     TRUNCATED_DESCRIPTION_LENGTH - 1,
   );
 
-  if (!description || !truncatedDescription) {
-    return null;
-  }
-
   return (
     <section>
-      <div className="mb-4">
+      <div className="">
         <Attributions maintainers={collaborators} />
       </div>
-      <div className="group" aria-expanded={expanded}>
-        <p className="mb-2 leading-relaxed text-stone-400">
-          {expanded ? description : <>{truncatedDescription}&hellip;</>}
-        </p>
-        <Button
-          variant="ghost"
-          onClick={() => setExpanded(true)}
-          className="-mx-4 block! cursor-pointer self-start text-sm font-medium group-aria-expanded:hidden!"
-        >
-          Show more
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={() => setExpanded(false)}
-          className="not:group-aria-expanded:hidden -mx-4 hidden! cursor-pointer self-start text-sm font-medium group-aria-expanded:block!"
-        >
-          Show less
-        </Button>
-      </div>
+      {description && (
+        <div className="group mt-4" aria-expanded={expanded}>
+          <p className="mb-2 leading-relaxed text-stone-400">
+            {expanded ? description : <>{truncatedDescription}&hellip;</>}
+          </p>
+          {descriptionRequiresTruncation && (
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => setExpanded(true)}
+                className="-mx-4 block! cursor-pointer self-start text-sm font-medium group-aria-expanded:hidden!"
+              >
+                Show more
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setExpanded(false)}
+                className="not:group-aria-expanded:hidden -mx-4 hidden! cursor-pointer self-start text-sm font-medium group-aria-expanded:block!"
+              >
+                Show less
+              </Button>
+            </>
+          )}
+        </div>
+      )}
     </section>
   );
 };
