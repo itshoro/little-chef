@@ -99,6 +99,38 @@ export const recipeSteps = sqliteTable(
   ],
 );
 
+export const recipeHistories = sqliteTable(
+  "recipe_histories",
+  {
+    recipeId: integer("recipeId")
+      .notNull()
+      .references(() => recipes.id, { onDelete: "cascade" }),
+    userId: integer("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("timestamp", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.recipeId, table.userId],
+      name: "recipe_histories_pkey",
+    }),
+  ],
+);
+
+export const historyPreferences = sqliteTable("history_preferences", {
+  id: integer("id").primaryKey(),
+  userId: integer("userId")
+    .notNull()
+    .references(() => users.id),
+
+  recipeTrackingEnabled: integer("recipeTrackingEnabled", {
+    mode: "boolean",
+  }).notNull(),
+});
+
 // MARK: collections
 export const collections = sqliteTable("collections", {
   id: integer("id").primaryKey(),

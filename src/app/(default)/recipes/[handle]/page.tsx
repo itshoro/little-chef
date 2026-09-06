@@ -3,13 +3,12 @@ import { ShareCurrentPageButton } from "@/components/recipes/details/buttons/sha
 import { IngredientList } from "@/components/recipes/details/ingredient-list";
 import { LikeButton } from "@/components/recipes/details/user-actions";
 import { ForceWakeLock } from "@/components/ui/wake-lock/force-wakelock";
-import { Avatar } from "@/components/users/avatar";
-import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import { generateHandle, parseHandle } from "@/lib/slug";
 import { generateAttribution } from "@/lib/utils/attribution";
 import { validateSession } from "@/lib/utils/auth/validate-session";
 import { isRateLimitedGlobally } from "@/lib/utils/rate-limit/global";
 import { getRecipeDetail } from "@/lib/utils/recipe/get-recipe-detail";
+import { recordRecipeViewed } from "@/lib/utils/recipe/record-recipe-viewed";
 import { Parser } from "@cooklang/cooklang";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -56,6 +55,10 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
 
     const recipe = recipeResult.value;
     if (!recipe) notFound();
+
+    if (user) {
+      await recordRecipeViewed(user, recipe);
+    }
 
     const parser = new Parser();
     const steps = recipe.steps.map((step) => step.description);
@@ -213,25 +216,6 @@ const ShowRecipePage = async (props: ShowRecipePageProps) => {
     console.error(e);
     notFound();
   }
-};
-
-const Attributions = ({ maintainers }: { maintainers: Collaborator[] }) => {
-  return (
-    <>
-      {maintainers.map((maintainer) => (
-        <article
-          key={maintainer.user.publicId}
-          className="inline-flex w-max shrink-0 items-center gap-2"
-        >
-          <Avatar src={maintainer.user.avatar?.url} alt="" size="size-8" />
-
-          <span className="text-sm text-stone-400 capitalize">
-            {maintainer.user.username}
-          </span>
-        </article>
-      ))}
-    </>
-  );
 };
 
 const InfoCard = ({ children }: { children: React.ReactNode }) => (

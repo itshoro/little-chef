@@ -15,6 +15,13 @@
       "when": 1788637487244,
       "tag": "0001_link-preferences-to-user",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788647871921,
+      "tag": "0002_bouncy_landau",
+      "breakpoints": true
     }
   ]
 }
