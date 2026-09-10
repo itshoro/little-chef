@@ -71,6 +71,4 @@ const Search = () => {
   return <Input initialQuery={initialQuery} />;
 };
 
-const SearchFallback = () => <Input initialQuery="" />;
-
-export { Search, SearchFallback };
+export { Search };

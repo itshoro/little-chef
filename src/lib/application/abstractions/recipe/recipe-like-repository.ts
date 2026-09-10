@@ -6,4 +6,5 @@ export interface RecipeLikeRepository {
   hasUserLiked(recipe: Recipe, userId: User): Promise<Result<boolean>>;
   likeRecipe(recipe: Recipe, userId: User): Promise<Result<void>>;
   unlikeRecipe(recipe: Recipe, userId: User): Promise<Result<void>>;
+  findByUser(user: User): Promise<Result<Recipe[]>>;
 }

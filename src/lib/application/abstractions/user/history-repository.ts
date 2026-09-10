@@ -4,4 +4,5 @@ import type { User } from "@/lib/domain/user/user";
 
 export interface ResourceHistoryRepository<T extends Recipe> {
   upsertRecord(resource: T, user: User): Promise<Result<void>>;
+  findByUser(user: User): Promise<Result<Recipe[]>>;
 }

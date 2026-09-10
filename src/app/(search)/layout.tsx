@@ -1,17 +1,20 @@
 import { Search, SearchFallback } from "../../components/ui/search-input";
 import { Header } from "../../components/layout/header/header";
 import * as TabNavigation from "../../components/layout/tab-navigation";
+import { validateSession } from "../../lib/utils/auth/validate-session";
 import { Suspense } from "react";
+import { connection } from "next/server";
 
 const Layout = async (props: { children: React.ReactNode }) => {
+  await connection();
+  const { user } = await validateSession();
+
   return (
     <div className="flex min-h-screen flex-col">
       <Suspense>
         <Header className="mx-auto w-full max-w-(--breakpoint-xl) items-center gap-3 p-4">
           <div className="w-full">
-            <Suspense fallback={<SearchFallback />}>
-              <Search />
-            </Suspense>
+            <Search />
           </div>
         </Header>
       </Suspense>
@@ -24,6 +27,14 @@ const Layout = async (props: { children: React.ReactNode }) => {
                   Collections
                 </TabNavigation.Link>
                 <TabNavigation.Link href="/recipes">Recipes</TabNavigation.Link>
+                {user && (
+                  <>
+                    <TabNavigation.Link href="/history">
+                      History
+                    </TabNavigation.Link>
+                    <TabNavigation.Link href="/liked">Liked</TabNavigation.Link>
+                  </>
+                )}
               </TabNavigation.Root>
             </Suspense>
           </div>

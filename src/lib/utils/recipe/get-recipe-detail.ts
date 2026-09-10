@@ -1,6 +1,5 @@
 import { db } from "@/drizzle/db";
 import { makeGetRecipeDetail } from "@/lib/application/use-case/recipe/get-recipe-detail";
-import { DrizzleRecipeHistoryRepository } from "@/lib/infrastructure/repositories/drizzle/user/recipe-history-repository";
 import { DrizzleRecipeReadRepository } from "@/lib/infrastructure/repositories/drizzle/recipe/recipe-read-repository";
 import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 
