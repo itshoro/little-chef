@@ -1,4 +1,4 @@
-import { Search, SearchFallback } from "../../components/ui/search-input";
+import { Search } from "../../components/ui/search-input";
 import { Header } from "../../components/layout/header/header";
 import * as TabNavigation from "../../components/layout/tab-navigation";
 import { validateSession } from "../../lib/utils/auth/validate-session";
