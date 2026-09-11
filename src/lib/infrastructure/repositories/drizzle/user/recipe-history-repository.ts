@@ -6,6 +6,7 @@ import {
   recipes,
   users,
 } from "@/drizzle/schema";
+import type { HistoryListOptions } from "@/lib/application/abstractions/user/history-repository";
 import type { ResourceHistoryRepository } from "@/lib/application/abstractions/user/history-repository";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
@@ -13,7 +14,7 @@ import type { FileReference } from "@/lib/domain/shared/file-reference";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Username } from "@/lib/domain/user/credentials";
 import type { User } from "@/lib/domain/user/user";
-import { and, eq, inArray, or, sql } from "drizzle-orm";
+import { and, eq, inArray, like, or, sql } from "drizzle-orm";
 
 export class DrizzleRecipeHistoryRepository implements ResourceHistoryRepository<Recipe> {
   constructor(private readonly db: Connection) {}
@@ -42,8 +43,26 @@ export class DrizzleRecipeHistoryRepository implements ResourceHistoryRepository
     }
   }
 
-  async findByUser(user: User): Promise<Result<Recipe[]>> {
+  async findByUser(
+    user: User,
+    options?: HistoryListOptions,
+  ): Promise<Result<Recipe[]>> {
     try {
+      const whereConditions: any[] = [
+        eq(recipeHistories.userId, user.id),
+        or(
+          inArray(recipes.visibility, ["public", "unlisted"]),
+          eq(recipeUserPermissions.userId, user.id),
+        ),
+      ];
+
+      if (options?.search?.query) {
+        const q = `%${options.search.query}%`;
+        whereConditions.push(
+          or(like(recipes.name, q), like(recipes.description, q)),
+        );
+      }
+
       const historyResult = await this.db
         .select()
         .from(recipeHistories)
@@ -52,15 +71,7 @@ export class DrizzleRecipeHistoryRepository implements ResourceHistoryRepository
           recipeUserPermissions,
           eq(recipes.id, recipeUserPermissions.recipeId),
         )
-        .where(
-          and(
-            eq(recipeHistories.userId, user.id),
-            or(
-              inArray(recipes.visibility, ["public", "unlisted"]),
-              eq(recipeUserPermissions.userId, user.id),
-            ),
-          )
-        )
+        .where(and(...whereConditions))
         .orderBy(sql`${recipeHistories.createdAt} DESC`);
 
       if (historyResult.length === 0) return { ok: true, value: [] };

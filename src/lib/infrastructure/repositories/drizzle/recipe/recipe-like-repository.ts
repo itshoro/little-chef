@@ -7,13 +7,14 @@ import {
   users,
 } from "@/drizzle/schema";
 import type { RecipeLikeRepository } from "@/lib/application/abstractions/recipe/recipe-like-repository";
+import type { LikedListOptions } from "@/lib/application/abstractions/recipe/recipe-like-repository";
 import type { Recipe } from "@/lib/domain/recipe/recipe";
 import type { Collaborator } from "@/lib/domain/shared/collaborator";
 import type { FileReference } from "@/lib/domain/shared/file-reference";
 import type { Result } from "@/lib/domain/shared/result";
 import type { Username } from "@/lib/domain/user/credentials";
 import type { User } from "@/lib/domain/user/user";
-import { and, eq, inArray, or, sql } from "drizzle-orm";
+import { and, eq, inArray, like, or, sql } from "drizzle-orm";
 
 export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {
   constructor(private readonly db: Connection) {}
@@ -109,8 +110,26 @@ export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {
     }
   }
 
-  async findByUser(user: User): Promise<Result<Recipe[]>> {
+  async findByUser(
+    user: User,
+    options?: LikedListOptions,
+  ): Promise<Result<Recipe[]>> {
     try {
+      const whereConditions: any[] = [
+        eq(recipeLikes.userId, user.id),
+        or(
+          inArray(recipes.visibility, ["public", "unlisted"]),
+          eq(recipeUserPermissions.userId, user.id),
+        ),
+      ];
+
+      if (options?.search?.query) {
+        const q = `%${options.search.query}%`;
+        whereConditions.push(
+          or(like(recipes.name, q), like(recipes.description, q)),
+        );
+      }
+
       const likesResult = await this.db
         .select()
         .from(recipeLikes)
@@ -119,15 +138,7 @@ export class DrizzleRecipeLikeRepository implements RecipeLikeRepository {
           recipeUserPermissions,
           eq(recipes.id, recipeUserPermissions.recipeId),
         )
-        .where(
-          and(
-            eq(recipeLikes.userId, user.id),
-            or(
-              inArray(recipes.visibility, ["public", "unlisted"]),
-              eq(recipeUserPermissions.userId, user.id),
-            ),
-          )
-        )
+        .where(and(...whereConditions))
         .orderBy(sql`${recipeLikes.createdAt} DESC`);
 
       if (likesResult.length === 0) return { ok: true, value: [] };
