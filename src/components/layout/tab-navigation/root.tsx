@@ -2,7 +2,7 @@
 
 import { useContext } from "@/hooks/use-context";
 import { createContext, useRef } from "react";
-import { Highlight } from "./highlight";
+import { usePathname } from "next/navigation";
 
 type RootProps = {
   children: React.ReactNode;
@@ -12,10 +12,13 @@ type RootProps = {
 
 const Root = ({ children, keepSearchParams, replace }: RootProps) => {
   const listRef = useRef<React.ComponentRef<"ul">>(null);
+  const pathname = usePathname();
 
   return (
     <nav className="relative isolate">
-      <TabNavigationContext.Provider value={{ keepSearchParams, replace }}>
+      <TabNavigationContext.Provider
+        value={{ keepSearchParams, replace, pathname }}
+      >
         <ul
           ref={listRef}
           className="flex flex-col @sm:flex-row @sm:items-start"
@@ -23,12 +26,13 @@ const Root = ({ children, keepSearchParams, replace }: RootProps) => {
           {children}
         </ul>
       </TabNavigationContext.Provider>
-      <Highlight listRef={listRef} />
     </nav>
   );
 };
 
-type TabNavigationContextProps = Omit<RootProps, "children">;
+type TabNavigationContextProps = Omit<RootProps, "children"> & {
+  pathname: string;
+};
 
 const TabNavigationContext = createContext<TabNavigationContextProps>(null!);
 
